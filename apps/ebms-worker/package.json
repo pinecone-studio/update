@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "login": "wrangler login",
-    "build": "tsc && wrangler deploy --dry-run --outdir dist",
+    "build": "tsc",
+    "build:validate": "tsc && wrangler deploy --dry-run --outdir dist",
     "deploy": "wrangler deploy",
     "graphql:generate": "graphql-codegen --config codegen.yml",
     "db:generate": "drizzle-kit generate",
