@@ -86,6 +86,15 @@ export const contracts = sqliteTable('contracts', {
   updatedAt: text('updated_at').default(''),
 });
 
+/** Versioned eligibility-rules.json — HR can update without code deploy */
+export const eligibilityConfig = sqliteTable('eligibility_config', {
+  id: text('id').primaryKey(),
+  version: text('version').notNull(),
+  configData: text('config_data').notNull(),
+  isActive: integer('is_active').notNull().default(0),
+  createdAt: text('created_at').default(''),
+});
+
 export const eligibilityAudit = sqliteTable('eligibility_audit', {
   id: text('id').primaryKey(),
   employeeId: text('employee_id').notNull(),
