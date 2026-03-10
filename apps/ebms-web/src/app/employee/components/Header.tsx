@@ -1,15 +1,15 @@
-"use client"
+/** @format */
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 import {
-  HiSquares2X2,
-  HiOutlineBookmark,
-  HiOutlineDocumentText,
-  HiOutlineBell,
-  HiBars3
-} from "react-icons/hi2"
+	HiSquares2X2,
+	HiOutlineBookmark,
+	HiOutlineDocumentText,
+	HiOutlineBell,
+	HiBars3,
+} from "react-icons/hi2";
 
 export const Header = () => {
   const [activeTab, setActiveTab] = useState("dashboard")
