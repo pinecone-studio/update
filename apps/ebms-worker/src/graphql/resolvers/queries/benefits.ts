@@ -23,9 +23,8 @@ export const benefits: NonNullable<QueryResolvers<Ctx>['benefits']> = async (
       name: benefitsTable.name,
       category: benefitsTable.category,
       subsidyPercent: benefitsTable.subsidyPercent,
-      vendorName: benefitsTable.vendorName,
       requiresContract: benefitsTable.requiresContract,
-      isActive: benefitsTable.isActive,
+      activeContractId: benefitsTable.activeContractId,
     })
     .from(benefitsTable)
     .where(where.length === 1 ? where[0] : and(...where))
@@ -36,9 +35,7 @@ export const benefits: NonNullable<QueryResolvers<Ctx>['benefits']> = async (
     name: b.name,
     category: b.category,
     subsidyPercent: b.subsidyPercent ?? 0,
-    vendorName: b.vendorName ?? null,
     requiresContract: asBool01(b.requiresContract),
-    isActive: asBool01(b.isActive),
+    activeContractId: b.activeContractId ?? null,
   }));
 };
-

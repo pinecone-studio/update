@@ -1,7 +1,6 @@
 /**
  * EBMS GraphQL schema — TDD §9
- *
- * Keep typeDefs separate from resolvers to match pinecone-monorepo structure.
+ * typeDefs kept in sync with schema.graphql (codegen uses .graphql file).
  */
 
 export const typeDefs = /* GraphQL */ `
@@ -19,6 +18,13 @@ export const typeDefs = /* GraphQL */ `
     CANCELLED
   }
 
+  enum EmploymentStatus {
+    ACTIVE
+    PROBATION
+    LEAVE
+    TERMINATED
+  }
+
   type Health {
     ok: Boolean!
     timestamp: String!
@@ -26,23 +32,20 @@ export const typeDefs = /* GraphQL */ `
 
   type Employee {
     id: ID!
-    email: String!
-    name: String
+    name: String!
     role: String!
     responsibilityLevel: Int!
-    employmentStatus: String!
+    employmentStatus: EmploymentStatus!
     okrSubmitted: Boolean!
     lateArrivalCount: Int!
+    benefits: [BenefitEligibility!]!
   }
 
-  type Benefit {
-    id: ID!
-    name: String!
-    category: String!
-    subsidyPercent: Int!
-    vendorName: String
-    requiresContract: Boolean!
-    isActive: Boolean!
+  type BenefitEligibility {
+    benefit: Benefit!
+    status: BenefitStatus!
+    ruleEvaluations: [RuleEvaluation!]!
+    computedAt: String!
   }
 
   type RuleEvaluation {
@@ -51,11 +54,21 @@ export const typeDefs = /* GraphQL */ `
     reason: String!
   }
 
-  type BenefitEligibility {
-    benefit: Benefit!
-    status: BenefitStatus!
-    ruleEvaluations: [RuleEvaluation!]!
-    computedAt: String!
+  type Benefit {
+    id: ID!
+    name: String!
+    category: String!
+    subsidyPercent: Int!
+    requiresContract: Boolean!
+    activeContract: Contract
+  }
+
+  type Contract {
+    id: ID!
+    benefitId: ID!
+    version: String!
+    effectiveDate: String
+    expiryDate: String
   }
 
   input BenefitRequestInput {
@@ -70,18 +83,45 @@ export const typeDefs = /* GraphQL */ `
     createdAt: String!
   }
 
+  input AuditFilters {
+    employeeId: ID
+    benefitId: ID
+    from: String
+    to: String
+  }
+
+  type AuditEntry {
+    id: ID!
+    employeeId: ID!
+    benefitId: ID!
+    oldStatus: String
+    newStatus: String!
+    computedAt: String!
+    triggeredBy: String
+    createdAt: String!
+  }
+
+  input OverrideInput {
+    employeeId: ID!
+    benefitId: ID!
+    status: BenefitStatus!
+    reason: String
+    expiresAt: String
+  }
+
   type Query {
     health: Health!
-    # Employee-only:
     me: Employee!
     myBenefits: [BenefitEligibility!]!
     benefits(category: String): [Benefit!]!
+    employee(id: ID!): Employee
+    auditLog(filters: AuditFilters!): [AuditEntry!]!
   }
 
   type Mutation {
-    # Employee-only:
     requestBenefit(input: BenefitRequestInput!): BenefitRequest!
+    confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!): BenefitRequest!
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
+    overrideEligibility(input: OverrideInput!): BenefitEligibility!
   }
 `;
-

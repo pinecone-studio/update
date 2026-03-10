@@ -1,14 +1,17 @@
-import { GraphQLError } from 'graphql';
 import type { Ctx } from '../context';
-import { requireEmployeeId } from '../context';
+import { requireHR } from '../context';
 import { asBool01, mapEmploymentStatus } from '../utils';
 import type { QueryResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
 import { employees } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 
-export const me: NonNullable<QueryResolvers<Ctx>['me']> = async (_, __, ctx) => {
-  const employeeId = requireEmployeeId(ctx);
+export const employee: NonNullable<QueryResolvers<Ctx>['employee']> = async (
+  _,
+  args,
+  ctx
+) => {
+  requireHR(ctx);
   const db = getDb(ctx.env);
 
   const rows = await db
@@ -22,12 +25,12 @@ export const me: NonNullable<QueryResolvers<Ctx>['me']> = async (_, __, ctx) => 
       lateArrivalCount: employees.lateArrivalCount,
     })
     .from(employees)
-    .where(eq(employees.id, employeeId))
+    .where(eq(employees.id, args.id))
     .limit(1);
 
   const row = rows[0];
   if (!row) {
-    throw new GraphQLError('Employee not found', { extensions: { code: 'NOT_FOUND' } });
+    return null;
   }
 
   return {
