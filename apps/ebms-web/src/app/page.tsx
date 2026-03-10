@@ -33,17 +33,17 @@ export default function Home() {
   }, []);
 
   return (
-    <main style={{ padding: '2rem', fontFamily: 'system-ui' }}>
-      <h1>EBMS — Employee Benefits Management System</h1>
-      <p>Pinequest S3 Ep1 Project 2026 · team-7</p>
+    <main className="p-8 font-sans">
+      <h1 className="text-2xl font-bold">EBMS — Employee Benefits Management System</h1>
+      <p className="mt-2 text-gray-600">Pinequest S3 Ep1 Project 2026 · team-7</p>
       <p>
-        API: <code>{API_URL}</code>
+        API: <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-sm">{API_URL}</code>
       </p>
       {data && (
-        <section style={{ marginTop: '1.5rem', padding: '1rem', background: '#f5f5f5', borderRadius: 8 }}>
-          <h2 style={{ fontSize: '1rem', marginTop: 0 }}>GraphQL Response</h2>
+        <section className="mt-6 rounded-lg bg-gray-100 p-4">
+          <h2 className="text-base font-medium">GraphQL Response</h2>
           <p>
-            <strong>healthdjhferhfiur:</strong> ok={String(data.health.ok)}, time={data.health.timestamp}
+            <strong>health:</strong> ok={String(data.health.ok)}, time={data.health.timestamp}
           </p>
           <p>
             <strong>hello:</strong> {data.hello}
@@ -51,11 +51,11 @@ export default function Home() {
         </section>
       )}
       {error && (
-        <p style={{ color: 'red', marginTop: '1rem' }}>
+        <p className="mt-4 text-red-600">
           GraphQL error: {error} (is Worker running at {API_URL}?)
         </p>
       )}
-      {!data && !error && <p style={{ color: '#666', marginTop: '1rem' }}>Loading GraphQL...</p>}
+      {!data && !error && <p className="mt-4 text-gray-500">Loading GraphQL...</p>}
     </main>
   );
 }
