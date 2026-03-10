@@ -16,3 +16,12 @@ export function requireEmployeeId(ctx: Ctx): string {
   return ctx.employeeId;
 }
 
+export function requireHR(ctx: Ctx): void {
+  const role = (ctx.role ?? '').toLowerCase();
+  if (role !== 'hr' && role !== 'admin') {
+    throw new GraphQLError('Forbidden: HR or admin role required', {
+      extensions: { code: 'FORBIDDEN' },
+    });
+  }
+}
+
