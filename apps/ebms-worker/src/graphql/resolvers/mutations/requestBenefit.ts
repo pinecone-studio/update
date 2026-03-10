@@ -19,7 +19,8 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
 
   const db = getDb(ctx.env);
 
-  // Re-validate: ensure benefit exists and active.
+  // Eligibility is from HR config (UI); we never block requests by LOCKED/ELIGIBLE.
+  // Employees can always submit for HR review; config changes need no code deploy.
   const benefitRow = await db
     .select({ id: benefitsTable.id })
     .from(benefitsTable)
