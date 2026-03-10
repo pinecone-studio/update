@@ -64,6 +64,8 @@ jobs:
 
       - name: Build Next.js
         run: npm run build --workspace=ebms-web
+        env:
+          NEXT_PUBLIC_API_URL: https://ebms-api.myagmartsognnaranbaatar.workers.dev
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@1
