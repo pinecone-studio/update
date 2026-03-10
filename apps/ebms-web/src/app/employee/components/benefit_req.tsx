@@ -92,7 +92,7 @@ export const NewRequest = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-full w-full bg-[#0f172a] text-slate-200 p-6 md:p-8">
+    <div className="flex flex-col min-h-full w-full bg-[#0f172a] text-slate-200 p-6 md:p-8 h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="text-[16px] font-normal text-[#A2A2A2]">
@@ -105,7 +105,7 @@ export const NewRequest = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-slate-700/60">
+      <div className="flex gap-1 mb-6 border-b border-slate-700/60  ">
         {[
           { key: 'all' as TabFilter, label: `All Requests (${counts.all})` },
           { key: 'pending' as TabFilter, label: `Pending (${counts.pending})` },
@@ -126,7 +126,7 @@ export const NewRequest = () => {
       </div>
 
       {/* Request cards */}
-      <div className="flex flex-col gap-4 mb-8">
+      <div className="flex flex-col gap-4 mb-8 ">
         {filteredRequests.map((req) => (
           <div
             key={req.id}
@@ -155,7 +155,7 @@ export const NewRequest = () => {
       </div>
 
       {/* Request Process info */}
-      <div className="rounded-xl bg-[#EFF6FF] border border-slate-700/50 p-5">
+      <div className="rounded-xl bg-[#EFF6FF] border border-slate-700/50 p-5 ">
         <div className="flex items-center gap-2 mb-3">
          <DocumentIcon />
           <h3 className="font-medium text-[#1C398E]">Request Process</h3>
