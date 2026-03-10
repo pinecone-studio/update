@@ -116,6 +116,7 @@ type Query {
   myBenefits: [BenefitEligibility!]!
   benefits(category: String): [Benefit!]!
   employee(id: ID!): Employee
+  employees(department: String, employmentStatus: String): [Employee!]!
   auditLog(filters: AuditFilters!): [AuditEntry!]!
 }
 

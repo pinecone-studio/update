@@ -115,10 +115,12 @@ export const typeDefs = /* GraphQL */ `
     myBenefits: [BenefitEligibility!]!
     benefits(category: String): [Benefit!]!
     employee(id: ID!): Employee
+    employees(department: String, employmentStatus: String): [Employee!]!
     auditLog(filters: AuditFilters!): [AuditEntry!]!
   }
 
   type Mutation {
+    # Employee-only:
     requestBenefit(input: BenefitRequestInput!): BenefitRequest!
     confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!): BenefitRequest!
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
