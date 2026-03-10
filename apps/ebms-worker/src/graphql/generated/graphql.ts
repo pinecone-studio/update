@@ -148,6 +148,7 @@ export type Query = {
   auditLog: Array<AuditEntry>;
   benefits: Array<Benefit>;
   employee?: Maybe<Employee>;
+  employees: Array<Employee>;
   health: Health;
   me: Employee;
   myBenefits: Array<BenefitEligibility>;
@@ -166,6 +167,12 @@ export type QueryBenefitsArgs = {
 
 export type QueryEmployeeArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryEmployeesArgs = {
+  department?: InputMaybe<Scalars['String']['input']>;
+  employmentStatus?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RequestStatus =
@@ -367,6 +374,7 @@ export type QueryResolvers<ContextType = Ctx, ParentType extends ResolversParent
   auditLog?: Resolver<Array<ResolversTypes['AuditEntry']>, ParentType, ContextType, RequireFields<QueryAuditLogArgs, 'filters'>>;
   benefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType, Partial<QueryBenefitsArgs>>;
   employee?: Resolver<Maybe<ResolversTypes['Employee']>, ParentType, ContextType, RequireFields<QueryEmployeeArgs, 'id'>>;
+  employees?: Resolver<Array<ResolversTypes['Employee']>, ParentType, ContextType, Partial<QueryEmployeesArgs>>;
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
   me?: Resolver<ResolversTypes['Employee'], ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['BenefitEligibility']>, ParentType, ContextType>;
