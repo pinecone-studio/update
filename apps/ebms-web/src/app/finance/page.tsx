@@ -1,3 +1,8 @@
-export default function Home (){
-    return(<div>finance</div>)
+export default function FinancePage() {
+  return (
+    <div className="min-h-screen w-full p-8">
+      <h1 className="text-2xl font-bold">Finance</h1>
+      <p className="mt-2 text-gray-600">Finance dashboard coming soon.</p>
+    </div>
+  );
 }
