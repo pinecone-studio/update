@@ -19,33 +19,33 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/hr_admin", icon: <HrDashboardIcon /> },
+  { label: "Dashboard", href: "/admin", icon: <HrDashboardIcon /> },
   {
     label: "Employee Eligibility",
-    href: "/hr_admin/employee-eligibility",
+    href: "/admin/employee-eligibility",
     icon: <HrEmployeeIcon />,
   },
   {
     label: "Manual Override",
-    href: "/hr_admin/manual-override",
+    href: "/admin/manual-override",
     icon: <HrManualIcon />,
   },
   {
     label: "Temporary Exceptions",
-    href: "/hr_admin/temporary-exceptions",
+    href: "/admin/temporary-exceptions",
     icon: <HrTemporaryIcon />,
   },
   {
     label: "Rules Configuration",
-    href: "/hr_admin/rules-configuration",
+    href: "/admin/rules-configuration",
     icon: <HrRulesIcon />,
   },
   {
     label: "Vendor Contracts",
-    href: "/hr_admin/vendor-contracts",
+    href: "/admin/vendor-contracts",
     icon: <HrVendorIcon />,
   },
-  { label: "Audit Log", href: "/hr_admin/audit-log", icon: <HrAuditIcon /> },
+  { label: "Audit Log", href: "/admin/audit-log", icon: <HrAuditIcon /> },
 ];
 
 export function HrSidebar() {
