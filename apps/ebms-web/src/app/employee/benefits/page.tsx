@@ -7,20 +7,17 @@ export default function Home() {
       <div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white">
         <div className="w-full md:w-[921px] h-16 flex flex-col gap-[4px]">
           <div className="w-full h-9 flex items-center"></div>
-
           <div className="w-full h-6">
             <p className="text-[#64748B] text-sm">
               Check your eligibility status and track progress
             </p>
           </div>
         </div>
-
         <div className="flex flex-col md:flex-row gap-6 w-full md:w-[921px]">
           <div className="bg-[#1E293B] w-full md:w-[448.5px] h-[214px] rounded-2xl border border-[#334155] p-6 flex flex-col justify-between">
             <div className="flex items-center gap-2 text-[#22C55E] font-medium">
               📈 OKR Performance
             </div>
-
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[#94A3B8]">Current Score</p>
@@ -28,8 +25,8 @@ export default function Home() {
                 <p className="text-xs text-[#64748B] mt-2">
                   Last synced: 2026-03-09 08:30 AM
                 </p>
-              </div>
-
+              </div> 
+              
               <div className="text-right">
                 <p className="text-3xl font-bold">82%</p>
                 <span className="bg-[#DCFCE7] text-[#166534] text-xs px-3 py-1 rounded-full ml-2">

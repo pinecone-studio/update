@@ -109,6 +109,11 @@ input OverrideInput {
   expiresAt: String
 }
 
+# ─── Eligibility Rule Config (HR) ────────────────────────────────
+type EligibilityRuleConfig {
+  config: String!
+}
+
 # ─── Queries ────────────────────────────────────────────────────
 type Query {
   health: Health!
@@ -118,6 +123,8 @@ type Query {
   employee(id: ID!): Employee
   employees(department: String, employmentStatus: String): [Employee!]!
   auditLog(filters: AuditFilters!): [AuditEntry!]!
+  getEligibilityRuleConfig: EligibilityRuleConfig!
+  getAvailableRuleAttributes: [String!]!
 }
 
 # ─── Mutations ──────────────────────────────────────────────────
@@ -126,4 +133,5 @@ type Mutation {
   confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!): BenefitRequest!
   cancelBenefitRequest(requestId: ID!): BenefitRequest!
   overrideEligibility(input: OverrideInput!): BenefitEligibility!
+  updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!
 }

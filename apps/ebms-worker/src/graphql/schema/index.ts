@@ -109,6 +109,10 @@ export const typeDefs = /* GraphQL */ `
     expiresAt: String
   }
 
+  type EligibilityRuleConfig {
+    config: String!
+  }
+
   type Query {
     health: Health!
     me: Employee!
@@ -117,6 +121,8 @@ export const typeDefs = /* GraphQL */ `
     employee(id: ID!): Employee
     employees(department: String, employmentStatus: String): [Employee!]!
     auditLog(filters: AuditFilters!): [AuditEntry!]!
+    getEligibilityRuleConfig: EligibilityRuleConfig!
+    getAvailableRuleAttributes: [String!]!
   }
 
   type Mutation {
@@ -125,5 +131,6 @@ export const typeDefs = /* GraphQL */ `
     confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!): BenefitRequest!
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
     overrideEligibility(input: OverrideInput!): BenefitEligibility!
+    updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!
   }
 `;
