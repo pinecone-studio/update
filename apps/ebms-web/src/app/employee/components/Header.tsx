@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import {
   HiSquares2X2,
   HiOutlineBookmark,
   HiOutlineDocumentText,
   HiOutlineBell,
-  HiBars3
-} from "react-icons/hi2"
+  HiBars3,
+} from "react-icons/hi2";
 
 export const Header = () => {
-  const [activeTab, setActiveTab] = useState("dashboard")
-  const [menuOpen, setMenuOpen] = useState(false)
-  const router = useRouter()
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
-  return(
+  return (
     <header className="w-full bg-[#1E293B] h-[64px] px-4 relative sticky top-0 z-50">
       <div className="h-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 md:gap-6">
@@ -42,7 +42,10 @@ export const Header = () => {
                   ? "text-white bg-blue-600 ring-blue-300"
                   : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
               }`}
-              onClick={() => setActiveTab("eligibility")}
+              onClick={() => {
+                setActiveTab("eligibility");
+                router.push("/employee/benefits");
+              }}
             >
               <HiOutlineBookmark className="text-base" />
               Benefit Eligibility
@@ -65,8 +68,8 @@ export const Header = () => {
                   : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
               }`}
               onClick={() => {
-                setActiveTab("notifications")
-                router.push("/employee/notification")
+                setActiveTab("notifications");
+                router.push("/employee/notification");
               }}
             >
               <HiOutlineBell className="text-base" />
@@ -107,8 +110,8 @@ export const Header = () => {
                 : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
             }`}
             onClick={() => {
-              setActiveTab("dashboard")
-              setMenuOpen(false)
+              setActiveTab("dashboard");
+              setMenuOpen(false);
             }}
           >
             <HiSquares2X2 className="text-base" />
@@ -121,8 +124,8 @@ export const Header = () => {
                 : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
             }`}
             onClick={() => {
-              setActiveTab("eligibility")
-              setMenuOpen(false)
+              setActiveTab("eligibility");
+              setMenuOpen(false);
             }}
           >
             <HiOutlineBookmark className="text-base" />
@@ -135,8 +138,8 @@ export const Header = () => {
                 : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
             }`}
             onClick={() => {
-              setActiveTab("requests")
-              setMenuOpen(false)
+              setActiveTab("requests");
+              setMenuOpen(false);
             }}
           >
             <HiOutlineDocumentText className="text-base" />
@@ -149,9 +152,9 @@ export const Header = () => {
                 : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
             }`}
             onClick={() => {
-              setActiveTab("notifications")
-              setMenuOpen(false)
-              router.push("/employee/notification")
+              setActiveTab("notifications");
+              setMenuOpen(false);
+              router.push("/employee/notification");
             }}
           >
             <HiOutlineBell className="text-base" />
@@ -170,5 +173,5 @@ export const Header = () => {
         </nav>
       </div>
     </header>
-  )
-}
+  );
+};
