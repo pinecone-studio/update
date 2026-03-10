@@ -43,7 +43,7 @@ export default function Home() {
         <section style={{ marginTop: '1.5rem', padding: '1rem', background: '#f5f5f5', borderRadius: 8 }}>
           <h2 style={{ fontSize: '1rem', marginTop: 0 }}>GraphQL Response</h2>
           <p>
-            <strong>health:</strong> ok={String(data.health.ok)}, time={data.health.timestamp}
+            <strong>healthdjhferhfiur:</strong> ok={String(data.health.ok)}, time={data.health.timestamp}
           </p>
           <p>
             <strong>hello:</strong> {data.hello}
