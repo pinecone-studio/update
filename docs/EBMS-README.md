@@ -1,10 +1,25 @@
 # EBMS — Employee Benefits Management System
 
-Pinequest S3 Ep1 Project 2026. Cloudflare Workers + D1 + R2 + KV + Next.js Pages.
+Pinequest S3 Ep1 Project 2026 · team-7
 
 ---
 
-## 1. Багийн гишүүд — Анхлан эхлэх (5 алхам)
+## Юу тохируулагдсан бэ? (Cloudflare мэдэхгүй хүнд)
+
+**Cloudflare** — веб сайт, API, database-ийг cloud дээр ажиллуулах үйлчилгээ. EBMS энд ажилладаг.
+
+| Тохируулагдсан зүйл | Юу вэ                          | EBMS-д юу хийх вэ                            |
+| ------------------- | ------------------------------ | -------------------------------------------- |
+| **D1**              | Database (хүснэгт хадгалах)    | employees, benefits, eligibility дэлгэрэнгүй |
+| **R2**              | Файл хадгалах (S3 шиг)         | Vendor гэрээний PDF                          |
+| **KV**              | Key-value cache (хурдан унших) | Eligibility-г cache хийх                     |
+| **Worker**          | API server (backend код)       | GraphQL API, `/health`                       |
+| **Pages**           | Frontend hosting (статик файл) | Next.js хуудаснууд                           |
+| **GitHub Actions**  | Автомат deploy                 | push хийхэд Worker + Pages шинэчлэгдэнэ      |
+
+---
+
+## 1. Багийн гишүүд — Хэрхэн эхлэх вэ (4 алхам)
 
 ```bash
 git clone https://github.com/pinecone-studio/team-7.git
@@ -13,40 +28,44 @@ npm install
 npm run login          # Cloudflare нэвтрэх (нэг удаа, браузер нээгдэнэ)
 ```
 
-**Local ажиллуулах:**
+**Local дээр ажиллуулах:**
 
 ```bash
 npm run dev:worker     # API → http://localhost:8787
 npm run dev:web        # Frontend → http://localhost:3000
 ```
 
-> Wrangler global суулгах шаардлагагүй. `npm install`-д wrangler орсон.
+> Wrangler (Cloudflare CLI) глобал суулгах шаардлагагүй — `npm install`-д орсон.
 
 ---
 
-## 2. Production URLs
+## 2. Production — Ажиллаж байгаа URL-ууд
 
-| Үйлчилгээ            | URL                                                          |
-| -------------------- | ------------------------------------------------------------ |
-| **API (Worker)**     | https://ebms-api.myagmartsognnaranbaatar.workers.dev         |
-| **GraphQL**          | https://ebms-api.myagmartsognnaranbaatar.workers.dev/graphql |
-| **Frontend (Pages)** | Cloudflare Pages → ebms-web project                          |
+| Үйлчилгээ    | URL                                                          |
+| ------------ | ------------------------------------------------------------ |
+| **API**      | https://ebms-api.myagmartsognnaranbaatar.workers.dev         |
+| **GraphQL**  | https://ebms-api.myagmartsognnaranbaatar.workers.dev/graphql |
+| **Frontend** | Cloudflare Dashboard → Pages → ebms-web → View site          |
 
 ---
 
-## 3. Deploy (GitHub Actions)
+## 3. Deploy — Юу хийгддэг вэ
 
-`main` branch руу push хийхэд автоматаар deploy хийгдэнэ.
+`main` branch руу push хийхэд **GitHub Actions** ажиллана:
 
-**GitHub Secrets** (Settings → Secrets and variables → Actions):
+1. **Worker** deploy — API шинэчлэгдэнэ
+2. **Pages** deploy — Frontend шинэчлэгдэнэ
 
-| Secret                 | Хаанаас                                            |
-| ---------------------- | -------------------------------------------------- |
-| **EBMS_CF_ACCOUNT_ID** | Cloudflare Dashboard → баруун sidebar → Account ID |
-| **EBMS_CF_API_TOKEN**  | My Profile → API Tokens → Create Token             |
+Deploy хийхэд **GitHub Secrets** хэрэгтэй. Дараах хоёрыг repo Settings → Secrets → Actions-д нэмнэ:
 
-**API Token-д шаардлагатай permissions:**
+| Secret                 | Юу оруулах вэ                                                                                      |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| **EBMS_CF_ACCOUNT_ID** | [Cloudflare Dashboard](https://dash.cloudflare.com) нээгээд баруун sidebar → **Account ID** хуулна |
+| **EBMS_CF_API_TOKEN**  | My Profile → API Tokens → **Create Token** → шаардлагатай permissions-тэй үүсгэнэ → token хуулна   |
 
+**Token-д яг юу сонгох вэ:**
+
+- Create Custom Token
 - Account → **Cloudflare Pages** → Edit
 - Account → **D1** → Edit
 - Account → **Workers Scripts** → Edit
@@ -54,18 +73,20 @@ npm run dev:web        # Frontend → http://localhost:3000
 - Account → **Workers KV Storage** → Edit
 - Account → **Account Settings** → Read
 
-> Cloudflare Pages → Edit байхгүй бол frontend deploy 403 алдаа гарна.
-
 ---
 
-## 4. Cloudflare Resources (шинэ гишүүн тохируулахад)
+## 4. Cloudflare Resources — Шинэ төсөл эхлүүлэхэд
 
-| Ресурс    | Хаанаас үүсгэх                                           | wrangler.toml                 |
-| --------- | -------------------------------------------------------- | ----------------------------- |
-| **D1**    | Workers & Pages → D1 → Create                            | `database_id`                 |
-| **R2**    | R2 → Create bucket                                       | `bucket_name: ebms-contracts` |
-| **KV**    | Workers & Pages → KV → Create                            | `id`                          |
-| **Pages** | Workers & Pages → Pages → Create project → Direct Upload | Project: `ebms-web`           |
+Хэрэв төсөл шинээр эхлэж байвал эдгээрийг үүсгэнэ:
+
+| Ресурс            | Юу вэ            | Хэрхэн үүсгэх вэ                                       |
+| ----------------- | ---------------- | ------------------------------------------------------ |
+| **D1**            | Database         | Dashboard → Workers & Pages → D1 → Create              |
+| **R2**            | Файл хадгалах    | R2 → Create bucket (`ebms-contracts`)                  |
+| **KV**            | Cache            | Workers & Pages → KV → Create instance                 |
+| **Pages project** | Frontend project | Terminal: `npx wrangler pages project create ebms-web` |
+
+ID-уудыг `apps/ebms-worker/wrangler.toml`-д оруулна.
 
 ---
 
@@ -74,8 +95,8 @@ npm run dev:web        # Frontend → http://localhost:3000
 ```
 team-7/
 ├── apps/
-│   ├── ebms-worker/     # API (Hono + GraphQL Yoga + D1 + R2 + KV)
-│   └── ebms-web/        # Frontend (Next.js 14, static export)
+│   ├── ebms-worker/     # API (Hono + GraphQL Yoga)
+│   └── ebms-web/        # Frontend (Next.js)
 ├── docs/
 │   └── EBMS-README.md   # Энэ файл
 └── package.json
@@ -85,8 +106,8 @@ team-7/
 
 ## 6. Дараагийн алхмууд (Phase 2)
 
-- GraphQL schema дэлгэрүүлэх (Employee, Benefit, myBenefits)
-- Eligibility engine (дүрмүүд evaluate)
-- Employee dashboard UI (`/dashboard`)
-- HR admin panel (`/admin`)
+- GraphQL schema дэлгэрүүлэх
+- Eligibility engine
+- Employee dashboard UI
+- HR admin panel
 - Auth (Clerk / Auth.js)
