@@ -2,7 +2,9 @@
   "name": "ebms-monorepo",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["apps/*"],
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "dev": "npm run dev:worker",
     "dev:worker": "npm run dev --workspace=ebms-worker",
@@ -16,5 +18,8 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "pnpm@9.14.2"
+  "packageManager": "pnpm@9.14.2",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
 }
