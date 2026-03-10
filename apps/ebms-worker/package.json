@@ -1,0 +1,26 @@
+{
+  "name": "ebms-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "login": "wrangler login",
+    "build": "tsc && wrangler deploy --dry-run --outdir dist",
+    "deploy": "wrangler deploy",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 execute ebms-db --remote --file=./drizzle/migrations/0000_init.sql",
+    "db:local": "wrangler d1 execute ebms-db --local --file=./drizzle/migrations/0000_init.sql"
+  },
+  "dependencies": {
+    "hono": "^4.6.0",
+    "graphql-yoga": "^5.10.0",
+    "drizzle-orm": "^0.36.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "drizzle-kit": "^0.28.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^3.94.0"
+  }
+}

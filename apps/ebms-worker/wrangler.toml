@@ -1,0 +1,30 @@
+# EBMS Cloudflare Worker — TDD-EBMS-2025-001
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "ebms-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# ─── D1 Database ────────────────────────────────────────────────────
+[[d1_databases]]
+binding = "DB"
+database_name = "ebms-db"
+database_id = "139bcf8f-fa56-4d83-b060-b0582c0fd458"
+
+# ─── R2 Bucket (vendor contract PDFs) ─────────────────────────────────
+[[r2_buckets]]
+binding = "CONTRACTS"
+bucket_name = "ebms-contracts"
+
+# ─── KV (eligibility cache, TTL 300s) ────────────────────────────────
+[[kv_namespaces]]
+binding = "ELIGIBILITY_CACHE"
+id = "612adff365b747bea1d421bf4899b697"
+
+# ─── Cron (OKR sync, attendance import) ──────────────────────────────
+[triggers]
+crons = ["0 2 * * *"]  # 02:00 UTC daily — OKR sync
+
+# ─── Vars (non-secret config) ────────────────────────────────────────
+[vars]
+ENVIRONMENT = "development"

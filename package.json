@@ -1,0 +1,20 @@
+{
+  "name": "ebms-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev:worker",
+    "dev:worker": "npm run dev --workspace=ebms-worker",
+    "dev:web": "npm run dev --workspace=ebms-web",
+    "login": "npm run login --workspace=ebms-worker",
+    "db:migrate": "npm run db:migrate --workspace=ebms-worker",
+    "db:generate": "npm run db:generate --workspace=ebms-worker",
+    "build": "npm run build --workspaces",
+    "deploy": "npm run deploy --workspace=ebms-worker"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.14.2"
+}
