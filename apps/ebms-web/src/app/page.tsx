@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <main style={{ padding: '2rem', fontFamily: 'system-ui' }}>
       <h1>EBMS — Employee Benefits Management System</h1>
-      <p>Pinequest S3 Ep1 Project 2026</p>
+      <p>Pinequest S3 Ep1 Project 2026 · team-7</p>
       <p>
         API: <code>{API_URL}</code>
       </p>
