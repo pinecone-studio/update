@@ -1,5 +1,6 @@
 /**
  * Shared: fetch benefit eligibility list for an employee.
+ * Uses HR config (eligibility_config) when present — rules from config UI, no deploy needed.
  * Used by myBenefits query and Employee.benefits field resolver.
  */
 
@@ -8,6 +9,11 @@ import { getDb } from '../../db/drizzle';
 import { benefits as benefitsTable, benefitEligibility } from '../../db/schema';
 import { and, eq } from 'drizzle-orm';
 import { asBool01, mapBenefitStatus, safeJsonParse } from './utils';
+import {
+  getActiveEligibilityConfig,
+  getEmployeeForEligibility,
+  evaluateBenefitRules,
+} from '../../eligibility/engine';
 
 export type BenefitEligibilityRow = {
   benefit: {
@@ -16,7 +22,7 @@ export type BenefitEligibilityRow = {
     category: string;
     subsidyPercent: number;
     requiresContract: boolean;
-    activeContract: null; // resolved separately via Benefit.activeContract
+    activeContract: null;
   };
   status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING';
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
@@ -28,6 +34,12 @@ export async function getBenefitEligibilityForEmployee(
   employeeId: string
 ): Promise<BenefitEligibilityRow[]> {
   const db = getDb(env);
+  const now = new Date().toISOString();
+
+  const [config, employee] = await Promise.all([
+    getActiveEligibilityConfig(env),
+    getEmployeeForEligibility(env, employeeId),
+  ]);
 
   const rows = await db
     .select({
@@ -52,6 +64,26 @@ export async function getBenefitEligibilityForEmployee(
     .orderBy(benefitsTable.category, benefitsTable.name);
 
   return rows.map((row) => {
+    const benefitConfig = config?.[row.benefitId];
+    const rules = benefitConfig?.rules;
+
+    if (rules?.length && employee) {
+      const { status, ruleEvaluations } = evaluateBenefitRules(rules, employee);
+      return {
+        benefit: {
+          id: row.benefitId,
+          name: row.benefitName,
+          category: row.benefitCategory,
+          subsidyPercent: row.benefitSubsidyPercent ?? 0,
+          requiresContract: asBool01(row.benefitRequiresContract),
+          activeContract: null,
+        },
+        status: row.eligibilityStatus === 'active' ? 'ACTIVE' : status,
+        ruleEvaluations,
+        computedAt: now,
+      };
+    }
+
     const ruleEvaluationsRaw = row.ruleEvaluationJson
       ? safeJsonParse(row.ruleEvaluationJson, [])
       : [];
@@ -74,7 +106,7 @@ export async function getBenefitEligibilityForEmployee(
       },
       status: mapBenefitStatus(row.eligibilityStatus ?? 'locked'),
       ruleEvaluations,
-      computedAt: row.computedAt ?? new Date().toISOString(),
+      computedAt: row.computedAt ?? now,
     };
   });
 }
