@@ -69,13 +69,11 @@ jobs:
           NEXT_PUBLIC_API_URL: https://ebms-api.myagmartsognnaranbaatar.workers.dev
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.EBMS_CF_API_TOKEN }}
           accountId: ${{ secrets.EBMS_CF_ACCOUNT_ID }}
-          projectName: ebms-web
-          directory: apps/ebms-web/out
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy apps/ebms-web/out --project-name=ebms-web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.EBMS_CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.EBMS_CF_ACCOUNT_ID }}
