@@ -1,3 +1,4 @@
+# ─── Enums ────────────────────────────────────────────────────
 enum BenefitStatus {
   ACTIVE
   ELIGIBLE
@@ -12,36 +13,29 @@ enum RequestStatus {
   CANCELLED
 }
 
+enum EmploymentStatus {
+  ACTIVE
+  PROBATION
+  LEAVE
+  TERMINATED
+}
+
+# ─── Health ───────────────────────────────────────────────────
 type Health {
   ok: Boolean!
   timestamp: String!
 }
 
+# ─── Core Types ────────────────────────────────────────────────
 type Employee {
   id: ID!
-  email: String!
-  name: String
+  name: String!
   role: String!
   responsibilityLevel: Int!
-  employmentStatus: String!
+  employmentStatus: EmploymentStatus!
   okrSubmitted: Boolean!
   lateArrivalCount: Int!
-}
-
-type Benefit {
-  id: ID!
-  name: String!
-  category: String!
-  subsidyPercent: Int!
-  vendorName: String
-  requiresContract: Boolean!
-  isActive: Boolean!
-}
-
-type RuleEvaluation {
-  ruleType: String!
-  passed: Boolean!
-  reason: String!
+  benefits: [BenefitEligibility!]!
 }
 
 type BenefitEligibility {
@@ -51,6 +45,30 @@ type BenefitEligibility {
   computedAt: String!
 }
 
+type RuleEvaluation {
+  ruleType: String!
+  passed: Boolean!
+  reason: String!
+}
+
+type Benefit {
+  id: ID!
+  name: String!
+  category: String!
+  subsidyPercent: Int!
+  requiresContract: Boolean!
+  activeContract: Contract
+}
+
+type Contract {
+  id: ID!
+  benefitId: ID!
+  version: String!
+  effectiveDate: String
+  expiryDate: String
+}
+
+# ─── Request types ─────────────────────────────────────────────
 input BenefitRequestInput {
   benefitId: ID!
 }
@@ -63,15 +81,48 @@ type BenefitRequest {
   createdAt: String!
 }
 
+# ─── Audit (HR) ────────────────────────────────────────────────
+input AuditFilters {
+  employeeId: ID
+  benefitId: ID
+  from: String
+  to: String
+}
+
+type AuditEntry {
+  id: ID!
+  employeeId: ID!
+  benefitId: ID!
+  oldStatus: String
+  newStatus: String!
+  computedAt: String!
+  triggeredBy: String
+  createdAt: String!
+}
+
+# ─── Override (HR) ────────────────────────────────────────────
+input OverrideInput {
+  employeeId: ID!
+  benefitId: ID!
+  status: BenefitStatus!
+  reason: String
+  expiresAt: String
+}
+
+# ─── Queries ────────────────────────────────────────────────────
 type Query {
   health: Health!
   me: Employee!
   myBenefits: [BenefitEligibility!]!
   benefits(category: String): [Benefit!]!
+  employee(id: ID!): Employee
+  auditLog(filters: AuditFilters!): [AuditEntry!]!
 }
 
+# ─── Mutations ──────────────────────────────────────────────────
 type Mutation {
   requestBenefit(input: BenefitRequestInput!): BenefitRequest!
+  confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!): BenefitRequest!
   cancelBenefitRequest(requestId: ID!): BenefitRequest!
+  overrideEligibility(input: OverrideInput!): BenefitEligibility!
 }
-

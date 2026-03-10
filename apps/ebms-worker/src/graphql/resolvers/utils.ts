@@ -22,6 +22,17 @@ export function mapRequestStatus(
   return 'PENDING';
 }
 
+export function mapEmploymentStatus(
+  status: string
+): 'ACTIVE' | 'PROBATION' | 'LEAVE' | 'TERMINATED' {
+  const s = (status ?? '').toLowerCase();
+  if (s === 'active') return 'ACTIVE';
+  if (s === 'probation') return 'PROBATION';
+  if (s === 'leave') return 'LEAVE';
+  if (s === 'terminated') return 'TERMINATED';
+  return 'PROBATION';
+}
+
 export function safeJsonParse<T>(input: string, fallback: T): T {
   try {
     return JSON.parse(input) as T;

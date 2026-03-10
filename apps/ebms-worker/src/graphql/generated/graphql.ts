@@ -17,15 +17,33 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type AuditEntry = {
+  __typename?: 'AuditEntry';
+  benefitId: Scalars['ID']['output'];
+  computedAt: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  employeeId: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  newStatus: Scalars['String']['output'];
+  oldStatus?: Maybe<Scalars['String']['output']>;
+  triggeredBy?: Maybe<Scalars['String']['output']>;
+};
+
+export type AuditFilters = {
+  benefitId?: InputMaybe<Scalars['ID']['input']>;
+  employeeId?: InputMaybe<Scalars['ID']['input']>;
+  from?: InputMaybe<Scalars['String']['input']>;
+  to?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Benefit = {
   __typename?: 'Benefit';
+  activeContract?: Maybe<Contract>;
   category: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  isActive: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   requiresContract: Scalars['Boolean']['output'];
   subsidyPercent: Scalars['Int']['output'];
-  vendorName?: Maybe<Scalars['String']['output']>;
 };
 
 export type BenefitEligibility = {
@@ -55,17 +73,32 @@ export type BenefitStatus =
   | 'LOCKED'
   | 'PENDING';
 
+export type Contract = {
+  __typename?: 'Contract';
+  benefitId: Scalars['ID']['output'];
+  effectiveDate?: Maybe<Scalars['String']['output']>;
+  expiryDate?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  version: Scalars['String']['output'];
+};
+
 export type Employee = {
   __typename?: 'Employee';
-  email: Scalars['String']['output'];
-  employmentStatus: Scalars['String']['output'];
+  benefits: Array<BenefitEligibility>;
+  employmentStatus: EmploymentStatus;
   id: Scalars['ID']['output'];
   lateArrivalCount: Scalars['Int']['output'];
-  name?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
   okrSubmitted: Scalars['Boolean']['output'];
   responsibilityLevel: Scalars['Int']['output'];
   role: Scalars['String']['output'];
 };
+
+export type EmploymentStatus =
+  | 'ACTIVE'
+  | 'LEAVE'
+  | 'PROBATION'
+  | 'TERMINATED';
 
 export type Health = {
   __typename?: 'Health';
@@ -76,6 +109,8 @@ export type Health = {
 export type Mutation = {
   __typename?: 'Mutation';
   cancelBenefitRequest: BenefitRequest;
+  confirmBenefitRequest: BenefitRequest;
+  overrideEligibility: BenefitEligibility;
   requestBenefit: BenefitRequest;
 };
 
@@ -85,21 +120,52 @@ export type MutationCancelBenefitRequestArgs = {
 };
 
 
+export type MutationConfirmBenefitRequestArgs = {
+  contractAccepted: Scalars['Boolean']['input'];
+  requestId: Scalars['ID']['input'];
+};
+
+
+export type MutationOverrideEligibilityArgs = {
+  input: OverrideInput;
+};
+
+
 export type MutationRequestBenefitArgs = {
   input: BenefitRequestInput;
 };
 
+export type OverrideInput = {
+  benefitId: Scalars['ID']['input'];
+  employeeId: Scalars['ID']['input'];
+  expiresAt?: InputMaybe<Scalars['String']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status: BenefitStatus;
+};
+
 export type Query = {
   __typename?: 'Query';
+  auditLog: Array<AuditEntry>;
   benefits: Array<Benefit>;
+  employee?: Maybe<Employee>;
   health: Health;
   me: Employee;
   myBenefits: Array<BenefitEligibility>;
 };
 
 
+export type QueryAuditLogArgs = {
+  filters: AuditFilters;
+};
+
+
 export type QueryBenefitsArgs = {
   category?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryEmployeeArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type RequestStatus =
@@ -188,17 +254,22 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AuditEntry: ResolverTypeWrapper<AuditEntry>;
+  AuditFilters: AuditFilters;
   Benefit: ResolverTypeWrapper<Benefit>;
   BenefitEligibility: ResolverTypeWrapper<BenefitEligibility>;
   BenefitRequest: ResolverTypeWrapper<BenefitRequest>;
   BenefitRequestInput: BenefitRequestInput;
   BenefitStatus: BenefitStatus;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Contract: ResolverTypeWrapper<Contract>;
   Employee: ResolverTypeWrapper<Employee>;
+  EmploymentStatus: EmploymentStatus;
   Health: ResolverTypeWrapper<Health>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  OverrideInput: OverrideInput;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   RequestStatus: RequestStatus;
   RuleEvaluation: ResolverTypeWrapper<RuleEvaluation>;
@@ -207,29 +278,43 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AuditEntry: AuditEntry;
+  AuditFilters: AuditFilters;
   Benefit: Benefit;
   BenefitEligibility: BenefitEligibility;
   BenefitRequest: BenefitRequest;
   BenefitRequestInput: BenefitRequestInput;
   Boolean: Scalars['Boolean']['output'];
+  Contract: Contract;
   Employee: Employee;
   Health: Health;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Mutation: Record<PropertyKey, never>;
+  OverrideInput: OverrideInput;
   Query: Record<PropertyKey, never>;
   RuleEvaluation: RuleEvaluation;
   String: Scalars['String']['output'];
 };
 
+export type AuditEntryResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['AuditEntry'] = ResolversParentTypes['AuditEntry']> = {
+  benefitId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  computedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  newStatus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  oldStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  triggeredBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
 export type BenefitResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Benefit'] = ResolversParentTypes['Benefit']> = {
+  activeContract?: Resolver<Maybe<ResolversTypes['Contract']>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   requiresContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   subsidyPercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  vendorName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
 export type BenefitEligibilityResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['BenefitEligibility'] = ResolversParentTypes['BenefitEligibility']> = {
@@ -247,12 +332,20 @@ export type BenefitRequestResolvers<ContextType = Ctx, ParentType extends Resolv
   status?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
 };
 
+export type ContractResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Contract'] = ResolversParentTypes['Contract']> = {
+  benefitId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  effectiveDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  expiryDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
 export type EmployeeResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Employee'] = ResolversParentTypes['Employee']> = {
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  employmentStatus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  benefits?: Resolver<Array<ResolversTypes['BenefitEligibility']>, ParentType, ContextType>;
+  employmentStatus?: Resolver<ResolversTypes['EmploymentStatus'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lateArrivalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   okrSubmitted?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   responsibilityLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -265,11 +358,15 @@ export type HealthResolvers<ContextType = Ctx, ParentType extends ResolversParen
 
 export type MutationResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   cancelBenefitRequest?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationCancelBenefitRequestArgs, 'requestId'>>;
+  confirmBenefitRequest?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationConfirmBenefitRequestArgs, 'contractAccepted' | 'requestId'>>;
+  overrideEligibility?: Resolver<ResolversTypes['BenefitEligibility'], ParentType, ContextType, RequireFields<MutationOverrideEligibilityArgs, 'input'>>;
   requestBenefit?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationRequestBenefitArgs, 'input'>>;
 };
 
 export type QueryResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  auditLog?: Resolver<Array<ResolversTypes['AuditEntry']>, ParentType, ContextType, RequireFields<QueryAuditLogArgs, 'filters'>>;
   benefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType, Partial<QueryBenefitsArgs>>;
+  employee?: Resolver<Maybe<ResolversTypes['Employee']>, ParentType, ContextType, RequireFields<QueryEmployeeArgs, 'id'>>;
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
   me?: Resolver<ResolversTypes['Employee'], ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['BenefitEligibility']>, ParentType, ContextType>;
@@ -282,9 +379,11 @@ export type RuleEvaluationResolvers<ContextType = Ctx, ParentType extends Resolv
 };
 
 export type Resolvers<ContextType = Ctx> = {
+  AuditEntry?: AuditEntryResolvers<ContextType>;
   Benefit?: BenefitResolvers<ContextType>;
   BenefitEligibility?: BenefitEligibilityResolvers<ContextType>;
   BenefitRequest?: BenefitRequestResolvers<ContextType>;
+  Contract?: ContractResolvers<ContextType>;
   Employee?: EmployeeResolvers<ContextType>;
   Health?: HealthResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
