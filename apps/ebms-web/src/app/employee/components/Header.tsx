@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import {
@@ -12,9 +13,18 @@ import {
 } from "react-icons/hi2";
 
 export const Header = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
   const [menuOpen, setMenuOpen] = useState(false);
-  const router = useRouter();
+  const pathname = usePathname();
+
+  const navItems = [
+    { key: "dashboard", label: "Dashboard", href: "/employee/dashboard", icon: HiSquares2X2 },
+    { key: "eligibility", label: "Benefit Eligibility", href: "/employee/benefits", icon: HiOutlineBookmark },
+    { key: "requests", label: "Benefit Requests", href: "/employee/requests", icon: HiOutlineDocumentText },
+    { key: "notifications", label: "Notifications", href: "/employee/notification", icon: HiOutlineBell }
+  ];
+
+  const isActive = (href: string) =>
+    pathname === href || (href !== "/employee" && pathname?.startsWith(href));
 
   return (
     <header className="w-full bg-[#1E293B] h-[64px] px-4 relative sticky top-0 z-50">
@@ -25,56 +35,20 @@ export const Header = () => {
             <span className="text-lg font-semibold tracking-wide">EBMS</span>
           </div>
           <nav className="hidden md:flex items-center gap-2 text-slate-300 text-xs ml-6">
-            <button
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition ${
-                activeTab === "dashboard"
-                  ? "text-white bg-blue-600 ring-blue-300"
-                  : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
-              }`}
-              onClick={() => setActiveTab("dashboard")}
-            >
-              <HiSquares2X2 className="text-base" />
-              Dashboard
-            </button>
-            <button
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 transition ${
-                activeTab === "eligibility"
-                  ? "text-white bg-blue-600 ring-blue-300"
-                  : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
-              }`}
-              onClick={() => {
-                setActiveTab("eligibility");
-                router.push("/employee/benefits");
-              }}
-            >
-              <HiOutlineBookmark className="text-base" />
-              Benefit Eligibility
-            </button>
-            <button
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 transition ${
-                activeTab === "requests"
-                  ? "text-white bg-blue-600 ring-blue-300"
-                  : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
-              }`}
-              onClick={() => setActiveTab("requests")}
-            >
-              <HiOutlineDocumentText className="text-base" />
-              Benefit Requests
-            </button>
-            <button
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 transition ${
-                activeTab === "notifications"
-                  ? "text-white bg-blue-600 ring-blue-300"
-                  : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
-              }`}
-              onClick={() => {
-                setActiveTab("notifications");
-                router.push("/employee/notification");
-              }}
-            >
-              <HiOutlineBell className="text-base" />
-              Notifications
-            </button>
+            {navItems.map(({ key, label, href, icon: Icon }) => (
+              <Link
+                key={key}
+                href={href}
+                className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition ${
+                  isActive(href)
+                    ? "text-white bg-blue-600 ring-blue-300"
+                    : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
+                }`}
+              >
+                <Icon className="text-base" />
+                {label}
+              </Link>
+            ))}
           </nav>
         </div>
         <div className="flex items-center gap-2">
@@ -103,63 +77,21 @@ export const Header = () => {
         }`}
       >
         <nav className="flex flex-col gap-1 p-3 text-slate-300 text-sm">
-          <button
-            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
-              activeTab === "dashboard"
-                ? "text-white bg-blue-600 ring-blue-300"
-                : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
-            }`}
-            onClick={() => {
-              setActiveTab("dashboard");
-              setMenuOpen(false);
-            }}
-          >
-            <HiSquares2X2 className="text-base" />
-            Dashboard
-          </button>
-          <button
-            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
-              activeTab === "eligibility"
-                ? "text-white bg-blue-600 ring-blue-300"
-                : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
-            }`}
-            onClick={() => {
-              setActiveTab("eligibility");
-              setMenuOpen(false);
-            }}
-          >
-            <HiOutlineBookmark className="text-base" />
-            Benefit Eligibility
-          </button>
-          <button
-            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
-              activeTab === "requests"
-                ? "text-white bg-blue-600 ring-blue-300"
-                : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
-            }`}
-            onClick={() => {
-              setActiveTab("requests");
-              setMenuOpen(false);
-            }}
-          >
-            <HiOutlineDocumentText className="text-base" />
-            Benefit Requests
-          </button>
-          <button
-            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
-              activeTab === "notifications"
-                ? "text-white bg-blue-600 ring-blue-300"
-                : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
-            }`}
-            onClick={() => {
-              setActiveTab("notifications");
-              setMenuOpen(false);
-              router.push("/employee/notification");
-            }}
-          >
-            <HiOutlineBell className="text-base" />
-            Notifications
-          </button>
+          {navItems.map(({ key, label, href, icon: Icon }) => (
+            <Link
+              key={key}
+              href={href}
+              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
+                isActive(href)
+                  ? "text-white bg-blue-600 ring-blue-300"
+                  : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <Icon className="text-base" />
+              {label}
+            </Link>
+          ))}
           <div className="h-px bg-slate-800 my-2" />
           <div className="flex items-center gap-2">
             <button className="h-8 w-8 rounded-full bg-slate-800 text-slate-200 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-700 transition">
