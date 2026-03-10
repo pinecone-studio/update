@@ -1,6 +1,8 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useState } from "react"
+
 import {
   HiSquares2X2,
   HiOutlineBookmark,
@@ -12,9 +14,10 @@ import {
 export const Header = () => {
   const [activeTab, setActiveTab] = useState("dashboard")
   const [menuOpen, setMenuOpen] = useState(false)
+  const router = useRouter()
 
   return(
-    <header className="w-full bg-slate-900 h-[64px] px-4 relative">
+    <header className="w-full bg-[#1E293B] h-[64px] px-4 relative sticky top-0 z-50">
       <div className="h-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 md:gap-6">
           <div className="flex items-center gap-2 text-white">
@@ -61,7 +64,10 @@ export const Header = () => {
                   ? "text-white bg-blue-600 ring-blue-300"
                   : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
               }`}
-              onClick={() => setActiveTab("notifications")}
+              onClick={() => {
+                setActiveTab("notifications")
+                router.push("/employee/notification")
+              }}
             >
               <HiOutlineBell className="text-base" />
               Notifications
@@ -145,6 +151,7 @@ export const Header = () => {
             onClick={() => {
               setActiveTab("notifications")
               setMenuOpen(false)
+              router.push("/employee/notification")
             }}
           >
             <HiOutlineBell className="text-base" />
