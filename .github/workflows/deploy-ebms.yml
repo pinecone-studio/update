@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  deployments: write   # Pages action needs this for GitHub Deployments
 
 concurrency:
   group: deploy-ebms
