@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div>
       <Header />
-      <div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white">
+      <div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white w-full h-screen">
         <div className="w-full md:w-[921px] h-16 flex flex-col gap-[4px]">
           <div className="w-full h-9 flex items-center"></div>
 
