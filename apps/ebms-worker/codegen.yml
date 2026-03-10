@@ -1,0 +1,14 @@
+schema: ./src/graphql/schema/schema.graphql
+generates:
+  ./src/graphql/generated/graphql.ts:
+    plugins:
+      - typescript
+      - typescript-resolvers
+    config:
+      useTypeImports: true
+      enumsAsTypes: true
+      maybeValue: T | null
+      contextType: ../resolvers/context#Ctx
+      # We use plain JS objects for root resolvers (Yoga rootValue)
+      resolverTypeWrapperSignature: "Promise<T> | T"
+
