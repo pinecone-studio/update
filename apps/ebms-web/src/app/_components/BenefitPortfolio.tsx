@@ -9,17 +9,22 @@ import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 
 interface BenefitPortfolioProps {
 	benefits: BenefitCardProps[];
+	/** When provided, called when user clicks "Request benefit" on an ELIGIBLE benefit (e.g. to call requestBenefit API) */
+	onRequestBenefit?: (benefit: BenefitCardProps) => void;
 }
 
-export function BenefitPortfolio({ benefits }: BenefitPortfolioProps) {
+export function BenefitPortfolio({ benefits, onRequestBenefit }: BenefitPortfolioProps) {
 	const [selectedBenefit, setSelectedBenefit] =
 		useState<BenefitCardProps | null>(null);
 
 	const handleRequestBenefit = (benefit: BenefitCardProps) => {
-		// TODO: Replace with API call to submit benefit request
-		alert(
-			`Request submitted for ${benefit.name}. You'll be notified when it's reviewed.`,
-		);
+		if (onRequestBenefit) {
+			onRequestBenefit(benefit);
+		} else {
+			alert(
+				`Request submitted for ${benefit.name}. You'll be notified when it's reviewed.`,
+			);
+		}
 	};
 
 	return (
@@ -27,7 +32,7 @@ export function BenefitPortfolio({ benefits }: BenefitPortfolioProps) {
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full min-w-0">
 				{benefits.map((benefit) => (
 					<BenefitCard
-						key={benefit.name}
+						key={benefit.benefitId ?? benefit.name}
 						{...benefit}
 						onClick={() => setSelectedBenefit(benefit)}
 						onRequestBenefit={
