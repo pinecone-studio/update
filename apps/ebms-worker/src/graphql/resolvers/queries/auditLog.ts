@@ -24,6 +24,7 @@ export const auditLog: NonNullable<QueryResolvers<Ctx>['auditLog']> = async (
   if (filters.from) {
     conditions.push(gte(eligibilityAudit.computedAt, filters.from));
   }
+
   if (filters.to) {
     conditions.push(lte(eligibilityAudit.computedAt, filters.to));
   }
