@@ -1,35 +1,35 @@
 {
-  "name": "ebms-worker",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "wrangler dev",
-    "login": "wrangler login",
-    "build": "tsc",
-    "build:validate": "tsc && wrangler deploy --dry-run --outdir dist",
-    "deploy": "wrangler deploy",
-    "graphql:generate": "graphql-codegen --config codegen.yml",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "wrangler d1 execute ebms-db --remote --file=./drizzle/migrations/0000_init.sql",
-    "db:migrate:config": "wrangler d1 execute ebms-db --remote --file=./drizzle/migrations/0001_eligibility_config.sql",
-    "db:migrate:remote": "npm run db:migrate && npm run db:migrate:config",
-    "db:local": "wrangler d1 execute ebms-db --local --file=./drizzle/migrations/0000_init.sql",
-    "db:local:config": "wrangler d1 execute ebms-db --local --file=./drizzle/migrations/0001_eligibility_config.sql"
-  },
-  "dependencies": {
-    "drizzle-orm": "^0.45.1",
-    "graphql": "^16.13.1",
-    "graphql-yoga": "^5.10.0",
-    "hono": "^4.6.0"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241127.0",
-    "@graphql-codegen/cli": "^6.1.3",
-    "@graphql-codegen/typescript": "^5.0.9",
-    "@graphql-codegen/typescript-resolvers": "^5.1.7",
-    "drizzle-kit": "^0.28.0",
-    "typescript": "^5.6.0",
-    "wrangler": "^3.94.0"
-  }
+	"name": "ebms-worker",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "wrangler dev",
+		"login": "wrangler login",
+		"build": "tsc",
+		"build:validate": "tsc && wrangler deploy --dry-run --outdir dist",
+		"deploy": "wrangler deploy",
+		"graphql:generate": "graphql-codegen --config codegen.yml",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "wrangler d1 execute ebms-db --remote --file=./drizzle/migrations/0000_init.sql",
+		"db:migrate:config": "wrangler d1 execute ebms-db --remote --file=./drizzle/migrations/0001_eligibility_config.sql",
+		"db:migrate:remote": "npm run db:migrate && npm run db:migrate:config",
+		"db:local": "wrangler d1 execute ebms-db --local --file=./drizzle/migrations/0000_init.sql",
+		"db:local:config": "wrangler d1 execute ebms-db --local --file=./drizzle/migrations/0001_eligibility_config.sql"
+	},
+	"dependencies": {
+		"drizzle-orm": "^0.45.1",
+		"graphql": "^16.13.1",
+		"graphql-yoga": "^5.10.0",
+		"hono": "^4.6.0"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20241127.0",
+		"@graphql-codegen/cli": "^6.1.3",
+		"@graphql-codegen/typescript": "^5.0.9",
+		"@graphql-codegen/typescript-resolvers": "^5.1.7",
+		"drizzle-kit": "^0.28.0",
+		"typescript": "^5.6.0",
+		"wrangler": "^3.94.0"
+	}
 }

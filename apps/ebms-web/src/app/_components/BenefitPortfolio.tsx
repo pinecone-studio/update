@@ -13,7 +13,10 @@ interface BenefitPortfolioProps {
 	onRequestBenefit?: (benefit: BenefitCardProps) => void;
 }
 
-export function BenefitPortfolio({ benefits, onRequestBenefit }: BenefitPortfolioProps) {
+export function BenefitPortfolio({
+	benefits,
+	onRequestBenefit,
+}: BenefitPortfolioProps) {
 	const [selectedBenefit, setSelectedBenefit] =
 		useState<BenefitCardProps | null>(null);
 
@@ -29,7 +32,7 @@ export function BenefitPortfolio({ benefits, onRequestBenefit }: BenefitPortfoli
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full min-w-0">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full min-w-0 items-stretch">
 				{benefits.map((benefit) => (
 					<BenefitCard
 						key={benefit.benefitId ?? benefit.name}

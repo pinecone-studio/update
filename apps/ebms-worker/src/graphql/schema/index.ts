@@ -57,9 +57,11 @@ export const typeDefs = /* GraphQL */ `
   type Benefit {
     id: ID!
     name: String!
+    description: String
     category: String!
     subsidyPercent: Int!
     requiresContract: Boolean!
+    vendorName: String
     activeContract: Contract
   }
 
