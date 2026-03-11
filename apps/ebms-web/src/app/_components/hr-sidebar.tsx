@@ -9,6 +9,7 @@ import { HrManualIcon } from "@/app/icons/hrManual";
 import { HrRulesIcon } from "@/app/icons/hrRules";
 import { HrTemporaryIcon } from "@/app/icons/hrTemporary";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
+import { HrActiveBenefitsIcon } from "@/app/icons/hrActiveBenefits";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
@@ -45,12 +46,17 @@ const navItems: NavItem[] = [
     href: "/admin/vendor-contracts",
     icon: <HrVendorIcon />,
   },
+  {
+    label: "Add Benefit",
+    href: "/admin/add-benefit",
+    icon: <HrActiveBenefitsIcon />,
+  },
   { label: "Audit Log", href: "/admin/audit-log", icon: <HrAuditIcon /> },
 ];
 
 export function HrSidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <aside
@@ -88,7 +94,7 @@ export function HrSidebar() {
         </button>
       </div>
 
-      <nav className={`flex-1 space-y-2 py-6 ${collapsed ? "px-3" : "px-5"}`}>
+      <nav className={`flex-1 space-y-2 overflow-y-auto py-6 ${collapsed ? "px-3" : "px-5"}`}>
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
