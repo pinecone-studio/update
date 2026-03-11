@@ -24,6 +24,7 @@ export const benefits: NonNullable<QueryResolvers<Ctx>['benefits']> = async (
       category: benefitsTable.category,
       subsidyPercent: benefitsTable.subsidyPercent,
       requiresContract: benefitsTable.requiresContract,
+      vendorName: benefitsTable.vendorName,
       activeContractId: benefitsTable.activeContractId,
     })
     .from(benefitsTable)
@@ -33,9 +34,11 @@ export const benefits: NonNullable<QueryResolvers<Ctx>['benefits']> = async (
   return rows.map((b) => ({
     id: b.id,
     name: b.name,
+    description: `${b.category} benefit`,
     category: b.category,
     subsidyPercent: b.subsidyPercent ?? 0,
     requiresContract: asBool01(b.requiresContract),
+    vendorName: b.vendorName ?? null,
     activeContractId: b.activeContractId ?? null,
   }));
 };

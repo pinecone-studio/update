@@ -54,9 +54,11 @@ type RuleEvaluation {
 type Benefit {
   id: ID!
   name: String!
+  description: String
   category: String!
   subsidyPercent: Int!
   requiresContract: Boolean!
+  vendorName: String
   activeContract: Contract
 }
 

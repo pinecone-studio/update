@@ -40,10 +40,12 @@ export type Benefit = {
   __typename?: 'Benefit';
   activeContract?: Maybe<Contract>;
   category: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   requiresContract: Scalars['Boolean']['output'];
   subsidyPercent: Scalars['Int']['output'];
+  vendorName?: Maybe<Scalars['String']['output']>;
 };
 
 export type BenefitEligibility = {
@@ -377,10 +379,12 @@ export type AuditEntryResolvers<ContextType = Ctx, ParentType extends ResolversP
 export type BenefitResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Benefit'] = ResolversParentTypes['Benefit']> = {
   activeContract?: Resolver<Maybe<ResolversTypes['Contract']>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   requiresContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   subsidyPercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  vendorName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
 export type BenefitEligibilityResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['BenefitEligibility'] = ResolversParentTypes['BenefitEligibility']> = {

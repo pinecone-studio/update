@@ -15,9 +15,12 @@ export type MyBenefitEligibility = {
   benefit: {
     id: string;
     name: string;
+    description?: string | null;
     category: string;
     subsidyPercent: number;
     requiresContract: boolean;
+    vendorName?: string | null;
+    activeContract?: { id: string } | null;
   };
   status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
