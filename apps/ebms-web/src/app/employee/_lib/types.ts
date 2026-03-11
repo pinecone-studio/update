@@ -1,0 +1,25 @@
+/** Backend me / Employee */
+export type Me = {
+  id: string;
+  name: string;
+  role: string;
+  responsibilityLevel: number;
+  employmentStatus: string;
+  okrSubmitted: boolean;
+  lateArrivalCount: number;
+  benefits: MyBenefitEligibility[];
+};
+
+/** Backend BenefitEligibility (myBenefits item) */
+export type MyBenefitEligibility = {
+  benefit: {
+    id: string;
+    name: string;
+    category: string;
+    subsidyPercent: number;
+    requiresContract: boolean;
+  };
+  status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
+  ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
+  computedAt: string;
+};

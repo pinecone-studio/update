@@ -81,6 +81,8 @@ export const typeDefs = /* GraphQL */ `
     benefitId: ID!
     status: RequestStatus!
     createdAt: String!
+    employeeName: String
+    benefitName: String
   }
 
   input AuditFilters {
@@ -128,6 +130,13 @@ export const typeDefs = /* GraphQL */ `
     config: String!
   }
 
+  type DashboardStats {
+    totalEmployees: Int!
+    activeBenefits: Int!
+    pendingOverrides: Int!
+    activeExceptions: Int!
+  }
+
   type Query {
     health: Health!
     me: Employee!
@@ -136,6 +145,8 @@ export const typeDefs = /* GraphQL */ `
     employee(id: ID!): Employee
     employees(department: String, employmentStatus: String): [Employee!]!
     auditLog(filters: AuditFilters!): [AuditEntry!]!
+    benefitRequests(status: RequestStatus): [BenefitRequest!]!
+    dashboardStats: DashboardStats!
     getEligibilityRuleConfig: EligibilityRuleConfig!
     getAvailableRuleAttributes: [String!]!
   }

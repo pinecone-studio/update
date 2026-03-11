@@ -26,6 +26,8 @@ const BUTTON_TEXT_BY_STATUS: Record<BenefitStatus, string> = {
 };
 
 export interface BenefitCardProps {
+	/** Backend benefit id (for requestBenefit mutation) */
+	benefitId?: string;
 	category: string;
 	name: string;
 	description: string;
@@ -48,6 +50,7 @@ export interface BenefitCardProps {
 }
 
 export const BenefitCard = ({
+	benefitId: _benefitId,
 	category,
 	name,
 	description,
