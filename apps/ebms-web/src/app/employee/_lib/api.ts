@@ -17,9 +17,14 @@ const ME_QUERY = gql`
         benefit {
           id
           name
+          description
           category
           subsidyPercent
           requiresContract
+          vendorName
+          activeContract {
+            id
+          }
         }
         status
         ruleEvaluations {
@@ -39,9 +44,14 @@ const MY_BENEFITS_QUERY = gql`
       benefit {
         id
         name
+        description
         category
         subsidyPercent
         requiresContract
+        vendorName
+        activeContract {
+          id
+        }
       }
       status
       ruleEvaluations {

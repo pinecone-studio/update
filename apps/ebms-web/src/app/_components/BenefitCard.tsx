@@ -80,7 +80,7 @@ export const BenefitCard = ({
 	};
 	return (
 		<div
-			className={`flex flex-col gap-3 w-full ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
+			className={`flex flex-col gap-3 w-full h-full ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
 			onClick={onClick}
 			onKeyDown={
 				onClick
@@ -99,8 +99,8 @@ export const BenefitCard = ({
 				{category}
 			</span>
 
-			<div className="w-full min-w-0 max-w-full min-h-[356px] rounded-xl bg-[#1A2536] border border-[#2d3a4d] overflow-hidden shadow-inner">
-				<div className="p-5 pt-4">
+			<div className="w-full min-w-0 max-w-full flex-1 min-h-[420px] rounded-xl bg-[#1A2536] border border-[#2d3a4d] overflow-hidden shadow-inner flex flex-col">
+				<div className="p-5 pt-4 flex-1 flex flex-col min-h-0">
 					<div className="flex items-start gap-4 mb-5">
 						<div
 							className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center ${iconBgColor} ${iconColor}`}
@@ -123,27 +123,25 @@ export const BenefitCard = ({
 					</div>
 
 					<div className="space-y-3 mb-5 pb-5 border-b border-[#2d3a4d]">
-						{subsidyPercentage != null && (
-							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-								<span className="text-sm text-[#94A3B8]">Subsidy</span>
-								<span className="text-sm text-white">{subsidyPercentage}</span>
-							</div>
-						)}
-						{vendorDetails != null && (
-							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-								<span className="text-sm text-[#94A3B8]">Vendor</span>
-								<span className="text-sm text-white">{vendorDetails}</span>
-							</div>
-						)}
+						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+							<span className="text-sm text-[#94A3B8]">Subsidy</span>
+							<span className="text-sm text-white">
+								{subsidyPercentage ?? "—"}
+							</span>
+						</div>
+						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+							<span className="text-sm text-[#94A3B8]">Vendor</span>
+							<span className="text-sm text-white">{vendorDetails ?? "—"}</span>
+						</div>
 						<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
 							<span className="text-sm text-[#94A3B8]">Eligibility</span>
 							<span className="text-sm text-white text-right sm:text-right">
 								{eligibilityCriteria}
 							</span>
 						</div>
-						{contractLink != null && (
-							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-								<span className="text-sm text-[#94A3B8]">Contract</span>
+						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+							<span className="text-sm text-[#94A3B8]">Contract</span>
+							{contractLink != null ? (
 								<a
 									href={contractLink}
 									target="_blank"
@@ -154,26 +152,34 @@ export const BenefitCard = ({
 									View active contract
 									<FiExternalLink size={12} className="flex-shrink-0" />
 								</a>
-							</div>
-						)}
+							) : (
+								<span className="text-sm text-[#64748b]">
+									No active contract
+								</span>
+							)}
+						</div>
 					</div>
 
-					{status === "LOCKED" && lockReason != null && (
-						<div className="rounded-lg bg-[#64748b]/20 border border-[#64748b]/40 px-3 py-2 mb-4">
-							<p className="text-xs font-medium text-[#94A3B8] uppercase tracking-wider mb-0.5">
-								Blocked by rule
-							</p>
-							<p className="text-sm text-[#E2E8F0]">{lockReason}</p>
-						</div>
-					)}
+					<div className="h-[72px] flex flex-col justify-center">
+						{status === "LOCKED" && lockReason != null ? (
+							<div className="rounded-lg bg-[#64748b]/20 border border-[#64748b]/40 px-3 py-2">
+								<p className="text-xs font-medium text-[#94A3B8] uppercase tracking-wider mb-0.5">
+									Blocked by rule
+								</p>
+								<p className="text-sm text-[#E2E8F0] line-clamp-2">{lockReason}</p>
+							</div>
+						) : null}
+					</div>
 
-					<button
-						type="button"
-						className="w-full py-3 px-4 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] text-white font-medium text-sm transition-colors"
-						onClick={handleButtonClick}
-					>
-						{displayButtonText}
-					</button>
+					<div className="mt-auto pt-2">
+						<button
+							type="button"
+							className="w-full py-3 px-4 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] text-white font-medium text-sm transition-colors"
+							onClick={handleButtonClick}
+						>
+							{status === "LOCKED" ? "View details" : displayButtonText}
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>
