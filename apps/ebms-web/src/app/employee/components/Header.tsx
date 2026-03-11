@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { fetchMe } from "../_lib/api";
 
 import {
   HiSquares2X2,
@@ -50,9 +51,22 @@ export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [me, setMe] = useState<{ name: string; id: string } | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchMe()
+      .then((data) => {
+        if (!cancelled) setMe({ name: data.name, id: data.id });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -209,14 +223,14 @@ export const Header = () => {
                 className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center ml-1 ring-1 ring-transparent hover:ring-blue-300 hover:bg-blue-500 transition"
                 aria-label="Profile"
               >
-                JD
+                {me?.name?.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase() ?? "JD"}
               </button>
               {profileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-[280px] bg-[#1A2333] border border-[#243041] rounded-xl shadow-xl overflow-hidden z-50">
                   <div className="p-4 border-b border-[#243041]">
-                    <p className="text-white font-semibold">John Doe</p>
-                    <p className="text-slate-400 text-sm mt-0.5">john.doe@company.com</p>
-                    <p className="text-slate-500 text-xs mt-1">EMP-2024-1234</p>
+                    <p className="text-white font-semibold">{me?.name ?? "—"}</p>
+                    <p className="text-slate-400 text-sm mt-0.5">—</p>
+                    <p className="text-slate-500 text-xs mt-1">{me?.id ?? "—"}</p>
                   </div>
                   <div className="p-2">
                     <Link
@@ -285,7 +299,7 @@ export const Header = () => {
               className="flex items-center gap-2"
             >
               <div className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center">
-                JD
+                {me?.name?.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase() ?? "JD"}
               </div>
               <span className="text-slate-300 text-xs">Account</span>
             </Link>
