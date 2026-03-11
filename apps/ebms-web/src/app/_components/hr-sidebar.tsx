@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { HrAuditIcon } from "@/app/icons/hrAudit";
 import { HrDashboardIcon } from "@/app/icons/hrDashboard";
 import { HrEmployeeIcon } from "@/app/icons/hrEmployee";
@@ -7,8 +9,6 @@ import { HrManualIcon } from "@/app/icons/hrManual";
 import { HrRulesIcon } from "@/app/icons/hrRules";
 import { HrTemporaryIcon } from "@/app/icons/hrTemporary";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState } from "react";
 

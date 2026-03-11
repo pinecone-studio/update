@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { HrSidebar } from "./_components/hr-sidebar";
+import { HrSidebar } from "@/app/_components/hr-sidebar";
 
 export default function HrAdminLayout({ children }: { children: ReactNode }) {
   return (
