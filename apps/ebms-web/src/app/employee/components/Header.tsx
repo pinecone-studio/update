@@ -7,7 +7,6 @@ import { useState, useRef, useEffect } from "react";
 import {
   HiSquares2X2,
   HiOutlineBookmark,
-  HiOutlineDocumentText,
   HiOutlineBell,
   HiBars3,
   HiXMark,
@@ -71,8 +70,6 @@ export const Header = () => {
   const navItems = [
     { key: "dashboard", label: "Dashboard", href: "/employee", icon: HiSquares2X2 },
     { key: "eligibility", label: "Benefit Eligibility", href: "/employee/benefits", icon: HiOutlineBookmark },
-    { key: "requests", label: "Benefit Requests", href: "/employee/requests", icon: HiOutlineDocumentText },
-    // { key: "notifications", label: "Notifications", href: "/employee/notification", icon: HiOutlineBell }
   ];
 
   const isActive = (href: string) =>
