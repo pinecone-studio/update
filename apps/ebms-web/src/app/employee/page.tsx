@@ -149,15 +149,8 @@ export default function EmployeeDashboardPage() {
 
 						<div className="flex justify-between items-center mt-8 mb-6">
 							<h2 className="text-xl text-white font-semibold">
-								Benefit Portfolio
+								Active Benefits
 							</h2>
-							<a
-								href="/employee/benefits"
-								className="px-4 py-2 border border-[#64748b] flex items-center gap-2 rounded-full text-white text-sm hover:bg-[#334155] transition-colors"
-							>
-								View Eligibility Details
-								<CgArrowRight size={16} />
-							</a>
 						</div>
 
 						<BenefitPortfolio

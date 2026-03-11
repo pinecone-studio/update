@@ -95,9 +95,7 @@ export const BenefitCard = ({
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
-      <span className="text-white text-xs font-medium uppercase tracking-wider w-fit">
-        {category}
-      </span>
+ 
 
       <div className="w-full min-w-0 max-w-full min-h-[356px] rounded-xl bg-[#1A2536] border border-[#2d3a4d] overflow-hidden shadow-inner">
         <div className="p-5 pt-4">

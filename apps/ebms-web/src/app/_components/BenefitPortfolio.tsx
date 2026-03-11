@@ -30,22 +30,32 @@ export function BenefitPortfolio({
 		}
 	};
 
+	const activeBenefits = benefits.filter((b) => b.status === "ACTIVE");
+
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full min-w-0 items-stretch">
-				{benefits.map((benefit) => (
-					<BenefitCard
-						key={benefit.benefitId ?? benefit.name}
-						{...benefit}
-						onClick={() => setSelectedBenefit(benefit)}
-						onRequestBenefit={
-							benefit.status === "ELIGIBLE"
-								? () => handleRequestBenefit(benefit)
-								: undefined
-						}
-					/>
-				))}
-			</div>
+			{activeBenefits.length === 0 ? (
+				<div className="rounded-2xl border border-[#334155] bg-[#1E293B] px-6 py-10 text-center">
+					<p className="text-[#94A3B8] text-sm">
+						Одоогоор идэвхтэй benefit байхгүй байна. Eligibility-г шалгаад шинэ benefit хүсэх боломжтой.
+					</p>
+				</div>
+			) : (
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full min-w-0 items-stretch">
+					{activeBenefits.map((benefit) => (
+						<BenefitCard
+							key={benefit.benefitId ?? benefit.name}
+							{...benefit}
+							onClick={() => setSelectedBenefit(benefit)}
+							onRequestBenefit={
+								benefit.status === "ELIGIBLE"
+									? () => handleRequestBenefit(benefit)
+									: undefined
+							}
+						/>
+					))}
+				</div>
+			)}
 			<BenefitEligibilityModal
 				benefit={selectedBenefit}
 				onClose={() => setSelectedBenefit(null)}

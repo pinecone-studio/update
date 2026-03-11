@@ -125,9 +125,7 @@ export default function EmployeeBenefitsPage() {
               );
             })}
           </div>
-
           {error && <p className="text-sm text-red-400">Error: {error}</p>}
-
           {loading ? (
             <p className="text-[#94A3B8]">Loading benefits...</p>
           ) : (
