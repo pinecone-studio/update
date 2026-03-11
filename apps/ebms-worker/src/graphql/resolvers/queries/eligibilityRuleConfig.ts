@@ -12,13 +12,21 @@ export const getEligibilityRuleConfig: NonNullable<
 > = async (_, __, ctx) => {
   requireHR(ctx);
   const db = getDb(ctx.env);
-  const rows = await db
-    .select({ configData: eligibilityConfig.configData })
-    .from(eligibilityConfig)
-    .where(eq(eligibilityConfig.isActive, 1))
-    .limit(1);
-  const config = rows[0]?.configData ?? DEFAULT_CONFIG;
-  return { config };
+  try {
+    const rows = await db
+      .select({ configData: eligibilityConfig.configData })
+      .from(eligibilityConfig)
+      .where(eq(eligibilityConfig.isActive, 1))
+      .limit(1);
+    const config = rows[0]?.configData ?? DEFAULT_CONFIG;
+    return { config };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/no such table|eligibility_config|Failed query|table.*not found/i.test(msg)) {
+      return { config: DEFAULT_CONFIG };
+    }
+    throw err;
+  }
 };
 
 export const getAvailableRuleAttributes: NonNullable<
