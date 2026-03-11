@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import { HrAuditIcon } from "@/app/icons/hrAudit";
 import { HrDashboardIcon } from "@/app/icons/hrDashboard";
 import { HrEmployeeIcon } from "@/app/icons/hrEmployee";
-import { HrManualIcon } from "@/app/icons/hrManual";
-import { HrTemporaryIcon } from "@/app/icons/hrTemporary";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
 import { HrActiveBenefitsIcon } from "@/app/icons/hrActiveBenefits";
 import type { ReactNode } from "react";
@@ -24,16 +22,6 @@ const navItems: NavItem[] = [
     label: "Employee Eligibility",
     href: "/admin/employee-eligibility",
     icon: <HrEmployeeIcon />,
-  },
-  {
-    label: "Manual Override",
-    href: "/admin/manual-override",
-    icon: <HrManualIcon />,
-  },
-  {
-    label: "Temporary Exceptions",
-    href: "/admin/temporary-exceptions",
-    icon: <HrTemporaryIcon />,
   },
   {
     label: "Vendor Contracts",
