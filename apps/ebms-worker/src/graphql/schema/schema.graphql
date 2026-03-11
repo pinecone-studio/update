@@ -79,6 +79,8 @@ type BenefitRequest {
   benefitId: ID!
   status: RequestStatus!
   createdAt: String!
+  employeeName: String
+  benefitName: String
 }
 
 # ─── Audit (HR) ────────────────────────────────────────────────
@@ -139,6 +141,7 @@ type Query {
   employee(id: ID!): Employee
   employees(department: String, employmentStatus: String): [Employee!]!
   auditLog(filters: AuditFilters!): [AuditEntry!]!
+  benefitRequests(status: RequestStatus): [BenefitRequest!]!
   getEligibilityRuleConfig: EligibilityRuleConfig!
   getAvailableRuleAttributes: [String!]!
 }
