@@ -25,3 +25,13 @@ export function requireHR(ctx: Ctx): void {
   }
 }
 
+/** Benefit нэмэх зэрэг үйлдлүүд — зөвхөн admin. */
+export function requireAdmin(ctx: Ctx): void {
+  const role = (ctx.role ?? '').toLowerCase();
+  if (role !== 'admin') {
+    throw new GraphQLError('Forbidden: admin role required', {
+      extensions: { code: 'FORBIDDEN' },
+    });
+  }
+}
+

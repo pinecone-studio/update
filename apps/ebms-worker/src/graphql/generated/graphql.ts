@@ -82,9 +82,24 @@ export type Contract = {
   version: Scalars['String']['output'];
 };
 
+export type CreateBenefitInput = {
+  category: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  requiresContract?: InputMaybe<Scalars['Boolean']['input']>;
+  rules?: InputMaybe<Array<EligibilityRuleInput>>;
+  subsidyPercent?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type EligibilityRuleConfig = {
   __typename?: 'EligibilityRuleConfig';
   config: Scalars['String']['output'];
+};
+
+export type EligibilityRuleInput = {
+  errorMessage?: InputMaybe<Scalars['String']['input']>;
+  operator: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+  value: Scalars['String']['input'];
 };
 
 export type Employee = {
@@ -115,6 +130,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   cancelBenefitRequest: BenefitRequest;
   confirmBenefitRequest: BenefitRequest;
+  createBenefit: Benefit;
   overrideEligibility: BenefitEligibility;
   requestBenefit: BenefitRequest;
   updateEligibilityRuleConfig: EligibilityRuleConfig;
@@ -129,6 +145,11 @@ export type MutationCancelBenefitRequestArgs = {
 export type MutationConfirmBenefitRequestArgs = {
   contractAccepted: Scalars['Boolean']['input'];
   requestId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateBenefitArgs = {
+  input: CreateBenefitInput;
 };
 
 
@@ -283,7 +304,9 @@ export type ResolversTypes = {
   BenefitStatus: BenefitStatus;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Contract: ResolverTypeWrapper<Contract>;
+  CreateBenefitInput: CreateBenefitInput;
   EligibilityRuleConfig: ResolverTypeWrapper<EligibilityRuleConfig>;
+  EligibilityRuleInput: EligibilityRuleInput;
   Employee: ResolverTypeWrapper<Employee>;
   EmploymentStatus: EmploymentStatus;
   Health: ResolverTypeWrapper<Health>;
@@ -307,7 +330,9 @@ export type ResolversParentTypes = {
   BenefitRequestInput: BenefitRequestInput;
   Boolean: Scalars['Boolean']['output'];
   Contract: Contract;
+  CreateBenefitInput: CreateBenefitInput;
   EligibilityRuleConfig: EligibilityRuleConfig;
+  EligibilityRuleInput: EligibilityRuleInput;
   Employee: Employee;
   Health: Health;
   ID: Scalars['ID']['output'];
@@ -385,6 +410,7 @@ export type HealthResolvers<ContextType = Ctx, ParentType extends ResolversParen
 export type MutationResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   cancelBenefitRequest?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationCancelBenefitRequestArgs, 'requestId'>>;
   confirmBenefitRequest?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationConfirmBenefitRequestArgs, 'contractAccepted' | 'requestId'>>;
+  createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
   overrideEligibility?: Resolver<ResolversTypes['BenefitEligibility'], ParentType, ContextType, RequireFields<MutationOverrideEligibilityArgs, 'input'>>;
   requestBenefit?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationRequestBenefitArgs, 'input'>>;
   updateEligibilityRuleConfig?: Resolver<ResolversTypes['EligibilityRuleConfig'], ParentType, ContextType, RequireFields<MutationUpdateEligibilityRuleConfigArgs, 'config'>>;

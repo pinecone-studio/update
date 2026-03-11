@@ -109,6 +109,21 @@ export const typeDefs = /* GraphQL */ `
     expiresAt: String
   }
 
+  input EligibilityRuleInput {
+    type: String!
+    operator: String!
+    value: String!
+    errorMessage: String
+  }
+
+  input CreateBenefitInput {
+    name: String!
+    category: String!
+    subsidyPercent: Int
+    requiresContract: Boolean
+    rules: [EligibilityRuleInput!]
+  }
+
   type EligibilityRuleConfig {
     config: String!
   }
@@ -132,5 +147,6 @@ export const typeDefs = /* GraphQL */ `
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
     overrideEligibility(input: OverrideInput!): BenefitEligibility!
     updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!
+    createBenefit(input: CreateBenefitInput!): Benefit!
   }
 `;
