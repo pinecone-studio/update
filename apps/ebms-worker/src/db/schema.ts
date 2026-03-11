@@ -45,7 +45,7 @@ export const eligibilityRules = sqliteTable('eligibility_rules', {
   errorMessage: text('error_message'),
   priority: integer('priority').notNull().default(0),
   isActive: integer('is_active').notNull().default(1),
-  createdAt: text('created_at').default(''),
+  createdAt: text('created_at').default(''),  
   updatedAt: text('updated_at').default(''),
 });
 

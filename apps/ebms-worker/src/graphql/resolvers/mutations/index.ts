@@ -3,4 +3,5 @@ export * from './cancelBenefitRequest';
 export * from './confirmBenefitRequest';
 export * from './overrideEligibility';
 export * from './updateEligibilityRuleConfig';
+export * from './createBenefit';
 

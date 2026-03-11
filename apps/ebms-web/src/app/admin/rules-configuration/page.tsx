@@ -27,6 +27,18 @@ const UPDATE_CONFIG = gql`
   }
 `;
 
+const CREATE_BENEFIT = gql`
+  mutation CreateBenefit($input: CreateBenefitInput!) {
+    createBenefit(input: $input) {
+      id
+      name
+      category
+      subsidyPercent
+      requiresContract
+    }
+  }
+`;
+
 type Rule = {
   type: string;
   operator: string;
@@ -52,19 +64,40 @@ const OPERATORS = [
   { value: 'gt', label: 'Greater than (gt)' },
 ];
 
+const defaultNewBenefit = {
+  name: '',
+  category: 'wellness',
+  subsidyPercent: 0,
+  requiresContract: false,
+  rules: [] as Rule[],
+};
+
+function getErrorMessage(e: unknown): string {
+  if (e && typeof e === 'object' && 'response' in e) {
+    const res = (e as { response?: { errors?: Array<{ message?: string }> } }).response;
+    const msg = res?.errors?.[0]?.message;
+    if (msg) return msg;
+  }
+  if (e instanceof Error) return e.message;
+  return String(e);
+}
+
 export default function RulesConfigurationPage() {
   const [config, setConfig] = useState<BenefitsConfig>({});
   const [attributes, setAttributes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newBenefit, setNewBenefit] = useState<typeof defaultNewBenefit>(defaultNewBenefit);
 
   const getClient = useCallback(() => {
     const client = new GraphQLClient(`${API_URL}/graphql`, {
       headers: {
-        'x-employee-id': 'hr-admin',
-        'x-role': 'hr',
+        'x-employee-id': 'admin',
+        'x-role': 'admin',
       },
     });
     return client;
@@ -83,7 +116,7 @@ export default function RulesConfigurationPage() {
       setConfig(parsed.benefits ?? {});
       setAttributes(attrsRes.getAvailableRuleAttributes ?? []);
     } catch (e) {
-      setError((e as Error).message);
+      setError(getErrorMessage(e));
       setConfig({});
       setAttributes(['employment_status', 'okr_submitted', 'attendance', 'responsibility_level']);
     } finally {
@@ -131,12 +164,73 @@ export default function RulesConfigurationPage() {
     });
   };
 
-  const addBenefit = () => {
-    const key = `benefit_${Date.now()}`;
-    setConfig((prev) => ({
+  const openAddBenefitForm = () => {
+    setShowAddForm(true);
+    setNewBenefit({ ...defaultNewBenefit });
+    setError(null);
+    setMessage(null);
+  };
+
+  const closeAddBenefitForm = () => {
+    setShowAddForm(false);
+    setNewBenefit({ ...defaultNewBenefit });
+  };
+
+  const updateNewBenefitRule = (ruleIndex: number, field: keyof Rule, value: string | number | boolean) => {
+    setNewBenefit((prev) => {
+      const rules = [...(prev.rules ?? [])];
+      rules[ruleIndex] = { ...rules[ruleIndex], [field]: value };
+      return { ...prev, rules };
+    });
+  };
+
+  const addNewBenefitRule = () => {
+    setNewBenefit((prev) => ({
       ...prev,
-      [key]: { name: 'New Benefit', category: 'wellness', rules: [] },
+      rules: [...(prev.rules ?? []), { type: 'employment_status', operator: 'eq', value: 'active', errorMessage: '' }],
     }));
+  };
+
+  const removeNewBenefitRule = (ruleIndex: number) => {
+    setNewBenefit((prev) => ({
+      ...prev,
+      rules: (prev.rules ?? []).filter((_, i) => i !== ruleIndex),
+    }));
+  };
+
+  const handleCreateBenefit = async () => {
+    const name = newBenefit.name?.trim();
+    const category = newBenefit.category?.trim();
+    if (!name || !category) {
+      setError('Name and category are required.');
+      return;
+    }
+    setCreating(true);
+    setError(null);
+    try {
+      const client = getClient();
+      await client.request<{ createBenefit: { id: string } }>(CREATE_BENEFIT, {
+        input: {
+          name,
+          category,
+          subsidyPercent: newBenefit.subsidyPercent ?? 0,
+          requiresContract: newBenefit.requiresContract ?? false,
+          rules: (newBenefit.rules ?? []).map((r) => ({
+            type: r.type,
+            operator: r.operator,
+            value: String(r.value),
+            errorMessage: r.errorMessage || undefined,
+          })),
+        },
+      });
+      setMessage('Benefit created and added to rules config.');
+      closeAddBenefitForm();
+      await load();
+    } catch (e) {
+      setError(`Failed to create benefit: ${getErrorMessage(e)}`);
+    } finally {
+      setCreating(false);
+    }
   };
 
   const removeBenefit = (key: string) => {
@@ -156,8 +250,9 @@ export default function RulesConfigurationPage() {
       const payload = JSON.stringify({ benefits: config });
       await client.request<{ updateEligibilityRuleConfig: { config: string } }>(UPDATE_CONFIG, { config: payload });
       setMessage('Eligibility rules saved successfully.');
+      setError(null);
     } catch (e) {
-      setError((e as Error).message);
+      setError(getErrorMessage(e));
     } finally {
       setSaving(false);
     }
@@ -191,6 +286,123 @@ export default function RulesConfigurationPage() {
       )}
 
       <div className="mt-6 flex flex-col gap-6">
+        {showAddForm && (
+          <div className="rounded-xl border-2 border-dashed border-[#475569] bg-[#0F172A] p-5">
+            <h2 className="text-lg font-medium text-white mb-4">Create new benefit (catalog + rules)</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm text-[#94A3B8] mb-1">Name *</label>
+                <input
+                  type="text"
+                  value={newBenefit.name}
+                  onChange={(e) => setNewBenefit((p) => ({ ...p, name: e.target.value }))}
+                  className="w-full rounded-lg border border-[#334155] bg-[#1E293B] px-3 py-2 text-white"
+                  placeholder="e.g. Gym Pinefit"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[#94A3B8] mb-1">Category *</label>
+                <input
+                  type="text"
+                  value={newBenefit.category}
+                  onChange={(e) => setNewBenefit((p) => ({ ...p, category: e.target.value }))}
+                  className="w-full rounded-lg border border-[#334155] bg-[#1E293B] px-3 py-2 text-white"
+                  placeholder="e.g. wellness"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[#94A3B8] mb-1">Subsidy %</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={newBenefit.subsidyPercent ?? ''}
+                  onChange={(e) => setNewBenefit((p) => ({ ...p, subsidyPercent: e.target.value ? Number(e.target.value) : 0 }))}
+                  className="w-full rounded-lg border border-[#334155] bg-[#1E293B] px-3 py-2 text-white"
+                />
+              </div>
+              <div className="flex items-center gap-2 pt-6">
+                <input
+                  type="checkbox"
+                  id="new-requires-contract"
+                  checked={!!newBenefit.requiresContract}
+                  onChange={(e) => setNewBenefit((p) => ({ ...p, requiresContract: e.target.checked }))}
+                  className="rounded border-[#334155]"
+                />
+                <label htmlFor="new-requires-contract" className="text-sm text-[#94A3B8]">Requires contract</label>
+              </div>
+            </div>
+            <h3 className="text-sm font-medium text-[#94A3B8] mt-4 mb-2">Eligibility rules (optional)</h3>
+            {(newBenefit.rules ?? []).map((rule, ri) => (
+              <div key={ri} className="flex flex-wrap items-center gap-2 mb-2 p-2 rounded bg-[#1E293B]">
+                <select
+                  value={rule.type}
+                  onChange={(e) => updateNewBenefitRule(ri, 'type', e.target.value)}
+                  className="rounded border border-[#334155] bg-[#0F172A] px-2 py-1.5 text-white text-sm"
+                >
+                  {attributes.map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+                <select
+                  value={rule.operator}
+                  onChange={(e) => updateNewBenefitRule(ri, 'operator', e.target.value)}
+                  className="rounded border border-[#334155] bg-[#0F172A] px-2 py-1.5 text-white text-sm"
+                >
+                  {OPERATORS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  placeholder="Value"
+                  value={typeof rule.value === 'boolean' ? (rule.value ? 'true' : 'false') : String(rule.value ?? '')}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === 'true') updateNewBenefitRule(ri, 'value', true);
+                    else if (v === 'false') updateNewBenefitRule(ri, 'value', false);
+                    else if (/^\d+$/.test(v)) updateNewBenefitRule(ri, 'value', Number(v));
+                    else updateNewBenefitRule(ri, 'value', v);
+                  }}
+                  className="rounded border border-[#334155] bg-[#0F172A] px-2 py-1.5 text-white text-sm w-24"
+                />
+                <input
+                  type="text"
+                  placeholder="Error message"
+                  value={rule.errorMessage ?? ''}
+                  onChange={(e) => updateNewBenefitRule(ri, 'errorMessage', e.target.value)}
+                  className="flex-1 min-w-[160px] rounded border border-[#334155] bg-[#0F172A] px-2 py-1.5 text-white text-sm"
+                />
+                <button type="button" onClick={() => removeNewBenefitRule(ri)} className="text-red-400 hover:text-red-300 text-sm">Remove</button>
+              </div>
+            ))}
+            <button type="button" onClick={addNewBenefitRule} className="mt-2 text-sm text-blue-400 hover:text-blue-300">+ Add rule</button>
+            <div className="flex gap-2 mt-4">
+              <button
+                type="button"
+                onClick={handleCreateBenefit}
+                disabled={creating}
+                className="rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] disabled:opacity-50 text-white px-4 py-2 font-medium"
+              >
+                {creating ? 'Creating...' : 'Create benefit'}
+              </button>
+              <button
+                type="button"
+                onClick={closeAddBenefitForm}
+                className="rounded-lg border border-[#334155] text-[#94A3B8] hover:text-white px-4 py-2"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {Object.keys(config).length === 0 && !showAddForm && (
+          <div className="rounded-xl border border-[#334155] bg-[#0F172A] p-6 text-center text-[#94A3B8]">
+            No benefits in rules config yet. Click &quot;+ Add benefit&quot; to create one (adds to catalog and rules).
+          </div>
+        )}
+
         {Object.entries(config).map(([benefitKey, benefit]) => (
           <div
             key={benefitKey}
@@ -310,10 +522,10 @@ export default function RulesConfigurationPage() {
 
         <button
           type="button"
-          onClick={addBenefit}
+          onClick={showAddForm ? closeAddBenefitForm : openAddBenefitForm}
           className="rounded-xl border border-dashed border-[#475569] text-[#94A3B8] py-3 hover:border-[#64748B] hover:text-white"
         >
-          + Add benefit
+          {showAddForm ? 'Cancel new benefit' : '+ Add benefit (create in catalog + rules)'}
         </button>
       </div>
 
