@@ -19,10 +19,12 @@ export type BenefitEligibilityRow = {
   benefit: {
     id: string;
     name: string;
+    description: string | null;
     category: string;
     subsidyPercent: number;
     requiresContract: boolean;
-    activeContract: null;
+    vendorName: string | null;
+    activeContractId: string | null;
   };
   status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING';
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
@@ -48,6 +50,8 @@ export async function getBenefitEligibilityForEmployee(
       benefitCategory: benefitsTable.category,
       benefitSubsidyPercent: benefitsTable.subsidyPercent,
       benefitRequiresContract: benefitsTable.requiresContract,
+      benefitVendorName: benefitsTable.vendorName,
+      benefitActiveContractId: benefitsTable.activeContractId,
       eligibilityStatus: benefitEligibility.status,
       ruleEvaluationJson: benefitEligibility.ruleEvaluationJson,
       computedAt: benefitEligibility.computedAt,
@@ -73,10 +77,12 @@ export async function getBenefitEligibilityForEmployee(
         benefit: {
           id: row.benefitId,
           name: row.benefitName,
+          description: `${row.benefitCategory} benefit`,
           category: row.benefitCategory,
           subsidyPercent: row.benefitSubsidyPercent ?? 0,
           requiresContract: asBool01(row.benefitRequiresContract),
-          activeContract: null,
+          vendorName: row.benefitVendorName ?? null,
+          activeContractId: row.benefitActiveContractId ?? null,
         },
         status: row.eligibilityStatus === 'active' ? 'ACTIVE' : status,
         ruleEvaluations,
@@ -99,10 +105,12 @@ export async function getBenefitEligibilityForEmployee(
       benefit: {
         id: row.benefitId,
         name: row.benefitName,
+        description: `${row.benefitCategory} benefit`,
         category: row.benefitCategory,
         subsidyPercent: row.benefitSubsidyPercent ?? 0,
         requiresContract: asBool01(row.benefitRequiresContract),
-        activeContract: null,
+        vendorName: row.benefitVendorName ?? null,
+        activeContractId: row.benefitActiveContractId ?? null,
       },
       status: mapBenefitStatus(row.eligibilityStatus ?? 'locked'),
       ruleEvaluations,

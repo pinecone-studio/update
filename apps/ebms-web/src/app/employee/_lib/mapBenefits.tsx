@@ -41,16 +41,21 @@ export function mapMyBenefitsToCardProps(items: MyBenefitEligibility[]): Benefit
         detail: r.reason,
       })) ?? [];
 
+    const contractLink = b.activeContract?.id
+      ? `/employee/contracts/${b.activeContract.id}`
+      : undefined;
+
     return {
       benefitId: b.id,
       category: b.category ?? 'Benefit',
       name: b.name,
-      description: b.requiresContract ? 'Requires contract acceptance.' : 'Company benefit.',
+      description: b.description ?? (b.requiresContract ? 'Requires contract acceptance.' : 'Company benefit.'),
       subsidyPercentage: b.subsidyPercent != null ? `${b.subsidyPercent}%` : undefined,
-      vendorDetails: undefined,
+      vendorDetails: b.vendorName ?? undefined,
       eligibilityCriteria: eligibilityRules.length
         ? eligibilityRules.map((r) => r.rule).join(', ')
         : 'See eligibility details.',
+      contractLink,
       status: item.status as BenefitCardProps['status'],
       lockReason,
       eligibilityRules,
