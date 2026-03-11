@@ -6,7 +6,6 @@ import { HrAuditIcon } from "@/app/icons/hrAudit";
 import { HrDashboardIcon } from "@/app/icons/hrDashboard";
 import { HrEmployeeIcon } from "@/app/icons/hrEmployee";
 import { HrManualIcon } from "@/app/icons/hrManual";
-import { HrRulesIcon } from "@/app/icons/hrRules";
 import { HrTemporaryIcon } from "@/app/icons/hrTemporary";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
 import { HrActiveBenefitsIcon } from "@/app/icons/hrActiveBenefits";
@@ -35,11 +34,6 @@ const navItems: NavItem[] = [
     label: "Temporary Exceptions",
     href: "/admin/temporary-exceptions",
     icon: <HrTemporaryIcon />,
-  },
-  {
-    label: "Rules Configuration",
-    href: "/admin/rules-configuration",
-    icon: <HrRulesIcon />,
   },
   {
     label: "Vendor Contracts",

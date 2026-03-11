@@ -31,20 +31,34 @@ export const createBenefit: NonNullable<
   const subsidyPercent = input.subsidyPercent ?? 0;
   const requiresContract = input.requiresContract ?? false;
 
-  let benefitId = slugFromName(name);
-  let suffix = 0;
-  while (true) {
-    const idToUse = suffix === 0 ? benefitId : `${benefitId}_${suffix}`;
-    const existing = await db
-      .select({ id: benefitsTable.id })
-      .from(benefitsTable)
-      .where(eq(benefitsTable.id, idToUse))
-      .limit(1);
-    if (existing.length === 0) {
-      benefitId = idToUse;
-      break;
+  let benefitId: string;
+  try {
+    benefitId = slugFromName(name);
+    let suffix = 0;
+    while (true) {
+      const idToUse = suffix === 0 ? benefitId : `${benefitId}_${suffix}`;
+      const existing = await db
+        .select({ id: benefitsTable.id })
+        .from(benefitsTable)
+        .where(eq(benefitsTable.id, idToUse))
+        .limit(1);
+      if (existing.length === 0) {
+        benefitId = idToUse;
+        break;
+      }
+      suffix += 1;
     }
-    suffix += 1;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/no such table|Failed query|benefits.*not found|table.*benefits/i.test(msg)) {
+      throw new GraphQLError(
+        'benefits хүснэгт олдсонгүй. Орон нутгийн D1: npm run db:local',
+        { extensions: { code: 'INTERNAL_SERVER_ERROR' } }
+      );
+    }
+    throw new GraphQLError(`Benefit id шалгахад алдаа: ${msg}`, {
+      extensions: { code: 'INTERNAL_SERVER_ERROR' },
+    });
   }
 
   try {
