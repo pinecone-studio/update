@@ -139,11 +139,7 @@ export default function AddBenefitPage() {
   const addRuleForSelected = useCallback(() => {
     if (!selectedBenefitId) return;
     setConfig((prev) => {
-      const benefit = prev[selectedBenefitId] ?? {
-        name: selectedBenefit?.name ?? '',
-        category: selectedBenefit?.category ?? '',
-        rules: [],
-      };
+      const benefit = prev[selectedBenefitId] ?? { name: selectedBenefit?.name ?? '', category: selectedBenefit?.category ?? '', rules: [] };
       const rules = [...(benefit.rules ?? []), { type: 'employment_status', operator: 'eq', value: 'active', errorMessage: '' }];
       return { ...prev, [selectedBenefitId]: { ...benefit, rules } };
     });

@@ -3,21 +3,19 @@
 import { useEffect, useState } from 'react';
 import { GraphQLClient, gql } from 'graphql-request';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787').replace(/\/graphql\/?$/, '').trim() || 'http://localhost:8787';
 
 const HEALTH_QUERY = gql`
-  query {
+  query Health {
     health {
       ok
       timestamp
     }
-    hello
   }
 `;
 
 type GraphQLHealth = {
   health: { ok: boolean; timestamp: string };
-  hello: string;
 };
 
 export default function Home() {
@@ -25,7 +23,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const client = new GraphQLClient(`${API_URL}/graphql`);
+    const graphqlUrl = API_URL.endsWith('/graphql') ? API_URL : `${API_URL}/graphql`;
+    const client = new GraphQLClient(graphqlUrl);
     client
       .request<GraphQLHealth>(HEALTH_QUERY)
       .then(setData)
@@ -44,9 +43,6 @@ export default function Home() {
           <h2 className="text-base font-medium">GraphQL Response</h2>
           <p>
             <strong>health:</strong> ok={String(data.health.ok)}, time={data.health.timestamp}
-          </p>
-          <p>
-            <strong>hello:</strong> {data.hello}
           </p>
         </section>
       )}
