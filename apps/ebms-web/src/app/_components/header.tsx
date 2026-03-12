@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import {
+  HiOutlineUserCircle,
+  HiOutlineCog6Tooth,
+  HiOutlineArrowRightOnRectangle,
+} from "react-icons/hi2";
 import { HrActiveBenefitsIcon } from "@/app/icons/hrActiveBenefits";
 import { HrAuditIcon } from "@/app/icons/hrAudit";
 import { HrDashboardIcon } from "@/app/icons/hrDashboard";
@@ -38,11 +44,24 @@ const navItems: NavItem[] = [
 
 export function Header() {
   const pathname = usePathname();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
   const normalizedPath = pathname.endsWith("/") && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
 
   const isActive = (href: string) =>
     normalizedPath === href ||
     (href !== "/admin" && normalizedPath.startsWith(href));
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 h-16 border-b border-slate-200 bg-white px-4 dark:border-[#24395C] dark:bg-[#1E293B]">

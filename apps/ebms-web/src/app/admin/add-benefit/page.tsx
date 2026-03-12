@@ -1,8 +1,13 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import type { BenefitFromCatalog, BenefitConfig, Rule, AddBenefitFormState } from './_lib/types';
-import { ERROR_MESSAGES, DEFAULT_FORM } from './_lib/constants';
+import { useCallback, useEffect, useState } from "react";
+import type {
+  BenefitFromCatalog,
+  BenefitConfig,
+  Rule,
+  AddBenefitFormState,
+} from "./_lib/types";
+import { ERROR_MESSAGES, DEFAULT_FORM } from "./_lib/constants";
 import {
   getClient,
   getApiErrorMessage,
@@ -10,10 +15,10 @@ import {
   fetchConfigAndAttributes,
   CREATE_BENEFIT,
   UPDATE_CONFIG,
-} from './_lib/api';
-import { AddBenefitForm } from './_components/AddBenefitForm';
-import { BenefitCatalogTable } from './_components/BenefitCatalogTable';
-import { RuleConfigSection } from './_components/RuleConfigSection';
+} from "./_lib/api";
+import { AddBenefitForm } from "./_components/AddBenefitForm";
+import { BenefitCatalogTable } from "./_components/BenefitCatalogTable";
+import { RuleConfigSection } from "./_components/RuleConfigSection";
 
 export default function AddBenefitPage() {
   const [form, setForm] = useState<AddBenefitFormState>(DEFAULT_FORM);
@@ -21,9 +26,13 @@ export default function AddBenefitPage() {
   const [error1, setError1] = useState<string | null>(null);
   const [message1, setMessage1] = useState<string | null>(null);
 
-  const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>([]);
+  const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>(
+    [],
+  );
   const [loadingCatalog, setLoadingCatalog] = useState(false);
-  const [selectedBenefitId, setSelectedBenefitId] = useState<string | null>(null);
+  const [selectedBenefitId, setSelectedBenefitId] = useState<string | null>(
+    null,
+  );
   const [config, setConfig] = useState<Record<string, BenefitConfig>>({});
   const [attributes, setAttributes] = useState<string[]>([]);
   const [loadingConfig, setLoadingConfig] = useState(false);
@@ -49,13 +58,19 @@ export default function AddBenefitPage() {
     setLoadingConfig(true);
     setError2(null);
     try {
-      const { config: nextConfig, attributes: nextAttrs } = await fetchConfigAndAttributes(getClient());
+      const { config: nextConfig, attributes: nextAttrs } =
+        await fetchConfigAndAttributes(getClient());
       setConfig(nextConfig);
       setAttributes(nextAttrs);
     } catch (e) {
       setError2(ERROR_MESSAGES.CONFIG_LOAD + getApiErrorMessage(e));
       setConfig({});
-      setAttributes(['employment_status', 'okr_submitted', 'attendance', 'responsibility_level']);
+      setAttributes([
+        "employment_status",
+        "okr_submitted",
+        "attendance",
+        "responsibility_level",
+      ]);
     } finally {
       setLoadingConfig(false);
     }
@@ -100,7 +115,9 @@ export default function AddBenefitPage() {
           rules: [],
         },
       });
-      setMessage1(`"${name}" D1-д амжилттай нэмэгдлээ. Доорх "Дүрэм тохируулах" хэсгээс дүрмээ тохируулна уу.`);
+      setMessage1(
+        `"${name}" D1-д амжилттай нэмэгдлээ. Доорх "Дүрэм тохируулах" хэсгээс дүрмээ тохируулна уу.`,
+      );
       setForm(DEFAULT_FORM);
       await Promise.all([loadCatalog(), loadConfigAndAttributes()]);
     } catch (e) {
@@ -110,22 +127,28 @@ export default function AddBenefitPage() {
     }
   }, [form, loadCatalog, loadConfigAndAttributes]);
 
-  const selectedBenefit = catalogBenefits.find((b) => b.id === selectedBenefitId);
+  const selectedBenefit = catalogBenefits.find(
+    (b) => b.id === selectedBenefitId,
+  );
   const rulesForSelected: BenefitConfig | null = selectedBenefitId
     ? (config[selectedBenefitId] ?? {
-        name: selectedBenefit?.name ?? '',
-        category: selectedBenefit?.category ?? '',
+        name: selectedBenefit?.name ?? "",
+        category: selectedBenefit?.category ?? "",
         rules: [],
       })
     : null;
 
   const updateRuleForSelected = useCallback(
-    (ruleIndex: number, field: keyof Rule, value: string | number | boolean) => {
+    (
+      ruleIndex: number,
+      field: keyof Rule,
+      value: string | number | boolean,
+    ) => {
       if (!selectedBenefitId) return;
       setConfig((prev) => {
         const benefit = prev[selectedBenefitId] ?? {
-          name: selectedBenefit?.name ?? '',
-          category: selectedBenefit?.category ?? '',
+          name: selectedBenefit?.name ?? "",
+          category: selectedBenefit?.category ?? "",
           rules: [],
         };
         const rules = [...(benefit.rules ?? [])];
@@ -133,31 +156,42 @@ export default function AddBenefitPage() {
         return { ...prev, [selectedBenefitId]: { ...benefit, rules } };
       });
     },
-    [selectedBenefitId, selectedBenefit]
+    [selectedBenefitId, selectedBenefit],
   );
 
   const addRuleForSelected = useCallback(() => {
     if (!selectedBenefitId) return;
     setConfig((prev) => {
       const benefit = prev[selectedBenefitId] ?? {
-        name: selectedBenefit?.name ?? '',
-        category: selectedBenefit?.category ?? '',
+        name: selectedBenefit?.name ?? "",
+        category: selectedBenefit?.category ?? "",
         rules: [],
       };
-      const rules = [...(benefit.rules ?? []), { type: 'employment_status', operator: 'eq', value: 'active', errorMessage: '' }];
+      const rules = [
+        ...(benefit.rules ?? []),
+        {
+          type: "employment_status",
+          operator: "eq",
+          value: "active",
+          errorMessage: "",
+        },
+      ];
       return { ...prev, [selectedBenefitId]: { ...benefit, rules } };
     });
   }, [selectedBenefitId, selectedBenefit]);
 
-  const removeRuleForSelected = useCallback((ruleIndex: number) => {
-    if (!selectedBenefitId) return;
-    setConfig((prev) => {
-      const benefit = prev[selectedBenefitId];
-      if (!benefit?.rules?.length) return prev;
-      const rules = benefit.rules.filter((_, i) => i !== ruleIndex);
-      return { ...prev, [selectedBenefitId]: { ...benefit, rules } };
-    });
-  }, [selectedBenefitId]);
+  const removeRuleForSelected = useCallback(
+    (ruleIndex: number) => {
+      if (!selectedBenefitId) return;
+      setConfig((prev) => {
+        const benefit = prev[selectedBenefitId];
+        if (!benefit?.rules?.length) return prev;
+        const rules = benefit.rules.filter((_, i) => i !== ruleIndex);
+        return { ...prev, [selectedBenefitId]: { ...benefit, rules } };
+      });
+    },
+    [selectedBenefitId],
+  );
 
   const handleSaveRules = useCallback(async () => {
     if (!selectedBenefitId) {
@@ -165,7 +199,9 @@ export default function AddBenefitPage() {
       return;
     }
     const benefitConfig = config[selectedBenefitId];
-    if (benefitConfig?.rules?.some((r) => String(r.value ?? '').trim() === '')) {
+    if (
+      benefitConfig?.rules?.some((r) => String(r.value ?? "").trim() === "")
+    ) {
       setError2(ERROR_MESSAGES.RULE_VALUE_REQUIRED);
       return;
     }
@@ -173,8 +209,10 @@ export default function AddBenefitPage() {
     setMessage2(null);
     setSaving(true);
     try {
-      await getClient().request(UPDATE_CONFIG, { config: JSON.stringify({ benefits: config }) });
-      setMessage2('Сонгосон benefit-ийн дүрмүүд амжилттай хадгалагдлаа.');
+      await getClient().request(UPDATE_CONFIG, {
+        config: JSON.stringify({ benefits: config }),
+      });
+      setMessage2("Сонгосон benefit-ийн дүрмүүд амжилттай хадгалагдлаа.");
     } catch (e) {
       setError2(ERROR_MESSAGES.CONFIG_SAVE + getApiErrorMessage(e));
     } finally {
@@ -186,7 +224,8 @@ export default function AddBenefitPage() {
     <div className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-8">
       <h1 className="text-3xl font-semibold text-white">Benefit нэмэх</h1>
       <p className="mt-3 text-[#A7B6D3]">
-        Нэгд: зөвхөн benefit-ийг D1 руу нэмнэ. Хоёрт: D1-ээс benefit сонгоод түүний дүрмийг тохируулна.
+        Нэгд: зөвхөн benefit-ийг D1 руу нэмнэ. Хоёрт: D1-ээс benefit сонгоод
+        түүний дүрмийг тохируулна.
       </p>
 
       <AddBenefitForm
@@ -198,7 +237,11 @@ export default function AddBenefitPage() {
         message={message1}
       />
 
-      <BenefitCatalogTable benefits={catalogBenefits} loading={loadingCatalog} onRefresh={loadCatalog} />
+      <BenefitCatalogTable
+        benefits={catalogBenefits}
+        loading={loadingCatalog}
+        onRefresh={loadCatalog}
+      />
 
       <RuleConfigSection
         catalogBenefits={catalogBenefits}

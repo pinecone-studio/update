@@ -7,14 +7,14 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/ebms-worker/**'
-      - 'apps/ebms-web/**'
-      - '.github/workflows/deploy-ebms.yml'
+      - "apps/ebms-worker/**"
+      - "apps/ebms-web/**"
+      - ".github/workflows/deploy-ebms.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
-  deployments: write   # Pages action needs this for GitHub Deployments
+  deployments: write # Pages action needs this for GitHub Deployments
 
 concurrency:
   group: deploy-ebms
@@ -31,7 +31,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
+          cache-dependency-path: package-lock.json
 
       - name: Install deps
         run: npm ci
@@ -58,7 +59,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
+          cache-dependency-path: package-lock.json
 
       - name: Install deps
         run: npm ci

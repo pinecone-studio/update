@@ -6,69 +6,69 @@ import type { ReactNode } from "react";
 export type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
 export interface EligibilityRule {
-	rule: string;
-	passed: boolean;
-	detail?: string;
+  rule: string;
+  passed: boolean;
+  detail?: string;
 }
 
 const STATUS_STYLES: Record<BenefitStatus, string> = {
-	ACTIVE: "bg-[#4CAF50] text-white",
-	ELIGIBLE: "bg-[#2196F3] text-white",
-	LOCKED: "bg-[#64748b] text-white",
-	PENDING: "bg-[#FF9800] text-white",
+	ACTIVE: "bg-[#16a34a] text-white",
+	ELIGIBLE: "bg-[#2563eb] text-white",
+	LOCKED: "bg-[#dc2626] text-white",
+	PENDING: "bg-[#f59e0b] text-white",
 };
 
 const BUTTON_TEXT_BY_STATUS: Record<BenefitStatus, string> = {
-	ELIGIBLE: "Request benefit",
-	ACTIVE: "Manage Benefit",
-	PENDING: "View status",
-	LOCKED: "View details",
+  ELIGIBLE: "Request benefit",
+  ACTIVE: "Manage Benefit",
+  PENDING: "View status",
+  LOCKED: "View details",
 };
 
 export interface BenefitCardProps {
-	/** Backend benefit id (for requestBenefit mutation) */
-	benefitId?: string;
-	category: string;
-	name: string;
-	description: string;
-	subsidyPercentage?: string;
-	vendorDetails?: string;
-	eligibilityCriteria: string;
-	contractLink?: string;
-	status: BenefitStatus;
-	/** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
-	lockReason?: string;
-	/** Rules evaluated for eligibility breakdown (shown in detail view) */
-	eligibilityRules?: EligibilityRule[];
-	icon: ReactNode;
-	iconBgColor?: string;
-	iconColor?: string;
-	buttonText?: string;
-	onClick?: () => void;
-	/** Called when user clicks "Request benefit" on ELIGIBLE benefits */
-	onRequestBenefit?: () => void;
+  /** Backend benefit id (for requestBenefit mutation) */
+  benefitId?: string;
+  category: string;
+  name: string;
+  description: string;
+  subsidyPercentage?: string;
+  vendorDetails?: string;
+  eligibilityCriteria: string;
+  contractLink?: string;
+  status: BenefitStatus;
+  /** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
+  lockReason?: string;
+  /** Rules evaluated for eligibility breakdown (shown in detail view) */
+  eligibilityRules?: EligibilityRule[];
+  icon: ReactNode;
+  iconBgColor?: string;
+  iconColor?: string;
+  buttonText?: string;
+  onClick?: () => void;
+  /** Called when user clicks "Request benefit" on ELIGIBLE benefits */
+  onRequestBenefit?: () => void;
 }
 
 export const BenefitCard = ({
-	benefitId: _benefitId,
-	category,
-	name,
-	description,
-	subsidyPercentage,
-	vendorDetails,
-	eligibilityCriteria,
-	contractLink,
-	status,
-	lockReason,
-	eligibilityRules: _eligibilityRules,
-	icon,
-	iconBgColor = "bg-[#4CAF50]/20",
-	iconColor = "text-[#4CAF50]",
-	buttonText,
-	onClick,
-	onRequestBenefit,
+  benefitId: _benefitId,
+  category,
+  name,
+  description,
+  subsidyPercentage,
+  vendorDetails,
+  eligibilityCriteria,
+  contractLink,
+  status,
+  lockReason,
+  eligibilityRules: _eligibilityRules,
+  icon,
+  iconBgColor = "bg-[#4CAF50]/20",
+  iconColor = "text-[#4CAF50]",
+  buttonText,
+  onClick,
+  onRequestBenefit,
 }: BenefitCardProps) => {
-	const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[status];
+  const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[status];
 
 	const handleButtonClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -171,15 +171,15 @@ export const BenefitCard = ({
 						) : null}
 					</div>
 
-					<div className="mt-auto pt-2">
+					{status === "ELIGIBLE" && (
 						<button
 							type="button"
 							className="w-full py-3 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm transition-colors dark:bg-[#0f172a] dark:hover:bg-[#1e293b]"
 							onClick={handleButtonClick}
 						>
-							{status === "LOCKED" ? "View details" : displayButtonText}
+							{displayButtonText}
 						</button>
-					</div>
+					)}
 				</div>
 			</div>
 		</div>

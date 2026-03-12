@@ -3,14 +3,25 @@
 import { useEffect, useState, useCallback } from "react";
 import { Header } from "../components/Header";
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
-import type { BenefitCardProps } from "@/app/_components/BenefitCard";
-import { fetchMyBenefits, requestBenefit, getApiErrorMessage } from "../_lib/api";
+import type {
+  BenefitCardProps,
+  BenefitStatus,
+} from "@/app/_components/BenefitCard";
+import {
+  fetchMyBenefits,
+  requestBenefit,
+  getApiErrorMessage,
+} from "../_lib/api";
 import { mapMyBenefitsToCardProps } from "../_lib/mapBenefits";
 
 export default function EmployeeBenefitsPage() {
   const [benefits, setBenefits] = useState<BenefitCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<BenefitStatus | "ALL">(
+    "ALL",
+  );
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -30,64 +41,115 @@ export default function EmployeeBenefitsPage() {
     load();
   }, [load]);
 
-  const handleRequestBenefit = useCallback(async (benefit: BenefitCardProps) => {
-    if (!benefit.benefitId) return;
-    try {
-      await requestBenefit(benefit.benefitId);
-      await load();
-    } catch (e) {
-      alert(getApiErrorMessage(e));
-    }
-  }, [load]);
+  const handleRequestBenefit = useCallback(
+    async (benefit: BenefitCardProps) => {
+      if (!benefit.benefitId) return;
+      try {
+        await requestBenefit(benefit.benefitId);
+        await load();
+      } catch (e) {
+        alert(getApiErrorMessage(e));
+      }
+    },
+    [load],
+  );
 
   const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
+  const filteredByStatus =
+    selectedStatus === "ALL"
+      ? benefits
+      : benefits.filter((b) => b.status === selectedStatus);
+  const filteredBenefits =
+    selectedCategory === "ALL"
+      ? filteredByStatus
+      : filteredByStatus.filter(
+          (b) => b.category.toLowerCase() === selectedCategory.toLowerCase(),
+        );
+
+  const categoryOrder = [
+    "Wellness",
+    "Equipment",
+    "Financial",
+    "Career Development",
+    "Flexibility",
+  ];
+
+  const categoryBuckets = categoryOrder.map((category) => ({
+    category,
+    items: filteredBenefits.filter(
+      (b) => b.category.toLowerCase() === category.toLowerCase(),
+    ),
+  }));
 
   return (
     <div>
       <Header />
-      <div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 w-full min-h-screen dark:bg-[#0f172A] dark:text-white">
-        <div className="w-full md:w-[921px] h-16 flex flex-col gap-[4px]">
-          <div className="w-full h-9 flex items-center"></div>
-          <div className="w-full h-6">
-            <p className="text-slate-600 text-sm dark:text-[#64748B]">
-              Check your eligibility status and track progress
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-4 w-full md:w-[921px]">
-          <div className="flex flex-wrap gap-2 md:gap-4">
-            <div className="bg-white border border-slate-200 text-slate-900 px-4 py-2 rounded-full text-sm dark:bg-[#1E293B] dark:border-transparent dark:text-white">
-              Active Benefits ({activeCount})
-            </div>
-            <div className="text-slate-600 px-4 py-2 text-sm dark:text-[#94A3B8]">
-              Eligibility Status
-            </div>
-            <div className="text-slate-600 px-4 py-2 text-sm dark:text-[#94A3B8]">
-              Progress Timeline
-            </div>
+      <div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white w-full min-h-screen">
+        <div className="flex flex-col gap-6 w-full md:w-[921px] -mt-4">
+          <div className="flex flex-wrap gap-3 md:gap-6 mt-1">
+            {(["ALL", ...categoryOrder] as const).map((category) => {
+              const isActive = selectedCategory === category;
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setSelectedCategory(category)}
+                  className={`${isActive ? "bg-[#1E293B] text-white" : "text-[#94A3B8]"} px-4 py-2 rounded-full text-sm`}
+                >
+                  {category === "ALL" ? "All Categories" : category}
+                </button>
+              );
+            })}
           </div>
 
-          {error && (
-            <p className="text-sm text-red-400">Error: {error}</p>
-          )}
+          <div className="flex flex-wrap gap-3 md:gap-6 mt-1">
+            {(
+              [
+                { label: "All", value: "ALL" },
+                { label: `Active (${activeCount})`, value: "ACTIVE" },
+                { label: "Eligible", value: "ELIGIBLE" },
+                { label: "Pending", value: "PENDING" },
+                { label: "Locked", value: "LOCKED" },
+              ] as const
+            ).map((tab) => {
+              const isActive = selectedStatus === tab.value;
+              return (
+                <button
+                  key={tab.value}
+                  type="button"
+                  onClick={() => setSelectedStatus(tab.value)}
+                  className={`${isActive ? "bg-[#1E293B] text-white" : "text-[#94A3B8]"} px-4 py-2 rounded-full text-sm`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {error && <p className="text-sm text-red-400">Error: {error}</p>}
 
           {loading ? (
             <p className="text-slate-600 dark:text-[#94A3B8]">Loading benefits...</p>
           ) : (
             <>
-              <div className="w-full md:w-[921px]">
-                <BenefitPortfolio
-                  benefits={benefits}
-                  onRequestBenefit={handleRequestBenefit}
-                />
+              <div className="w-full md:w-[921px] flex flex-col gap-8">
+                {categoryBuckets.map((bucket) =>
+                  bucket.items.length === 0 ? null : (
+                    <section
+                      key={bucket.category}
+                      className="flex flex-col gap-3"
+                    >
+                      <h2 className="text-sm uppercase tracking-wider text-[#94A3B8]">
+                        {bucket.category}
+                      </h2>
+                      <BenefitPortfolio
+                        benefits={bucket.items}
+                        onRequestBenefit={handleRequestBenefit}
+                      />
+                    </section>
+                  ),
+                )}
               </div>
-              <a
-                href="/employee"
-                className="w-full md:w-[921px] bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium text-center dark:bg-[#3B82F6] dark:hover:bg-[#2563EB]"
-              >
-                Back to Dashboard
-              </a>
             </>
           )}
         </div>
