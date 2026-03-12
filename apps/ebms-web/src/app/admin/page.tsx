@@ -107,7 +107,8 @@ export default function HrDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | undefined>('PENDING');
-  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectComment, setRejectComment] = useState('');
 
   const loadRequests = useCallback(async () => {
     setLoading(true);
@@ -164,6 +165,20 @@ export default function HrDashboardPage() {
   useEffect(() => {
     loadRequests();
   }, [loadRequests]);
+
+  const handleApprove = (requestId: string) => {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, status: 'APPROVED' } : r))
+    );
+  };
+
+  const handleReject = (requestId: string, _comment: string) => {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, status: 'REJECTED' } : r))
+    );
+    setRejectingId(null);
+    setRejectComment('');
+  };
 
   return (
     <>
@@ -267,26 +282,27 @@ export default function HrDashboardPage() {
                     </td>
                     <td className="px-4 py-4">
                       {req.status === 'PENDING' ? (
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-6">
                           <button
                             type="button"
-                            onClick={() => handleConfirmRequest(req.id, true)}
-                            disabled={actionLoadingId === req.id}
-                            className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50"
+                            onClick={() => handleApprove(req.id)}
+                            className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
                           >
-                            {actionLoadingId === req.id ? '...' : 'Approve'}
+                            Approve
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleConfirmRequest(req.id, false)}
-                            disabled={actionLoadingId === req.id}
-                            className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                            onClick={() => {
+                              setRejectingId(req.id);
+                              setRejectComment('');
+                            }}
+                            className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
                           >
-                            {actionLoadingId === req.id ? '...' : 'Reject'}
+                            Reject
                           </button>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-500 dark:text-[#8FA3C5]">—</span>
+                        <span className="text-slate-400 dark:text-slate-500">—</span>
                       )}
                     </td>
                   </tr>
@@ -296,6 +312,46 @@ export default function HrDashboardPage() {
           </div>
         )}
       </article>
+
+      {rejectingId !== null && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-[560px] rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-[#2C4264] dark:bg-[#1E293B]">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Reject Request
+            </h3>
+            <p className="mt-2 text-sm text-slate-600 dark:text-[#A7B6D3]">
+              Please provide a reason for rejecting this benefit request.
+            </p>
+            <textarea
+              value={rejectComment}
+              onChange={(e) => setRejectComment(e.target.value)}
+              placeholder="Enter rejection reason..."
+              rows={4}
+              className="mt-4 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#2C4264] dark:bg-[#0F172A] dark:text-white dark:placeholder-[#64748B] dark:focus:border-[#2A8BFF] dark:focus:ring-[#2A8BFF]"
+            />
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setRejectingId(null);
+                  setRejectComment('');
+                }}
+                className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:border-[#2C4264] dark:text-[#A7B6D3] dark:hover:bg-[#24364F]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleReject(rejectingId, rejectComment)}
+                disabled={!rejectComment.trim()}
+                className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Confirm Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
