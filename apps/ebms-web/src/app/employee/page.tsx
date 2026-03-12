@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { FiCheck, FiStar, FiActivity } from "react-icons/fi";
+import { FiCheck, FiStar, FiActivity, FiLock } from "react-icons/fi";
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import { Header } from "./components/Header";
@@ -40,21 +40,38 @@ export default function EmployeeDashboardPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [chatbot, setChatbot] = useState(false);
 
-	const load = useCallback(async () => {
-		setLoading(true);
-		setError(null);
+	const load = useCallback(async (opts?: { silent?: boolean }) => {
+		if (!opts?.silent) {
+			setLoading(true);
+			setError(null);
+		}
 		try {
 			const [meRes, myBenefitsRes] = await Promise.all([
 				fetchMe(),
 				fetchMyBenefits(),
 			]);
 			setMe({ name: meRes.name, okrSubmitted: meRes.okrSubmitted });
-			setBenefits(mapMyBenefitsToCardProps(myBenefitsRes));
+			const mapped = mapMyBenefitsToCardProps(myBenefitsRes);
+			setBenefits((prev) => {
+				// Preserve optimistic PENDING (backend may still return ELIGIBLE for requested benefits)
+				if (prev.length === 0) return mapped;
+				return mapped.map((fresh) => {
+					const existing = prev.find((p) => p.benefitId === fresh.benefitId);
+					if (existing?.status === "PENDING" && fresh.status === "ELIGIBLE") {
+						return existing;
+					}
+					return fresh;
+				});
+			});
 		} catch (e) {
-			setError(getApiErrorMessage(e));
-			setBenefits([]);
+			if (!opts?.silent) {
+				setError(getApiErrorMessage(e));
+				setBenefits([]);
+			}
 		} finally {
-			setLoading(false);
+			if (!opts?.silent) {
+				setLoading(false);
+			}
 		}
 	}, []);
 
@@ -67,7 +84,16 @@ export default function EmployeeDashboardPage() {
 			if (!benefit.benefitId) return;
 			try {
 				await requestBenefit(benefit.benefitId);
-				await load();
+				// Optimistically update button to "Request sent" (visible immediately)
+				setBenefits((prev) =>
+					prev.map((b) =>
+						b.benefitId === benefit.benefitId
+							? { ...b, status: "PENDING" as const }
+							: b,
+					),
+				);
+				// Silent refresh to sync with backend (no loading spinner)
+				await load({ silent: true });
 			} catch (e) {
 				alert(getApiErrorMessage(e));
 			}
@@ -77,30 +103,33 @@ export default function EmployeeDashboardPage() {
 
 	const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
 	const eligibleCount = benefits.filter((b) => b.status === "ELIGIBLE").length;
+	const lockedCount = benefits.filter((b) => b.status === "LOCKED").length;
 
 	return (
 		<div>
-			<Header />
-			<div className="min-h-screen w-full bg-slate-50 p-8 dark:bg-[#0f172a]">
-				<div className="flex flex-col mb-8">
-					<h1 className="text-[32px] font-bold text-slate-900 leading-tight dark:text-white">
-						Welcome back, {me?.name ?? "..."}!
-					</h1>
-					<p className="text-base text-slate-600 mt-1 dark:text-[#AAAAAA]">
-						Your complete benefits portfolio and eligibility status
-					</p>
-					{error && <p className="mt-2 text-sm text-red-400">Error: {error}</p>}
-				</div>
+			<div className="min-h-screen w-full bg-slate-50 p-8 dark:bg-[#0f172a] flex flex-col items-center">
+				<div className="flex flex-col w-full max-w-[1500px]">
+					<div className="flex flex-col mb-8">
+						<h1 className="text-[32px] font-bold text-slate-900 leading-tight dark:text-white">
+							Welcome back, {me?.name ?? "..."}!
+						</h1>
+						<p className="text-base text-slate-600 mt-1 dark:text-[#AAAAAA]">
+							Your complete benefits portfolio and eligibility status
+						</p>
+						{error && <p className="mt-2 text-sm text-red-400">Error: {error}</p>}
+					</div>
 
-				{loading ? (
+					{loading ? (
 					<p className="text-slate-600 dark:text-[#94A3B8]">Loading...</p>
 				) : (
 					<>
-						<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
 							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
 								<div className="flex justify-between items-start">
 									<div>
-										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">Active Benefits</p>
+										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">
+											Active Benefits
+										</p>
 										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
 											{activeCount}
 										</p>
@@ -117,7 +146,9 @@ export default function EmployeeDashboardPage() {
 							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
 								<div className="flex justify-between items-start">
 									<div>
-										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">Eligible Benefits</p>
+										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">
+											Eligible Benefits
+										</p>
 										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
 											{eligibleCount}
 										</p>
@@ -134,7 +165,28 @@ export default function EmployeeDashboardPage() {
 							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
 								<div className="flex justify-between items-start">
 									<div>
-										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">OKR Performance</p>
+										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">
+											Locked Benefits
+										</p>
+										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
+											{lockedCount}
+										</p>
+										<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
+											Requirements not met
+										</p>
+									</div>
+									<CardIcon className="bg-[#dc2626]/20">
+										<FiLock size={24} color="#dc2626" strokeWidth={2} />
+									</CardIcon>
+								</div>
+							</div>
+
+							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
+								<div className="flex justify-between items-start">
+									<div>
+										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">
+											OKR Performance
+										</p>
 										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
 											{me?.okrSubmitted ? "—" : "—"}
 										</p>
@@ -159,50 +211,35 @@ export default function EmployeeDashboardPage() {
 							benefits={benefits}
 							onRequestBenefit={handleRequestBenefit}
 						/>
-
-						<div className="mt-6 rounded-lg bg-slate-100 border border-slate-200 p-5 flex gap-4 dark:bg-[#1f2a40] dark:border-transparent">
-							<div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 dark:bg-[#2196F3]/30 dark:border-[#2196F3]/50">
-								<svg
-									className="w-5 h-5 text-blue-600 dark:text-[#2196F3]"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-									/>
-								</svg>
-							</div>
-							<div className="flex-1 min-w-0">
-								<h3 className="text-base font-semibold text-slate-900 dark:text-white">
-									Automatic Eligibility Tracking
-								</h3>
-								<p className="text-sm text-slate-600 mt-1 dark:text-[#94a3b8]">
-									Your eligibility is computed from the database (employment
-									status, OKR, attendance, etc.). Request benefits when status
-									is ELIGIBLE.
-								</p>
-							</div>
-						</div>
 					</>
 				)}
-				{!chatbot && <div 
-					className="fixed bottom-14 right-14 w-16 h-16 bg-[#1E293B] border border-gray-300 rounded-full flex justify-center items-center hover:bg-white duration-200 cursor-pointer hover:text-black"
-					onClick={() => setChatbot(true)}
-					> <BsChat size={25}/> </div>}
-				{chatbot && <div className="fixed bottom-14 right-14 w-[350px] h-[500px] bg-white rounded-2xl">
-					<div className="bg-[#99A1AF] w-full h-[70px] rounded-t-2xl flex items-center justify-between pl-3 pr-3">
-						<div className="w-12 h-12 bg-[#1E293B] rounded-full flex justify-center items-center"> <BsChat size={20}/> </div>
-						<button 
-							className="w-[40px] h-[40px] bg-[#1E293B] rounded-full flex justify-center items-center hover:bg-white hover:text-black duration-200"
-							onClick={() => setChatbot(false)}
-							> <IoClose size={28}/> </button>
-					</div>
 				</div>
-				}
+				{!chatbot && (
+					<div
+						className="fixed bottom-14 right-14 w-16 h-16 bg-[#1E293B] border border-gray-300 rounded-full flex justify-center items-center hover:bg-white duration-200 cursor-pointer hover:text-black"
+						onClick={() => setChatbot(true)}
+					>
+						{" "}
+						<BsChat size={25} />{" "}
+					</div>
+				)}
+				{chatbot && (
+					<div className="fixed bottom-14 right-14 w-[350px] h-[500px] bg-white rounded-2xl">
+						<div className="bg-[#99A1AF] w-full h-[70px] rounded-t-2xl flex items-center justify-between pl-3 pr-3">
+							<div className="w-12 h-12 bg-[#1E293B] rounded-full flex justify-center items-center">
+								{" "}
+								<BsChat size={20} />{" "}
+							</div>
+							<button
+								className="w-[40px] h-[40px] bg-[#1E293B] rounded-full flex justify-center items-center hover:bg-white hover:text-black duration-200"
+								onClick={() => setChatbot(false)}
+							>
+								{" "}
+								<IoClose size={28} />{" "}
+							</button>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);
