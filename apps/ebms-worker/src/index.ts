@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { createYoga, createSchema } from "graphql-yoga";
 import type { Env } from "./types";
 import { typeDefs, resolvers } from "./graphql";
+import adminContracts from "./routes/adminContracts";
 
 type YogaContext = {
   env: Env;
@@ -36,6 +37,8 @@ app.get("/", (c) =>
 app.get("/health", (c) =>
   c.json({ ok: true, timestamp: new Date().toISOString() }),
 );
+
+app.route("/admin/contracts", adminContracts);
 
 app.all("/graphql", (c) => {
   // MVP auth: forward employee identity via headers.
