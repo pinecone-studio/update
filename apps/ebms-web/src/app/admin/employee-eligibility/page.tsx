@@ -180,18 +180,18 @@ export default function EmployeeEligibilityPage() {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 className="text-xl font-semibold text-white">
+				<h1 className="text-xl font-semibold text-slate-900 dark:text-white">
 					Employee Eligibility Overview
 				</h1>
-				<p className="mt-3 text-5 text-[#A7B6D3]">
+				<p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
 					Нэрээр хайж, ажилтан дээр дарахад benefit eligibility-г төв popup дээр
 					харна.
 				</p>
 			</div>
 
-			<section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
+			<section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
 				<div className="relative">
-					<span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#93A4C3]">
+					<span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
 						<svg
 							viewBox="0 0 24 24"
 							fill="none"
@@ -208,13 +208,13 @@ export default function EmployeeEligibilityPage() {
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						placeholder="Ажилтны нэрээр хайх..."
-						className="h-14 w-full rounded-2xl border border-[#324A70] bg-[#0F172A] pl-14 pr-4 text-5 text-white outline-none placeholder:text-[#8FA3C5] focus:border-[#4B6FA8]"
+						className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 pl-14 pr-4 text-5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8FA3C5] dark:focus:border-[#4B6FA8]"
 					/>
 				</div>
 			</section>
 
-			<section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
-				<h2 className="text-10 font-semibold text-white">
+			<section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+				<h2 className="text-10 font-semibold text-slate-900 dark:text-white">
 					Ажилтнуудын жагсаалт
 				</h2>
 				<div className="mt-4 space-y-2">
@@ -223,19 +223,19 @@ export default function EmployeeEligibilityPage() {
 							key={emp.id}
 							type="button"
 							onClick={() => setSelectedId(emp.id)}
-							className="flex w-full items-center gap-4 rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 py-3 text-left transition hover:bg-[#142544]"
+							className="flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:bg-slate-100 dark:border-[#324A70] dark:bg-[#0F172A] dark:hover:bg-[#142544]"
 						>
 							<span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-5 font-semibold text-white">
 								{getInitials(emp.name)}
 							</span>
 							<div>
-								<p className="text-5 font-medium text-white">{emp.name}</p>
-								<p className="text-5 text-[#8FA3C5]">{emp.department}</p>
+								<p className="text-5 font-medium text-slate-900 dark:text-white">{emp.name}</p>
+								<p className="text-5 text-slate-500 dark:text-[#8FA3C5]">{emp.department}</p>
 							</div>
 						</button>
 					))}
 					{filteredEmployees.length === 0 && (
-						<p className="rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 py-3 text-5 text-[#9FB0CF]">
+						<p className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-[#9FB0CF]">
 							Хайлтад тохирох ажилтан олдсонгүй.
 						</p>
 					)}
@@ -259,22 +259,22 @@ export default function EmployeeEligibilityPage() {
 						onClick={handleCloseModal}
 					>
 						<div
-							className="max-h-[85vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-[#2C4264] bg-[#0F172A] p-6 shadow-2xl"
+							className="max-h-[85vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-slate-300 bg-white p-6 shadow-2xl dark:border-[#2C4264] dark:bg-[#0F172A]"
 							onClick={(e) => e.stopPropagation()}
 						>
 						<div className="mb-5 flex items-center justify-between">
 							<div>
-								<h2 className="text-xl font-semibold text-white">
+								<h2 className="text-xl font-semibold text-slate-900 dark:text-white">
 									{selectedEmployee.name}
 								</h2>
-								<p className="mt-2 text-5 text-[#9FB0CF]">
+								<p className="mt-2 text-5 text-slate-500 dark:text-[#9FB0CF]">
 									{selectedEmployee.id} • {selectedEmployee.department}
 								</p>
 							</div>
 							<button
 								type="button"
 								onClick={handleCloseModal}
-								className="rounded-xl border border-[#324A70] bg-[#1E293B] px-4 py-2 text-5 text-[#C9D5EA] hover:text-white"
+								className="rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-5 text-slate-700 hover:bg-slate-200 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-[#C9D5EA] dark:hover:text-white"
 							>
 								Хаах
 							</button>
@@ -299,11 +299,11 @@ export default function EmployeeEligibilityPage() {
 									return (
 										<article
 											key={benefit.name}
-											className="rounded-3xl border border-[#2C4264] bg-[#1E293B] px-7 py-6"
+											className="rounded-3xl border border-slate-200 bg-slate-50 px-7 py-6 dark:border-[#2C4264] dark:bg-[#1E293B]"
 										>
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-5">
-													<h3 className="text-2 font-medium text-white">
+													<h3 className="text-2 font-medium text-slate-900 dark:text-white">
 														{benefit.name}
 													</h3>
 													<span
@@ -316,9 +316,9 @@ export default function EmployeeEligibilityPage() {
 												<button
 													type="button"
 													onClick={() => handleShowToggle(key, benefit.status)}
-													className="flex items-center gap-3 text-5 text-[#A7B6D3] hover:text-white"
+													className="flex items-center gap-3 text-5 text-slate-500 hover:text-slate-900 dark:text-[#A7B6D3] dark:hover:text-white"
 												>
-													<span className="rounded-lg border border-[#324A70] bg-[#0F172A] px-2 py-1 text-5 text-[#C9D5EA]">
+													<span className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-5 text-slate-600 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-[#C9D5EA]">
 														Change {benefit.history.length}
 													</span>
 													<svg
@@ -337,8 +337,8 @@ export default function EmployeeEligibilityPage() {
 											</div>
 
 											{isExpanded && (
-												<div className="mt-4 rounded-2xl border border-[#324A70] bg-[#0F172A] p-4">
-													<p className="text-5 text-[#C9D5EA]">
+												<div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-[#324A70] dark:bg-[#0F172A]">
+													<p className="text-5 text-slate-600 dark:text-[#C9D5EA]">
 														Status сонголт
 													</p>
 													<div className="mt-3 flex flex-wrap gap-2">
@@ -355,14 +355,14 @@ export default function EmployeeEligibilityPage() {
 																className={`rounded-lg border px-3 py-1.5 text-5 transition ${
 																	draftStatus === option
 																		? statusClass[option]
-																		: "border-[#324A70] text-[#C9D5EA] hover:text-white"
+																		: "border-slate-300 text-slate-600 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:text-white"
 																}`}
 															>
 																{option}
 															</button>
 														))}
 													</div>
-													<label className="mt-4 block text-5 text-[#C9D5EA]">
+													<label className="mt-4 block text-5 text-slate-600 dark:text-[#C9D5EA]">
 														Яагаад өөрчилснөө бичнэ үү
 													</label>
 													<textarea
@@ -375,7 +375,7 @@ export default function EmployeeEligibilityPage() {
 															}))
 														}
 														placeholder="Шалтгаан..."
-														className="mt-2 w-full rounded-xl border border-[#324A70] bg-[#1E293B] px-3 py-2 text-5 text-white outline-none"
+														className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-5 text-slate-900 outline-none dark:border-[#324A70] dark:bg-[#1E293B] dark:text-white"
 													/>
 													<div className="mt-3 flex items-center gap-3">
 														<button
@@ -390,17 +390,17 @@ export default function EmployeeEligibilityPage() {
 														</button>
 													</div>
 													{lastReason && (
-														<p className="mt-3 text-5 text-[#8FA3C5]">
+														<p className="mt-3 text-5 text-slate-500 dark:text-[#8FA3C5]">
 															Сүүлд хадгалсан тайлбар: {lastReason}
 														</p>
 													)}
 
 													<div className="mt-4">
-														<p className="text-5 text-[#C9D5EA]">
+														<p className="text-5 text-slate-600 dark:text-[#C9D5EA]">
 															Өөрчлөлтийн түүх
 														</p>
 														{benefit.history.length === 0 ? (
-															<p className="mt-2 text-5 text-[#8FA3C5]">
+															<p className="mt-2 text-5 text-slate-500 dark:text-[#8FA3C5]">
 																Түүх алга.
 															</p>
 														) : (
@@ -408,15 +408,15 @@ export default function EmployeeEligibilityPage() {
 																{benefit.history.map((entry, idx) => (
 																	<div
 																		key={`${entry.changedAt}-${idx}`}
-																		className="rounded-xl border border-[#324A70] bg-[#1E293B] px-3 py-2"
+																		className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 dark:border-[#324A70] dark:bg-[#1E293B]"
 																	>
-																		<p className="text-5 text-white">
+																		<p className="text-5 text-slate-900 dark:text-white">
 																			{entry.changedBy} • {entry.changedAt}
 																		</p>
-																		<p className="mt-1 text-5 text-[#A7B6D3]">
+																		<p className="mt-1 text-5 text-slate-600 dark:text-[#A7B6D3]">
 																			Status: {entry.status}
 																		</p>
-																		<p className="mt-1 text-5 text-[#8FA3C5]">
+																		<p className="mt-1 text-5 text-slate-500 dark:text-[#8FA3C5]">
 																			Шалтгаан: {entry.reason}
 																		</p>
 																	</div>
@@ -431,7 +431,7 @@ export default function EmployeeEligibilityPage() {
 								})(),
 							)}
 							{selectedEmployee.benefits.length === 0 && (
-								<p className="rounded-2xl border border-[#324A70] bg-[#1E293B] px-6 py-5 text-5 text-[#9FB0CF]">
+								<p className="rounded-2xl border border-slate-300 bg-slate-50 px-6 py-5 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-[#9FB0CF]">
 									Benefit мэдээлэл олдсонгүй.
 								</p>
 							)}

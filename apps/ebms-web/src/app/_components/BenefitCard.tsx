@@ -47,6 +47,8 @@ export interface BenefitCardProps {
 	onClick?: () => void;
 	/** Called when user clicks "Request benefit" on ELIGIBLE benefits */
 	onRequestBenefit?: () => void;
+	/** Custom footer actions (replaces default button when provided) */
+	footerActions?: ReactNode;
 }
 
 export const BenefitCard = ({
@@ -66,6 +68,7 @@ export const BenefitCard = ({
 	buttonText,
 	onClick,
 	onRequestBenefit,
+	footerActions,
 }: BenefitCardProps) => {
 	const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[status];
 
@@ -182,18 +185,22 @@ export const BenefitCard = ({
 						) : null}
 					</div>
 
-					<button
-						type="button"
-						disabled={status !== "ELIGIBLE"}
-						className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
-							status === "ELIGIBLE"
-								? "bg-slate-800 hover:bg-slate-700 text-white dark:bg-[#0f172a] dark:hover:bg-[#1e293b]"
-								: "bg-slate-400 text-white cursor-not-allowed dark:bg-slate-600"
-						}`}
-						onClick={handleButtonClick}
-					>
-						{displayButtonText}
-					</button>
+					{footerActions ? (
+						<div className="w-full">{footerActions}</div>
+					) : (
+						<button
+							type="button"
+							disabled={status !== "ELIGIBLE"}
+							className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+								status === "ELIGIBLE"
+									? "bg-slate-800 hover:bg-slate-700 text-white dark:bg-[#0f172a] dark:hover:bg-[#1e293b]"
+									: "bg-slate-400 text-white cursor-not-allowed dark:bg-slate-600"
+							}`}
+							onClick={handleButtonClick}
+						>
+							{displayButtonText}
+						</button>
+					)}
 				</div>
 				{status === "LOCKED" && (
 					<div className="absolute inset-0 flex items-center justify-center rounded-xl bg-slate-900/60 dark:bg-slate-950/70 opacity-0 transition-opacity duration-200 pointer-events-none group-hover:opacity-100">

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type {
   BenefitFromCatalog,
@@ -23,8 +23,10 @@ import { BenefitCatalogTable } from "../_components/BenefitCatalogTable";
 import { RuleConfigSection } from "../_components/RuleConfigSection";
 
 export default function AddBenefitsBuilderClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const benefitIdFromQuery = searchParams.get("benefitId");
+  const isEditMode = !!benefitIdFromQuery;
 
   const [form, setForm] = useState<AddBenefitFormState>(DEFAULT_FORM);
   const [creating, setCreating] = useState(false);
@@ -40,6 +42,24 @@ export default function AddBenefitsBuilderClient() {
   const [saving, setSaving] = useState(false);
   const [error2, setError2] = useState<string | null>(null);
   const [message2, setMessage2] = useState<string | null>(null);
+
+  const readEditOverrides = useCallback(() => {
+    if (typeof window === "undefined") return {} as Record<string, AddBenefitFormState>;
+    try {
+      const raw = window.localStorage.getItem("admin_benefit_edits");
+      if (!raw) return {} as Record<string, AddBenefitFormState>;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return {} as Record<string, AddBenefitFormState>;
+      return parsed as Record<string, AddBenefitFormState>;
+    } catch {
+      return {} as Record<string, AddBenefitFormState>;
+    }
+  }, []);
+
+  const writeEditOverrides = useCallback((next: Record<string, AddBenefitFormState>) => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("admin_benefit_edits", JSON.stringify(next));
+  }, []);
 
   const loadCatalog = useCallback(async () => {
     setLoadingCatalog(true);
@@ -91,6 +111,20 @@ export default function AddBenefitsBuilderClient() {
     if (exists) setSelectedBenefitId(benefitIdFromQuery);
   }, [benefitIdFromQuery, catalogBenefits]);
 
+  useEffect(() => {
+    if (!benefitIdFromQuery) return;
+    const target = catalogBenefits.find((b) => b.id === benefitIdFromQuery);
+    if (!target) return;
+    const overrides = readEditOverrides();
+    const edited = overrides[benefitIdFromQuery];
+    setForm({
+      name: edited?.name ?? target.name,
+      category: edited?.category ?? target.category,
+      subsidyPercent: edited?.subsidyPercent ?? target.subsidyPercent,
+      requiresContract: edited?.requiresContract ?? target.requiresContract,
+    });
+  }, [benefitIdFromQuery, catalogBenefits, readEditOverrides]);
+
   const handleCreateBenefit = useCallback(async () => {
     const name = form.name?.trim();
     const category = form.category?.trim();
@@ -110,6 +144,8 @@ export default function AddBenefitsBuilderClient() {
       setError1(ERROR_MESSAGES.SUBSIDY_RANGE);
       return;
     }
+
+    if (isEditMode && benefitIdFromQuery) return;
 
     setCreating(true);
     try {
@@ -132,7 +168,15 @@ export default function AddBenefitsBuilderClient() {
     } finally {
       setCreating(false);
     }
-  }, [form, loadCatalog, loadConfigAndAttributes]);
+  }, [
+    benefitIdFromQuery,
+    form,
+    isEditMode,
+    loadCatalog,
+    loadConfigAndAttributes,
+    readEditOverrides,
+    writeEditOverrides,
+  ]);
 
   const selectedBenefit = catalogBenefits.find((b) => b.id === selectedBenefitId);
   const rulesForSelected: BenefitConfig | null = selectedBenefitId
@@ -208,29 +252,81 @@ export default function AddBenefitsBuilderClient() {
     setMessage2(null);
     setSaving(true);
     try {
+      let payloadConfig = config;
+
+      if (isEditMode && benefitIdFromQuery) {
+        const name = form.name?.trim();
+        const category = form.category?.trim();
+        const subsidy = form.subsidyPercent ?? 0;
+        if (!name) {
+          setError2(ERROR_MESSAGES.NAME_REQUIRED);
+          return;
+        }
+        if (!category) {
+          setError2(ERROR_MESSAGES.CATEGORY_REQUIRED);
+          return;
+        }
+        if (subsidy < 0 || subsidy > 100) {
+          setError2(ERROR_MESSAGES.SUBSIDY_RANGE);
+          return;
+        }
+
+        const overrides = readEditOverrides();
+        const nextForm: AddBenefitFormState = {
+          name,
+          category,
+          subsidyPercent: subsidy,
+          requiresContract: form.requiresContract ?? false,
+        };
+        writeEditOverrides({ ...overrides, [benefitIdFromQuery]: nextForm });
+
+        payloadConfig = {
+          ...config,
+          [benefitIdFromQuery]: {
+            ...(config[benefitIdFromQuery] ?? { name, category, rules: [] }),
+            name,
+            category,
+            subsidyPercent: subsidy,
+            requiresContract: form.requiresContract ?? false,
+          },
+        };
+      }
+
       await getClient().request(UPDATE_CONFIG, {
-        config: JSON.stringify({ benefits: config }),
+        config: JSON.stringify({ benefits: payloadConfig }),
       });
       setMessage2("Сонгосон benefit-ийн дүрмүүд амжилттай хадгалагдлаа.");
+      if (isEditMode) {
+        router.push("/admin/add-benefit");
+      }
     } catch (e) {
       setError2(ERROR_MESSAGES.CONFIG_SAVE + getApiErrorMessage(e));
     } finally {
       setSaving(false);
     }
-  }, [selectedBenefitId, config]);
+  }, [
+    selectedBenefitId,
+    config,
+    isEditMode,
+    router,
+    benefitIdFromQuery,
+    form,
+    readEditOverrides,
+    writeEditOverrides,
+  ]);
 
   return (
-    <div className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-8">
+    <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold text-white">Add Benefits</h1>
-          <p className="mt-2 text-[#A7B6D3]">
+          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Add Benefits</h1>
+          <p className="mt-2 text-slate-600 dark:text-[#A7B6D3]">
             Benefit шинээр нэмэх, мөн rule тохиргоо хийх хэсэг.
           </p>
         </div>
         <Link
           href="/admin/add-benefit"
-          className="rounded-xl border border-[#324A70] px-4 py-2 text-sm text-[#C9D5EA] hover:text-white"
+          className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
         >
           Back to Benefits&Rule
         </Link>
@@ -243,13 +339,17 @@ export default function AddBenefitsBuilderClient() {
         creating={creating}
         error={error1}
         message={message1}
+        isEditMode={isEditMode}
+        hideSubmitButton={isEditMode}
       />
 
-      <BenefitCatalogTable
-        benefits={catalogBenefits}
-        loading={loadingCatalog}
-        onRefresh={loadCatalog}
-      />
+      {!isEditMode && (
+        <BenefitCatalogTable
+          benefits={catalogBenefits}
+          loading={loadingCatalog}
+          onRefresh={loadCatalog}
+        />
+      )}
 
       <RuleConfigSection
         catalogBenefits={catalogBenefits}
@@ -266,8 +366,9 @@ export default function AddBenefitsBuilderClient() {
         saving={saving}
         error={error2}
         message={message2}
+        hideBenefitSelector={isEditMode}
+        saveButtonLabel={isEditMode ? "Save" : "Дүрмүүдийг хадгалах"}
       />
     </div>
   );
 }
-

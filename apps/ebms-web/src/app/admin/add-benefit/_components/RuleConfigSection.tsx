@@ -3,9 +3,9 @@
 import type { BenefitFromCatalog, BenefitConfig, Rule } from '../_lib/types';
 import { OPERATORS } from '../_lib/constants';
 
-const sectionClass = 'mt-8 rounded-xl border border-[#334155] bg-[#0F172A] p-6';
-const inputSm = 'rounded border border-[#334155] bg-[#0F172A] px-2 py-1.5 text-white text-sm';
-const selectClass = 'w-full max-w-md rounded-lg border border-[#334155] bg-[#1E293B] px-3 py-2 text-white';
+const sectionClass = 'mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]';
+const inputSm = 'rounded border border-slate-300 bg-white px-2 py-1.5 text-slate-900 text-sm dark:border-[#334155] dark:bg-[#0F172A] dark:text-white';
+const selectClass = 'w-full max-w-md rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white';
 const EMPLOYMENT_STATUS_VALUES = ['active', 'leave', 'terminated', 'probation'] as const;
 const RESPONSIBILITY_LEVEL_VALUES = [1, 2, 3] as const;
 const OKR_SUBMITTED_VALUES = ['true', 'false'] as const;
@@ -25,6 +25,9 @@ type Props = {
   saving: boolean;
   error: string | null;
   message: string | null;
+  hideSaveButton?: boolean;
+  hideBenefitSelector?: boolean;
+  saveButtonLabel?: string;
 };
 
 export function RuleConfigSection({
@@ -42,52 +45,57 @@ export function RuleConfigSection({
   saving,
   error,
   message,
+  hideSaveButton = false,
+  hideBenefitSelector = false,
+  saveButtonLabel = "Дүрмүүдийг хадгалах",
 }: Props) {
   return (
     <section className={sectionClass}>
-      <h2 className="text-xl font-medium text-white">2. Дүрэм тохируулах</h2>
-      <p className="mt-1 text-sm text-[#94A3B8]">
+      <h2 className="text-xl font-medium text-slate-900 dark:text-white">2. Дүрэм тохируулах</h2>
+      <p className="mt-1 text-sm text-slate-600 dark:text-[#94A3B8]">
         D1-д байгаа benefit-ээс сонгоод eligibility дүрмээ нэмж, засна.
       </p>
 
       {error && (
-        <div className="mt-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-2 text-sm">
+        <div className="mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-500/20 dark:border-red-500/50 dark:text-red-200">
           {error}
         </div>
       )}
       {message && (
-        <div className="mt-3 rounded-lg bg-green-500/20 border border-green-500/50 text-green-200 px-4 py-2 text-sm">
+        <div className="mt-3 rounded-lg border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-700 dark:bg-green-500/20 dark:border-green-500/50 dark:text-green-200">
           {message}
         </div>
       )}
 
-      <div className="mt-4">
-        <label className="block text-sm text-[#94A3B8] mb-2">Benefit сонгох (D1-ээс)</label>
-        {loadingCatalog ? (
-          <p className="text-[#94A3B8] text-sm">Жагсаалт татаж байна...</p>
-        ) : (
-          <select
-            value={selectedBenefitId ?? ''}
-            onChange={(e) => onSelectBenefitId(e.target.value || null)}
-            className={selectClass}
-          >
-            <option value="">— Benefit сонгоно уу —</option>
-            {catalogBenefits.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name} ({b.category})
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
+      {!hideBenefitSelector && (
+        <div className="mt-4">
+          <label className="block text-sm text-slate-600 mb-2 dark:text-[#94A3B8]">Benefit сонгох (D1-ээс)</label>
+          {loadingCatalog ? (
+            <p className="text-slate-600 text-sm dark:text-[#94A3B8]">Жагсаалт татаж байна...</p>
+          ) : (
+            <select
+              value={selectedBenefitId ?? ''}
+              onChange={(e) => onSelectBenefitId(e.target.value || null)}
+              className={selectClass}
+            >
+              <option value="">— Benefit сонгоно уу —</option>
+              {catalogBenefits.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name} ({b.category})
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
 
       {selectedBenefitId && rulesForSelected && (
         <div className="mt-6">
-          <h3 className="text-sm font-medium text-[#94A3B8] mb-2">
+          <h3 className="text-sm font-medium text-slate-600 mb-2 dark:text-[#94A3B8]">
             «{rulesForSelected.name || selectedBenefitId}» — eligibility дүрмүүд
           </h3>
           {(rulesForSelected.rules ?? []).map((rule, ri) => (
-            <div key={ri} className="flex flex-wrap items-center gap-2 mb-2 p-2 rounded bg-[#1E293B]">
+            <div key={ri} className="mb-2 flex flex-wrap items-center gap-2 rounded bg-slate-100 p-2 dark:bg-[#1E293B]">
               <select
                 value={rule.type}
                 onChange={(e) => onUpdateRule(ri, 'type', e.target.value)}
@@ -164,29 +172,31 @@ export function RuleConfigSection({
                 onChange={(e) => onUpdateRule(ri, 'errorMessage', e.target.value)}
                 className={`${inputSm} flex-1 min-w-[180px]`}
               />
-              <button type="button" onClick={() => onRemoveRule(ri)} className="text-red-400 hover:text-red-300 text-sm">
+              <button type="button" onClick={() => onRemoveRule(ri)} className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300">
                 Устгах
               </button>
             </div>
           ))}
-          <button type="button" onClick={onAddRule} className="mt-2 text-sm text-blue-400 hover:text-blue-300">
+          <button type="button" onClick={onAddRule} className="mt-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
             + Дүрэм нэмэх
           </button>
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={onSave}
-              disabled={saving || loadingConfig}
-              className="rounded-lg bg-[#0E6B4F] hover:bg-[#0d5f45] disabled:opacity-50 text-white px-4 py-2 font-medium"
-            >
-              {saving ? 'Хадгалаж байна...' : 'Дүрмүүдийг хадгалах'}
-            </button>
-          </div>
+          {!hideSaveButton && (
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={onSave}
+                disabled={saving || loadingConfig}
+                className="rounded-lg bg-[#0E6B4F] hover:bg-[#0d5f45] disabled:opacity-50 text-white px-4 py-2 font-medium"
+              >
+                {saving ? 'Хадгалж байна...' : saveButtonLabel}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
       {selectedBenefitId && !rulesForSelected && loadingConfig && (
-        <p className="mt-4 text-sm text-[#94A3B8]">Дүрмийн config уншиж байна...</p>
+        <p className="mt-4 text-sm text-slate-600 dark:text-[#94A3B8]">Дүрмийн config уншиж байна...</p>
       )}
     </section>
   );
