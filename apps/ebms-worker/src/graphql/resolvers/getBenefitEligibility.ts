@@ -6,7 +6,7 @@
 
 import type { Env } from '../../types';
 import { getDb } from '../../db/drizzle';
-import { benefits as benefitsTable, benefitEligibility } from '../../db/schema';
+import { benefits as benefitsTable, benefitEligibility, benefitRequests } from '../../db/schema';
 import { and, eq } from 'drizzle-orm';
 import { asBool01, mapBenefitStatus, safeJsonParse } from './utils';
 import {
@@ -38,10 +38,21 @@ export async function getBenefitEligibilityForEmployee(
   const db = getDb(env);
   const now = new Date().toISOString();
 
-  const [config, employee] = await Promise.all([
+  const [config, employee, pendingRequestRows] = await Promise.all([
     getActiveEligibilityConfig(env),
     getEmployeeForEligibility(env, employeeId),
+    db
+      .select({ benefitId: benefitRequests.benefitId })
+      .from(benefitRequests)
+      .where(
+        and(
+          eq(benefitRequests.employeeId, employeeId),
+          eq(benefitRequests.status, 'pending')
+        )
+      ),
   ]);
+
+  const pendingBenefitIds = new Set(pendingRequestRows.map((r) => r.benefitId));
 
   const rows = await db
     .select({
@@ -73,6 +84,11 @@ export async function getBenefitEligibilityForEmployee(
 
     if (rules?.length && employee) {
       const { status, ruleEvaluations } = evaluateBenefitRules(rules, employee);
+      let finalStatus: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' =
+        row.eligibilityStatus === 'active' ? 'ACTIVE' : status;
+      if (finalStatus === 'ELIGIBLE' && pendingBenefitIds.has(row.benefitId)) {
+        finalStatus = 'PENDING';
+      }
       return {
         benefit: {
           id: row.benefitId,
@@ -84,7 +100,7 @@ export async function getBenefitEligibilityForEmployee(
           vendorName: row.benefitVendorName ?? null,
           activeContractId: row.benefitActiveContractId ?? null,
         },
-        status: row.eligibilityStatus === 'active' ? 'ACTIVE' : status,
+        status: finalStatus,
         ruleEvaluations,
         computedAt: now,
       };
@@ -101,6 +117,10 @@ export async function getBenefitEligibilityForEmployee(
         }))
       : [];
 
+    let status = mapBenefitStatus(row.eligibilityStatus ?? 'locked');
+    if (status === 'ELIGIBLE' && pendingBenefitIds.has(row.benefitId)) {
+      status = 'PENDING';
+    }
     return {
       benefit: {
         id: row.benefitId,
@@ -112,7 +132,7 @@ export async function getBenefitEligibilityForEmployee(
         vendorName: row.benefitVendorName ?? null,
         activeContractId: row.benefitActiveContractId ?? null,
       },
-      status: mapBenefitStatus(row.eligibilityStatus ?? 'locked'),
+      status,
       ruleEvaluations,
       computedAt: row.computedAt ?? now,
     };
