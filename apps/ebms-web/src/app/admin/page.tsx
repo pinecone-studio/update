@@ -21,6 +21,15 @@ const BENEFIT_REQUESTS_QUERY = gql`
   }
 `;
 
+const CONFIRM_BENEFIT_REQUEST_MUTATION = gql`
+  mutation ConfirmBenefitRequest($requestId: ID!, $contractAccepted: Boolean!) {
+    confirmBenefitRequest(requestId: $requestId, contractAccepted: $contractAccepted) {
+      id
+      status
+    }
+  }
+`;
+
 type BenefitRequest = {
   id: string;
   employeeId: string;
@@ -98,33 +107,23 @@ export default function HrDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | undefined>('PENDING');
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectComment, setRejectComment] = useState('');
 
-  const loadRequests = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const client = new GraphQLClient(`${API_URL}/graphql`, {
-        headers: {
-          'x-employee-id': 'admin',
-          'x-role': 'admin',
-        },
-      });
-      const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
-        BENEFIT_REQUESTS_QUERY,
-        { status: statusFilter }
-      );
-      setRequests(res.benefitRequests ?? []);
-    } catch (e) {
-      setError(getErrorMessage(e));
-      setRequests([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter]);
 
-  useEffect(() => {
-    loadRequests();
-  }, [loadRequests]);
+  const handleApprove = (requestId: string) => {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, status: 'APPROVED' } : r))
+    );
+  };
+
+  const handleReject = (requestId: string, _comment: string) => {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, status: 'REJECTED' } : r))
+    );
+    setRejectingId(null);
+    setRejectComment('');
+  };
 
   return (
     <>
@@ -207,6 +206,7 @@ export default function HrDashboardPage() {
                   <th className="px-4 py-4 font-medium">Employee</th>
                   <th className="px-4 py-4 font-medium">Status</th>
                   <th className="px-4 py-4 font-medium">Date</th>
+                  <th className="px-4 py-4 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -225,6 +225,31 @@ export default function HrDashboardPage() {
                     <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
                       {formatDate(req.createdAt)}
                     </td>
+                    <td className="px-4 py-4">
+                      {req.status === 'PENDING' ? (
+                        <div className="flex items-center gap-6">
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(req.id)}
+                            className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setRejectingId(req.id);
+                              setRejectComment('');
+                            }}
+                            className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 dark:text-slate-500">—</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -232,6 +257,46 @@ export default function HrDashboardPage() {
           </div>
         )}
       </article>
+
+      {rejectingId !== null && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-[560px] rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-[#2C4264] dark:bg-[#1E293B]">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Reject Request
+            </h3>
+            <p className="mt-2 text-sm text-slate-600 dark:text-[#A7B6D3]">
+              Please provide a reason for rejecting this benefit request.
+            </p>
+            <textarea
+              value={rejectComment}
+              onChange={(e) => setRejectComment(e.target.value)}
+              placeholder="Enter rejection reason..."
+              rows={4}
+              className="mt-4 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#2C4264] dark:bg-[#0F172A] dark:text-white dark:placeholder-[#64748B] dark:focus:border-[#2A8BFF] dark:focus:ring-[#2A8BFF]"
+            />
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setRejectingId(null);
+                  setRejectComment('');
+                }}
+                className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:border-[#2C4264] dark:text-[#A7B6D3] dark:hover:bg-[#24364F]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleReject(rejectingId, rejectComment)}
+                disabled={!rejectComment.trim()}
+                className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Confirm Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

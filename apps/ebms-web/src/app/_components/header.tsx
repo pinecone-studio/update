@@ -10,6 +10,7 @@ import { HrEmployeeIcon } from "@/app/icons/hrEmployee";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import type { ReactNode } from "react";
+import { fetchMe } from "../employee/_lib/api";
 
 type NavItem = {
   label: string;

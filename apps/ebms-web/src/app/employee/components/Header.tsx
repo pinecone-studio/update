@@ -234,7 +234,6 @@ export const Header = () => {
                 <div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
                   <div className="p-4 border-b border-slate-200 dark:border-[#243041]">
                     <p className="text-slate-900 font-semibold dark:text-white">{me?.name ?? "—"}</p>
-                    <p className="text-slate-600 text-sm mt-0.5 dark:text-slate-400">—</p>
                     <p className="text-slate-500 text-xs mt-1 dark:text-slate-500">{me?.id ?? "—"}</p>
                   </div>
                   <div className="p-2">
