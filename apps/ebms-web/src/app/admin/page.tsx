@@ -110,61 +110,6 @@ export default function HrDashboardPage() {
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
 
-  const loadRequests = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const base = API_URL.replace(/\/graphql\/?$/, '').trim() || 'http://localhost:8787';
-      const graphqlUrl = base.endsWith('/graphql') ? base : `${base}/graphql`;
-      const client = new GraphQLClient(graphqlUrl, {
-        headers: {
-          'x-employee-id': 'admin',
-          'x-role': 'admin',
-        },
-      });
-      const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
-        BENEFIT_REQUESTS_QUERY,
-        { status: statusFilter }
-      );
-      setRequests(res.benefitRequests ?? []);
-    } catch (e) {
-      setError(getErrorMessage(e));
-      setRequests([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter]);
-
-  const handleConfirmRequest = useCallback(
-    async (requestId: string, contractAccepted: boolean) => {
-      setActionLoadingId(requestId);
-      setError(null);
-      try {
-        const base = API_URL.replace(/\/graphql\/?$/, '').trim() || 'http://localhost:8787';
-        const graphqlUrl = base.endsWith('/graphql') ? base : `${base}/graphql`;
-        const client = new GraphQLClient(graphqlUrl, {
-          headers: {
-            'x-employee-id': 'admin',
-            'x-role': 'admin',
-          },
-        });
-        await client.request(CONFIRM_BENEFIT_REQUEST_MUTATION, {
-          requestId,
-          contractAccepted,
-        });
-        await loadRequests();
-      } catch (e) {
-        setError(getErrorMessage(e));
-      } finally {
-        setActionLoadingId(null);
-      }
-    },
-    [loadRequests],
-  );
-
-  useEffect(() => {
-    loadRequests();
-  }, [loadRequests]);
 
   const handleApprove = (requestId: string) => {
     setRequests((prev) =>
