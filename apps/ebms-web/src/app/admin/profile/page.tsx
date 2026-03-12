@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ProfileSkeleton } from "@/app/_components/ProfileSkeleton";
 import {
   HiOutlineUserCircle,
   HiOutlinePhone,
@@ -61,6 +62,16 @@ export default function MyProfilePage() {
       .join("")
       .slice(0, 2)
       .toUpperCase() ?? "—";
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0B1220] w-full">
+        <div className="w-full bg-[#0F172A] px-6 py-6">
+          <ProfileSkeleton variant="admin" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">

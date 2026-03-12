@@ -4,6 +4,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Header } from "../components/Header";
+import { EmployeeBenefitsSkeleton } from "../components/EmployeeBenefitsSkeleton";
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import {
@@ -33,7 +34,7 @@ export default function EmployeeBenefitsPage() {
 				b.benefitId &&
 				approvedIds.includes(b.benefitId)
 					? { ...b, status: "ACTIVE" as const }
-					: b
+					: b,
 			);
 			setBenefits(withApproved);
 		} catch (e) {
@@ -56,7 +57,7 @@ export default function EmployeeBenefitsPage() {
 					b.benefitId &&
 					approvedIds.includes(b.benefitId)
 						? { ...b, status: "ACTIVE" as const }
-						: b
+						: b,
 				);
 			});
 		};
@@ -114,6 +115,10 @@ export default function EmployeeBenefitsPage() {
 		<div>
 			<div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 dark:bg-[#0f172A] dark:text-white w-full min-h-screen">
 				<div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
+					{loading ? (
+						<EmployeeBenefitsSkeleton />
+					) : (
+						<>
 					<div className="flex w-full flex-wrap justify-center gap-3 md:gap-6 mt-1">
 						{(["ALL", ...categoryOrder] as const).map((category) => {
 							const isActive = selectedCategory === category;
@@ -132,12 +137,6 @@ export default function EmployeeBenefitsPage() {
 
 					{error && <p className="text-sm text-red-400">Error: {error}</p>}
 
-					{loading ? (
-						<p className="text-slate-600 dark:text-[#94A3B8]">
-							Loading benefits...
-						</p>
-					) : (
-						<>
 							<div className="w-full max-w-[1500px] flex flex-col gap-8">
 								{categoryBuckets.map((bucket) =>
 									bucket.items.length === 0 ? null : (

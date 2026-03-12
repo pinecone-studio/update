@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AddBenefitSkeleton } from "./_components/AddBenefitSkeleton";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { BenefitCard, type BenefitStatus } from "@/app/_components/BenefitCard";
@@ -17,7 +18,7 @@ import {
 export default function BenefitsAndRulePage() {
   const router = useRouter();
   const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>([]);
-  const [loadingCatalog, setLoadingCatalog] = useState(false);
+  const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [config, setConfig] = useState<Record<string, BenefitConfig>>({});
   const [hiddenBenefitIds, setHiddenBenefitIds] = useState<string[]>([]);
   const [benefitEdits, setBenefitEdits] = useState<Record<
@@ -122,7 +123,7 @@ export default function BenefitsAndRulePage() {
 
       <section className="mt-8">
         {loadingCatalog ? (
-          <p className="text-slate-600 dark:text-[#A7B6D3]">Benefit жагсаалт ачаалж байна...</p>
+          <AddBenefitSkeleton />
         ) : error ? (
           <p className="rounded-xl border border-red-300 bg-red-50 p-4 text-red-600 dark:border-[#7F1D1D] dark:bg-[#2F1212] dark:text-[#FCA5A5]">
             {error}

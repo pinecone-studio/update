@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { GraphQLClient, gql } from 'graphql-request';
 import { HrTotalEmployeeIcon } from "../icons/hrTotalEmployee";
 import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
+import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import {
   getLocalBenefitRequests,
   updateLocalBenefitRequestStatus,
@@ -28,6 +29,22 @@ const BENEFIT_REQUESTS_QUERY = gql`
     }
   }
 `;
+
+const EMPLOYEES_COUNT_QUERY = gql`
+  query EmployeesCount {
+    employees {
+      id
+    }
+  }
+`;
+
+const ACTIVE_BENEFITS_COUNT_QUERY = gql`
+  query ActiveBenefitsCount {
+    benefits {
+      id
+    }
+  }
+`;
 type BenefitRequest = {
   id: string;
   employeeId: string;
@@ -44,21 +61,6 @@ type StatCard = {
   icon: ReactNode;
   iconBg: string;
 };
-
-const statCards: StatCard[] = [
-  {
-    title: "Total Employees",
-    value: "1,247",
-    iconBg: "bg-[#2A8BFF]",
-    icon: <HrTotalEmployeeIcon />,
-  },
-  {
-    title: "Active Benefits",
-    value: "3,892",
-    iconBg: "bg-[#00C95F]",
-    icon: <HrActiveBenefitsIcon />,
-  },
-];
 function getErrorMessage(e: unknown): string {
   if (e && typeof e === 'object' && 'response' in e) {
     const res = (e as { response?: { errors?: Array<{ message?: string }> } }).response;
@@ -104,11 +106,14 @@ export default function HrDashboardPage() {
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalEmployees, setTotalEmployees] = useState<number>(0);
+  const [activeBenefits, setActiveBenefits] = useState<number>(0);
   const [statusFilter, setStatusFilter] = useState<string | undefined>('PENDING');
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
   const [sessionApprovedIds, setSessionApprovedIds] = useState<Set<string>>(new Set());
   const [sessionRejectedIds, setSessionRejectedIds] = useState<Set<string>>(new Set());
+  const [sessionProcessedRequests, setSessionProcessedRequests] = useState<BenefitRequest[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -163,10 +168,65 @@ export default function HrDashboardPage() {
     };
   }, [statusFilter]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const base = API_URL.replace(/\/$/, '');
+    const url = base.endsWith('/graphql') ? base : `${base}/graphql`;
+    const client = new GraphQLClient(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-employee-id': 'admin',
+        'x-role': 'admin',
+      },
+    });
+
+    async function loadStats() {
+      try {
+        const [employeesRes, benefitsRes] = await Promise.all([
+          client.request<{ employees: Array<{ id: string }> }>(EMPLOYEES_COUNT_QUERY),
+          client.request<{ benefits: Array<{ id: string }> }>(ACTIVE_BENEFITS_COUNT_QUERY),
+        ]);
+        if (!cancelled) {
+          setTotalEmployees((employeesRes.employees ?? []).length);
+          setActiveBenefits((benefitsRes.benefits ?? []).length);
+        }
+      } catch {
+        if (!cancelled) {
+          setTotalEmployees(0);
+          setActiveBenefits(0);
+        }
+      }
+    }
+
+    loadStats();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const statCards: StatCard[] = [
+    {
+      title: "Total Employees",
+      value: String(totalEmployees),
+      iconBg: "bg-[#2A8BFF]",
+      icon: <HrTotalEmployeeIcon />,
+    },
+    {
+      title: "Active Benefits",
+      value: String(activeBenefits),
+      iconBg: "bg-[#00C95F]",
+      icon: <HrActiveBenefitsIcon />,
+    },
+  ];
+
   const handleApprove = (requestId: string) => {
     const req = requests.find((r) => r.id === requestId);
     if (req) {
       addApprovedBenefit(req.employeeId, req.benefitId);
+      setSessionProcessedRequests((prev) => {
+        const updated = { ...req, status: 'APPROVED' };
+        return prev.filter((r) => r.id !== requestId).concat(updated);
+      });
     }
     setSessionApprovedIds((prev) => new Set(prev).add(requestId));
     setSessionRejectedIds((prev) => {
@@ -183,6 +243,13 @@ export default function HrDashboardPage() {
   };
 
   const handleReject = (requestId: string, _comment: string) => {
+    const req = requests.find((r) => r.id === requestId);
+    if (req) {
+      setSessionProcessedRequests((prev) => {
+        const updated = { ...req, status: 'REJECTED' };
+        return prev.filter((r) => r.id !== requestId).concat(updated);
+      });
+    }
     setSessionRejectedIds((prev) => new Set(prev).add(requestId));
     setSessionApprovedIds((prev) => {
       const next = new Set(prev);
@@ -206,8 +273,36 @@ export default function HrDashboardPage() {
         ? 'REJECTED'
         : (req.status || 'PENDING').toUpperCase();
 
+  const displayRequests = (() => {
+    const fromApi = requests.filter(
+      (req) => !statusFilter || getEffectiveStatus(req) === statusFilter
+    );
+    if (statusFilter === 'APPROVED') {
+      const sessionApproved = sessionProcessedRequests.filter((r) => r.status === 'APPROVED');
+      const seen = new Set(fromApi.map((r) => r.id));
+      const extra = sessionApproved.filter((r) => !seen.has(r.id));
+      return [...fromApi, ...extra];
+    }
+    if (statusFilter === 'REJECTED') {
+      const sessionRejected = sessionProcessedRequests.filter((r) => r.status === 'REJECTED');
+      const seen = new Set(fromApi.map((r) => r.id));
+      const extra = sessionRejected.filter((r) => !seen.has(r.id));
+      return [...fromApi, ...extra];
+    }
+    if (statusFilter === undefined) {
+      const seen = new Set(fromApi.map((r) => r.id));
+      const extra = sessionProcessedRequests.filter((r) => !seen.has(r.id));
+      return [...fromApi, ...extra];
+    }
+    return fromApi;
+  })();
+
   return (
     <>
+      {loading ? (
+        <AdminDashboardSkeleton />
+      ) : (
+        <>
       <div className="mb-10">
         <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Dashboard</h1>
         <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
@@ -274,73 +369,76 @@ export default function HrDashboardPage() {
 
         {loading ? (
           <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">Loading requests...</p>
-        ) : requests.filter((r) => !statusFilter || getEffectiveStatus(r) === statusFilter).length === 0 ? (
-          <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
-            No benefit requests found.
-          </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-5">
-              <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
-                <tr>
-                  <th className="px-4 py-4 font-medium">Request (Benefit)</th>
-                  <th className="px-4 py-4 font-medium">Employee</th>
-                  <th className="px-4 py-4 font-medium">Status</th>
-                  <th className="px-4 py-4 font-medium">Date</th>
-                  <th className="px-4 py-4 font-medium">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests
-                  .filter((req) => !statusFilter || getEffectiveStatus(req) === statusFilter)
-                  .map((req) => {
-                    const effectiveStatus = getEffectiveStatus(req);
-                    return (
-                  <tr
-                    key={req.id}
-                    className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
-                  >
-                    <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
-                      {req.benefitName ?? req.benefitId}
-                    </td>
-                    <td className="px-4 py-4 text-slate-600 dark:text-[#A7B6D3]">
-                      {req.employeeName ?? req.employeeId}
-                    </td>
-                    <td className="px-4 py-4">{statusBadge(effectiveStatus)}</td>
-                    <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
-                      {formatDate(req.createdAt)}
-                    </td>
-                    <td className="px-4 py-4">
-                      {effectiveStatus === 'PENDING' ? (
-                        <div className="flex items-center gap-6">
-                          <button
-                            type="button"
-                            onClick={() => handleApprove(req.id)}
-                            className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setRejectingId(req.id);
-                              setRejectComment('');
-                            }}
-                            className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 dark:text-slate-500">—</span>
-                      )}
-                    </td>
-                  </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {displayRequests.length === 0 ? (
+              <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
+                No benefit requests found.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left text-5">
+                  <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
+                    <tr>
+                      <th className="px-4 py-4 font-medium">Request (Benefit)</th>
+                      <th className="px-4 py-4 font-medium">Employee</th>
+                      <th className="px-4 py-4 font-medium">Status</th>
+                      <th className="px-4 py-4 font-medium">Date</th>
+                      <th className="px-4 py-4 font-medium">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayRequests.map((req) => {
+                        const effectiveStatus = getEffectiveStatus(req);
+                        return (
+                      <tr
+                        key={req.id}
+                        className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
+                      >
+                        <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
+                          {req.benefitName ?? req.benefitId}
+                        </td>
+                        <td className="px-4 py-4 text-slate-600 dark:text-[#A7B6D3]">
+                          {req.employeeName ?? req.employeeId}
+                        </td>
+                        <td className="px-4 py-4">{statusBadge(effectiveStatus)}</td>
+                        <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
+                          {formatDate(req.createdAt)}
+                        </td>
+                        <td className="px-4 py-4">
+                          {effectiveStatus === 'PENDING' ? (
+                            <div className="flex items-center gap-6">
+                              <button
+                                type="button"
+                                onClick={() => handleApprove(req.id)}
+                                className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRejectingId(req.id);
+                                  setRejectComment('');
+                                }}
+                                className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 dark:text-slate-500">—</span>
+                          )}
+                        </td>
+                      </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+          </>
         )}
       </article>
 
@@ -382,6 +480,8 @@ export default function HrDashboardPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </>
   );

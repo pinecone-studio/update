@@ -7,6 +7,11 @@ import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineBell,
   HiOutlineUserCircle,
+  HiOutlineChartBar,
+  HiOutlineCheckCircle,
+  HiOutlineInformationCircle,
+  HiOutlineArrowTopRightOnSquare,
+  HiXMark,
 } from "react-icons/hi2";
 import { HrAuditIcon } from "@/app/icons/hrAudit";
 import { HrBenefitsRuleIcon } from "@/app/icons/hrBenefitsRule";
@@ -42,6 +47,37 @@ const navItems: NavItem[] = [
   { label: "Audit Log", href: "/admin/audit-log", icon: <HrAuditIcon /> },
 ];
 
+const STORAGE_KEY = "ebms_admin_notifications";
+
+const DEFAULT_NOTIFICATIONS = [
+  {
+    id: "1",
+    title: "New Vendor Contract Uploaded",
+    body: "Vendor contract for Q2 2026 has been uploaded and is ready for review.",
+    time: "1 hour ago",
+    tone: "info" as const,
+    unread: true,
+  },
+  {
+    id: "2",
+    title: "Eligibility Review Required",
+    body: "5 employees reached 1 year tenure and require benefit eligibility review.",
+    time: "3 hours ago",
+    tone: "success" as const,
+    unread: true,
+  },
+  {
+    id: "3",
+    title: "Audit Log Export Ready",
+    body: "Your audit log export is ready to download.",
+    time: "1 day ago",
+    tone: "neutral" as const,
+    unread: false,
+  },
+];
+
+type AdminNotification = (typeof DEFAULT_NOTIFICATIONS)[number];
+
 export function Header() {
   const adminName = "Admin User";
   const adminId = "admin-1";
@@ -50,6 +86,9 @@ export function Header() {
   const [profileOpen, setProfileOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const [notifications, setNotifications] = useState<AdminNotification[]>(
+    DEFAULT_NOTIFICATIONS,
+  );
 
   const normalizedPath =
     pathname.endsWith("/") && pathname.length > 1
@@ -59,6 +98,9 @@ export function Header() {
   const isActive = (href: string) =>
     normalizedPath === href ||
     (href !== "/admin" && normalizedPath.startsWith(href));
+  const unreadCount = normalizedPath.startsWith("/admin/admin-notification")
+    ? 0
+    : notifications.filter((n) => n.unread).length;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -78,6 +120,24 @@ export function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as AdminNotification[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setNotifications(parsed);
+        }
+      } catch {
+        // Ignore malformed storage.
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+  }, [notifications]);
 
   return (
     <header className="sticky top-0 z-40 h-16 border-b border-slate-200 bg-white px-4 dark:border-[#24395C] dark:bg-[#1E293B]">
@@ -104,7 +164,7 @@ export function Header() {
               href={item.href}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 isActive(item.href)
-                  ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
+                  ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-[#2F66E8] dark:hover:bg-[#3E82F7]"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
               }`}
             >
@@ -127,16 +187,90 @@ export function Header() {
               aria-label="Notifications"
             >
               <HiOutlineBell className="h-5 w-5" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
+              {unreadCount > 0 && (
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
+              )}
             </button>
             {notificationOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-[#24395C] dark:bg-[#1E293B]">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                  Notifications
-                </p>
-                <p className="mt-2 text-xs text-slate-600 dark:text-[#A7B6D3]">
-                  No new admin notifications.
-                </p>
+              <div className="absolute right-0 top-full mt-2 flex max-h-[420px] w-[380px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-50 dark:border-[#24395C] dark:bg-[#1A2333]">
+                <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-[#24395C]">
+                  <div className="flex items-center gap-2">
+                    <HiOutlineBell className="text-base text-slate-600 dark:text-[#D1DBEF]" />
+                    <span className="font-semibold text-slate-900 dark:text-white">Notifications</span>
+                    {unreadCount > 0 && (
+                      <span className="rounded-full bg-red-500/80 px-2 py-0.5 text-xs font-medium text-white">
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setNotificationOpen(false)}
+                    className="rounded-lg p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#9FB0D4] dark:hover:bg-[#24364F] dark:hover:text-white"
+                  >
+                    <HiXMark className="text-lg" />
+                  </button>
+                </div>
+                <Link
+                  href="/admin/admin-notification"
+                  className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                  onClick={() => {
+                    setNotifications((prev) =>
+                      prev.map((n) => ({ ...n, unread: false })),
+                    );
+                    setNotificationOpen(false);
+                  }}
+                >
+                  Mark all as read
+                </Link>
+                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                  {notifications.map((n) => {
+                    const iconClass =
+                      n.tone === "success"
+                        ? "text-green-400 bg-green-500/20"
+                        : n.tone === "info"
+                          ? "text-blue-400 bg-blue-500/20"
+                          : "text-slate-400 bg-slate-500/20";
+                    return (
+                      <div
+                        key={n.id}
+                        className="flex gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 transition hover:border-slate-300 dark:border-[#24395C] dark:bg-[#1f2a40] dark:hover:border-slate-600"
+                      >
+                        <div className={`grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg ${iconClass}`}>
+                          {n.tone === "success" ? (
+                            <HiOutlineCheckCircle className="text-lg" />
+                          ) : n.tone === "info" ? (
+                            <HiOutlineChartBar className="text-lg" />
+                          ) : (
+                            <HiOutlineInformationCircle className="text-lg" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">{n.title}</p>
+                          <p className="mt-0.5 line-clamp-2 text-xs text-slate-600 dark:text-slate-400">{n.body}</p>
+                          <Link
+                            href="/admin/admin-notification"
+                            className="mt-2 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                            onClick={() => setNotificationOpen(false)}
+                          >
+                            View Details
+                            <HiOutlineArrowTopRightOnSquare className="text-xs" />
+                          </Link>
+                          <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">{n.time}</p>
+                        </div>
+                        {n.unread && <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="border-t border-slate-200 p-3 dark:border-[#24395C]">
+                  <Link
+                    href="/admin/admin-notification"
+                    onClick={() => setNotificationOpen(false)}
+                    className="block w-full rounded-lg bg-slate-800 py-2.5 text-center text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-[#2F66E8] dark:hover:bg-[#2A5ED4]"
+                  >
+                    View All Notifications
+                  </Link>
+                </div>
               </div>
             )}
           </div>

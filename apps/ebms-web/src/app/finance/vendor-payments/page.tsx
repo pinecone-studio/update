@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { FinancePageSkeleton } from "../components/FinancePageSkeleton";
+
 const vendorPayments = [
   { vendor: "PineFit Gym", benefit: "Gym Membership", amount: "$1,200", status: "Pending" as const },
   { vendor: "BlueCross", benefit: "Insurance", amount: "$850", status: "Paid" as const },
@@ -10,6 +15,17 @@ const recentPayments = [
 ];
 
 export default function VendorPaymentsPage() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading) {
+    return <FinancePageSkeleton statCardCount={1} tableRowCount={3} />;
+  }
+
   return (
     <div className="space-y-8">
       <header>

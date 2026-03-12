@@ -20,7 +20,9 @@ import {
   HiOutlineArrowTopRightOnSquare,
 } from "react-icons/hi2";
 
-const NOTIFICATIONS = [
+const STORAGE_KEY = "ebms_employee_notifications";
+
+const DEFAULT_NOTIFICATIONS = [
   {
     id: "1",
     title: "You're Now Eligible for Education Allowance!",
@@ -47,11 +49,16 @@ const NOTIFICATIONS = [
   },
 ];
 
+type EmployeeNotification = (typeof DEFAULT_NOTIFICATIONS)[number];
+
 export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [me, setMe] = useState<{ name: string; id: string } | null>(null);
+  const [notifications, setNotifications] = useState<EmployeeNotification[]>(
+    DEFAULT_NOTIFICATIONS,
+  );
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -87,6 +94,24 @@ export const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as EmployeeNotification[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setNotifications(parsed);
+        }
+      } catch {
+        // Ignore malformed storage.
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+  }, [notifications]);
+
   const navItems = [
     {
       key: "dashboard",
@@ -104,6 +129,9 @@ export const Header = () => {
 
   const isActive = (href: string) =>
     pathname === href || (href !== "/employee" && pathname?.startsWith(href));
+  const unreadCount = pathname?.startsWith("/employee/notification")
+    ? 0
+    : notifications.filter((n) => n.unread).length;
 
   return (
     <header className="w-full bg-white border-b border-slate-200 h-[64px] px-4 sticky top-0 z-50 dark:bg-[#1E293B] dark:border-slate-800">
@@ -124,7 +152,7 @@ export const Header = () => {
               href={href}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition ${
                 isActive(href)
-                  ? "text-white bg-blue-600 ring-blue-300 dark:ring-blue-500"
+                  ? "text-white bg-blue-600 ring-blue-300 hover:bg-blue-700 dark:bg-[#2A8BFF] dark:ring-blue-500 dark:hover:bg-[#3E82F7]"
                   : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
               }`}
             >
@@ -154,7 +182,9 @@ export const Header = () => {
                 aria-label="Notifications"
               >
                 <HiOutlineBell className="text-sm" />
-                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                )}
               </button>
               {notificationOpen && (
                 <div className="absolute right-0 top-full mt-2 w-[380px] max-h-[420px] flex flex-col bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
@@ -164,9 +194,11 @@ export const Header = () => {
                       <span className="text-slate-900 font-semibold dark:text-white">
                         Notifications
                       </span>
-                      <span className="px-2 py-0.5 rounded-full bg-red-500/80 text-white text-xs font-medium">
-                        2 new
-                      </span>
+                      {unreadCount > 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-red-500/80 text-white text-xs font-medium">
+                          {unreadCount} new
+                        </span>
+                      )}
                     </div>
                     <button
                       onClick={() => setNotificationOpen(false)}
@@ -178,12 +210,17 @@ export const Header = () => {
                   <Link
                     href="/employee/notification"
                     className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                    onClick={() => setNotificationOpen(false)}
+                    onClick={() => {
+                      setNotifications((prev) =>
+                        prev.map((n) => ({ ...n, unread: false })),
+                      );
+                      setNotificationOpen(false);
+                    }}
                   >
                     Mark all as read
                   </Link>
                   <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                    {NOTIFICATIONS.map((n) => {
+                    {notifications.map((n) => {
                       const iconClass =
                         n.tone === "success"
                           ? "text-green-400 bg-green-500/20"
@@ -318,7 +355,7 @@ export const Header = () => {
               href={href}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
                 isActive(href)
-                  ? "text-white bg-blue-600 ring-blue-300 dark:ring-blue-500"
+                  ? "text-white bg-blue-600 ring-blue-300 hover:bg-blue-700 dark:bg-[#2A8BFF] dark:ring-blue-500 dark:hover:bg-[#3E82F7]"
                   : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
               }`}
               onClick={() => setMenuOpen(false)}
