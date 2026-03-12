@@ -12,8 +12,10 @@ import {
 	fetchMyBenefits,
 	requestBenefit,
 	getApiErrorMessage,
+	getEmployeeId,
 } from "./_lib/api";
 import { mapMyBenefitsToCardProps } from "./_lib/mapBenefits";
+import { getApprovedBenefitIdsForEmployee } from "@/app/_lib/localBenefitRequests";
 import { BsChat } from "react-icons/bs";
 import { IoClose } from "react-icons/io5";
 
@@ -52,10 +54,18 @@ export default function EmployeeDashboardPage() {
 			]);
 			setMe({ name: meRes.name, okrSubmitted: meRes.okrSubmitted });
 			const mapped = mapMyBenefitsToCardProps(myBenefitsRes);
+			const approvedIds = getApprovedBenefitIdsForEmployee(getEmployeeId());
+			const withApproved = mapped.map((b) =>
+				b.status === "PENDING" &&
+				b.benefitId &&
+				approvedIds.includes(b.benefitId)
+					? { ...b, status: "ACTIVE" as const }
+					: b
+			);
 			setBenefits((prev) => {
 				// Preserve optimistic PENDING (backend may still return ELIGIBLE for requested benefits)
-				if (prev.length === 0) return mapped;
-				return mapped.map((fresh) => {
+				if (prev.length === 0) return withApproved;
+				return withApproved.map((fresh) => {
 					const existing = prev.find((p) => p.benefitId === fresh.benefitId);
 					if (existing?.status === "PENDING" && fresh.status === "ELIGIBLE") {
 						return existing;
@@ -79,11 +89,41 @@ export default function EmployeeDashboardPage() {
 		load();
 	}, [load]);
 
+	// Admin approves → PENDING → ACTIVE (storage, visibility, custom event)
+	useEffect(() => {
+		const applyApproved = () => {
+			setBenefits((prev) => {
+				const approvedIds = getApprovedBenefitIdsForEmployee(getEmployeeId());
+				return prev.map((b) =>
+					b.status === "PENDING" &&
+					b.benefitId &&
+					approvedIds.includes(b.benefitId)
+						? { ...b, status: "ACTIVE" as const }
+						: b
+				);
+			});
+		};
+		window.addEventListener("storage", applyApproved);
+		window.addEventListener("admin-approved-benefit", applyApproved);
+		const onVisibility = () => {
+			if (document.visibilityState === "visible") applyApproved();
+		};
+		document.addEventListener("visibilitychange", onVisibility);
+		return () => {
+			window.removeEventListener("storage", applyApproved);
+			window.removeEventListener("admin-approved-benefit", applyApproved);
+			document.removeEventListener("visibilitychange", onVisibility);
+		};
+	}, []);
+
 	const handleRequestBenefit = useCallback(
 		async (benefit: BenefitCardProps) => {
 			if (!benefit.benefitId) return;
 			try {
-				await requestBenefit(benefit.benefitId);
+				await requestBenefit(benefit.benefitId, {
+					benefitName: benefit.name,
+					employeeName: me?.name ?? undefined,
+				});
 				// Optimistically update button to "Request sent" (visible immediately)
 				setBenefits((prev) =>
 					prev.map((b) =>
@@ -98,7 +138,7 @@ export default function EmployeeDashboardPage() {
 				alert(getApiErrorMessage(e));
 			}
 		},
-		[load],
+		[load, me?.name],
 	);
 
 	const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
