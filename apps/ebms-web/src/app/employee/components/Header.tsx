@@ -91,7 +91,7 @@ export const Header = () => {
     pathname === href || (href !== "/employee" && pathname?.startsWith(href));
 
   return (
-    <header className="w-full bg-white border-b border-slate-200 h-[64px] px-4 relative sticky top-0 z-50 dark:bg-[#1E293B] dark:border-slate-800">
+    <header className="w-full bg-white border-b border-slate-200 h-[64px] px-4 sticky top-0 z-50 dark:bg-[#1E293B] dark:border-slate-800">
       <div className="h-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-8 md:gap-6 ">
           <Link
