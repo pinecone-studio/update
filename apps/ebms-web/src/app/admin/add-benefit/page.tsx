@@ -13,6 +13,7 @@ import {
   getApiErrorMessage,
   fetchBenefits,
   fetchConfigAndAttributes,
+  deleteBenefitFromCatalog,
 } from "./_lib/api";
 
 export default function BenefitsAndRulePage() {
@@ -20,43 +21,8 @@ export default function BenefitsAndRulePage() {
   const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>([]);
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [config, setConfig] = useState<Record<string, BenefitConfig>>({});
-  const [hiddenBenefitIds, setHiddenBenefitIds] = useState<string[]>([]);
-  const [benefitEdits, setBenefitEdits] = useState<Record<
-    string,
-    {
-      name: string;
-      category: string;
-      subsidyPercent: number;
-      requiresContract: boolean;
-    }
-  >>({});
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem("admin_hidden_benefit_ids");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        setHiddenBenefitIds(parsed.filter((v) => typeof v === "string"));
-      }
-    } catch {
-      setHiddenBenefitIds([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem("admin_benefit_edits");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object") {
-        setBenefitEdits(parsed);
-      }
-    } catch {
-      setBenefitEdits({});
-    }
-  }, []);
+  const [actionBusyId, setActionBusyId] = useState<string | null>(null);
 
   const loadAll = useCallback(async () => {
     setLoadingCatalog(true);
@@ -67,7 +33,7 @@ export default function BenefitsAndRulePage() {
         fetchBenefits(client),
         fetchConfigAndAttributes(client),
       ]);
-      setCatalogBenefits(benefits.filter((b) => !hiddenBenefitIds.includes(b.id)));
+      setCatalogBenefits(benefits);
       setConfig(conf.config);
     } catch (e) {
       setError(getApiErrorMessage(e));
@@ -76,7 +42,7 @@ export default function BenefitsAndRulePage() {
     } finally {
       setLoadingCatalog(false);
     }
-  }, [hiddenBenefitIds]);
+  }, []);
 
   useEffect(() => {
     loadAll();
@@ -88,21 +54,20 @@ export default function BenefitsAndRulePage() {
     return "ELIGIBLE";
   };
 
-  const handleDelete = useCallback((benefitId: string, benefitName: string) => {
+  const handleDelete = useCallback(async (benefitId: string, benefitName: string) => {
     const ok = window.confirm(`"${benefitName}" benefit-ийг устгах уу?`);
     if (!ok) return;
-    setCatalogBenefits((prev) => prev.filter((b) => b.id !== benefitId));
-    setConfig((prev) => {
-      const next = { ...prev };
-      delete next[benefitId];
-      return next;
-    });
-    setHiddenBenefitIds((prev) => {
-      const next = prev.includes(benefitId) ? prev : [...prev, benefitId];
-      window.localStorage.setItem("admin_hidden_benefit_ids", JSON.stringify(next));
-      return next;
-    });
-  }, []);
+    setActionBusyId(benefitId);
+    setError(null);
+    try {
+      await deleteBenefitFromCatalog(getClient(), benefitId);
+      await loadAll();
+    } catch (e) {
+      setError(getApiErrorMessage(e));
+    } finally {
+      setActionBusyId(null);
+    }
+  }, [loadAll]);
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
@@ -136,20 +101,17 @@ export default function BenefitsAndRulePage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {catalogBenefits.map((benefit) => {
               const ruleCount = config[benefit.id]?.rules?.length ?? 0;
-              const displayBenefit = benefitEdits[benefit.id]
-                ? { ...benefit, ...benefitEdits[benefit.id] }
-                : benefit;
-              const contractText = displayBenefit.requiresContract
+              const contractText = benefit.requiresContract
                 ? "Contract required"
                 : "No contract required";
               return (
                 <BenefitCard
                   key={benefit.id}
                   benefitId={benefit.id}
-                  category={displayBenefit.category}
-                  name={displayBenefit.name}
-                  description={`${displayBenefit.category} benefit`}
-                  subsidyPercentage={`${displayBenefit.subsidyPercent}%`}
+                  category={benefit.category}
+                  name={benefit.name}
+                  description={`${benefit.category} benefit`}
+                  subsidyPercentage={`${benefit.subsidyPercent}%`}
                   vendorDetails={contractText}
                   eligibilityCriteria={`${ruleCount} rule configured`}
                   status={toCardStatus(benefit)}
@@ -174,11 +136,12 @@ export default function BenefitsAndRulePage() {
                         title="Delete"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(benefit.id, benefit.name);
+                          void handleDelete(benefit.id, benefit.name);
                         }}
+                        disabled={actionBusyId === benefit.id}
                         className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-300 bg-slate-100 text-slate-600 transition hover:bg-slate-200 hover:text-red-600 dark:border-[#4B5D83] dark:bg-[#334160] dark:text-[#D4DEEF] dark:hover:bg-[#3A4A6C] dark:hover:text-[#FCA5A5]"
                       >
-                        <FiTrash2 className="h-4 w-4" />
+                        {actionBusyId === benefit.id ? "..." : <FiTrash2 className="h-4 w-4" />}
                       </button>
                     </div>
                   }

@@ -128,6 +128,14 @@ export const typeDefs = /* GraphQL */ `
     rules: [EligibilityRuleInput!]
   }
 
+  input UpdateBenefitInput {
+    id: ID!
+    name: String!
+    category: String!
+    subsidyPercent: Int!
+    requiresContract: Boolean!
+  }
+
   type EligibilityRuleConfig {
     config: String!
   }
@@ -161,5 +169,7 @@ export const typeDefs = /* GraphQL */ `
     overrideEligibility(input: OverrideInput!): BenefitEligibility!
     updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!
     createBenefit(input: CreateBenefitInput!): Benefit!
+    updateBenefit(input: UpdateBenefitInput!): Benefit!
+    deleteBenefit(id: ID!): Boolean!
   }
 `;
