@@ -1,373 +1,445 @@
+/** @format */
+
 "use client";
 
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 type BenefitRow = {
-  name: string;
-  status: "Active" | "Eligible" | "Locked" | "Pending";
-  history: BenefitHistoryRow[];
+	name: string;
+	status: "Active" | "Eligible" | "Locked" | "Pending";
+	history: BenefitHistoryRow[];
 };
 
 type BenefitHistoryRow = {
-  status: BenefitRow["status"];
-  reason: string;
-  changedAt: string;
-  changedBy: string;
+	status: BenefitRow["status"];
+	reason: string;
+	changedAt: string;
+	changedBy: string;
 };
 
 type EmployeeRow = {
-  id: string;
-  name: string;
-  department: string;
-  startDate: string;
-  benefits: BenefitRow[];
+	id: string;
+	name: string;
+	department: string;
+	startDate: string;
+	benefits: BenefitRow[];
 };
 
 const initialEmployees: EmployeeRow[] = [
-  {
-    id: "EMP-2847",
-    name: "Sarah Johnson",
-    department: "Engineering",
-    startDate: "January 15, 2023",
-    benefits: [
-      { name: "Health Insurance", status: "Active", history: [] },
-      { name: "401(k) Match", status: "Eligible", history: [] },
-      { name: "Stock Options", status: "Locked", history: [] },
-      { name: "Commuter Benefits", status: "Pending", history: [] },
-    ],
-  },
-  {
-    id: "EMP-2914",
-    name: "Mike Chen",
-    department: "Product",
-    startDate: "March 02, 2022",
-    benefits: [
-      { name: "Health Insurance", status: "Active", history: [] },
-      { name: "Travel Subsidy", status: "Eligible", history: [] },
-      { name: "Remote Work", status: "Pending", history: [] },
-    ],
-  },
-  {
-    id: "EMP-3001",
-    name: "Emily Rodriguez",
-    department: "Marketing",
-    startDate: "June 11, 2021",
-    benefits: [
-      { name: "Health Insurance", status: "Active", history: [] },
-      { name: "Commuter Benefits", status: "Eligible", history: [] },
-      { name: "Stock Options", status: "Locked", history: [] },
-    ],
-  },
-  {
-    id: "EMP-3042",
-    name: "David Lee",
-    department: "Finance",
-    startDate: "October 23, 2020",
-    benefits: [
-      { name: "Health Insurance", status: "Active", history: [] },
-      { name: "Down Payment", status: "Eligible", history: [] },
-      { name: "MacBook Subsidy", status: "Pending", history: [] },
-    ],
-  },
+	{
+		id: "EMP-2847",
+		name: "Sarah Johnson",
+		department: "Engineering",
+		startDate: "January 15, 2023",
+		benefits: [
+			{ name: "Health Insurance", status: "Active", history: [] },
+			{ name: "401(k) Match", status: "Eligible", history: [] },
+			{ name: "Stock Options", status: "Locked", history: [] },
+			{ name: "Commuter Benefits", status: "Pending", history: [] },
+		],
+	},
+	{
+		id: "EMP-2914",
+		name: "Mike Chen",
+		department: "Product",
+		startDate: "March 02, 2022",
+		benefits: [
+			{ name: "Health Insurance", status: "Active", history: [] },
+			{ name: "Travel Subsidy", status: "Eligible", history: [] },
+			{ name: "Remote Work", status: "Pending", history: [] },
+		],
+	},
+	{
+		id: "EMP-3001",
+		name: "Emily Rodriguez",
+		department: "Marketing",
+		startDate: "June 11, 2021",
+		benefits: [
+			{ name: "Health Insurance", status: "Active", history: [] },
+			{ name: "Commuter Benefits", status: "Eligible", history: [] },
+			{ name: "Stock Options", status: "Locked", history: [] },
+		],
+	},
+	{
+		id: "EMP-3042",
+		name: "David Lee",
+		department: "Finance",
+		startDate: "October 23, 2020",
+		benefits: [
+			{ name: "Health Insurance", status: "Active", history: [] },
+			{ name: "Down Payment", status: "Eligible", history: [] },
+			{ name: "MacBook Subsidy", status: "Pending", history: [] },
+		],
+	},
 ];
 
 const statusClass: Record<BenefitRow["status"], string> = {
-  Active: "border-[#166534] bg-[#052E25] text-[#34D399]",
-  Eligible: "border-[#1D4ED8] bg-[#122B4C] text-[#60A5FA]",
-  Locked: "border-[#9F1239] bg-[#3A1026] text-[#FB7185]",
-  Pending: "border-[#B45309] bg-[#3B2A12] text-[#FBBF24]",
+	Active: "border-[#166534] bg-[#052E25] text-[#34D399]",
+	Eligible: "border-[#1D4ED8] bg-[#122B4C] text-[#60A5FA]",
+	Locked: "border-[#9F1239] bg-[#3A1026] text-[#FB7185]",
+	Pending: "border-[#B45309] bg-[#3B2A12] text-[#FBBF24]",
 };
 
 export default function EmployeeEligibilityPage() {
-  const [employeeList, setEmployeeList] = useState<EmployeeRow[]>(initialEmployees);
-  const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [expandedBenefitKey, setExpandedBenefitKey] = useState<string | null>(null);
-  const [draftStatusByKey, setDraftStatusByKey] = useState<Record<string, BenefitRow["status"]>>({});
-  const [draftReasonByKey, setDraftReasonByKey] = useState<Record<string, string>>({});
-  const [savedReasonByKey, setSavedReasonByKey] = useState<Record<string, string>>({});
-  const currentAdmin = "HR Admin";
+	const [employeeList, setEmployeeList] =
+		useState<EmployeeRow[]>(initialEmployees);
+	const [search, setSearch] = useState("");
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+	const [expandedBenefitKey, setExpandedBenefitKey] = useState<string | null>(
+		null,
+	);
+	const [draftStatusByKey, setDraftStatusByKey] = useState<
+		Record<string, BenefitRow["status"]>
+	>({});
+	const [draftReasonByKey, setDraftReasonByKey] = useState<
+		Record<string, string>
+	>({});
+	const [savedReasonByKey, setSavedReasonByKey] = useState<
+		Record<string, string>
+	>({});
+	const currentAdmin = "HR Admin";
 
-  const filteredEmployees = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return employeeList;
-    return employeeList.filter(
-      (emp) =>
-        emp.name.toLowerCase().includes(q) ||
-        emp.id.toLowerCase().includes(q) ||
-        emp.department.toLowerCase().includes(q)
-    );
-  }, [search, employeeList]);
+	const filteredEmployees = useMemo(() => {
+		const q = search.trim().toLowerCase();
+		if (!q) return employeeList;
+		return employeeList.filter(
+			(emp) =>
+				emp.name.toLowerCase().includes(q) ||
+				emp.id.toLowerCase().includes(q) ||
+				emp.department.toLowerCase().includes(q),
+		);
+	}, [search, employeeList]);
 
-  const selectedEmployee = useMemo(
-    () => employeeList.find((emp) => emp.id === selectedId) ?? null,
-    [selectedId, employeeList]
-  );
+	const selectedEmployee = useMemo(
+		() => employeeList.find((emp) => emp.id === selectedId) ?? null,
+		[selectedId, employeeList],
+	);
 
-  const getInitials = (name: string) =>
-    name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
+	const getInitials = (name: string) =>
+		name
+			.split(" ")
+			.map((part) => part[0])
+			.join("")
+			.slice(0, 2)
+			.toUpperCase();
 
-  const handleCloseModal = () => {
-    setSelectedId(null);
-    setExpandedBenefitKey(null);
-  };
+	const handleCloseModal = () => {
+		setSelectedId(null);
+		setExpandedBenefitKey(null);
+	};
 
-  const handleShowToggle = (key: string, currentStatus: BenefitRow["status"]) => {
-    setExpandedBenefitKey((prev) => (prev === key ? null : key));
-    setDraftStatusByKey((prev) => (prev[key] ? prev : { ...prev, [key]: currentStatus }));
-  };
+	const handleShowToggle = (
+		key: string,
+		currentStatus: BenefitRow["status"],
+	) => {
+		setExpandedBenefitKey((prev) => (prev === key ? null : key));
+		setDraftStatusByKey((prev) =>
+			prev[key] ? prev : { ...prev, [key]: currentStatus },
+		);
+	};
 
-  const handleSaveStatus = (benefitName: string, key: string) => {
-    if (!selectedId) return;
-    const reason = (draftReasonByKey[key] ?? "").trim();
-    if (!reason) return;
+	const handleSaveStatus = (benefitName: string, key: string) => {
+		if (!selectedId) return;
+		const reason = (draftReasonByKey[key] ?? "").trim();
+		if (!reason) return;
 
-    const nextStatus = draftStatusByKey[key] ?? "Pending";
-    const changedAt = new Date().toLocaleString();
-    setEmployeeList((prev) =>
-      prev.map((emp) =>
-        emp.id !== selectedId
-          ? emp
-          : {
-              ...emp,
-              benefits: emp.benefits.map((benefit) =>
-                benefit.name === benefitName
-                  ? {
-                      ...benefit,
-                      status: nextStatus,
-                      history: [
-                        {
-                          status: nextStatus,
-                          reason,
-                          changedAt,
-                          changedBy: currentAdmin,
-                        },
-                        ...benefit.history,
-                      ],
-                    }
-                  : benefit
-              ),
-            }
-      )
-    );
-    setSavedReasonByKey((prev) => ({ ...prev, [key]: reason }));
-    setDraftReasonByKey((prev) => ({ ...prev, [key]: "" }));
-    setExpandedBenefitKey(null);
-  };
+		const nextStatus = draftStatusByKey[key] ?? "Pending";
+		const changedAt = new Date().toLocaleString();
+		setEmployeeList((prev) =>
+			prev.map((emp) =>
+				emp.id !== selectedId
+					? emp
+					: {
+							...emp,
+							benefits: emp.benefits.map((benefit) =>
+								benefit.name === benefitName
+									? {
+											...benefit,
+											status: nextStatus,
+											history: [
+												{
+													status: nextStatus,
+													reason,
+													changedAt,
+													changedBy: currentAdmin,
+												},
+												...benefit.history,
+											],
+										}
+									: benefit,
+							),
+						},
+			),
+		);
+		setSavedReasonByKey((prev) => ({ ...prev, [key]: reason }));
+		setDraftReasonByKey((prev) => ({ ...prev, [key]: "" }));
+		setExpandedBenefitKey(null);
+	};
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-white">Employee Eligibility Overview</h1>
-        <p className="mt-3 text-5 text-[#A7B6D3]">
-          Нэрээр хайж, ажилтан дээр дарахад benefit eligibility-г төв popup дээр харна.
-        </p>
-      </div>
+	return (
+		<div className="space-y-6">
+			<div>
+				<h1 className="text-xl font-semibold text-white">
+					Employee Eligibility Overview
+				</h1>
+				<p className="mt-3 text-5 text-[#A7B6D3]">
+					Нэрээр хайж, ажилтан дээр дарахад benefit eligibility-г төв popup дээр
+					харна.
+				</p>
+			</div>
 
-      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
-        <div className="relative">
-          <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#93A4C3]">
-            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-4-4" />
-            </svg>
-          </span>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Ажилтны нэрээр хайх..."
-            className="h-14 w-full rounded-2xl border border-[#324A70] bg-[#0F172A] pl-14 pr-4 text-5 text-white outline-none placeholder:text-[#8FA3C5] focus:border-[#4B6FA8]"
-          />
-        </div>
-      </section>
+			<section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
+				<div className="relative">
+					<span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#93A4C3]">
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							className="h-6 w-6"
+							stroke="currentColor"
+							strokeWidth="1.8"
+						>
+							<circle cx="11" cy="11" r="7" />
+							<path d="m20 20-4-4" />
+						</svg>
+					</span>
+					<input
+						type="text"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						placeholder="Ажилтны нэрээр хайх..."
+						className="h-14 w-full rounded-2xl border border-[#324A70] bg-[#0F172A] pl-14 pr-4 text-5 text-white outline-none placeholder:text-[#8FA3C5] focus:border-[#4B6FA8]"
+					/>
+				</div>
+			</section>
 
-      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
-        <h2 className="text-10 font-semibold text-white">Ажилтнуудын жагсаалт</h2>
-        <div className="mt-4 space-y-2">
-          {filteredEmployees.map((emp) => (
-            <button
-              key={emp.id}
-              type="button"
-              onClick={() => setSelectedId(emp.id)}
-              className="flex w-full items-center gap-4 rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 py-3 text-left transition hover:bg-[#142544]"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-5 font-semibold text-white">
-                {getInitials(emp.name)}
-              </span>
-              <div>
-                <p className="text-5 font-medium text-white">{emp.name}</p>
-                <p className="text-5 text-[#8FA3C5]">{emp.department}</p>
-              </div>
-            </button>
-          ))}
-          {filteredEmployees.length === 0 && (
-            <p className="rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 py-3 text-5 text-[#9FB0CF]">
-              Хайлтад тохирох ажилтан олдсонгүй.
-            </p>
-          )}
-        </div>
-      </section>
+			<section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
+				<h2 className="text-10 font-semibold text-white">
+					Ажилтнуудын жагсаалт
+				</h2>
+				<div className="mt-4 space-y-2">
+					{filteredEmployees.map((emp) => (
+						<button
+							key={emp.id}
+							type="button"
+							onClick={() => setSelectedId(emp.id)}
+							className="flex w-full items-center gap-4 rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 py-3 text-left transition hover:bg-[#142544]"
+						>
+							<span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-5 font-semibold text-white">
+								{getInitials(emp.name)}
+							</span>
+							<div>
+								<p className="text-5 font-medium text-white">{emp.name}</p>
+								<p className="text-5 text-[#8FA3C5]">{emp.department}</p>
+							</div>
+						</button>
+					))}
+					{filteredEmployees.length === 0 && (
+						<p className="rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 py-3 text-5 text-[#9FB0CF]">
+							Хайлтад тохирох ажилтан олдсонгүй.
+						</p>
+					)}
+				</div>
+			</section>
 
-      {selectedEmployee && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-          onClick={handleCloseModal}
-        >
-          <div
-            className="max-h-[85vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-[#2C4264] bg-[#0F172A] p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-white">{selectedEmployee.name}</h2>
-                <p className="mt-2 text-5 text-[#9FB0CF]">
-                  {selectedEmployee.id} • {selectedEmployee.department}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleCloseModal}
-                className="rounded-xl border border-[#324A70] bg-[#1E293B] px-4 py-2 text-5 text-[#C9D5EA] hover:text-white"
-              >
-                Хаах
-              </button>
-            </div>
+			{selectedEmployee &&
+				typeof document !== "undefined" &&
+				createPortal(
+					<div
+						className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4 backdrop-blur-md"
+						style={{
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							width: "100vw",
+							height: "100dvh",
+							minHeight: "100vh",
+						}}
+						onClick={handleCloseModal}
+					>
+						<div
+							className="max-h-[85vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-[#2C4264] bg-[#0F172A] p-6 shadow-2xl"
+							onClick={(e) => e.stopPropagation()}
+						>
+						<div className="mb-5 flex items-center justify-between">
+							<div>
+								<h2 className="text-xl font-semibold text-white">
+									{selectedEmployee.name}
+								</h2>
+								<p className="mt-2 text-5 text-[#9FB0CF]">
+									{selectedEmployee.id} • {selectedEmployee.department}
+								</p>
+							</div>
+							<button
+								type="button"
+								onClick={handleCloseModal}
+								className="rounded-xl border border-[#324A70] bg-[#1E293B] px-4 py-2 text-5 text-[#C9D5EA] hover:text-white"
+							>
+								Хаах
+							</button>
+						</div>
 
-            <div className="space-y-4">
-              {selectedEmployee.benefits.map((benefit) => (
-                (() => {
-                  const key = `${selectedEmployee.id}-${benefit.name}`;
-                  const isExpanded = expandedBenefitKey === key;
-                  const draftStatus = draftStatusByKey[key] ?? benefit.status;
-                  const draftReason = draftReasonByKey[key] ?? "";
-                  const canSave = draftReason.trim().length > 0;
-                  const lastReason = savedReasonByKey[key];
-                  const statusOptions: BenefitRow["status"][] = ["Active", "Pending", "Eligible", "Locked"];
+						<div className="space-y-4">
+							{selectedEmployee.benefits.map((benefit) =>
+								(() => {
+									const key = `${selectedEmployee.id}-${benefit.name}`;
+									const isExpanded = expandedBenefitKey === key;
+									const draftStatus = draftStatusByKey[key] ?? benefit.status;
+									const draftReason = draftReasonByKey[key] ?? "";
+									const canSave = draftReason.trim().length > 0;
+									const lastReason = savedReasonByKey[key];
+									const statusOptions: BenefitRow["status"][] = [
+										"Active",
+										"Pending",
+										"Eligible",
+										"Locked",
+									];
 
-                  return (
-                    <article
-                      key={benefit.name}
-                      className="rounded-3xl border border-[#2C4264] bg-[#1E293B] px-7 py-6"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-5">
-                          <h3 className="text-2 font-medium text-white">{benefit.name}</h3>
-                          <span className={`rounded-lg border px-2 py-0.5 text-sm font-medium ${statusClass[benefit.status]}`}>
-                            {benefit.status}
-                          </span>
-                        </div>
+									return (
+										<article
+											key={benefit.name}
+											className="rounded-3xl border border-[#2C4264] bg-[#1E293B] px-7 py-6"
+										>
+											<div className="flex items-center justify-between">
+												<div className="flex items-center gap-5">
+													<h3 className="text-2 font-medium text-white">
+														{benefit.name}
+													</h3>
+													<span
+														className={`rounded-lg border px-2 py-0.5 text-sm font-medium ${statusClass[benefit.status]}`}
+													>
+														{benefit.status}
+													</span>
+												</div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleShowToggle(key, benefit.status)}
-                          className="flex items-center gap-3 text-5 text-[#A7B6D3] hover:text-white"
-                        >
-                          <span className="rounded-lg border border-[#324A70] bg-[#0F172A] px-2 py-1 text-5 text-[#C9D5EA]">
-                            Change {benefit.history.length}
-                          </span>
-                          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
-                            <path d={isExpanded ? "m6 15 6-6 6 6" : "m6 9 6 6 6-6"} />
-                          </svg>
-                          <span>Show</span>
-                        </button>
-                      </div>
+												<button
+													type="button"
+													onClick={() => handleShowToggle(key, benefit.status)}
+													className="flex items-center gap-3 text-5 text-[#A7B6D3] hover:text-white"
+												>
+													<span className="rounded-lg border border-[#324A70] bg-[#0F172A] px-2 py-1 text-5 text-[#C9D5EA]">
+														Change {benefit.history.length}
+													</span>
+													<svg
+														viewBox="0 0 24 24"
+														fill="none"
+														className="h-6 w-6"
+														stroke="currentColor"
+														strokeWidth="1.8"
+													>
+														<path
+															d={isExpanded ? "m6 15 6-6 6 6" : "m6 9 6 6 6-6"}
+														/>
+													</svg>
+													<span>Show</span>
+												</button>
+											</div>
 
-                      {isExpanded && (
-                        <div className="mt-4 rounded-2xl border border-[#324A70] bg-[#0F172A] p-4">
-                          <p className="text-5 text-[#C9D5EA]">Status сонголт</p>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {statusOptions.map((option) => (
-                              <button
-                                key={option}
-                                type="button"
-                                onClick={() =>
-                                  setDraftStatusByKey((prev) => ({ ...prev, [key]: option }))
-                                }
-                                className={`rounded-lg border px-3 py-1.5 text-5 transition ${
-                                  draftStatus === option
-                                    ? statusClass[option]
-                                    : "border-[#324A70] text-[#C9D5EA] hover:text-white"
-                                }`}
-                              >
-                                {option}
-                              </button>
-                            ))}
-                          </div>
-                          <label className="mt-4 block text-5 text-[#C9D5EA]">
-                            Яагаад өөрчилснөө бичнэ үү
-                          </label>
-                          <textarea
-                            rows={3}
-                            value={draftReason}
-                            onChange={(e) =>
-                              setDraftReasonByKey((prev) => ({ ...prev, [key]: e.target.value }))
-                            }
-                            placeholder="Шалтгаан..."
-                            className="mt-2 w-full rounded-xl border border-[#324A70] bg-[#1E293B] px-3 py-2 text-5 text-white outline-none"
-                          />
-                          <div className="mt-3 flex items-center gap-3">
-                            <button
-                              type="button"
-                              onClick={() => handleSaveStatus(benefit.name, key)}
-                              disabled={!canSave}
-                              className="rounded-xl bg-[#2F66E8] px-4 py-2 text-5 text-white disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              Save
-                            </button>
-                          </div>
-                          {lastReason && (
-                            <p className="mt-3 text-5 text-[#8FA3C5]">
-                              Сүүлд хадгалсан тайлбар: {lastReason}
-                            </p>
-                          )}
+											{isExpanded && (
+												<div className="mt-4 rounded-2xl border border-[#324A70] bg-[#0F172A] p-4">
+													<p className="text-5 text-[#C9D5EA]">
+														Status сонголт
+													</p>
+													<div className="mt-3 flex flex-wrap gap-2">
+														{statusOptions.map((option) => (
+															<button
+																key={option}
+																type="button"
+																onClick={() =>
+																	setDraftStatusByKey((prev) => ({
+																		...prev,
+																		[key]: option,
+																	}))
+																}
+																className={`rounded-lg border px-3 py-1.5 text-5 transition ${
+																	draftStatus === option
+																		? statusClass[option]
+																		: "border-[#324A70] text-[#C9D5EA] hover:text-white"
+																}`}
+															>
+																{option}
+															</button>
+														))}
+													</div>
+													<label className="mt-4 block text-5 text-[#C9D5EA]">
+														Яагаад өөрчилснөө бичнэ үү
+													</label>
+													<textarea
+														rows={3}
+														value={draftReason}
+														onChange={(e) =>
+															setDraftReasonByKey((prev) => ({
+																...prev,
+																[key]: e.target.value,
+															}))
+														}
+														placeholder="Шалтгаан..."
+														className="mt-2 w-full rounded-xl border border-[#324A70] bg-[#1E293B] px-3 py-2 text-5 text-white outline-none"
+													/>
+													<div className="mt-3 flex items-center gap-3">
+														<button
+															type="button"
+															onClick={() =>
+																handleSaveStatus(benefit.name, key)
+															}
+															disabled={!canSave}
+															className="rounded-xl bg-[#2F66E8] px-4 py-2 text-5 text-white disabled:cursor-not-allowed disabled:opacity-60"
+														>
+															Save
+														</button>
+													</div>
+													{lastReason && (
+														<p className="mt-3 text-5 text-[#8FA3C5]">
+															Сүүлд хадгалсан тайлбар: {lastReason}
+														</p>
+													)}
 
-                          <div className="mt-4">
-                            <p className="text-5 text-[#C9D5EA]">Өөрчлөлтийн түүх</p>
-                            {benefit.history.length === 0 ? (
-                              <p className="mt-2 text-5 text-[#8FA3C5]">Түүх алга.</p>
-                            ) : (
-                              <div className="mt-2 space-y-2">
-                                {benefit.history.map((entry, idx) => (
-                                  <div
-                                    key={`${entry.changedAt}-${idx}`}
-                                    className="rounded-xl border border-[#324A70] bg-[#1E293B] px-3 py-2"
-                                  >
-                                    <p className="text-5 text-white">
-                                      {entry.changedBy} • {entry.changedAt}
-                                    </p>
-                                    <p className="mt-1 text-5 text-[#A7B6D3]">
-                                      Status: {entry.status}
-                                    </p>
-                                    <p className="mt-1 text-5 text-[#8FA3C5]">
-                                      Шалтгаан: {entry.reason}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </article>
-                  );
-                })()
-              ))}
-              {selectedEmployee.benefits.length === 0 && (
-                <p className="rounded-2xl border border-[#324A70] bg-[#1E293B] px-6 py-5 text-5 text-[#9FB0CF]">
-                  Benefit мэдээлэл олдсонгүй.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
+													<div className="mt-4">
+														<p className="text-5 text-[#C9D5EA]">
+															Өөрчлөлтийн түүх
+														</p>
+														{benefit.history.length === 0 ? (
+															<p className="mt-2 text-5 text-[#8FA3C5]">
+																Түүх алга.
+															</p>
+														) : (
+															<div className="mt-2 space-y-2">
+																{benefit.history.map((entry, idx) => (
+																	<div
+																		key={`${entry.changedAt}-${idx}`}
+																		className="rounded-xl border border-[#324A70] bg-[#1E293B] px-3 py-2"
+																	>
+																		<p className="text-5 text-white">
+																			{entry.changedBy} • {entry.changedAt}
+																		</p>
+																		<p className="mt-1 text-5 text-[#A7B6D3]">
+																			Status: {entry.status}
+																		</p>
+																		<p className="mt-1 text-5 text-[#8FA3C5]">
+																			Шалтгаан: {entry.reason}
+																		</p>
+																	</div>
+																))}
+															</div>
+														)}
+													</div>
+												</div>
+											)}
+										</article>
+									);
+								})(),
+							)}
+							{selectedEmployee.benefits.length === 0 && (
+								<p className="rounded-2xl border border-[#324A70] bg-[#1E293B] px-6 py-5 text-5 text-[#9FB0CF]">
+									Benefit мэдээлэл олдсонгүй.
+								</p>
+							)}
+						</div>
+					</div>
+				</div>,
+					document.body
+				)}
+		</div>
+	);
 }

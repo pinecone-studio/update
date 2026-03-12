@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { FiCheck, FiStar, FiActivity, FiLock } from "react-icons/fi";
+import { FiCheck, FiStar, FiActivity, FiLock, FiMessageCircle } from "react-icons/fi";
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import { Header } from "./components/Header";
@@ -41,6 +41,9 @@ export default function EmployeeDashboardPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [chatbot, setChatbot] = useState(false);
+	const [feedbackMessage, setFeedbackMessage] = useState("");
+	const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+	const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
 	const load = useCallback(async (opts?: { silent?: boolean }) => {
 		if (!opts?.silent) {
@@ -144,6 +147,19 @@ export default function EmployeeDashboardPage() {
 	const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
 	const eligibleCount = benefits.filter((b) => b.status === "ELIGIBLE").length;
 	const lockedCount = benefits.filter((b) => b.status === "LOCKED").length;
+
+	const handleFeedbackSubmit = useCallback(async () => {
+		if (!feedbackMessage.trim()) return;
+		setFeedbackSubmitting(true);
+		try {
+			// Placeholder: wire to feedback API when available
+			await new Promise((r) => setTimeout(r, 500));
+			setFeedbackSubmitted(true);
+			setFeedbackMessage("");
+		} finally {
+			setFeedbackSubmitting(false);
+		}
+	}, [feedbackMessage]);
 
 	return (
 		<div>
@@ -251,6 +267,62 @@ export default function EmployeeDashboardPage() {
 							benefits={benefits}
 							onRequestBenefit={handleRequestBenefit}
 						/>
+
+						<div className="mt-10 mb-6">
+							<h2 className="text-xl text-slate-900 font-semibold dark:text-white">
+								Feedback
+							</h2>
+							<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
+								Share your thoughts to help us improve the benefits experience
+							</p>
+						</div>
+
+						<div className="rounded-[10px] bg-white border border-slate-200 p-6 dark:bg-[#334155] dark:border-transparent">
+							{feedbackSubmitted ? (
+								<div className="flex flex-col items-center justify-center py-8 text-center">
+									<CardIcon className="bg-[#4CAF50]/20 mb-4">
+										<FiCheck size={24} color="#4CAF50" strokeWidth={2.5} />
+									</CardIcon>
+									<p className="text-slate-900 font-medium dark:text-white">
+										Thank you for your feedback!
+									</p>
+									<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
+										We appreciate you taking the time to share your thoughts.
+									</p>
+									<button
+										type="button"
+										onClick={() => setFeedbackSubmitted(false)}
+										className="mt-4 text-sm text-slate-600 hover:text-slate-900 dark:text-[#99A1AF] dark:hover:text-white underline"
+									>
+										Submit another feedback
+									</button>
+								</div>
+							) : (
+								<div className="flex flex-col gap-4">
+									<div>
+										<label className="block text-sm font-medium text-slate-700 dark:text-[#E2E8F0] mb-2">
+											Your feedback (required)
+										</label>
+										<textarea
+											value={feedbackMessage}
+											onChange={(e) => setFeedbackMessage(e.target.value)}
+											placeholder="Tell us what we can improve..."
+											rows={4}
+											className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-[#2196F3] focus:outline-none focus:ring-1 focus:ring-[#2196F3] dark:border-slate-600 dark:bg-[#1E293B] dark:text-white dark:placeholder:text-slate-500"
+										/>
+									</div>
+									<button
+										type="button"
+										onClick={handleFeedbackSubmit}
+										disabled={!feedbackMessage.trim() || feedbackSubmitting}
+										className="w-fit px-5 py-2.5 rounded-lg bg-[#2196F3] text-white font-medium hover:bg-[#1976D2] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+									>
+										<FiMessageCircle size={18} />
+										{feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
+									</button>
+								</div>
+							)}
+						</div>
 					</>
 				)}
 				</div>
