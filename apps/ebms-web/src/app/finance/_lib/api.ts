@@ -37,6 +37,7 @@ export type BenefitRequest = {
   createdAt: string;
   employeeName?: string | null;
   benefitName?: string | null;
+  rejectReason?: string | null;
 };
 
 export type EmployeeLite = {
@@ -80,6 +81,7 @@ const BENEFIT_REQUESTS_QUERY = gql`
       createdAt
       employeeName
       benefitName
+      rejectReason
     }
   }
 `;
@@ -128,8 +130,8 @@ const AUDIT_LOG_QUERY = gql`
 `;
 
 const CONFIRM_REQUEST_MUTATION = gql`
-  mutation ConfirmBenefitRequest($requestId: ID!, $contractAccepted: Boolean!) {
-    confirmBenefitRequest(requestId: $requestId, contractAccepted: $contractAccepted) {
+  mutation ConfirmBenefitRequest($requestId: ID!, $contractAccepted: Boolean!, $rejectReason: String) {
+    confirmBenefitRequest(requestId: $requestId, contractAccepted: $contractAccepted, rejectReason: $rejectReason) {
       id
       status
     }
@@ -165,7 +167,12 @@ export async function fetchAuditLog(client: GraphQLClient): Promise<AuditEntry[]
 export async function confirmBenefitRequest(
   client: GraphQLClient,
   requestId: string,
-  contractAccepted: boolean
+  contractAccepted: boolean,
+  rejectReason?: string
 ): Promise<void> {
-  await client.request(CONFIRM_REQUEST_MUTATION, { requestId, contractAccepted });
+  await client.request(CONFIRM_REQUEST_MUTATION, {
+    requestId,
+    contractAccepted,
+    rejectReason: rejectReason || null,
+  });
 }

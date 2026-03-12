@@ -40,6 +40,10 @@ export function mapMyBenefitsToCardProps(
 				? (item.ruleEvaluations?.find((r) => !r.passed)?.reason ??
 					"Eligibility rules are not satisfied right now.")
 				: undefined;
+		const rejectReason =
+			item.status === "REJECTED" && item.rejectedReason
+				? item.rejectedReason
+				: undefined;
 		const eligibilityRules =
 			item.ruleEvaluations?.map((r) => ({
 				rule: r.ruleType,
@@ -69,6 +73,7 @@ export function mapMyBenefitsToCardProps(
 			contractLink,
 			status: item.status as BenefitCardProps["status"],
 			lockReason,
+			rejectReason,
 			eligibilityRules,
 			icon,
 			iconBgColor: "bg-[#334155]",

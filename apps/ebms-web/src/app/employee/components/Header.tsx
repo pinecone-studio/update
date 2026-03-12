@@ -163,6 +163,13 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/admin"
+            className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:text-[#A7B6D3] dark:hover:bg-[#24364F] dark:hover:text-white"
+          >
+            <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+            Admin
+          </Link>
           <ThemeToggle />
           <button
             className="md:hidden h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
@@ -364,6 +371,15 @@ export const Header = () => {
               {label}
             </Link>
           ))}
+          <div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
+          <Link
+            href="/admin"
+            onClick={() => setMenuOpen(false)}
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-slate-600 ring-1 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 transition dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
+          >
+            <HiOutlineArrowTopRightOnSquare className="text-base" />
+            Admin руу шилжих
+          </Link>
           <div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
           <div className="flex items-center gap-2">
             <Link

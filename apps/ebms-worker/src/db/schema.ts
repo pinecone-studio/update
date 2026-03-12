@@ -68,6 +68,7 @@ export const benefitRequests = sqliteTable('benefit_requests', {
   contractVersionAccepted: text('contract_version_accepted'),
   contractAcceptedAt: text('contract_accepted_at'),
   reviewedBy: text('reviewed_by'),
+  rejectReason: text('reject_reason'),
   createdAt: text('created_at').default(''),
   updatedAt: text('updated_at').default(''),
 });

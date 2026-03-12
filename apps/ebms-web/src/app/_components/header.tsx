@@ -175,6 +175,13 @@ export function Header() {
         </nav>
 
         <div className="flex min-w-[220px] items-center justify-end gap-3">
+          <Link
+            href="/employee"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:text-[#A7B6D3] dark:hover:bg-[#24364F] dark:hover:text-white"
+          >
+            <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+            Employee
+          </Link>
           <ThemeToggle />
           <div className="relative" ref={notificationRef}>
             <button

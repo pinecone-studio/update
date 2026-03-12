@@ -22,7 +22,8 @@ export type MyBenefitEligibility = {
     vendorName?: string | null;
     activeContract?: { id: string } | null;
   };
-  status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
+  status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED";
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
   computedAt: string;
+  rejectedReason?: string | null;
 };

@@ -2,11 +2,6 @@
 
 import { GraphQLClient, gql } from 'graphql-request';
 import type { Me, MyBenefitEligibility } from './types';
-import {
-  saveLocalBenefitRequest,
-  type LocalBenefitRequest,
-} from '@/app/_lib/localBenefitRequests';
-
 const ME_QUERY = gql`
   query Me {
     me {
@@ -64,6 +59,7 @@ const MY_BENEFITS_QUERY = gql`
         reason
       }
       computedAt
+      rejectedReason
     }
   }
 `;
@@ -114,32 +110,12 @@ export async function fetchMyBenefits(): Promise<MyBenefitEligibility[]> {
 
 export async function requestBenefit(
   benefitId: string,
-  options?: { benefitName?: string; employeeName?: string }
+  _options?: { benefitName?: string; employeeName?: string }
 ): Promise<{ id: string; status: string; createdAt: string }> {
-  try {
-    const res = await getEmployeeClient().request<{
-      requestBenefit: { id: string; status: string; createdAt: string };
-    }>(REQUEST_BENEFIT_MUTATION, { input: { benefitId } });
-    return res.requestBenefit;
-  } catch (e) {
-    // Local fallback: API алдаа гарвал localStorage-д хадгална
-    const empId = getEmployeeId();
-    const localReq: LocalBenefitRequest = {
-      id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-      employeeId: empId,
-      benefitId,
-      status: 'PENDING',
-      createdAt: new Date().toISOString(),
-      employeeName: options?.employeeName ?? null,
-      benefitName: options?.benefitName ?? null,
-    };
-    saveLocalBenefitRequest(localReq);
-    return {
-      id: localReq.id,
-      status: localReq.status,
-      createdAt: localReq.createdAt,
-    };
-  }
+  const res = await getEmployeeClient().request<{
+    requestBenefit: { id: string; status: string; createdAt: string };
+  }>(REQUEST_BENEFIT_MUTATION, { input: { benefitId } });
+  return res.requestBenefit;
 }
 
 export function getApiErrorMessage(e: unknown): string {

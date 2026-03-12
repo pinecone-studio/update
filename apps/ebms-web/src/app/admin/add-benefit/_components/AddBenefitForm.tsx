@@ -1,6 +1,7 @@
 'use client';
 
 import type { AddBenefitFormState } from '../_lib/types';
+import { BENEFIT_SUGGESTIONS } from '../_lib/constants';
 
 const sectionClass = 'mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]';
 const inputClass = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white';
@@ -95,8 +96,8 @@ export function AddBenefitForm({
         </div>
       </div>
 
-      {!hideSubmitButton && (
-        <div className="mt-4">
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        {!hideSubmitButton && (
           <button
             type="button"
             onClick={onSubmit}
@@ -109,8 +110,21 @@ export function AddBenefitForm({
                 ? "Save"
                 : "D1 руу нэмэх"}
           </button>
-        </div>
-      )}
+        )}
+        {!isEditMode && (
+          <button
+            type="button"
+            onClick={() => {
+              const suggestion =
+                BENEFIT_SUGGESTIONS[Math.floor(Math.random() * BENEFIT_SUGGESTIONS.length)];
+              onChange({ ...form, ...suggestion });
+            }}
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-slate-300 dark:hover:bg-[#24364F]"
+          >
+            Suggest (field-үүдийг бөглөх)
+          </button>
+        )}
+      </div>
     </section>
   );
 }
