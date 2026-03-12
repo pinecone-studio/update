@@ -4,7 +4,6 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { FiCheck, FiStar, FiActivity } from "react-icons/fi";
-import { CgArrowRight } from "react-icons/cg";
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import { Header } from "./components/Header";
@@ -79,30 +78,30 @@ export default function EmployeeDashboardPage() {
 	return (
 		<div>
 			<Header />
-			<div className="min-h-screen w-full bg-[#0f172a] p-8">
+			<div className="min-h-screen w-full bg-slate-50 p-8 dark:bg-[#0f172a]">
 				<div className="flex flex-col mb-8">
-					<h1 className="text-[32px] font-bold text-white leading-tight">
+					<h1 className="text-[32px] font-bold text-slate-900 leading-tight dark:text-white">
 						Welcome back, {me?.name ?? "..."}!
 					</h1>
-					<p className="text-base text-[#AAAAAA] mt-1">
+					<p className="text-base text-slate-600 mt-1 dark:text-[#AAAAAA]">
 						Your complete benefits portfolio and eligibility status
 					</p>
 					{error && <p className="mt-2 text-sm text-red-400">Error: {error}</p>}
 				</div>
 
 				{loading ? (
-					<p className="text-[#94A3B8]">Loading...</p>
+					<p className="text-slate-600 dark:text-[#94A3B8]">Loading...</p>
 				) : (
 					<>
 						<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-							<div className="min-w-0 rounded-[10px] bg-[#334155] p-6 flex flex-col min-h-[134px]">
+							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
 								<div className="flex justify-between items-start">
 									<div>
-										<p className="text-sm text-[#99A1AF]">Active Benefits</p>
-										<p className="text-[48px] font-bold text-white leading-none mt-1">
+										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">Active Benefits</p>
+										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
 											{activeCount}
 										</p>
-										<p className="text-sm text-[#99A1AF] mt-1">
+										<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
 											Currently enrolled
 										</p>
 									</div>
@@ -112,14 +111,14 @@ export default function EmployeeDashboardPage() {
 								</div>
 							</div>
 
-							<div className="min-w-0 rounded-[10px] bg-[#334155] p-6 flex flex-col min-h-[134px]">
+							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
 								<div className="flex justify-between items-start">
 									<div>
-										<p className="text-sm text-[#99A1AF]">Eligible Benefits</p>
-										<p className="text-[48px] font-bold text-white leading-none mt-1">
+										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">Eligible Benefits</p>
+										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
 											{eligibleCount}
 										</p>
-										<p className="text-sm text-[#99A1AF] mt-1">
+										<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
 											Ready to request
 										</p>
 									</div>
@@ -129,14 +128,14 @@ export default function EmployeeDashboardPage() {
 								</div>
 							</div>
 
-							<div className="min-w-0 rounded-[10px] bg-[#334155] p-6 flex flex-col min-h-[134px]">
+							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
 								<div className="flex justify-between items-start">
 									<div>
-										<p className="text-sm text-[#99A1AF]">OKR Performance</p>
-										<p className="text-[48px] font-bold text-white leading-none mt-1">
+										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">OKR Performance</p>
+										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
 											{me?.okrSubmitted ? "—" : "—"}
 										</p>
-										<p className="text-sm text-[#99A1AF] mt-1">
+										<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
 											{me?.okrSubmitted ? "OKR submitted" : "OKR not submitted"}
 										</p>
 									</div>
@@ -147,17 +146,10 @@ export default function EmployeeDashboardPage() {
 							</div>
 						</div>
 
-						<div className="flex justify-between items-center mt-8 mb-6">
-							<h2 className="text-xl text-white font-semibold">
+						<div className="mt-8 mb-6">
+							<h2 className="text-xl text-slate-900 font-semibold dark:text-white">
 								Benefit Portfolio
 							</h2>
-							<a
-								href="/employee/benefits"
-								className="px-4 py-2 border border-[#64748b] flex items-center gap-2 rounded-full text-white text-sm hover:bg-[#334155] transition-colors"
-							>
-								View Eligibility Details
-								<CgArrowRight size={16} />
-							</a>
 						</div>
 
 						<BenefitPortfolio
@@ -165,10 +157,10 @@ export default function EmployeeDashboardPage() {
 							onRequestBenefit={handleRequestBenefit}
 						/>
 
-						<div className="mt-6 rounded-lg bg-[#1f2a40] p-5 flex gap-4">
-							<div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#2196F3]/30 flex items-center justify-center border border-[#2196F3]/50">
+						<div className="mt-6 rounded-lg bg-slate-100 border border-slate-200 p-5 flex gap-4 dark:bg-[#1f2a40] dark:border-transparent">
+							<div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 dark:bg-[#2196F3]/30 dark:border-[#2196F3]/50">
 								<svg
-									className="w-5 h-5 text-[#2196F3]"
+									className="w-5 h-5 text-blue-600 dark:text-[#2196F3]"
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"
@@ -182,10 +174,10 @@ export default function EmployeeDashboardPage() {
 								</svg>
 							</div>
 							<div className="flex-1 min-w-0">
-								<h3 className="text-base font-semibold text-white">
+								<h3 className="text-base font-semibold text-slate-900 dark:text-white">
 									Automatic Eligibility Tracking
 								</h3>
-								<p className="text-sm text-[#94a3b8] mt-1">
+								<p className="text-sm text-slate-600 mt-1 dark:text-[#94a3b8]">
 									Your eligibility is computed from the database (employment
 									status, OKR, attendance, etc.). Request benefits when status
 									is ELIGIBLE.

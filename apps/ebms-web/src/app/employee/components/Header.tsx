@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { fetchMe } from "../_lib/api";
+import { ThemeToggle } from "@/app/_components/ThemeToggle";
 
 import {
   HiSquares2X2,
@@ -90,23 +91,26 @@ export const Header = () => {
     pathname === href || (href !== "/employee" && pathname?.startsWith(href));
 
   return (
-    <header className="w-full bg-[#1E293B] h-[64px] px-4 relative sticky top-0 z-50">
+    <header className="w-full bg-white border-b border-slate-200 h-[64px] px-4 relative sticky top-0 z-50 dark:bg-[#1E293B] dark:border-slate-800">
       <div className="h-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-8 md:gap-6 ">
-          <div className="flex items-center gap-2 text-white">
+          <Link
+            href="/employee"
+            className="flex items-center gap-2 text-slate-900 dark:text-white hover:opacity-90 transition-opacity"
+          >
             <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto" />
             <span className="text-lg font-semibold tracking-wide">EBMS</span>
+          </Link>
           </div>
-          </div>
-          <nav className="hidden md:flex items-center gap-4 text-slate-300 text-xs ml-6">
+          <nav className="hidden md:flex items-center gap-4 text-slate-600 dark:text-slate-300 text-xs ml-6">
             {navItems.map(({ key, label, href, icon: Icon }) => (
               <Link
                 key={key}
                 href={href}
                 className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition ${
                   isActive(href)
-                    ? "text-white bg-blue-600 "
-                    : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
+                    ? "text-white bg-blue-600 ring-blue-300 dark:ring-blue-500"
+                    : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
                 }`}
               >
                 <Icon className="text-base" />
@@ -116,8 +120,9 @@ export const Header = () => {
           </nav>
         
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <button
-            className="md:hidden h-8 w-8 rounded-full bg-slate-800 text-slate-200 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-700 transition"
+            className="md:hidden h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle navigation"
           >
@@ -130,32 +135,32 @@ export const Header = () => {
                   setNotificationOpen(!notificationOpen);
                   setProfileOpen(false);
                 }}
-                className="relative h-8 w-8 rounded-full bg-slate-800 text-slate-200 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-700 transition"
+                className="relative h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 aria-label="Notifications"
               >
                 <HiOutlineBell className="text-sm" />
                 <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
               </button>
               {notificationOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[380px] max-h-[420px] flex flex-col bg-[#1A2333] border border-[#243041] rounded-xl shadow-xl overflow-hidden z-50">
-                  <div className="flex items-center justify-between p-4 border-b border-[#243041]">
+                <div className="absolute right-0 top-full mt-2 w-[380px] max-h-[420px] flex flex-col bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
+                  <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-[#243041]">
                     <div className="flex items-center gap-2">
-                      <HiOutlineBell className="text-base text-slate-300" />
-                      <span className="text-white font-semibold">Notifications</span>
+                      <HiOutlineBell className="text-base text-slate-600 dark:text-slate-300" />
+                      <span className="text-slate-900 font-semibold dark:text-white">Notifications</span>
                       <span className="px-2 py-0.5 rounded-full bg-red-500/80 text-white text-xs font-medium">
                         2 new
                       </span>
                     </div>
                     <button
                       onClick={() => setNotificationOpen(false)}
-                      className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                      className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
                     >
                       <HiXMark className="text-lg" />
                     </button>
                   </div>
                   <Link
                     href="/employee/notification"
-                    className="px-4 py-2 text-sm text-blue-400 hover:text-blue-300"
+                    className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                     onClick={() => setNotificationOpen(false)}
                   >
                     Mark all as read
@@ -171,7 +176,7 @@ export const Header = () => {
                       return (
                         <div
                           key={n.id}
-                          className="flex gap-3 p-3 rounded-lg bg-[#1f2a40] border border-[#243041] hover:border-slate-600 transition"
+                          className="flex gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-slate-300 transition dark:bg-[#1f2a40] dark:border-[#243041] dark:hover:border-slate-600"
                         >
                           <div className={`flex-shrink-0 h-8 w-8 rounded-lg grid place-items-center ${iconClass}`}>
                             {n.tone === "success" ? (
@@ -183,17 +188,17 @@ export const Header = () => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm font-semibold">{n.title}</p>
-                            <p className="text-slate-400 text-xs mt-0.5 line-clamp-2">{n.body}</p>
+                            <p className="text-slate-900 text-sm font-semibold dark:text-white">{n.title}</p>
+                            <p className="text-slate-600 text-xs mt-0.5 line-clamp-2 dark:text-slate-400">{n.body}</p>
                             <Link
                               href="/employee/notification"
-                              className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 mt-2"
+                              className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 mt-2 dark:text-blue-400 dark:hover:text-blue-300"
                               onClick={() => setNotificationOpen(false)}
                             >
                               View Details
                               <HiOutlineArrowTopRightOnSquare className="text-xs" />
                             </Link>
-                            <p className="text-slate-500 text-[10px] mt-1">{n.time}</p>
+                            <p className="text-slate-400 text-[10px] mt-1 dark:text-slate-500">{n.time}</p>
                           </div>
                           {n.unread && (
                             <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-2" />
@@ -202,11 +207,11 @@ export const Header = () => {
                       );
                     })}
                   </div>
-                  <div className="p-3 border-t border-[#243041]">
+                  <div className="p-3 border-t border-slate-200 dark:border-[#243041]">
                     <Link
                       href="/employee/notification"
                       onClick={() => setNotificationOpen(false)}
-                      className="block w-full py-2.5 text-center text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition"
+                      className="block w-full py-2.5 text-center text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition dark:bg-slate-700 dark:hover:bg-slate-600"
                     >
                       View All Notifications
                     </Link>
@@ -220,23 +225,23 @@ export const Header = () => {
                   setProfileOpen(!profileOpen);
                   setNotificationOpen(false);
                 }}
-                className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center ml-1 ring-1 ring-transparent hover:ring-blue-300 hover:bg-blue-500 transition"
+                className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center ml-1 ring-1 ring-transparent hover:ring-blue-300 hover:bg-blue-500 transition dark:ring-blue-500"
                 aria-label="Profile"
               >
                 {me?.name?.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase() ?? "JD"}
               </button>
               {profileOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[280px] bg-[#1A2333] border border-[#243041] rounded-xl shadow-xl overflow-hidden z-50">
-                  <div className="p-4 border-b border-[#243041]">
-                    <p className="text-white font-semibold">{me?.name ?? "—"}</p>
-                    <p className="text-slate-400 text-sm mt-0.5">—</p>
-                    <p className="text-slate-500 text-xs mt-1">{me?.id ?? "—"}</p>
+                <div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
+                  <div className="p-4 border-b border-slate-200 dark:border-[#243041]">
+                    <p className="text-slate-900 font-semibold dark:text-white">{me?.name ?? "—"}</p>
+                    <p className="text-slate-600 text-sm mt-0.5 dark:text-slate-400">—</p>
+                    <p className="text-slate-500 text-xs mt-1 dark:text-slate-500">{me?.id ?? "—"}</p>
                   </div>
                   <div className="p-2">
                     <Link
                       href="/employee/myprofile"
                       onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800 hover:text-white transition"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
                     >
                       <HiOutlineUserCircle className="text-lg" />
                       My Profile
@@ -244,7 +249,7 @@ export const Header = () => {
                     <Link
                       href="/employee/"
                       onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800 hover:text-white transition"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
                     >
                       <HiOutlineCog6Tooth className="text-lg" />
                       Settings
@@ -264,19 +269,19 @@ export const Header = () => {
         </div>
       </div>
       <div
-        className={`md:hidden absolute left-0 top-[64px] w-full bg-slate-900 border-t border-slate-800 ${
+        className={`md:hidden absolute left-0 top-[64px] w-full bg-white border-t border-slate-200 dark:bg-slate-900 dark:border-slate-800 ${
           menuOpen ? "block" : "hidden"
         }`}
       >
-        <nav className="flex flex-col gap-1 p-3 text-slate-300 text-sm">
+        <nav className="flex flex-col gap-1 p-3 text-slate-600 dark:text-slate-300 text-sm">
           {navItems.map(({ key, label, href, icon: Icon }) => (
             <Link
               key={key}
               href={href}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
                 isActive(href)
-                  ? "text-white bg-blue-600 ring-blue-300"
-                  : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
+                  ? "text-white bg-blue-600 ring-blue-300 dark:ring-blue-500"
+                  : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
               }`}
               onClick={() => setMenuOpen(false)}
             >
@@ -284,12 +289,12 @@ export const Header = () => {
               {label}
             </Link>
           ))}
-          <div className="h-px bg-slate-800 my-2" />
+          <div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
           <div className="flex items-center gap-2">
             <Link
               href="/employee/notification"
               onClick={() => setMenuOpen(false)}
-              className="h-8 w-8 rounded-full bg-slate-800 text-slate-200 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-700 transition"
+              className="h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             >
               <HiOutlineBell className="text-sm" />
             </Link>
@@ -301,7 +306,7 @@ export const Header = () => {
               <div className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center">
                 {me?.name?.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase() ?? "JD"}
               </div>
-              <span className="text-slate-300 text-xs">Account</span>
+              <span className="text-slate-600 text-xs dark:text-slate-300">Account</span>
             </Link>
           </div>
         </nav>

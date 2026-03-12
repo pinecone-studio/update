@@ -13,6 +13,7 @@ import { HrAuditIcon } from "@/app/icons/hrAudit";
 import { HrDashboardIcon } from "@/app/icons/hrDashboard";
 import { HrEmployeeIcon } from "@/app/icons/hrEmployee";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
+import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import type { ReactNode } from "react";
 
 type NavItem = {
@@ -63,15 +64,18 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 h-16 border-b border-[#24395C] bg-[#1E293B] px-4">
+    <header className="sticky top-0 z-40 h-16 border-b border-slate-200 bg-white px-4 dark:border-[#24395C] dark:bg-[#1E293B]">
       <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
-        <div className="flex min-w-[220px] items-center gap-3">
+        <Link
+          href="/admin"
+          className="flex min-w-[220px] items-center gap-3 hover:opacity-90 transition-opacity"
+        >
           <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto" />
           <div className="leading-tight">
-            <p className="text-lg font-semibold text-white">EBMS</p>
-            <p className="text-xs text-[#A7B6D3]">Admin Panel</p>
+            <p className="text-lg font-semibold text-slate-900 dark:text-white">EBMS</p>
+            <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">Admin Panel</p>
           </div>
-        </div>
+        </Link>
 
         <nav className="hidden items-center gap-2 xl:flex">
           {navItems.map((item) => (
@@ -80,8 +84,8 @@ export function Header() {
               href={item.href}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 isActive(item.href)
-                ? "text-white bg-blue-600"
-                    : "text-slate-300 ring-transparent hover:ring-blue-300 hover:text-white hover:bg-slate-800"
+                  ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
               }`}
             >
               <span className="scale-90">{item.icon}</span>
@@ -91,50 +95,9 @@ export function Header() {
         </nav>
 
         <div className="flex min-w-[220px] items-center justify-end gap-3">
-          <div className="relative" ref={profileRef}>
-            <button
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2F66E8] text-sm font-semibold text-white ring-1 ring-transparent transition hover:ring-blue-300 hover:bg-[#2563EB]"
-              aria-label="Profile"
-            >
-              AD
-            </button>
-            {profileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[280px] rounded-xl border border-[#243041] bg-[#242A38] shadow-xl overflow-hidden z-50">
-                <div className="p-4">
-                  <p className="text-lg font-semibold text-white">John Doe</p>
-                  <p className="mt-0.5 text-sm text-[#A7B6D3]">john.doe@company.com</p>
-                  <p className="mt-1 text-xs text-[#8B9BB8]">EMP-2024-1234</p>
-                </div>
-                <div className="border-t border-dotted border-[#3D4A5C] px-2 py-2">
-                  <Link
-                    href="/admin/profile"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-white transition hover:bg-[#2F3A4A]"
-                  >
-                    <HiOutlineUserCircle className="text-lg" />
-                    My Profile
-                  </Link>
-                  <Link
-                    href="/admin/"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-white transition hover:bg-[#2F3A4A]"
-                  >
-                    <HiOutlineCog6Tooth className="text-lg" />
-                    Settings
-                  </Link>
-                </div>
-                <div className="border-t border-dotted border-[#3D4A5C] px-2 py-2">
-                  <button
-                    onClick={() => setProfileOpen(false)}
-                    className="flex w-full items-center gap-3 px-3 py-2 rounded-lg text-[#F87171] transition hover:bg-red-500/10"
-                  >
-                    <HiOutlineArrowRightOnRectangle className="text-lg" />
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
+          <ThemeToggle />
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white dark:bg-[#2F66E8]">
+            AD
           </div>
         </div>
       </div>

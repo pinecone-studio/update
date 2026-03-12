@@ -129,7 +129,7 @@ export default function EmployeeBenefitsPage() {
           {error && <p className="text-sm text-red-400">Error: {error}</p>}
 
           {loading ? (
-            <p className="text-[#94A3B8]">Loading benefits...</p>
+            <p className="text-slate-600 dark:text-[#94A3B8]">Loading benefits...</p>
           ) : (
             <>
               <div className="w-full md:w-[921px] flex flex-col gap-8">

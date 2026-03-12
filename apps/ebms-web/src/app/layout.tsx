@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { ThemeProvider } from './_components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'EBMS — Employee Benefits Management',
@@ -12,8 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-slate-50 text-slate-900 dark:bg-[#0F172A] dark:text-white">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }
