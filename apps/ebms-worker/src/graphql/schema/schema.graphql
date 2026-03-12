@@ -129,6 +129,14 @@ input CreateBenefitInput {
   rules: [EligibilityRuleInput!]
 }
 
+input UpdateBenefitInput {
+  id: ID!
+  name: String!
+  category: String!
+  subsidyPercent: Int!
+  requiresContract: Boolean!
+}
+
 # ─── Eligibility Rule Config (HR) ────────────────────────────────
 type EligibilityRuleConfig {
   config: String!
@@ -156,4 +164,6 @@ type Mutation {
   overrideEligibility(input: OverrideInput!): BenefitEligibility!
   updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!
   createBenefit(input: CreateBenefitInput!): Benefit!
+  updateBenefit(input: UpdateBenefitInput!): Benefit!
+  deleteBenefit(id: ID!): Boolean!
 }

@@ -17,6 +17,7 @@ import {
   fetchConfigAndAttributes,
   CREATE_BENEFIT,
   UPDATE_CONFIG,
+  updateBenefitInCatalog,
 } from "../_lib/api";
 import { AddBenefitForm } from "../_components/AddBenefitForm";
 import { BenefitCatalogTable } from "../_components/BenefitCatalogTable";
@@ -42,24 +43,6 @@ export default function AddBenefitsBuilderClient() {
   const [saving, setSaving] = useState(false);
   const [error2, setError2] = useState<string | null>(null);
   const [message2, setMessage2] = useState<string | null>(null);
-
-  const readEditOverrides = useCallback(() => {
-    if (typeof window === "undefined") return {} as Record<string, AddBenefitFormState>;
-    try {
-      const raw = window.localStorage.getItem("admin_benefit_edits");
-      if (!raw) return {} as Record<string, AddBenefitFormState>;
-      const parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== "object") return {} as Record<string, AddBenefitFormState>;
-      return parsed as Record<string, AddBenefitFormState>;
-    } catch {
-      return {} as Record<string, AddBenefitFormState>;
-    }
-  }, []);
-
-  const writeEditOverrides = useCallback((next: Record<string, AddBenefitFormState>) => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("admin_benefit_edits", JSON.stringify(next));
-  }, []);
 
   const loadCatalog = useCallback(async () => {
     setLoadingCatalog(true);
@@ -115,15 +98,13 @@ export default function AddBenefitsBuilderClient() {
     if (!benefitIdFromQuery) return;
     const target = catalogBenefits.find((b) => b.id === benefitIdFromQuery);
     if (!target) return;
-    const overrides = readEditOverrides();
-    const edited = overrides[benefitIdFromQuery];
     setForm({
-      name: edited?.name ?? target.name,
-      category: edited?.category ?? target.category,
-      subsidyPercent: edited?.subsidyPercent ?? target.subsidyPercent,
-      requiresContract: edited?.requiresContract ?? target.requiresContract,
+      name: target.name,
+      category: target.category,
+      subsidyPercent: target.subsidyPercent,
+      requiresContract: target.requiresContract,
     });
-  }, [benefitIdFromQuery, catalogBenefits, readEditOverrides]);
+  }, [benefitIdFromQuery, catalogBenefits]);
 
   const handleCreateBenefit = useCallback(async () => {
     const name = form.name?.trim();
@@ -174,8 +155,6 @@ export default function AddBenefitsBuilderClient() {
     isEditMode,
     loadCatalog,
     loadConfigAndAttributes,
-    readEditOverrides,
-    writeEditOverrides,
   ]);
 
   const selectedBenefit = catalogBenefits.find((b) => b.id === selectedBenefitId);
@@ -271,14 +250,13 @@ export default function AddBenefitsBuilderClient() {
           return;
         }
 
-        const overrides = readEditOverrides();
-        const nextForm: AddBenefitFormState = {
+        await updateBenefitInCatalog(getClient(), {
+          id: benefitIdFromQuery,
           name,
           category,
           subsidyPercent: subsidy,
           requiresContract: form.requiresContract ?? false,
-        };
-        writeEditOverrides({ ...overrides, [benefitIdFromQuery]: nextForm });
+        });
 
         payloadConfig = {
           ...config,
@@ -311,8 +289,6 @@ export default function AddBenefitsBuilderClient() {
     router,
     benefitIdFromQuery,
     form,
-    readEditOverrides,
-    writeEditOverrides,
   ]);
 
   return (
