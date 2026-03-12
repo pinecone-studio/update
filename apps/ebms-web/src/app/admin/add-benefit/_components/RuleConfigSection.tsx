@@ -6,6 +6,9 @@ import { OPERATORS } from '../_lib/constants';
 const sectionClass = 'mt-8 rounded-xl border border-[#334155] bg-[#0F172A] p-6';
 const inputSm = 'rounded border border-[#334155] bg-[#0F172A] px-2 py-1.5 text-white text-sm';
 const selectClass = 'w-full max-w-md rounded-lg border border-[#334155] bg-[#1E293B] px-3 py-2 text-white';
+const EMPLOYMENT_STATUS_VALUES = ['active', 'leave', 'terminated', 'probation'] as const;
+const RESPONSIBILITY_LEVEL_VALUES = [1, 2, 3] as const;
+const OKR_SUBMITTED_VALUES = ['true', 'false'] as const;
 
 type Props = {
   catalogBenefits: BenefitFromCatalog[];
@@ -103,19 +106,57 @@ export function RuleConfigSection({
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
-              <input
-                type="text"
-                placeholder="Утга"
-                value={typeof rule.value === 'boolean' ? (rule.value ? 'true' : 'false') : String(rule.value ?? '')}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (v === 'true') onUpdateRule(ri, 'value', true);
-                  else if (v === 'false') onUpdateRule(ri, 'value', false);
-                  else if (/^\d+$/.test(v)) onUpdateRule(ri, 'value', Number(v));
-                  else onUpdateRule(ri, 'value', v);
-                }}
-                className={`${inputSm} w-24`}
-              />
+              {rule.type === 'employment_status' ? (
+                <select
+                  value={String(rule.value ?? 'active').toLowerCase()}
+                  onChange={(e) => onUpdateRule(ri, 'value', e.target.value)}
+                  className={`${inputSm} w-40`}
+                >
+                  {EMPLOYMENT_STATUS_VALUES.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              ) : rule.type === 'responsibility_level' || rule.type === 'attendance' ? (
+                <select
+                  value={Number(rule.value ?? 1)}
+                  onChange={(e) => onUpdateRule(ri, 'value', Number(e.target.value))}
+                  className={`${inputSm} w-24`}
+                >
+                  {RESPONSIBILITY_LEVEL_VALUES.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              ) : rule.type === 'okr_submitted' ? (
+                <select
+                  value={String(rule.value ?? 'false')}
+                  onChange={(e) => onUpdateRule(ri, 'value', e.target.value === 'true')}
+                  className={`${inputSm} w-28`}
+                >
+                  {OKR_SUBMITTED_VALUES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Утга"
+                  value={typeof rule.value === 'boolean' ? (rule.value ? 'true' : 'false') : String(rule.value ?? '')}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === 'true') onUpdateRule(ri, 'value', true);
+                    else if (v === 'false') onUpdateRule(ri, 'value', false);
+                    else if (/^\d+$/.test(v)) onUpdateRule(ri, 'value', Number(v));
+                    else onUpdateRule(ri, 'value', v);
+                  }}
+                  className={`${inputSm} w-24`}
+                />
+              )}
               <input
                 type="text"
                 placeholder="Алдааны мессеж (дүрэм давцаагүй үед)"

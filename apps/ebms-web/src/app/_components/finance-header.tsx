@@ -2,15 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HiOutlineBell } from "react-icons/hi2";
-import { HrAuditIcon } from "@/app/icons/hrAudit";
-import { HrBenefitsRuleIcon } from "@/app/icons/hrBenefitsRule";
-import { HrDashboardIcon } from "@/app/icons/hrDashboard";
-import { HrEmployeeIcon } from "@/app/icons/hrEmployee";
-import { HrVendorIcon } from "@/app/icons/hrVendor";
-import { ThemeToggle } from "@/app/_components/ThemeToggle";
+import { HiOutlineBell, HiOutlineChartPie, HiOutlineClock, HiOutlineCurrencyDollar, HiOutlineDocumentText, HiOutlineXCircle } from "react-icons/hi2";
 import type { ReactNode } from "react";
-import { fetchMe } from "../employee/_lib/api";
+import { ThemeToggle } from "@/app/_components/ThemeToggle";
 
 type NavItem = {
   label: string;
@@ -19,28 +13,31 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/admin", icon: <HrDashboardIcon /> },
+  { label: "Dashboard", href: "/finance", icon: <HiOutlineChartPie className="h-4 w-4" /> },
   {
-    label: "Employee Eligibility",
-    href: "/admin/employee-eligibility",
-    icon: <HrEmployeeIcon />,
+    label: "Rejected Requests",
+    href: "/finance/rejected-requests",
+    icon: <HiOutlineXCircle className="h-4 w-4" />,
   },
   {
-    label: "Vendor Contracts",
-    href: "/admin/vendor-contracts",
-    icon: <HrVendorIcon />,
+    label: "Budget Overview",
+    href: "/finance/budget-overview",
+    icon: <HiOutlineCurrencyDollar className="h-4 w-4" />,
   },
   {
-    label: "Benefits&Rule",
-    href: "/admin/add-benefit",
-    icon: <HrBenefitsRuleIcon />,
+    label: "Vendor Payments",
+    href: "/finance/vendor-payments",
+    icon: <HiOutlineDocumentText className="h-4 w-4" />,
   },
-  { label: "Audit Log", href: "/admin/audit-log", icon: <HrAuditIcon /> },
+  {
+    label: "Audit Trail",
+    href: "/finance/audit-trail",
+    icon: <HiOutlineClock className="h-4 w-4" />,
+  },
 ];
 
-export function Header() {
+export function FinanceHeader() {
   const pathname = usePathname();
-
   const normalizedPath =
     pathname.endsWith("/") && pathname.length > 1
       ? pathname.slice(0, -1)
@@ -48,23 +45,19 @@ export function Header() {
 
   const isActive = (href: string) =>
     normalizedPath === href ||
-    (href !== "/admin" && normalizedPath.startsWith(href));
+    (href !== "/finance" && normalizedPath.startsWith(href));
 
   return (
     <header className="sticky top-0 z-40 h-16 border-b border-slate-200 bg-white px-4 dark:border-[#24395C] dark:bg-[#1E293B]">
       <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
         <Link
-          href="/admin"
-          className="flex min-w-[220px] items-center gap-3 hover:opacity-90 transition-opacity"
+          href="/finance"
+          className="flex min-w-[220px] items-center gap-3 transition-opacity hover:opacity-90"
         >
           <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto" />
           <div className="leading-tight">
-            <p className="text-lg font-semibold text-slate-900 dark:text-white">
-              EBMS
-            </p>
-            <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">
-              Admin Panel
-            </p>
+            <p className="text-lg font-semibold text-slate-900 dark:text-white">EBMS</p>
+            <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">Finance Panel</p>
           </div>
         </Link>
 
@@ -79,7 +72,7 @@ export function Header() {
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
               }`}
             >
-              <span className="scale-90">{item.icon}</span>
+              {item.icon}
               <span>{item.label}</span>
             </Link>
           ))}
@@ -95,7 +88,7 @@ export function Header() {
             <HiOutlineBell className="h-5 w-5" />
           </button>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white dark:bg-[#2F66E8]">
-            AD
+            FM
           </div>
         </div>
       </div>
