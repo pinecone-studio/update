@@ -28,3 +28,5 @@ crons = ["0 2 * * *"]  # 02:00 UTC daily — OKR sync
 # ─── Vars (non-secret config) ────────────────────────────────────────
 [vars]
 ENVIRONMENT = "development"
+# Temporary: keep role checks in code, but disable enforcement.
+DISABLE_ROLE_CHECKS = "true"
