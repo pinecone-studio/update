@@ -28,6 +28,22 @@ const BENEFIT_REQUESTS_QUERY = gql`
     }
   }
 `;
+
+const EMPLOYEES_COUNT_QUERY = gql`
+  query EmployeesCount {
+    employees {
+      id
+    }
+  }
+`;
+
+const ACTIVE_BENEFITS_COUNT_QUERY = gql`
+  query ActiveBenefitsCount {
+    benefits {
+      id
+    }
+  }
+`;
 type BenefitRequest = {
   id: string;
   employeeId: string;
@@ -44,21 +60,6 @@ type StatCard = {
   icon: ReactNode;
   iconBg: string;
 };
-
-const statCards: StatCard[] = [
-  {
-    title: "Total Employees",
-    value: "1,247",
-    iconBg: "bg-[#2A8BFF]",
-    icon: <HrTotalEmployeeIcon />,
-  },
-  {
-    title: "Active Benefits",
-    value: "3,892",
-    iconBg: "bg-[#00C95F]",
-    icon: <HrActiveBenefitsIcon />,
-  },
-];
 function getErrorMessage(e: unknown): string {
   if (e && typeof e === 'object' && 'response' in e) {
     const res = (e as { response?: { errors?: Array<{ message?: string }> } }).response;
@@ -104,6 +105,8 @@ export default function HrDashboardPage() {
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalEmployees, setTotalEmployees] = useState<number>(0);
+  const [activeBenefits, setActiveBenefits] = useState<number>(0);
   const [statusFilter, setStatusFilter] = useState<string | undefined>('PENDING');
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
@@ -162,6 +165,57 @@ export default function HrDashboardPage() {
       cancelled = true;
     };
   }, [statusFilter]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const base = API_URL.replace(/\/$/, '');
+    const url = base.endsWith('/graphql') ? base : `${base}/graphql`;
+    const client = new GraphQLClient(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-employee-id': 'admin',
+        'x-role': 'admin',
+      },
+    });
+
+    async function loadStats() {
+      try {
+        const [employeesRes, benefitsRes] = await Promise.all([
+          client.request<{ employees: Array<{ id: string }> }>(EMPLOYEES_COUNT_QUERY),
+          client.request<{ benefits: Array<{ id: string }> }>(ACTIVE_BENEFITS_COUNT_QUERY),
+        ]);
+        if (!cancelled) {
+          setTotalEmployees((employeesRes.employees ?? []).length);
+          setActiveBenefits((benefitsRes.benefits ?? []).length);
+        }
+      } catch {
+        if (!cancelled) {
+          setTotalEmployees(0);
+          setActiveBenefits(0);
+        }
+      }
+    }
+
+    loadStats();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const statCards: StatCard[] = [
+    {
+      title: "Total Employees",
+      value: String(totalEmployees),
+      iconBg: "bg-[#2A8BFF]",
+      icon: <HrTotalEmployeeIcon />,
+    },
+    {
+      title: "Active Benefits",
+      value: String(activeBenefits),
+      iconBg: "bg-[#00C95F]",
+      icon: <HrActiveBenefitsIcon />,
+    },
+  ];
 
   const handleApprove = (requestId: string) => {
     const req = requests.find((r) => r.id === requestId);

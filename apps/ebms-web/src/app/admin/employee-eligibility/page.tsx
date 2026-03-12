@@ -10,9 +10,9 @@ type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
 type EmployeeListItem = {
   id: string;
-  name: string;
-  role: string;
-  employmentStatus: string;
+  name?: string | null;
+  role?: string | null;
+  employmentStatus?: string | null;
 };
 
 type EmployeeBenefit = {
@@ -152,14 +152,14 @@ export default function EmployeeEligibilityPage() {
     if (!q) return employeeList;
     return employeeList.filter(
       (emp) =>
-        emp.name.toLowerCase().includes(q) ||
-        emp.id.toLowerCase().includes(q) ||
-        emp.role.toLowerCase().includes(q),
+        String(emp.name ?? "").toLowerCase().includes(q) ||
+        String(emp.id ?? "").toLowerCase().includes(q) ||
+        String(emp.role ?? "").toLowerCase().includes(q),
     );
   }, [search, employeeList]);
 
   const getInitials = (name: string) =>
-    name
+    (name || "NA")
       .split(" ")
       .map((part) => part[0])
       .join("")
@@ -180,7 +180,9 @@ export default function EmployeeEligibilityPage() {
   const handleSearchSubmit = async () => {
     const q = search.trim().toLowerCase();
     if (!q) return;
-    const exactByName = filteredEmployees.find((e) => e.name.toLowerCase() === q);
+    const exactByName = filteredEmployees.find(
+      (e) => String(e.name ?? "").toLowerCase() === q,
+    );
     const firstMatch = exactByName ?? filteredEmployees[0];
     if (!firstMatch) {
       setError("Хайлтад тохирох ажилтан олдсонгүй.");
@@ -284,11 +286,11 @@ export default function EmployeeEligibilityPage() {
                   className="flex w-full items-center gap-4 rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 py-3 text-left transition hover:bg-[#142544]"
                 >
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-5 font-semibold text-white">
-                    {getInitials(emp.name)}
+                    {getInitials(emp.name ?? "NA")}
                   </span>
                   <div>
-                    <p className="text-5 font-medium text-white">{emp.name}</p>
-                    <p className="text-5 text-[#8FA3C5]">{emp.role}</p>
+                    <p className="text-5 font-medium text-white">{emp.name ?? "Unknown"}</p>
+                    <p className="text-5 text-[#8FA3C5]">{emp.role ?? "—"}</p>
                   </div>
                 </button>
               ))}
