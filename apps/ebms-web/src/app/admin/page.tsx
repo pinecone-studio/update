@@ -21,6 +21,15 @@ const BENEFIT_REQUESTS_QUERY = gql`
   }
 `;
 
+const CONFIRM_BENEFIT_REQUEST_MUTATION = gql`
+  mutation ConfirmBenefitRequest($requestId: ID!, $contractAccepted: Boolean!) {
+    confirmBenefitRequest(requestId: $requestId, contractAccepted: $contractAccepted) {
+      id
+      status
+    }
+  }
+`;
+
 type BenefitRequest = {
   id: string;
   employeeId: string;
@@ -98,12 +107,15 @@ export default function HrDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | undefined>('PENDING');
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const loadRequests = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const client = new GraphQLClient(`${API_URL}/graphql`, {
+      const base = API_URL.replace(/\/graphql\/?$/, '').trim() || 'http://localhost:8787';
+      const graphqlUrl = base.endsWith('/graphql') ? base : `${base}/graphql`;
+      const client = new GraphQLClient(graphqlUrl, {
         headers: {
           'x-employee-id': 'admin',
           'x-role': 'admin',
@@ -121,6 +133,33 @@ export default function HrDashboardPage() {
       setLoading(false);
     }
   }, [statusFilter]);
+
+  const handleConfirmRequest = useCallback(
+    async (requestId: string, contractAccepted: boolean) => {
+      setActionLoadingId(requestId);
+      setError(null);
+      try {
+        const base = API_URL.replace(/\/graphql\/?$/, '').trim() || 'http://localhost:8787';
+        const graphqlUrl = base.endsWith('/graphql') ? base : `${base}/graphql`;
+        const client = new GraphQLClient(graphqlUrl, {
+          headers: {
+            'x-employee-id': 'admin',
+            'x-role': 'admin',
+          },
+        });
+        await client.request(CONFIRM_BENEFIT_REQUEST_MUTATION, {
+          requestId,
+          contractAccepted,
+        });
+        await loadRequests();
+      } catch (e) {
+        setError(getErrorMessage(e));
+      } finally {
+        setActionLoadingId(null);
+      }
+    },
+    [loadRequests],
+  );
 
   useEffect(() => {
     loadRequests();
@@ -207,6 +246,7 @@ export default function HrDashboardPage() {
                   <th className="px-4 py-4 font-medium">Employee</th>
                   <th className="px-4 py-4 font-medium">Status</th>
                   <th className="px-4 py-4 font-medium">Date</th>
+                  <th className="px-4 py-4 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -224,6 +264,30 @@ export default function HrDashboardPage() {
                     <td className="px-4 py-4">{statusBadge(req.status)}</td>
                     <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
                       {formatDate(req.createdAt)}
+                    </td>
+                    <td className="px-4 py-4">
+                      {req.status === 'PENDING' ? (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleConfirmRequest(req.id, true)}
+                            disabled={actionLoadingId === req.id}
+                            className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50"
+                          >
+                            {actionLoadingId === req.id ? '...' : 'Approve'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleConfirmRequest(req.id, false)}
+                            disabled={actionLoadingId === req.id}
+                            className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                          >
+                            {actionLoadingId === req.id ? '...' : 'Reject'}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-500 dark:text-[#8FA3C5]">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
