@@ -14,6 +14,8 @@ import {
 	getApiErrorMessage,
 } from "./_lib/api";
 import { mapMyBenefitsToCardProps } from "./_lib/mapBenefits";
+import { BsChat } from "react-icons/bs";
+import { IoClose } from "react-icons/io5";
 
 const CardIcon = ({
 	children,
@@ -36,6 +38,7 @@ export default function EmployeeDashboardPage() {
 	const [benefits, setBenefits] = useState<BenefitCardProps[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [chatbot, setChatbot] = useState(false);
 
 	const load = useCallback(async () => {
 		setLoading(true);
@@ -186,6 +189,20 @@ export default function EmployeeDashboardPage() {
 						</div>
 					</>
 				)}
+				{!chatbot && <div 
+					className="fixed bottom-14 right-14 w-16 h-16 bg-[#1E293B] border border-gray-300 rounded-full flex justify-center items-center hover:bg-white duration-200 cursor-pointer hover:text-black"
+					onClick={() => setChatbot(true)}
+					> <BsChat size={25}/> </div>}
+				{chatbot && <div className="fixed bottom-14 right-14 w-[350px] h-[500px] bg-white rounded-2xl">
+					<div className="bg-[#99A1AF] w-full h-[70px] rounded-t-2xl flex items-center justify-between pl-3 pr-3">
+						<div className="w-12 h-12 bg-[#1E293B] rounded-full flex justify-center items-center"> <BsChat size={20}/> </div>
+						<button 
+							className="w-[40px] h-[40px] bg-[#1E293B] rounded-full flex justify-center items-center hover:bg-white hover:text-black duration-200"
+							onClick={() => setChatbot(false)}
+							> <IoClose size={28}/> </button>
+					</div>
+				</div>
+				}
 			</div>
 		</div>
 	);
