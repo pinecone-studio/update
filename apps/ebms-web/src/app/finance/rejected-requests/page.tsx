@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { FinancePageSkeleton } from "../components/FinancePageSkeleton";
+
 const rejectedRequests = [
   {
     employee: "Sarah Kim",
@@ -16,6 +21,17 @@ const rejectedRequests = [
 ];
 
 export default function RejectedRequestsPage() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading) {
+    return <FinancePageSkeleton statCardCount={0} tableRowCount={2} />;
+  }
+
   return (
     <div className="space-y-8">
       <header>

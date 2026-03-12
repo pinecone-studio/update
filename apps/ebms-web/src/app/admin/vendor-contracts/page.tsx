@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { TablePageSkeleton } from "../components/TablePageSkeleton";
+
 type Contract = {
   vendor: string;
   benefit: string;
@@ -37,6 +40,17 @@ const contracts: Contract[] = [
 ];
 
 export default function VendorContractsPage() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading) {
+    return <TablePageSkeleton statCardCount={4} tableRowCount={2} tableColCount={4} />;
+  }
+
   return (
     <div className="space-y-6">
       <div>

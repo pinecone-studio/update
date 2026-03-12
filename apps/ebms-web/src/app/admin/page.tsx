@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { GraphQLClient, gql } from 'graphql-request';
 import { HrTotalEmployeeIcon } from "../icons/hrTotalEmployee";
 import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
+import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import {
   getLocalBenefitRequests,
   updateLocalBenefitRequestStatus,
@@ -262,6 +263,10 @@ export default function HrDashboardPage() {
 
   return (
     <>
+      {loading ? (
+        <AdminDashboardSkeleton />
+      ) : (
+        <>
       <div className="mb-10">
         <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Dashboard</h1>
         <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
@@ -436,6 +441,8 @@ export default function HrDashboardPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </>
   );

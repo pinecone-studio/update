@@ -152,7 +152,7 @@ export const Header = () => {
               href={href}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition ${
                 isActive(href)
-                  ? "text-white bg-blue-600 ring-blue-300 dark:ring-blue-500"
+                  ? "text-white bg-blue-600 ring-blue-300 hover:bg-blue-700 dark:bg-[#2A8BFF] dark:ring-blue-500 dark:hover:bg-[#3E82F7]"
                   : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
               }`}
             >
@@ -355,7 +355,7 @@ export const Header = () => {
               href={href}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
                 isActive(href)
-                  ? "text-white bg-blue-600 ring-blue-300 dark:ring-blue-500"
+                  ? "text-white bg-blue-600 ring-blue-300 hover:bg-blue-700 dark:bg-[#2A8BFF] dark:ring-blue-500 dark:hover:bg-[#3E82F7]"
                   : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
               }`}
               onClick={() => setMenuOpen(false)}

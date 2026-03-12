@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { AuditLogSkeleton } from "../components/AuditLogSkeleton";
+
 type AuditEntry = {
   id: string;
   timestamp: string;
@@ -38,6 +41,17 @@ const entries: AuditEntry[] = [
 ];
 
 export default function AuditLogPage() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading) {
+    return <AuditLogSkeleton />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">

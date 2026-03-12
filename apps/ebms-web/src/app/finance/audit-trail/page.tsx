@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { FinancePageSkeleton } from "../components/FinancePageSkeleton";
+
 const auditEntries = [
   {
     time: "10:30",
@@ -23,6 +28,17 @@ const auditEntries = [
 ];
 
 export default function AuditTrailPage() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading) {
+    return <FinancePageSkeleton statCardCount={0} tableRowCount={3} />;
+  }
+
   return (
     <div className="space-y-8">
       <header>

@@ -2,7 +2,8 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { FinanceDashboardSkeleton } from "./components/FinanceDashboardSkeleton";
 
 const statCards = [
 	{
@@ -70,6 +71,7 @@ const requests = [
 ];
 
 export default function FinancePage() {
+	const [loading, setLoading] = useState(true);
 	const [selectedCardKey, setSelectedCardKey] = useState<string | null>(null);
 	const [rejectingRequestId, setRejectingRequestId] = useState<number | null>(
 		null,
@@ -79,6 +81,12 @@ export default function FinancePage() {
 		() => statCards.find((card) => card.key === selectedCardKey) ?? null,
 		[selectedCardKey],
 	);
+
+	useEffect(() => {
+		// Simulate loading - replace with real API fetch when available
+		const t = setTimeout(() => setLoading(false), 400);
+		return () => clearTimeout(t);
+	}, []);
 
 	const toneClass = (tone: "yellow" | "green" | "blue" | "purple") => {
 		if (tone === "yellow") {
@@ -92,6 +100,10 @@ export default function FinancePage() {
 		}
 		return "border-[#9C27B0]/40 bg-[#9C27B0]/20 text-[#9C27B0]";
 	};
+
+	if (loading) {
+		return <FinanceDashboardSkeleton />;
+	}
 
 	return (
 		<div className="space-y-6">

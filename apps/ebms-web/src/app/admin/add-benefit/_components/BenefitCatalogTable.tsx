@@ -1,5 +1,6 @@
 'use client';
 
+import { Skeleton } from '@/app/_components/Skeleton';
 import type { BenefitFromCatalog } from '../_lib/types';
 
 const sectionClass = 'mt-8 rounded-xl border border-[#334155] bg-[#0F172A] p-6';
@@ -23,7 +24,30 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
       <p className="mt-1 text-sm text-[#94A3B8]">benefits query-аар D1-ээс татсан жагсаалт.</p>
 
       {loading && benefits.length === 0 ? (
-        <p className="mt-4 text-[#94A3B8] text-sm">Уншиж байна...</p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-[#334155] text-[#94A3B8]">
+                {['ID', 'Нэр', 'Ангилал', 'Subsidy %', 'Гэрээ'].map((h) => (
+                  <th key={h} className="py-2 pr-4 font-medium">
+                    <Skeleton className="h-4 w-12" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <tr key={i} className="border-b border-[#334155]/70 last:border-b-0">
+                  <td className="py-2 pr-4"><Skeleton className="h-4 w-16" /></td>
+                  <td className="py-2 pr-4"><Skeleton className="h-4 w-24" /></td>
+                  <td className="py-2 pr-4"><Skeleton className="h-4 w-20" /></td>
+                  <td className="py-2 pr-4"><Skeleton className="h-4 w-8" /></td>
+                  <td className="py-2"><Skeleton className="h-4 w-12" /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : benefits.length === 0 ? (
         <p className="mt-4 text-[#94A3B8] text-sm">D1-д benefit байхгүй. Дээрх хэсгээс нэмнэ үү.</p>
       ) : (
