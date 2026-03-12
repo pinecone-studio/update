@@ -2,24 +2,64 @@
 
 import { useEffect, useState } from "react";
 import { FinancePageSkeleton } from "../components/FinancePageSkeleton";
+import {
+  fetchBenefitRequests,
+  fetchBenefits,
+  getApiErrorMessage,
+  getFinanceClient,
+} from "../_lib/api";
 
-const vendorPayments = [
-  { vendor: "PineFit Gym", benefit: "Gym Membership", amount: "$1,200", status: "Pending" as const },
-  { vendor: "BlueCross", benefit: "Insurance", amount: "$850", status: "Paid" as const },
-  { vendor: "Apple", benefit: "MacBook Subsidy", amount: "$900", status: "Pending" as const },
-];
-
-const recentPayments = [
-  { vendor: "PineFit Gym", amount: "$1,200", status: "Paid" as const },
-  { vendor: "BlueCross", amount: "$850", status: "Paid" as const },
-];
+type PaymentRow = {
+  vendor: string;
+  benefit: string;
+  amount: string;
+  status: "Pending" | "Paid";
+};
 
 export default function VendorPaymentsPage() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [vendorPayments, setVendorPayments] = useState<PaymentRow[]>([]);
+  const [recentPayments, setRecentPayments] = useState<PaymentRow[]>([]);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const client = getFinanceClient();
+        const [requests, benefits] = await Promise.all([
+          fetchBenefitRequests(client),
+          fetchBenefits(client),
+        ]);
+        const benefitMap = Object.fromEntries(benefits.map((b) => [b.id, b]));
+        const rows: PaymentRow[] = requests
+          .filter((r) => r.status === "APPROVED" || r.status === "PENDING")
+          .map((r) => {
+            const benefit = benefitMap[r.benefitId];
+            const status = r.status === "APPROVED" ? "Paid" : "Pending";
+            return {
+              vendor: benefit?.vendorName || benefit?.name || "—",
+              benefit: r.benefitName || benefit?.name || r.benefitId,
+              amount:
+                benefit?.subsidyPercent != null ? `${benefit.subsidyPercent}%` : "—",
+              status,
+            };
+          });
+        if (!cancelled) {
+          setVendorPayments(rows);
+          setRecentPayments(rows.filter((r) => r.status === "Paid").slice(0, 5));
+        }
+      } catch (e) {
+        if (!cancelled) setError(getApiErrorMessage(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -34,6 +74,11 @@ export default function VendorPaymentsPage() {
           Manage payments to benefit providers and vendors
         </p>
       </header>
+      {error && (
+        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </p>
+      )}
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-[#1E3258] dark:bg-[#0D1B3A]">
         <div className="flex items-center gap-3">
@@ -42,7 +87,9 @@ export default function VendorPaymentsPage() {
           </div>
           <p className="text-5 text-slate-600 dark:text-slate-300">Total Pending Payments</p>
         </div>
-        <p className="mt-3 text-5 font-bold text-slate-900 dark:text-white">$3,450</p>
+        <p className="mt-3 text-5 font-bold text-slate-900 dark:text-white">
+          {vendorPayments.filter((p) => p.status === "Pending").length}
+        </p>
       </section>
 
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#1E3258] dark:bg-[#0D1B3A]">
@@ -75,6 +122,13 @@ export default function VendorPaymentsPage() {
                   </td>
                 </tr>
               ))}
+              {vendorPayments.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-6 text-center text-5 text-slate-500 dark:text-slate-300">
+                    Vendor payment data алга байна.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -97,6 +151,9 @@ export default function VendorPaymentsPage() {
               </div>
             </div>
           ))}
+          {recentPayments.length === 0 && (
+            <p className="text-5 text-slate-500 dark:text-slate-300">Сүүлд хийгдсэн payment алга байна.</p>
+          )}
         </div>
       </section>
     </div>

@@ -4,88 +4,135 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { FinanceDashboardSkeleton } from "./components/FinanceDashboardSkeleton";
+import {
+	confirmBenefitRequest,
+	fetchBenefitRequests,
+	fetchBenefits,
+	fetchEmployees,
+	getApiErrorMessage,
+	getFinanceClient,
+	type BenefitRequest,
+	type EmployeeLite,
+} from "./_lib/api";
 
-const statCards = [
-	{
-		key: "pending",
-		value: "14",
-		title: "Pending Requests",
-		note: "Requires attention",
-		tone: "yellow" as const,
-		icon: "!",
-	},
-	{
-		key: "approved",
-		value: "28",
-		title: "Approved This Month",
-		note: "+12% vs last month",
-		tone: "green" as const,
-		icon: "check",
-	},
-	{
-		key: "allocated",
-		value: "$42,500",
-		title: "Total Budget Allocated",
-		note: "Year to date",
-		tone: "blue" as const,
-		icon: "wallet",
-	},
-	{
-		key: "remaining",
-		value: "$18,200",
-		title: "Remaining Budget",
-		note: "42.8% remaining",
-		tone: "purple" as const,
-		icon: "trend",
-	},
-];
-
-const requests = [
-	{
-		id: 1,
-		initials: "JC",
-		employee: "John Carter",
-		benefitType: "Down Payment Assistance",
-		amount: "$12,000",
-		department: "Engineering",
-		date: "May 14",
-	},
-	{
-		id: 2,
-		initials: "SK",
-		employee: "Sarah Kim",
-		benefitType: "OKR Performance Bonus",
-		amount: "$2,500",
-		department: "Product",
-		date: "May 12",
-	},
-	{
-		id: 3,
-		initials: "DL",
-		employee: "David Lee",
-		benefitType: "Travel Subsidy",
-		amount: "$1,200",
-		department: "Marketing",
-		date: "May 10",
-	},
-];
+type Tone = "yellow" | "green" | "blue" | "purple";
+type StatCard = {
+	key: string;
+	value: string;
+	title: string;
+	note: string;
+	tone: Tone;
+	icon: string;
+};
 
 export default function FinancePage() {
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+	const [requests, setRequests] = useState<BenefitRequest[]>([]);
+	const [employees, setEmployees] = useState<Record<string, EmployeeLite>>({});
+	const [benefitSubsidyMap, setBenefitSubsidyMap] = useState<Record<string, number>>({});
 	const [selectedCardKey, setSelectedCardKey] = useState<string | null>(null);
-	const [rejectingRequestId, setRejectingRequestId] = useState<number | null>(
+	const [rejectingRequestId, setRejectingRequestId] = useState<string | null>(
 		null,
 	);
+	const [submittingRequestId, setSubmittingRequestId] = useState<string | null>(null);
 	const [rejectionReason, setRejectionReason] = useState("");
+
+	const pendingRequests = useMemo(
+		() => requests.filter((r) => r.status === "PENDING"),
+		[requests],
+	);
+	const approvedThisMonth = useMemo(() => {
+		const now = new Date();
+		return requests.filter((r) => {
+			if (r.status !== "APPROVED") return false;
+			const d = new Date(r.createdAt);
+			return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+		}).length;
+	}, [requests]);
+	const totalAllocated = useMemo(
+		() =>
+			requests
+				.filter((r) => r.status === "APPROVED")
+				.reduce((sum, r) => sum + (benefitSubsidyMap[r.benefitId] ?? 0), 0),
+		[requests, benefitSubsidyMap],
+	);
+	const remainingBudgetEstimate = Math.max(0, 100 - totalAllocated);
+
+	const statCards: StatCard[] = useMemo(
+		() => [
+			{
+				key: "pending",
+				value: String(pendingRequests.length),
+				title: "Pending Requests",
+				note: "Requires attention",
+				tone: "yellow",
+				icon: "!",
+			},
+			{
+				key: "approved",
+				value: String(approvedThisMonth),
+				title: "Approved This Month",
+				note: "Based on current month data",
+				tone: "green",
+				icon: "check",
+			},
+			{
+				key: "allocated",
+				value: `${totalAllocated}%`,
+				title: "Total Budget Allocated",
+				note: "From approved benefit subsidies",
+				tone: "blue",
+				icon: "wallet",
+			},
+			{
+				key: "remaining",
+				value: `${remainingBudgetEstimate}%`,
+				title: "Remaining Budget",
+				note: "Estimated from configured subsidies",
+				tone: "purple",
+				icon: "trend",
+			},
+		],
+		[pendingRequests.length, approvedThisMonth, totalAllocated, remainingBudgetEstimate],
+	);
 	const selectedCard = useMemo(
 		() => statCards.find((card) => card.key === selectedCardKey) ?? null,
 		[selectedCardKey],
 	);
 
+	const getInitials = (name: string) =>
+		name
+			.split(" ")
+			.map((part) => part[0])
+			.join("")
+			.slice(0, 2)
+			.toUpperCase();
+
+	const loadData = async () => {
+		setLoading(true);
+		setError(null);
+		try {
+			const client = getFinanceClient();
+			const [reqList, employeeList, benefits] = await Promise.all([
+				fetchBenefitRequests(client),
+				fetchEmployees(client),
+				fetchBenefits(client),
+			]);
+			setRequests(reqList);
+			setEmployees(Object.fromEntries(employeeList.map((e) => [e.id, e])));
+			setBenefitSubsidyMap(
+				Object.fromEntries(benefits.map((b) => [b.id, Number(b.subsidyPercent ?? 0)])),
+			);
+		} catch (e) {
+			setError(getApiErrorMessage(e));
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	useEffect(() => {
-		// Simulate loading - replace with real API fetch when available
-		const t = setTimeout(() => setLoading(false), 400);
-		return () => clearTimeout(t);
+		void loadData();
 	}, []);
 
 	const toneClass = (tone: "yellow" | "green" | "blue" | "purple") => {
@@ -105,6 +152,21 @@ export default function FinancePage() {
 		return <FinanceDashboardSkeleton />;
 	}
 
+	const handleDecision = async (requestId: string, accepted: boolean) => {
+		setSubmittingRequestId(requestId);
+		setError(null);
+		try {
+			await confirmBenefitRequest(getFinanceClient(), requestId, accepted);
+			await loadData();
+		} catch (e) {
+			setError(getApiErrorMessage(e));
+		} finally {
+			setSubmittingRequestId(null);
+		}
+	};
+
+	const visibleRequests = pendingRequests;
+
 	return (
 		<div className="space-y-6">
 			<header className="flex items-start justify-between gap-4">
@@ -117,6 +179,11 @@ export default function FinancePage() {
 					</p>
 				</div>
 			</header>
+			{error && (
+				<p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+					{error}
+				</p>
+			)}
 
 			<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
 				{statCards.map((card) => (
@@ -167,7 +234,7 @@ export default function FinancePage() {
 						</p>
 					</div>
 					<p className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-						Showing {requests.length} requests
+						Showing {visibleRequests.length} requests
 					</p>
 				</div>
 
@@ -187,38 +254,45 @@ export default function FinancePage() {
 							</tr>
 						</thead>
 						<tbody>
-							{requests.map((request) => (
+							{visibleRequests.map((request, index) => (
 								<tr key={request.id} className="border-b border-slate-200 dark:border-[#2B405F]">
 									<td className="px-6 py-5 text-5 font-semibold text-slate-900 dark:text-white">
-										{request.id}
+										{index + 1}
 									</td>
 									<td className="px-6 py-5">
 										<div className="flex items-center gap-3">
 											<div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-5 font-semibold text-blue-700 dark:bg-[#2A8BFF]/30 dark:text-white">
-												{request.initials}
+												{getInitials(request.employeeName || request.employeeId)}
 											</div>
 											<span className="whitespace-nowrap text-5 text-slate-900 dark:text-white">
-												{request.employee}
+												{request.employeeName || request.employeeId}
 											</span>
 										</div>
 									</td>
 									<td className="px-6 py-5 whitespace-nowrap text-5 text-slate-600 dark:text-[#A7B6D3]">
-										{request.benefitType}
+										{request.benefitName || request.benefitId}
 									</td>
 									<td className="px-4 py-5 whitespace-nowrap text-5 font-semibold text-slate-900 dark:text-white">
-										{request.amount}
+										{benefitSubsidyMap[request.benefitId] != null
+											? `${benefitSubsidyMap[request.benefitId]}%`
+											: "—"}
 									</td>
 									<td className="px-6 py-5">
 										<span className="rounded-lg bg-slate-100 px-3 py-1 text-5 text-slate-600 dark:bg-[#24364F] dark:text-[#A7B6D3]">
-											{request.department}
+											{employees[request.employeeId]?.role || "—"}
 										</span>
 									</td>
 									<td className="px-6 py-5 text-5 text-slate-500 dark:text-[#8FA3C5]">
-										{request.date}
+										{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "—"}
 									</td>
 									<td className="px-6 py-5">
 										<div className="flex items-center gap-2">
-											<button className="rounded-xl bg-green-600 px-4 py-2 text-5 font-medium text-white hover:bg-green-700 dark:bg-[#00C95F] dark:hover:bg-[#00B355]">
+											<button
+												type="button"
+												onClick={() => void handleDecision(request.id, true)}
+												disabled={submittingRequestId === request.id}
+												className="rounded-xl bg-green-600 px-4 py-2 text-5 font-medium text-white hover:bg-green-700 disabled:opacity-60 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+											>
 												Approve
 											</button>
 											<button
@@ -227,6 +301,7 @@ export default function FinancePage() {
 													setRejectingRequestId(request.id);
 													setRejectionReason("");
 												}}
+												disabled={submittingRequestId === request.id}
 												className="rounded-xl bg-red-500/90 px-4 py-2 text-5 font-medium text-white hover:bg-red-500"
 											>
 												Reject
@@ -235,6 +310,16 @@ export default function FinancePage() {
 									</td>
 								</tr>
 							))}
+							{visibleRequests.length === 0 && (
+								<tr>
+									<td
+										colSpan={7}
+										className="px-6 py-6 text-center text-5 text-slate-500 dark:text-[#A7B6D3]"
+									>
+										Pending хүсэлт алга байна.
+									</td>
+								</tr>
+							)}
 						</tbody>
 					</table>
 				</div>
@@ -295,7 +380,8 @@ export default function FinancePage() {
 							<button
 								type="button"
 								onClick={() => {
-									// TODO: submit rejection with rejectionReason
+									if (!rejectingRequestId) return;
+									void handleDecision(rejectingRequestId, false);
 									setRejectingRequestId(null);
 									setRejectionReason("");
 								}}

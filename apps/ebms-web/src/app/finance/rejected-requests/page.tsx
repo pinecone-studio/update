@@ -2,30 +2,58 @@
 
 import { useEffect, useState } from "react";
 import { FinancePageSkeleton } from "../components/FinancePageSkeleton";
+import {
+  fetchBenefitRequests,
+  fetchBenefits,
+  getApiErrorMessage,
+  getFinanceClient,
+} from "../_lib/api";
 
-const rejectedRequests = [
-  {
-    employee: "Sarah Kim",
-    benefit: "Travel Subsidy",
-    amount: "$1,200",
-    reason: "Budget exceeded",
-    date: "May 14",
-  },
-  {
-    employee: "David Lee",
-    benefit: "Down Payment",
-    amount: "$15,000",
-    reason: "Tenure requirement not met",
-    date: "May 10",
-  },
-];
+type RejectedRow = {
+  employee: string;
+  benefit: string;
+  amount: string;
+  reason: string;
+  date: string;
+};
 
 export default function RejectedRequestsPage() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [rejectedRequests, setRejectedRequests] = useState<RejectedRow[]>([]);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const client = getFinanceClient();
+        const [requests, benefits] = await Promise.all([
+          fetchBenefitRequests(client, "REJECTED"),
+          fetchBenefits(client),
+        ]);
+        const benefitMap = Object.fromEntries(benefits.map((b) => [b.id, b]));
+        const rows: RejectedRow[] = requests.map((r) => ({
+          employee: r.employeeName || r.employeeId,
+          benefit: r.benefitName || r.benefitId,
+          amount:
+            benefitMap[r.benefitId]?.subsidyPercent != null
+              ? `${benefitMap[r.benefitId].subsidyPercent}%`
+              : "—",
+          reason: "Rejected by reviewer",
+          date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—",
+        }));
+        if (!cancelled) setRejectedRequests(rows);
+      } catch (e) {
+        if (!cancelled) setError(getApiErrorMessage(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -40,6 +68,11 @@ export default function RejectedRequestsPage() {
           History of rejected benefit requests with reasons
         </p>
       </header>
+      {error && (
+        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </p>
+      )}
 
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#1E3258] dark:bg-[#0B1733]">
         <div className="overflow-x-auto">
@@ -74,6 +107,13 @@ export default function RejectedRequestsPage() {
                   <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{item.date}</td>
                 </tr>
               ))}
+              {rejectedRequests.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-6 text-center text-5 text-slate-500 dark:text-slate-300">
+                    Rejected хүсэлт алга байна.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

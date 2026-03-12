@@ -2,37 +2,67 @@
 
 import { useEffect, useState } from "react";
 import { FinancePageSkeleton } from "../components/FinancePageSkeleton";
+import {
+  fetchAuditLog,
+  fetchBenefits,
+  fetchEmployees,
+  getApiErrorMessage,
+  getFinanceClient,
+} from "../_lib/api";
 
-const auditEntries = [
-  {
-    time: "10:30",
-    user: "John Carter",
-    action: "Requested Benefit",
-    benefit: "Gym",
-    result: "Pending" as const,
-  },
-  {
-    time: "11:05",
-    user: "HR Admin",
-    action: "Override Eligibility",
-    benefit: "Gym",
-    result: "Approved" as const,
-  },
-  {
-    time: "11:15",
-    user: "Finance Manager",
-    action: "Payment Approved",
-    benefit: "Gym",
-    result: "Completed" as const,
-  },
-];
+type AuditRow = {
+  time: string;
+  user: string;
+  action: string;
+  benefit: string;
+  result: "Pending" | "Approved" | "Completed";
+};
 
 export default function AuditTrailPage() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [auditEntries, setAuditEntries] = useState<AuditRow[]>([]);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const client = getFinanceClient();
+        const [audits, employees, benefits] = await Promise.all([
+          fetchAuditLog(client),
+          fetchEmployees(client),
+          fetchBenefits(client),
+        ]);
+        const employeeMap = Object.fromEntries(employees.map((e) => [e.id, e.name || e.id]));
+        const benefitMap = Object.fromEntries(benefits.map((b) => [b.id, b.name]));
+        const rows: AuditRow[] = audits.map((a) => {
+          const resultLower = a.newStatus.toLowerCase();
+          const result =
+            resultLower === "active"
+              ? "Completed"
+              : resultLower === "pending"
+                ? "Pending"
+                : "Approved";
+          return {
+            time: a.computedAt ? new Date(a.computedAt).toLocaleTimeString() : "—",
+            user: employeeMap[a.employeeId] || a.employeeId,
+            action: "Eligibility Updated",
+            benefit: benefitMap[a.benefitId] || a.benefitId,
+            result,
+          };
+        });
+        if (!cancelled) setAuditEntries(rows);
+      } catch (e) {
+        if (!cancelled) setError(getApiErrorMessage(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -47,6 +77,11 @@ export default function AuditTrailPage() {
           Complete history of all financial decisions and actions
         </p>
       </header>
+      {error && (
+        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </p>
+      )}
 
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#1E3258] dark:bg-[#0D1B3A]">
         <div className="overflow-x-auto">
@@ -82,6 +117,13 @@ export default function AuditTrailPage() {
                   </td>
                 </tr>
               ))}
+              {auditEntries.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-6 text-center text-5 text-slate-500 dark:text-slate-300">
+                    Audit өгөгдөл алга байна.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
