@@ -1,10 +1,18 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { GraphQLClient, gql } from 'graphql-request';
 import { HrTotalEmployeeIcon } from "../icons/hrTotalEmployee";
 import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
+import {
+  getLocalBenefitRequests,
+  updateLocalBenefitRequestStatus,
+  addApprovedBenefit,
+  getApprovedRequestIds,
+  type LocalBenefitRequest,
+} from "@/app/_lib/localBenefitRequests";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
 const BENEFIT_REQUESTS_QUERY = gql`
@@ -20,16 +28,6 @@ const BENEFIT_REQUESTS_QUERY = gql`
     }
   }
 `;
-
-const CONFIRM_BENEFIT_REQUEST_MUTATION = gql`
-  mutation ConfirmBenefitRequest($requestId: ID!, $contractAccepted: Boolean!) {
-    confirmBenefitRequest(requestId: $requestId, contractAccepted: $contractAccepted) {
-      id
-      status
-    }
-  }
-`;
-
 type BenefitRequest = {
   id: string;
   employeeId: string;
@@ -109,21 +107,104 @@ export default function HrDashboardPage() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>('PENDING');
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
+  const [sessionApprovedIds, setSessionApprovedIds] = useState<Set<string>>(new Set());
+  const [sessionRejectedIds, setSessionRejectedIds] = useState<Set<string>>(new Set());
 
+  useEffect(() => {
+    let cancelled = false;
+    const base = API_URL.replace(/\/$/, '');
+    const url = base.endsWith('/graphql') ? base : `${base}/graphql`;
+    const client = new GraphQLClient(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-employee-id': 'admin',
+        'x-role': 'admin',
+      },
+    });
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
+          BENEFIT_REQUESTS_QUERY,
+          { status: statusFilter ?? undefined }
+        );
+        if (!cancelled) {
+          const data = (res.benefitRequests ?? []).map((r) => ({
+            ...r,
+            status: (r.status || 'PENDING').toUpperCase(),
+          }));
+          setRequests(data);
+          setSessionApprovedIds(getApprovedRequestIds(data));
+          setSessionRejectedIds(new Set());
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(getErrorMessage(e));
+          const local = getLocalBenefitRequests().map((r) => ({
+            ...r,
+            status: (r.status || 'PENDING').toUpperCase(),
+          }));
+          const filtered = statusFilter
+            ? local.filter((r) => r.status === statusFilter)
+            : local;
+          setRequests(filtered);
+          setSessionApprovedIds(getApprovedRequestIds(filtered));
+          setSessionRejectedIds(new Set());
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [statusFilter]);
 
   const handleApprove = (requestId: string) => {
+    const req = requests.find((r) => r.id === requestId);
+    if (req) {
+      addApprovedBenefit(req.employeeId, req.benefitId);
+    }
+    setSessionApprovedIds((prev) => new Set(prev).add(requestId));
+    setSessionRejectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(requestId);
+      return next;
+    });
+    if (requestId.startsWith('local-')) {
+      updateLocalBenefitRequestStatus(requestId, 'APPROVED');
+    }
     setRequests((prev) =>
       prev.map((r) => (r.id === requestId ? { ...r, status: 'APPROVED' } : r))
     );
   };
 
   const handleReject = (requestId: string, _comment: string) => {
+    setSessionRejectedIds((prev) => new Set(prev).add(requestId));
+    setSessionApprovedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(requestId);
+      return next;
+    });
+    if (requestId.startsWith('local-')) {
+      updateLocalBenefitRequestStatus(requestId, 'REJECTED');
+    }
     setRequests((prev) =>
       prev.map((r) => (r.id === requestId ? { ...r, status: 'REJECTED' } : r))
     );
     setRejectingId(null);
     setRejectComment('');
   };
+
+  const getEffectiveStatus = (req: BenefitRequest) =>
+    sessionApprovedIds.has(req.id)
+      ? 'APPROVED'
+      : sessionRejectedIds.has(req.id)
+        ? 'REJECTED'
+        : (req.status || 'PENDING').toUpperCase();
 
   return (
     <>
@@ -193,7 +274,7 @@ export default function HrDashboardPage() {
 
         {loading ? (
           <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">Loading requests...</p>
-        ) : requests.length === 0 ? (
+        ) : requests.filter((r) => !statusFilter || getEffectiveStatus(r) === statusFilter).length === 0 ? (
           <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
             No benefit requests found.
           </p>
@@ -210,7 +291,11 @@ export default function HrDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {requests.map((req) => (
+                {requests
+                  .filter((req) => !statusFilter || getEffectiveStatus(req) === statusFilter)
+                  .map((req) => {
+                    const effectiveStatus = getEffectiveStatus(req);
+                    return (
                   <tr
                     key={req.id}
                     className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
@@ -221,12 +306,12 @@ export default function HrDashboardPage() {
                     <td className="px-4 py-4 text-slate-600 dark:text-[#A7B6D3]">
                       {req.employeeName ?? req.employeeId}
                     </td>
-                    <td className="px-4 py-4">{statusBadge(req.status)}</td>
+                    <td className="px-4 py-4">{statusBadge(effectiveStatus)}</td>
                     <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
                       {formatDate(req.createdAt)}
                     </td>
                     <td className="px-4 py-4">
-                      {req.status === 'PENDING' ? (
+                      {effectiveStatus === 'PENDING' ? (
                         <div className="flex items-center gap-6">
                           <button
                             type="button"
@@ -251,7 +336,8 @@ export default function HrDashboardPage() {
                       )}
                     </td>
                   </tr>
-                ))}
+                    );
+                  })}
               </tbody>
             </table>
           </div>
