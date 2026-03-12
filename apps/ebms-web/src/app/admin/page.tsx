@@ -129,8 +129,8 @@ export default function HrDashboardPage() {
   return (
     <>
       <div className="mb-10">
-        <h1 className="text-3xl font-semibold text-white">Dashboard</h1>
-        <p className="mt-3 text-5 text-[#A7B6D3]">
+        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Dashboard</h1>
+        <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
           Overview of your HR benefits management system
         </p>
       </div>
@@ -139,11 +139,11 @@ export default function HrDashboardPage() {
         {statCards.map((card) => (
           <article
             key={card.title}
-            className="flex items-start justify-between rounded-3xl border border-[#2C4264] bg-[#1E293B] px-8 py-7"
+            className="flex items-start justify-between rounded-3xl border border-slate-200 bg-white px-8 py-7 dark:border-[#2C4264] dark:bg-[#1E293B]"
           >
             <div>
-              <p className="text-5 text-[#A7B6D3]">{card.title}</p>
-              <p className="mt-2 text-15 leading-none text-white">
+              <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">{card.title}</p>
+              <p className="mt-2 text-15 leading-none text-slate-900 dark:text-white">
                 {card.value}
               </p>
             </div>
@@ -156,9 +156,9 @@ export default function HrDashboardPage() {
         ))}
       </div>
 
-      <article className="mt-8 rounded-3xl border border-[#2C4264] bg-[#1E293B] p-8">
+      <article className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <h2 className="text-11 font-semibold text-white">
+          <h2 className="text-11 font-semibold text-slate-900 dark:text-white">
             Employee Benefit Requests
           </h2>
           <div className="flex gap-2">
@@ -176,8 +176,8 @@ export default function HrDashboardPage() {
                 onClick={() => setStatusFilter(value)}
                 className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                   statusFilter === value
-                    ? 'bg-[#2A8BFF] text-white'
-                    : 'border border-[#2C4264] text-[#A7B6D3] hover:bg-[#24364F]'
+                    ? 'bg-blue-600 text-white dark:bg-[#2A8BFF]'
+                    : 'border border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-[#2C4264] dark:text-[#A7B6D3] dark:hover:bg-[#24364F]'
                 }`}
               >
                 {label}
@@ -193,15 +193,15 @@ export default function HrDashboardPage() {
         )}
 
         {loading ? (
-          <p className="py-8 text-center text-[#A7B6D3]">Loading requests...</p>
+          <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">Loading requests...</p>
         ) : requests.length === 0 ? (
-          <p className="py-8 text-center text-[#A7B6D3]">
+          <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
             No benefit requests found.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-5">
-              <thead className="border-b border-[#2B405F] text-[#A7B6D3]">
+              <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
                 <tr>
                   <th className="px-4 py-4 font-medium">Request (Benefit)</th>
                   <th className="px-4 py-4 font-medium">Employee</th>
@@ -213,16 +213,16 @@ export default function HrDashboardPage() {
                 {requests.map((req) => (
                   <tr
                     key={req.id}
-                    className="border-b border-[#2B405F] last:border-b-0"
+                    className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
                   >
-                    <td className="px-4 py-4 font-medium text-white">
+                    <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
                       {req.benefitName ?? req.benefitId}
                     </td>
-                    <td className="px-4 py-4 text-[#A7B6D3]">
+                    <td className="px-4 py-4 text-slate-600 dark:text-[#A7B6D3]">
                       {req.employeeName ?? req.employeeId}
                     </td>
                     <td className="px-4 py-4">{statusBadge(req.status)}</td>
-                    <td className="px-4 py-4 text-[#8FA3C5]">
+                    <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
                       {formatDate(req.createdAt)}
                     </td>
                   </tr>

@@ -7,6 +7,7 @@ import { HrAuditIcon } from "@/app/icons/hrAudit";
 import { HrDashboardIcon } from "@/app/icons/hrDashboard";
 import { HrEmployeeIcon } from "@/app/icons/hrEmployee";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
+import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import type { ReactNode } from "react";
 
 type NavItem = {
@@ -44,15 +45,18 @@ export function Header() {
     (href !== "/admin" && normalizedPath.startsWith(href));
 
   return (
-    <header className="sticky top-0 z-40 h-16 border-b border-[#24395C] bg-[#1E293B] px-4">
+    <header className="sticky top-0 z-40 h-16 border-b border-slate-200 bg-white px-4 dark:border-[#24395C] dark:bg-[#1E293B]">
       <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
-        <div className="flex min-w-[220px] items-center gap-3">
+        <Link
+          href="/admin"
+          className="flex min-w-[220px] items-center gap-3 hover:opacity-90 transition-opacity"
+        >
           <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto" />
           <div className="leading-tight">
-            <p className="text-lg font-semibold text-white">EBMS</p>
-            <p className="text-xs text-[#A7B6D3]">Admin Panel</p>
+            <p className="text-lg font-semibold text-slate-900 dark:text-white">EBMS</p>
+            <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">Admin Panel</p>
           </div>
-        </div>
+        </Link>
 
         <nav className="hidden items-center gap-2 xl:flex">
           {navItems.map((item) => (
@@ -61,8 +65,8 @@ export function Header() {
               href={item.href}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 isActive(item.href)
-                  ? "bg-[#2F66E8] text-white"
-                  : "text-[#D1DBEF] hover:bg-[#24364F] hover:text-white"
+                  ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
               }`}
             >
               <span className="scale-90">{item.icon}</span>
@@ -72,7 +76,8 @@ export function Header() {
         </nav>
 
         <div className="flex min-w-[220px] items-center justify-end gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2F66E8] text-sm font-semibold text-white">
+          <ThemeToggle />
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white dark:bg-[#2F66E8]">
             AD
           </div>
         </div>
