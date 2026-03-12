@@ -7,4 +7,6 @@ export interface Env {
   CONTRACTS: R2Bucket;
   ELIGIBILITY_CACHE: KVNamespace;
   ENVIRONMENT: string;
+  /** Feature flag: disable requireHR/requireAdmin checks when true */
+  DISABLE_ROLE_CHECKS?: string;
 }

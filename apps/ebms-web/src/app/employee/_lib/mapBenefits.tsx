@@ -31,8 +31,9 @@ export function mapMyBenefitsToCardProps(items: MyBenefitEligibility[]): Benefit
     const b = item.benefit;
     const icon = CATEGORY_ICONS[b.category?.toLowerCase() ?? ''] ?? DEFAULT_ICON;
     const lockReason =
-      item.status === 'LOCKED' && item.ruleEvaluations?.length
-        ? item.ruleEvaluations.find((r) => !r.passed)?.reason ?? 'Eligibility rules not met'
+      item.status === 'LOCKED'
+        ? item.ruleEvaluations?.find((r) => !r.passed)?.reason ??
+          'Eligibility rules are not satisfied right now.'
         : undefined;
     const eligibilityRules =
       item.ruleEvaluations?.map((r) => ({

@@ -21,6 +21,15 @@ const BENEFIT_REQUESTS_QUERY = gql`
   }
 `;
 
+const CONFIRM_BENEFIT_REQUEST_MUTATION = gql`
+  mutation ConfirmBenefitRequest($requestId: ID!, $contractAccepted: Boolean!) {
+    confirmBenefitRequest(requestId: $requestId, contractAccepted: $contractAccepted) {
+      id
+      status
+    }
+  }
+`;
+
 type BenefitRequest = {
   id: string;
   employeeId: string;
@@ -105,7 +114,9 @@ export default function HrDashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const client = new GraphQLClient(`${API_URL}/graphql`, {
+      const base = API_URL.replace(/\/graphql\/?$/, '').trim() || 'http://localhost:8787';
+      const graphqlUrl = base.endsWith('/graphql') ? base : `${base}/graphql`;
+      const client = new GraphQLClient(graphqlUrl, {
         headers: {
           'x-employee-id': 'admin',
           'x-role': 'admin',
@@ -123,6 +134,33 @@ export default function HrDashboardPage() {
       setLoading(false);
     }
   }, [statusFilter]);
+
+  const handleConfirmRequest = useCallback(
+    async (requestId: string, contractAccepted: boolean) => {
+      setActionLoadingId(requestId);
+      setError(null);
+      try {
+        const base = API_URL.replace(/\/graphql\/?$/, '').trim() || 'http://localhost:8787';
+        const graphqlUrl = base.endsWith('/graphql') ? base : `${base}/graphql`;
+        const client = new GraphQLClient(graphqlUrl, {
+          headers: {
+            'x-employee-id': 'admin',
+            'x-role': 'admin',
+          },
+        });
+        await client.request(CONFIRM_BENEFIT_REQUEST_MUTATION, {
+          requestId,
+          contractAccepted,
+        });
+        await loadRequests();
+      } catch (e) {
+        setError(getErrorMessage(e));
+      } finally {
+        setActionLoadingId(null);
+      }
+    },
+    [loadRequests],
+  );
 
   useEffect(() => {
     loadRequests();

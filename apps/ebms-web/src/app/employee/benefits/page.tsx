@@ -65,6 +65,9 @@ export default function EmployeeBenefitsPage() {
       : filteredByStatus.filter(
           (b) => b.category.toLowerCase() === selectedCategory.toLowerCase(),
         );
+  const lockedBenefitsWithReason = filteredBenefits.filter(
+    (b) => b.status === "LOCKED",
+  );
 
   const categoryOrder = [
     "Wellness",
@@ -132,6 +135,26 @@ export default function EmployeeBenefitsPage() {
             <p className="text-slate-600 dark:text-[#94A3B8]">Loading benefits...</p>
           ) : (
             <>
+              {lockedBenefitsWithReason.length > 0 && (
+                <section className="w-full md:w-[921px] rounded-2xl border border-[#7f1d1d] bg-[#2a1313] px-4 py-4">
+                  <h3 className="text-sm font-semibold text-[#fca5a5]">
+                    Locked benefits — reasons
+                  </h3>
+                  <div className="mt-3 space-y-2">
+                    {lockedBenefitsWithReason.map((b) => (
+                      <div
+                        key={b.benefitId ?? b.name}
+                        className="rounded-lg border border-[#7f1d1d] bg-[#1f1010] px-3 py-2"
+                      >
+                        <p className="text-sm text-white">{b.name}</p>
+                        <p className="text-xs text-[#fecaca]">
+                          {b.lockReason ?? "Eligibility rules are not satisfied right now."}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
               <div className="w-full md:w-[921px] flex flex-col gap-8">
                 {categoryBuckets.map((bucket) =>
                   bucket.items.length === 0 ? null : (
