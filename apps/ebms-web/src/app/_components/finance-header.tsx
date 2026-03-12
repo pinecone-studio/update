@@ -159,7 +159,7 @@ export function FinanceHeader() {
                 </div>
                 <div className="p-2">
                 <Link
-                  href="/finance"
+                  href="/finance/profile"
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
                 >
                   <HiOutlineUserCircle className="h-4 w-4" />

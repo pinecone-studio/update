@@ -109,6 +109,7 @@ export default function HrDashboardPage() {
   const [rejectComment, setRejectComment] = useState('');
   const [sessionApprovedIds, setSessionApprovedIds] = useState<Set<string>>(new Set());
   const [sessionRejectedIds, setSessionRejectedIds] = useState<Set<string>>(new Set());
+  const [sessionProcessedRequests, setSessionProcessedRequests] = useState<BenefitRequest[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -167,6 +168,10 @@ export default function HrDashboardPage() {
     const req = requests.find((r) => r.id === requestId);
     if (req) {
       addApprovedBenefit(req.employeeId, req.benefitId);
+      setSessionProcessedRequests((prev) => {
+        const updated = { ...req, status: 'APPROVED' };
+        return prev.filter((r) => r.id !== requestId).concat(updated);
+      });
     }
     setSessionApprovedIds((prev) => new Set(prev).add(requestId));
     setSessionRejectedIds((prev) => {
@@ -183,6 +188,13 @@ export default function HrDashboardPage() {
   };
 
   const handleReject = (requestId: string, _comment: string) => {
+    const req = requests.find((r) => r.id === requestId);
+    if (req) {
+      setSessionProcessedRequests((prev) => {
+        const updated = { ...req, status: 'REJECTED' };
+        return prev.filter((r) => r.id !== requestId).concat(updated);
+      });
+    }
     setSessionRejectedIds((prev) => new Set(prev).add(requestId));
     setSessionApprovedIds((prev) => {
       const next = new Set(prev);
@@ -205,6 +217,30 @@ export default function HrDashboardPage() {
       : sessionRejectedIds.has(req.id)
         ? 'REJECTED'
         : (req.status || 'PENDING').toUpperCase();
+
+  const displayRequests = (() => {
+    const fromApi = requests.filter(
+      (req) => !statusFilter || getEffectiveStatus(req) === statusFilter
+    );
+    if (statusFilter === 'APPROVED') {
+      const sessionApproved = sessionProcessedRequests.filter((r) => r.status === 'APPROVED');
+      const seen = new Set(fromApi.map((r) => r.id));
+      const extra = sessionApproved.filter((r) => !seen.has(r.id));
+      return [...fromApi, ...extra];
+    }
+    if (statusFilter === 'REJECTED') {
+      const sessionRejected = sessionProcessedRequests.filter((r) => r.status === 'REJECTED');
+      const seen = new Set(fromApi.map((r) => r.id));
+      const extra = sessionRejected.filter((r) => !seen.has(r.id));
+      return [...fromApi, ...extra];
+    }
+    if (statusFilter === undefined) {
+      const seen = new Set(fromApi.map((r) => r.id));
+      const extra = sessionProcessedRequests.filter((r) => !seen.has(r.id));
+      return [...fromApi, ...extra];
+    }
+    return fromApi;
+  })();
 
   return (
     <>
@@ -274,73 +310,76 @@ export default function HrDashboardPage() {
 
         {loading ? (
           <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">Loading requests...</p>
-        ) : requests.filter((r) => !statusFilter || getEffectiveStatus(r) === statusFilter).length === 0 ? (
-          <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
-            No benefit requests found.
-          </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-5">
-              <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
-                <tr>
-                  <th className="px-4 py-4 font-medium">Request (Benefit)</th>
-                  <th className="px-4 py-4 font-medium">Employee</th>
-                  <th className="px-4 py-4 font-medium">Status</th>
-                  <th className="px-4 py-4 font-medium">Date</th>
-                  <th className="px-4 py-4 font-medium">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests
-                  .filter((req) => !statusFilter || getEffectiveStatus(req) === statusFilter)
-                  .map((req) => {
-                    const effectiveStatus = getEffectiveStatus(req);
-                    return (
-                  <tr
-                    key={req.id}
-                    className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
-                  >
-                    <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
-                      {req.benefitName ?? req.benefitId}
-                    </td>
-                    <td className="px-4 py-4 text-slate-600 dark:text-[#A7B6D3]">
-                      {req.employeeName ?? req.employeeId}
-                    </td>
-                    <td className="px-4 py-4">{statusBadge(effectiveStatus)}</td>
-                    <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
-                      {formatDate(req.createdAt)}
-                    </td>
-                    <td className="px-4 py-4">
-                      {effectiveStatus === 'PENDING' ? (
-                        <div className="flex items-center gap-6">
-                          <button
-                            type="button"
-                            onClick={() => handleApprove(req.id)}
-                            className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setRejectingId(req.id);
-                              setRejectComment('');
-                            }}
-                            className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 dark:text-slate-500">—</span>
-                      )}
-                    </td>
-                  </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {displayRequests.length === 0 ? (
+              <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
+                No benefit requests found.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left text-5">
+                  <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
+                    <tr>
+                      <th className="px-4 py-4 font-medium">Request (Benefit)</th>
+                      <th className="px-4 py-4 font-medium">Employee</th>
+                      <th className="px-4 py-4 font-medium">Status</th>
+                      <th className="px-4 py-4 font-medium">Date</th>
+                      <th className="px-4 py-4 font-medium">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayRequests.map((req) => {
+                        const effectiveStatus = getEffectiveStatus(req);
+                        return (
+                      <tr
+                        key={req.id}
+                        className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
+                      >
+                        <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
+                          {req.benefitName ?? req.benefitId}
+                        </td>
+                        <td className="px-4 py-4 text-slate-600 dark:text-[#A7B6D3]">
+                          {req.employeeName ?? req.employeeId}
+                        </td>
+                        <td className="px-4 py-4">{statusBadge(effectiveStatus)}</td>
+                        <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
+                          {formatDate(req.createdAt)}
+                        </td>
+                        <td className="px-4 py-4">
+                          {effectiveStatus === 'PENDING' ? (
+                            <div className="flex items-center gap-6">
+                              <button
+                                type="button"
+                                onClick={() => handleApprove(req.id)}
+                                className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRejectingId(req.id);
+                                  setRejectComment('');
+                                }}
+                                className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 dark:text-slate-500">—</span>
+                          )}
+                        </td>
+                      </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+          </>
         )}
       </article>
 
