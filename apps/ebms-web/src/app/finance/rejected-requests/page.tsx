@@ -35,16 +35,16 @@ export default function RejectedRequestsPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-2xl font-semibold text-white">Rejected Requests</h1>
-        <p className="mt-3 text-5 text-slate-400">
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Rejected Requests</h1>
+        <p className="mt-3 text-5 text-slate-600 dark:text-slate-400">
           History of rejected benefit requests with reasons
         </p>
       </header>
 
-      <section className="overflow-hidden rounded-2xl border border-[#1E3258] bg-[#0B1733]">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#1E3258] dark:bg-[#0B1733]">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-5">
-            <thead className="border-b border-[#1E3258] text-[#A7B6D3]">
+            <thead className="border-b border-slate-200 text-slate-500 dark:border-[#1E3258] dark:text-[#A7B6D3]">
               <tr>
                 <th className="px-6 py-5 font-medium">Employee</th>
                 <th className="px-6 py-5 font-medium">Benefit</th>
@@ -57,13 +57,13 @@ export default function RejectedRequestsPage() {
               {rejectedRequests.map((item) => (
                 <tr
                   key={`${item.employee}-${item.date}`}
-                  className="border-b border-[#182A4A] last:border-b-0"
+                  className="border-b border-slate-200 last:border-b-0 dark:border-[#182A4A]"
                 >
-                  <td className="px-6 py-6 font-semibold text-white">
+                  <td className="px-6 py-6 font-semibold text-slate-900 dark:text-white">
                     {item.employee}
                   </td>
-                  <td className="px-6 py-6 text-slate-300">{item.benefit}</td>
-                  <td className="px-6 py-6 font-semibold text-white">
+                  <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{item.benefit}</td>
+                  <td className="px-6 py-6 font-semibold text-slate-900 dark:text-white">
                     {item.amount}
                   </td>
                   <td className="px-6 py-6">
@@ -71,7 +71,7 @@ export default function RejectedRequestsPage() {
                       {item.reason}
                     </span>
                   </td>
-                  <td className="px-6 py-6 text-slate-300">{item.date}</td>
+                  <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{item.date}</td>
                 </tr>
               ))}
             </tbody>

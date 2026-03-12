@@ -113,7 +113,7 @@ export default function EmployeeBenefitsPage() {
 
 	return (
 		<div>
-			<div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white w-full min-h-screen">
+			<div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 dark:bg-[#0f172A] dark:text-white w-full min-h-screen">
 				<div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
 					{loading ? (
 						<EmployeeBenefitsSkeleton />
@@ -127,7 +127,7 @@ export default function EmployeeBenefitsPage() {
 									key={category}
 									type="button"
 									onClick={() => setSelectedCategory(category)}
-									className={`${isActive ? "bg-[#1E293B] text-white" : "text-[#94A3B8]"} px-4 py-2 rounded-full text-sm`}
+									className={`${isActive ? "bg-slate-200 text-slate-900 dark:bg-[#1E293B] dark:text-white" : "text-slate-500 dark:text-[#94A3B8]"} px-4 py-2 rounded-full text-sm`}
 								>
 									{category === "ALL" ? "All Categories" : category}
 								</button>
@@ -144,7 +144,7 @@ export default function EmployeeBenefitsPage() {
 											key={bucket.category}
 											className="flex flex-col gap-3"
 										>
-											<h2 className="text-sm uppercase tracking-wider text-[#94A3B8]">
+											<h2 className="text-sm uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
 												{bucket.category}
 											</h2>
 											<BenefitPortfolio

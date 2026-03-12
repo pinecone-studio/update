@@ -42,16 +42,16 @@ export default function AuditTrailPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-5 font-semibold text-white">Audit Trail</h1>
-        <p className="mt-2 text-5 text-slate-400">
+        <h1 className="text-5 font-semibold text-slate-900 dark:text-white">Audit Trail</h1>
+        <p className="mt-2 text-5 text-slate-600 dark:text-slate-400">
           Complete history of all financial decisions and actions
         </p>
       </header>
 
-      <section className="overflow-hidden rounded-2xl border border-[#1E3258] bg-[#0D1B3A]">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#1E3258] dark:bg-[#0D1B3A]">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-5">
-            <thead className="border-b border-[#1E3258] text-[#A7B6D3]">
+            <thead className="border-b border-slate-200 text-slate-500 dark:border-[#1E3258] dark:text-[#A7B6D3]">
               <tr>
                 <th className="px-6 py-5 font-medium">Time</th>
                 <th className="px-6 py-5 font-medium">User</th>
@@ -62,11 +62,11 @@ export default function AuditTrailPage() {
             </thead>
             <tbody>
               {auditEntries.map((entry) => (
-                <tr key={`${entry.time}-${entry.user}`} className="border-b border-[#182A4A] last:border-b-0">
-                  <td className="px-6 py-6 text-slate-300">{entry.time}</td>
-                  <td className="px-6 py-6 font-semibold text-white">{entry.user}</td>
-                  <td className="px-6 py-6 text-slate-300">{entry.action}</td>
-                  <td className="px-6 py-6 text-slate-200">{entry.benefit}</td>
+                <tr key={`${entry.time}-${entry.user}`} className="border-b border-slate-200 last:border-b-0 dark:border-[#182A4A]">
+                  <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{entry.time}</td>
+                  <td className="px-6 py-6 font-semibold text-slate-900 dark:text-white">{entry.user}</td>
+                  <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{entry.action}</td>
+                  <td className="px-6 py-6 text-slate-700 dark:text-slate-200">{entry.benefit}</td>
                   <td className="px-6 py-6">
                     <span
                       className={`inline-flex items-center rounded-xl border px-4 py-2 text-5 ${

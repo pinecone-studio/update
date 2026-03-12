@@ -55,8 +55,8 @@ export default function BudgetOverviewPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-5 font-semibold text-white">Budget Overview</h1>
-        <p className="mt-2 text-5 text-slate-400">
+        <h1 className="text-5 font-semibold text-slate-900 dark:text-white">Budget Overview</h1>
+        <p className="mt-2 text-5 text-slate-600 dark:text-slate-400">
           Track budget allocation and spending across departments
         </p>
       </header>
@@ -65,7 +65,7 @@ export default function BudgetOverviewPage() {
         {statCards.map((card) => (
           <article
             key={card.title}
-            className="rounded-2xl border border-[#1F345C] bg-[#0D1B3A] p-5 shadow-[inset_0_0_30px_rgba(46,94,204,0.08)]"
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[inset_0_0_30px_rgba(46,94,204,0.08)] dark:border-[#1F345C] dark:bg-[#0D1B3A]"
           >
             <div className="mb-4 flex items-center gap-3">
               <div
@@ -73,35 +73,35 @@ export default function BudgetOverviewPage() {
               >
                 {card.icon}
               </div>
-              <p className="text-5 text-slate-300">{card.title}</p>
+              <p className="text-5 text-slate-600 dark:text-slate-300">{card.title}</p>
             </div>
-            <p className="text-5 font-bold text-white">{card.value}</p>
+            <p className="text-5 font-bold text-slate-900 dark:text-white">{card.value}</p>
           </article>
         ))}
       </section>
 
-      <section className="rounded-2xl border border-[#1E3258] bg-[#0D1B3A] p-6">
-        <h2 className="text-5 font-semibold text-white">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-[#1E3258] dark:bg-[#0D1B3A]">
+        <h2 className="text-5 font-semibold text-slate-900 dark:text-white">
           Top Spending Benefits
         </h2>
         <div className="mt-5 space-y-4">
           {topSpending.map((item) => (
             <div
               key={item.name}
-              className="flex items-center justify-between rounded-xl border border-[#1E3258] bg-[#07132B] px-5 py-4"
+              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 dark:border-[#1E3258] dark:bg-[#07132B]"
             >
-              <p className="text-5 text-slate-200">{item.name}</p>
-              <p className="text-5 font-semibold text-white">{item.value}</p>
+              <p className="text-5 text-slate-700 dark:text-slate-200">{item.name}</p>
+              <p className="text-5 font-semibold text-slate-900 dark:text-white">{item.value}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#1E3258] bg-[#0D1B3A] p-6 pb-10">
-        <h2 className="text-5 font-semibold text-white">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 pb-10 dark:border-[#1E3258] dark:bg-[#0D1B3A]">
+        <h2 className="text-5 font-semibold text-slate-900 dark:text-white">
           Monthly Spending Chart
         </h2>
-        <div className="mt-6 rounded-xl border border-[#1E3258] bg-[#0A1630] p-5 select-none">
+        <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-5 select-none dark:border-[#1E3258] dark:bg-[#0A1630]">
           <div className="flex h-[450px] items-end gap-2">
             {monthlySpending.map((value, index) => (
               <div
@@ -109,13 +109,13 @@ export default function BudgetOverviewPage() {
                 className="flex-1 bg-transparent hover:bg-transparent"
               >
                 <div
-                  className="w-full rounded-t-lg bg-[#3E7BE0] hover:bg-[#cfd7e3] focus:bg-[#3E7BE0]"
+                  className="w-full rounded-t-lg bg-[#3E7BE0] hover:bg-[#4F8EF7] focus:bg-[#3E7BE0]"
                   style={{ height: `${(value / 10) * 300}px` }}
                 />
               </div>
             ))}
           </div>
-          <div className="mt-4 flex justify-between text-5 text-slate-500">
+          <div className="mt-4 flex justify-between text-5 text-slate-500 dark:text-slate-500">
             <span>Jan</span>
             <span>Mar</span>
             <span>May</span>
