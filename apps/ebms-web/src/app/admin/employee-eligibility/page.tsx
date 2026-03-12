@@ -27,6 +27,7 @@ type EmployeeDetail = EmployeeListItem & {
 };
 
 type BenefitRow = {
+  benefitId: string;
   name: string;
   status: BenefitStatus;
   history: Array<{
@@ -140,6 +141,8 @@ export default function EmployeeEligibilityPage() {
 	const [savedReasonByKey, setSavedReasonByKey] = useState<
 		Record<string, string>
 	>({});
+	const [savingByKey, setSavingByKey] = useState<Record<string, boolean>>({});
+	const [errorByKey, setErrorByKey] = useState<Record<string, string>>({});
 	const currentAdmin = "HR Admin";
 
 	const filteredEmployees = useMemo(() => {
@@ -181,42 +184,59 @@ export default function EmployeeEligibilityPage() {
 		);
 	};
 
-	const handleSaveStatus = (benefitName: string, key: string) => {
+	const handleSaveStatus = async (benefitId: string, benefitName: string, key: string) => {
 		if (!selectedId) return;
 		const reason = (draftReasonByKey[key] ?? "").trim();
 		if (!reason) return;
 
 		const nextStatus = draftStatusByKey[key] ?? "PENDING";
-		const changedAt = new Date().toLocaleString();
-		setEmployeeList((prev) =>
-			prev.map((emp) =>
-				emp.id !== selectedId
-					? emp
-					: {
-							...emp,
-							benefits: emp.benefits.map((benefit) =>
-								benefit.name === benefitName
-									? {
-											...benefit,
-											status: nextStatus,
-											history: [
-												{
-													status: nextStatus,
-													reason,
-													changedAt,
-													changedBy: currentAdmin,
-												},
-												...benefit.history,
-											],
-										}
-									: benefit,
-							),
-						},
-			),
-		);
-		setSavedReasonByKey((prev) => ({ ...prev, [key]: reason }));
-		setDraftReasonByKey((prev) => ({ ...prev, [key]: "" }));
-		setExpandedBenefitKey(null);
+		setSavingByKey((prev) => ({ ...prev, [key]: true }));
+		setErrorByKey((prev) => ({ ...prev, [key]: "" }));
+		try {
+			const client = getClient();
+			await client.request(OVERRIDE_ELIGIBILITY_MUTATION, {
+				input: {
+					employeeId: selectedId,
+					benefitId,
+					status: nextStatus,
+					reason,
+				},
+			});
+			const changedAt = new Date().toLocaleString();
+			setEmployeeList((prev) =>
+				prev.map((emp) =>
+					emp.id !== selectedId
+						? emp
+						: {
+								...emp,
+								benefits: emp.benefits.map((benefit) =>
+									benefit.benefitId === benefitId
+										? {
+												...benefit,
+												status: nextStatus,
+												history: [
+													{
+														status: nextStatus,
+														reason,
+														changedAt,
+														changedBy: currentAdmin,
+													},
+													...benefit.history,
+												],
+											}
+										: benefit,
+								),
+							},
+				),
+			);
+			setSavedReasonByKey((prev) => ({ ...prev, [key]: reason }));
+			setDraftReasonByKey((prev) => ({ ...prev, [key]: "" }));
+			setExpandedBenefitKey(null);
+		} catch (e) {
+			setErrorByKey((prev) => ({ ...prev, [key]: getErrorMessage(e) }));
+		} finally {
+			setSavingByKey((prev) => ({ ...prev, [key]: false }));
+		}
 	};
 
 	useEffect(() => {
@@ -255,6 +275,7 @@ export default function EmployeeEligibilityPage() {
 							: {
 									...e,
 									benefits: (emp.benefits ?? []).map((b) => ({
+											benefitId: b.benefit?.id ?? "",
 										name: b.benefit?.name ?? "Unknown",
 										status: b.status,
 										history: [],
@@ -376,17 +397,19 @@ export default function EmployeeEligibilityPage() {
 						<div className="space-y-4">
 							{selectedEmployee.benefits.map((benefit) =>
 								(() => {
-									const key = `${selectedEmployee.id}-${benefit.name}`;
+									const key = `${selectedEmployee.id}-${benefit.benefitId}`;
 									const isExpanded = expandedBenefitKey === key;
 									const draftStatus = draftStatusByKey[key] ?? benefit.status;
 									const draftReason = draftReasonByKey[key] ?? "";
+									const isSaving = savingByKey[key] ?? false;
 									const canSave = draftReason.trim().length > 0;
 									const lastReason = savedReasonByKey[key];
+									const saveError = errorByKey[key];
 									const modalStatusOptions: BenefitStatus[] = statusOptions;
 
 									return (
 										<article
-											key={benefit.name}
+											key={benefit.benefitId || benefit.name}
 											className="rounded-3xl border border-slate-200 bg-slate-50 px-7 py-6 dark:border-[#2C4264] dark:bg-[#1E293B]"
 										>
 											<div className="flex items-center justify-between">
@@ -469,14 +492,23 @@ export default function EmployeeEligibilityPage() {
 														<button
 															type="button"
 															onClick={() =>
-																handleSaveStatus(benefit.name, key)
+																void handleSaveStatus(
+																	benefit.benefitId,
+																	benefit.name,
+																	key,
+																)
 															}
-															disabled={!canSave}
+															disabled={!canSave || isSaving}
 															className="rounded-xl bg-[#2F66E8] px-4 py-2 text-5 text-white disabled:cursor-not-allowed disabled:opacity-60"
 														>
-															Save
+															{isSaving ? "Saving..." : "Save"}
 														</button>
 													</div>
+													{saveError && (
+														<p className="mt-3 text-5 text-red-600 dark:text-red-300">
+															{saveError}
+														</p>
+													)}
 													{lastReason && (
 														<p className="mt-3 text-5 text-slate-500 dark:text-[#8FA3C5]">
 															Сүүлд хадгалсан тайлбар: {lastReason}
@@ -491,7 +523,7 @@ export default function EmployeeEligibilityPage() {
 															<p className="mt-2 text-5 text-slate-500 dark:text-[#8FA3C5]">
 																Түүх алга.
 															</p>
-														) : (
+													) : (
 															<div className="mt-2 space-y-2">
 																{benefit.history.map((entry, idx) => (
 																	<div

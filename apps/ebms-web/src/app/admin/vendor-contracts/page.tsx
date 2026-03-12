@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { TablePageSkeleton } from "../components/TablePageSkeleton";
+import { fetchBenefits, getApiErrorMessage, getFinanceClient } from "../../finance/_lib/api";
 
 type Contract = {
   vendor: string;
@@ -15,36 +16,54 @@ type Contract = {
   reviewed: string;
 };
 
-const contracts: Contract[] = [
-  {
-    vendor: "BlueCross Health Network",
-    benefit: "Health Insurance",
-    contractId: "CNT-001",
-    value: "$2,450,000/year",
-    startDate: "January 1, 2024",
-    endDate: "December 31, 2026",
-    status: "Active",
-    renewal: "Auto-renew",
-    reviewed: "January 15, 2026",
-  },
-  {
-    vendor: "Vanguard Retirement Services",
-    benefit: "401(k) Management",
-    contractId: "CNT-002",
-    value: "$125,000/year",
-    startDate: "March 1, 2025",
-    endDate: "May 31, 2026",
-    status: "Expiring soon",
-    reviewed: "February 2, 2026",
-  },
-];
-
 export default function VendorContractsPage() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [contracts, setContracts] = useState<Contract[]>([]);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const benefits = await fetchBenefits(getFinanceClient());
+        const today = new Date();
+        const rows: Contract[] = benefits.map((b) => {
+          const expiry = b.activeContract?.expiryDate ? new Date(b.activeContract.expiryDate) : null;
+          const daysToExpiry =
+            expiry != null
+              ? Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+              : null;
+          return {
+            vendor: b.vendorName || "—",
+            benefit: b.name,
+            contractId: b.activeContract?.id || "—",
+            value: `${b.subsidyPercent}% subsidy`,
+            startDate: b.activeContract?.effectiveDate
+              ? new Date(b.activeContract.effectiveDate).toLocaleDateString()
+              : "—",
+            endDate: b.activeContract?.expiryDate
+              ? new Date(b.activeContract.expiryDate).toLocaleDateString()
+              : "—",
+            status:
+              daysToExpiry !== null && daysToExpiry >= 0 && daysToExpiry <= 90
+                ? "Expiring soon"
+                : "Active",
+            renewal: b.activeContract?.expiryDate ? undefined : "Auto-renew",
+            reviewed: today.toLocaleDateString(),
+          };
+        });
+        if (!cancelled) setContracts(rows);
+      } catch (e) {
+        if (!cancelled) setError(getApiErrorMessage(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -61,6 +80,11 @@ export default function VendorContractsPage() {
           Manage vendor contracts and track lifecycle status
         </p>
       </div>
+      {error && (
+        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </p>
+      )}
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
@@ -68,7 +92,9 @@ export default function VendorContractsPage() {
             <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Active Contracts</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#19D463]" />
           </div>
-          <p className="text-5 font-semibold text-slate-900 dark:text-white">2</p>
+          <p className="text-5 font-semibold text-slate-900 dark:text-white">
+            {contracts.filter((c) => c.status === "Active").length}
+          </p>
         </article>
 
         <article className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
@@ -76,7 +102,9 @@ export default function VendorContractsPage() {
             <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Expiring Soon</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#FFB21C]" />
           </div>
-          <p className="text-5 font-semibold text-slate-900 dark:text-white">1</p>
+          <p className="text-5 font-semibold text-slate-900 dark:text-white">
+            {contracts.filter((c) => c.status === "Expiring soon").length}
+          </p>
         </article>
 
         <article className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
@@ -84,14 +112,18 @@ export default function VendorContractsPage() {
             <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Pending Renewal</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#3E82F7]" />
           </div>
-          <p className="text-5 font-semibold text-slate-900 dark:text-white">1</p>
+          <p className="text-5 font-semibold text-slate-900 dark:text-white">
+            {contracts.filter((c) => c.renewal === "Auto-renew").length}
+          </p>
         </article>
 
         <article className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
             <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Total Contract Value</p>
           </div>
-          <p className="text-5 font-semibold text-slate-900 dark:text-white">$3.19M/yr</p>
+          <p className="text-5 font-semibold text-slate-900 dark:text-white">
+            {contracts.length}
+          </p>
         </article>
       </section>
 
@@ -207,6 +239,11 @@ export default function VendorContractsPage() {
               </div>
             </article>
           ))}
+          {contracts.length === 0 && (
+            <p className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#23324C] dark:text-[#A7B6D3]">
+              Contract өгөгдөл алга байна.
+            </p>
+          )}
         </div>
       </section>
     </div>
