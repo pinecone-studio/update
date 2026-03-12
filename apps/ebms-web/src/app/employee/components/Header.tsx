@@ -13,7 +13,6 @@ import {
   HiBars3,
   HiXMark,
   HiOutlineUserCircle,
-  HiOutlineCog6Tooth,
   HiOutlineArrowRightOnRectangle,
   HiOutlineCheckCircle,
   HiOutlineChartBar,
@@ -71,10 +70,16 @@ export const Header = () => {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (notificationRef.current && !notificationRef.current.contains(e.target as Node)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(e.target as Node)
+      ) {
         setNotificationOpen(false);
       }
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
         setProfileOpen(false);
       }
     };
@@ -83,8 +88,18 @@ export const Header = () => {
   }, []);
 
   const navItems = [
-    { key: "dashboard", label: "Dashboard", href: "/employee", icon: HiSquares2X2 },
-    { key: "eligibility", label: "Benefit Eligibility", href: "/employee/benefits", icon: HiOutlineBookmark },
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      href: "/employee",
+      icon: HiSquares2X2,
+    },
+    {
+      key: "eligibility",
+      label: "Benefit Eligibility",
+      href: "/employee/benefits",
+      icon: HiOutlineBookmark,
+    },
   ];
 
   const isActive = (href: string) =>
@@ -92,7 +107,7 @@ export const Header = () => {
 
   return (
     <header className="w-full bg-white border-b border-slate-200 h-[64px] px-4 sticky top-0 z-50 dark:bg-[#1E293B] dark:border-slate-800">
-      <div className="h-full flex items-center justify-between gap-4">
+      <div className="mx-auto h-full w-full max-w-[1500px] flex items-center justify-between gap-4">
         <div className="flex items-center gap-8 md:gap-6 ">
           <Link
             href="/employee"
@@ -101,24 +116,24 @@ export const Header = () => {
             <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto" />
             <span className="text-lg font-semibold tracking-wide">EBMS</span>
           </Link>
-          </div>
-          <nav className="hidden md:flex items-center gap-4 text-slate-600 dark:text-slate-300 text-xs ml-6">
-            {navItems.map(({ key, label, href, icon: Icon }) => (
-              <Link
-                key={key}
-                href={href}
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition ${
-                  isActive(href)
-                    ? "text-white bg-blue-600 ring-blue-300 dark:ring-blue-500"
-                    : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
-                }`}
-              >
-                <Icon className="text-base" />
-                {label}
-              </Link>
-            ))}
-          </nav>
-        
+        </div>
+        <nav className="hidden md:flex items-center gap-4 text-slate-600 dark:text-slate-300 text-xs ml-6">
+          {navItems.map(({ key, label, href, icon: Icon }) => (
+            <Link
+              key={key}
+              href={href}
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition ${
+                isActive(href)
+                  ? "text-white bg-blue-600 ring-blue-300 dark:ring-blue-500"
+                  : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
+              }`}
+            >
+              <Icon className="text-base" />
+              {label}
+            </Link>
+          ))}
+        </nav>
+
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <button
@@ -146,7 +161,9 @@ export const Header = () => {
                   <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-[#243041]">
                     <div className="flex items-center gap-2">
                       <HiOutlineBell className="text-base text-slate-600 dark:text-slate-300" />
-                      <span className="text-slate-900 font-semibold dark:text-white">Notifications</span>
+                      <span className="text-slate-900 font-semibold dark:text-white">
+                        Notifications
+                      </span>
                       <span className="px-2 py-0.5 rounded-full bg-red-500/80 text-white text-xs font-medium">
                         2 new
                       </span>
@@ -178,7 +195,9 @@ export const Header = () => {
                           key={n.id}
                           className="flex gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-slate-300 transition dark:bg-[#1f2a40] dark:border-[#243041] dark:hover:border-slate-600"
                         >
-                          <div className={`flex-shrink-0 h-8 w-8 rounded-lg grid place-items-center ${iconClass}`}>
+                          <div
+                            className={`flex-shrink-0 h-8 w-8 rounded-lg grid place-items-center ${iconClass}`}
+                          >
                             {n.tone === "success" ? (
                               <HiOutlineCheckCircle className="text-lg" />
                             ) : n.tone === "info" ? (
@@ -188,8 +207,12 @@ export const Header = () => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-slate-900 text-sm font-semibold dark:text-white">{n.title}</p>
-                            <p className="text-slate-600 text-xs mt-0.5 line-clamp-2 dark:text-slate-400">{n.body}</p>
+                            <p className="text-slate-900 text-sm font-semibold dark:text-white">
+                              {n.title}
+                            </p>
+                            <p className="text-slate-600 text-xs mt-0.5 line-clamp-2 dark:text-slate-400">
+                              {n.body}
+                            </p>
                             <Link
                               href="/employee/notification"
                               className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 mt-2 dark:text-blue-400 dark:hover:text-blue-300"
@@ -198,7 +221,9 @@ export const Header = () => {
                               View Details
                               <HiOutlineArrowTopRightOnSquare className="text-xs" />
                             </Link>
-                            <p className="text-slate-400 text-[10px] mt-1 dark:text-slate-500">{n.time}</p>
+                            <p className="text-slate-400 text-[10px] mt-1 dark:text-slate-500">
+                              {n.time}
+                            </p>
                           </div>
                           {n.unread && (
                             <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-2" />
@@ -228,13 +253,34 @@ export const Header = () => {
                 className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center ml-1 ring-1 ring-transparent hover:ring-blue-300 hover:bg-blue-500 transition dark:ring-blue-500"
                 aria-label="Profile"
               >
-                {me?.name?.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase() ?? "JD"}
+                {me?.name
+                  ?.split(" ")
+                  .map((s) => s[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase() ?? "JD"}
               </button>
               {profileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
                   <div className="p-4 border-b border-slate-200 dark:border-[#243041]">
-                    <p className="text-slate-900 font-semibold dark:text-white">{me?.name ?? "—"}</p>
-                    <p className="text-slate-500 text-xs mt-1 dark:text-slate-500">{me?.id ?? "—"}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-full bg-blue-600 text-white text-xs font-semibold grid place-items-center">
+                        {me?.name
+                          ?.split(" ")
+                          .map((s) => s[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase() ?? "JD"}
+                      </div>
+                      <div>
+                        <p className="text-slate-900 font-semibold dark:text-white">
+                          {me?.name ?? "—"}
+                        </p>
+                        <p className="text-slate-500 text-xs mt-1 dark:text-slate-500">
+                          {me?.id ?? "—"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                   <div className="p-2">
                     <Link
@@ -243,22 +289,15 @@ export const Header = () => {
                       className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
                     >
                       <HiOutlineUserCircle className="text-lg" />
-                      My Profile
+                      Profile
                     </Link>
-                    <Link
-                      href="/employee/"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
-                    >
-                      <HiOutlineCog6Tooth className="text-lg" />
-                      Settings
-                    </Link>
+                    <div className="my-2 h-px bg-slate-200 dark:bg-[#243041]" />
                     <button
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition"
                     >
                       <HiOutlineArrowRightOnRectangle className="text-lg" />
-                      Sign Out
+                      Sign out
                     </button>
                   </div>
                 </div>
@@ -303,9 +342,16 @@ export const Header = () => {
               className="flex items-center gap-2"
             >
               <div className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center">
-                {me?.name?.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase() ?? "JD"}
+                {me?.name
+                  ?.split(" ")
+                  .map((s) => s[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase() ?? "JD"}
               </div>
-              <span className="text-slate-600 text-xs dark:text-slate-300">Account</span>
+              <span className="text-slate-600 text-xs dark:text-slate-300">
+                Account
+              </span>
             </Link>
           </div>
         </nav>
