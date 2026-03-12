@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Header } from "../components/Header";
 import { EmployeeBenefitsSkeleton } from "../components/EmployeeBenefitsSkeleton";
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
@@ -89,6 +89,36 @@ export default function EmployeeBenefitsPage() {
 		[load],
 	);
 
+	const preferredCategoryOrder = [
+		"Wellness",
+		"Health",
+		"Equipment",
+		"Financial",
+		"Career Development",
+		"Flexibility",
+		"Tools",
+		"Workplace",
+		"Performance",
+	];
+
+	const categories = useMemo(() => {
+		const unique = Array.from(
+			new Set(benefits.map((b) => (b.category ?? "").trim()).filter(Boolean)),
+		);
+		return unique.sort((a, b) => {
+			const ai = preferredCategoryOrder.findIndex(
+				(p) => p.toLowerCase() === a.toLowerCase(),
+			);
+			const bi = preferredCategoryOrder.findIndex(
+				(p) => p.toLowerCase() === b.toLowerCase(),
+			);
+			if (ai !== -1 && bi !== -1) return ai - bi;
+			if (ai !== -1) return -1;
+			if (bi !== -1) return 1;
+			return a.localeCompare(b);
+		});
+	}, [benefits]);
+
 	const filteredBenefits =
 		selectedCategory === "ALL"
 			? benefits
@@ -96,20 +126,16 @@ export default function EmployeeBenefitsPage() {
 					(b) => b.category.toLowerCase() === selectedCategory.toLowerCase(),
 				);
 
-	const categoryOrder = [
-		"Wellness",
-		"Equipment",
-		"Financial",
-		"Career Development",
-		"Flexibility",
-	];
-
-	const categoryBuckets = categoryOrder.map((category) => ({
-		category,
-		items: filteredBenefits.filter(
-			(b) => b.category.toLowerCase() === category.toLowerCase(),
-		),
-	}));
+	const categoryBuckets = useMemo(() => {
+		const visibleCategories =
+			selectedCategory === "ALL" ? categories : [selectedCategory];
+		return visibleCategories.map((category) => ({
+			category,
+			items: filteredBenefits
+				.filter((b) => b.category.toLowerCase() === category.toLowerCase())
+				.sort((a, b) => a.name.localeCompare(b.name)),
+		}));
+	}, [categories, filteredBenefits, selectedCategory]);
 
 	return (
 		<div>
@@ -120,7 +146,7 @@ export default function EmployeeBenefitsPage() {
 					) : (
 						<>
 					<div className="flex w-full flex-wrap justify-center gap-3 md:gap-6 mt-1">
-						{(["ALL", ...categoryOrder] as const).map((category) => {
+						{(["ALL", ...categories] as const).map((category) => {
 							const isActive = selectedCategory === category;
 							return (
 								<button
