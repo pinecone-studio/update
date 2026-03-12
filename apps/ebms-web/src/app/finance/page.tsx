@@ -3,7 +3,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ThemeToggle } from "@/app/_components/ThemeToggle";
 
 const statCards = [
 	{
@@ -105,7 +104,6 @@ export default function FinancePage() {
 						Review and approve employee benefits with financial impact
 					</p>
 				</div>
-				<ThemeToggle />
 			</header>
 
 			<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

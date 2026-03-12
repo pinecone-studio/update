@@ -5,10 +5,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Header } from "../components/Header";
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
-import type {
-	BenefitCardProps,
-	BenefitStatus,
-} from "@/app/_components/BenefitCard";
+import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import {
 	fetchMyBenefits,
 	requestBenefit,
@@ -20,9 +17,6 @@ export default function EmployeeBenefitsPage() {
 	const [benefits, setBenefits] = useState<BenefitCardProps[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [selectedStatus, setSelectedStatus] = useState<BenefitStatus | "ALL">(
-		"ALL",
-	);
 	const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
 
 	const load = useCallback(async () => {
@@ -56,15 +50,10 @@ export default function EmployeeBenefitsPage() {
 		[load],
 	);
 
-	const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
-	const filteredByStatus =
-		selectedStatus === "ALL"
-			? benefits
-			: benefits.filter((b) => b.status === selectedStatus);
 	const filteredBenefits =
 		selectedCategory === "ALL"
-			? filteredByStatus
-			: filteredByStatus.filter(
+			? benefits
+			: benefits.filter(
 					(b) => b.category.toLowerCase() === selectedCategory.toLowerCase(),
 				);
 
@@ -87,7 +76,7 @@ export default function EmployeeBenefitsPage() {
 		<div>
 			<div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white w-full min-h-screen">
 				<div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
-					<div className="flex flex-wrap gap-3 md:gap-6 mt-1">
+					<div className="flex w-full flex-wrap justify-center gap-3 md:gap-6 mt-1">
 						{(["ALL", ...categoryOrder] as const).map((category) => {
 							const isActive = selectedCategory === category;
 							return (
@@ -98,30 +87,6 @@ export default function EmployeeBenefitsPage() {
 									className={`${isActive ? "bg-[#1E293B] text-white" : "text-[#94A3B8]"} px-4 py-2 rounded-full text-sm`}
 								>
 									{category === "ALL" ? "All Categories" : category}
-								</button>
-							);
-						})}
-					</div>
-
-					<div className="flex flex-wrap gap-3 md:gap-6 mt-1">
-						{(
-							[
-								{ label: "All", value: "ALL" },
-								{ label: `Active (${activeCount})`, value: "ACTIVE" },
-								{ label: "Eligible", value: "ELIGIBLE" },
-								{ label: "Pending", value: "PENDING" },
-								{ label: "Locked", value: "LOCKED" },
-							] as const
-						).map((tab) => {
-							const isActive = selectedStatus === tab.value;
-							return (
-								<button
-									key={tab.value}
-									type="button"
-									onClick={() => setSelectedStatus(tab.value)}
-									className={`${isActive ? "bg-[#1E293B] text-white" : "text-[#94A3B8]"} px-4 py-2 rounded-full text-sm`}
-								>
-									{tab.label}
 								</button>
 							);
 						})}
