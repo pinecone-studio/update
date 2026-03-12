@@ -52,6 +52,7 @@ export type BenefitEligibility = {
   __typename?: 'BenefitEligibility';
   benefit: Benefit;
   computedAt: Scalars['String']['output'];
+  rejectedReason?: Maybe<Scalars['String']['output']>;
   ruleEvaluations: Array<RuleEvaluation>;
   status: BenefitStatus;
 };
@@ -64,6 +65,7 @@ export type BenefitRequest = {
   employeeId: Scalars['ID']['output'];
   employeeName?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  rejectReason?: Maybe<Scalars['String']['output']>;
   status: RequestStatus;
 };
 
@@ -75,7 +77,8 @@ export type BenefitStatus =
   | 'ACTIVE'
   | 'ELIGIBLE'
   | 'LOCKED'
-  | 'PENDING';
+  | 'PENDING'
+  | 'REJECTED';
 
 export type Contract = {
   __typename?: 'Contract';
@@ -156,6 +159,7 @@ export type MutationCancelBenefitRequestArgs = {
 
 export type MutationConfirmBenefitRequestArgs = {
   contractAccepted: Scalars['Boolean']['input'];
+  rejectReason?: InputMaybe<Scalars['String']['input']>;
   requestId: Scalars['ID']['input'];
 };
 

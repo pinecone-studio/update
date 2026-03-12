@@ -9,6 +9,7 @@ export const typeDefs = /* GraphQL */ `
     ELIGIBLE
     LOCKED
     PENDING
+    REJECTED
   }
 
   enum RequestStatus {
@@ -46,6 +47,7 @@ export const typeDefs = /* GraphQL */ `
     status: BenefitStatus!
     ruleEvaluations: [RuleEvaluation!]!
     computedAt: String!
+    rejectedReason: String
   }
 
   type RuleEvaluation {
@@ -85,6 +87,7 @@ export const typeDefs = /* GraphQL */ `
     createdAt: String!
     employeeName: String
     benefitName: String
+    rejectReason: String
   }
 
   input AuditFilters {
@@ -164,7 +167,7 @@ export const typeDefs = /* GraphQL */ `
   type Mutation {
     # Employee-only:
     requestBenefit(input: BenefitRequestInput!): BenefitRequest!
-    confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!): BenefitRequest!
+    confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!, rejectReason: String): BenefitRequest!
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
     overrideEligibility(input: OverrideInput!): BenefitEligibility!
     updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!

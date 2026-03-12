@@ -13,7 +13,7 @@ export const confirmBenefitRequest: NonNullable<
   const actorId = requireEmployeeId(ctx);
   const role = (ctx.role ?? '').toLowerCase();
   const isHrOrAdmin = role === 'hr' || role === 'admin';
-  const { requestId, contractAccepted } = args;
+  const { requestId, contractAccepted, rejectReason } = args;
   if (!requestId) {
     throw new GraphQLError('requestId is required', { extensions: { code: 'BAD_USER_INPUT' } });
   }
@@ -48,6 +48,7 @@ export const confirmBenefitRequest: NonNullable<
       status: newStatus,
       contractAcceptedAt: contractAccepted ? now : null,
       reviewedBy: isHrOrAdmin ? actorId : null,
+      rejectReason: !contractAccepted && rejectReason ? rejectReason : null,
       updatedAt: now,
     })
     .where(eq(benefitRequests.id, requestId));

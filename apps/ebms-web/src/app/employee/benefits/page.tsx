@@ -14,7 +14,6 @@ import {
 	getEmployeeId,
 } from "../_lib/api";
 import { mapMyBenefitsToCardProps } from "../_lib/mapBenefits";
-import { getApprovedBenefitIdsForEmployee } from "@/app/_lib/localBenefitRequests";
 
 export default function EmployeeBenefitsPage() {
 	const [benefits, setBenefits] = useState<BenefitCardProps[]>([]);
@@ -28,15 +27,7 @@ export default function EmployeeBenefitsPage() {
 		try {
 			const data = await fetchMyBenefits();
 			const mapped = mapMyBenefitsToCardProps(data);
-			const approvedIds = getApprovedBenefitIdsForEmployee(getEmployeeId());
-			const withApproved = mapped.map((b) =>
-				b.status === "PENDING" &&
-				b.benefitId &&
-				approvedIds.includes(b.benefitId)
-					? { ...b, status: "ACTIVE" as const }
-					: b,
-			);
-			setBenefits(withApproved);
+			setBenefits(mapped);
 		} catch (e) {
 			setError(getApiErrorMessage(e));
 			setBenefits([]);
@@ -49,34 +40,20 @@ export default function EmployeeBenefitsPage() {
 		load();
 	}, [load]);
 	useEffect(() => {
-		const applyApproved = () => {
-			setBenefits((prev) => {
-				const approvedIds = getApprovedBenefitIdsForEmployee(getEmployeeId());
-				return prev.map((b) =>
-					b.status === "PENDING" &&
-					b.benefitId &&
-					approvedIds.includes(b.benefitId)
-						? { ...b, status: "ACTIVE" as const }
-						: b,
-				);
-			});
-		};
-		window.addEventListener("storage", applyApproved);
-		window.addEventListener("admin-approved-benefit", applyApproved);
 		const onVisibility = () => {
-			if (document.visibilityState === "visible") applyApproved();
+			if (document.visibilityState === "visible") load();
 		};
 		document.addEventListener("visibilitychange", onVisibility);
-		return () => {
-			window.removeEventListener("storage", applyApproved);
-			window.removeEventListener("admin-approved-benefit", applyApproved);
-			document.removeEventListener("visibilitychange", onVisibility);
-		};
-	}, []);
+		return () => document.removeEventListener("visibilitychange", onVisibility);
+	}, [load]);
 
 	const handleRequestBenefit = useCallback(
 		async (benefit: BenefitCardProps) => {
 			if (!benefit.benefitId) return;
+			const confirmed = window.confirm(
+				`Та "${benefit.name}" benefit-ийг хүсэхдээ итгэлтэй байна уу?`
+			);
+			if (!confirmed) return;
 			try {
 				await requestBenefit(benefit.benefitId, {
 					benefitName: benefit.name,

@@ -41,7 +41,7 @@ export default function RejectedRequestsPage() {
             benefitMap[r.benefitId]?.subsidyPercent != null
               ? `${benefitMap[r.benefitId].subsidyPercent}%`
               : "—",
-          reason: "Rejected by reviewer",
+          reason: r.rejectReason ?? "Rejected by reviewer",
           date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—",
         }));
         if (!cancelled) setRejectedRequests(rows);
