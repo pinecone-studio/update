@@ -104,7 +104,7 @@ export function Header() {
               href={item.href}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 isActive(item.href)
-                  ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
+                  ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-[#2F66E8] dark:hover:bg-[#3E82F7]"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
               }`}
             >

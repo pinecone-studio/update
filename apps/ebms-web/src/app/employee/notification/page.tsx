@@ -1,5 +1,8 @@
 /** @format */
 
+"use client";
+
+import { useEffect, useState } from "react";
 import {
 	HiOutlineBell,
 	HiOutlineMagnifyingGlass,
@@ -8,9 +11,10 @@ import {
 	HiOutlineInformationCircle,
 	HiOutlineArrowUpRight,
 } from "react-icons/hi2";
-import { Header } from "../components/Header";
+import { NotificationSkeleton } from "../components/NotificationSkeleton";
 
 export default function NotificationPage() {
+	const [loading, setLoading] = useState(true);
 	const notifications = [
 		{
 			title: "You’re Now Eligible for Education Allowance!",
@@ -44,9 +48,27 @@ export default function NotificationPage() {
 		},
 	];
 
+	useEffect(() => {
+		const t = setTimeout(() => setLoading(false), 400);
+		return () => clearTimeout(t);
+	}, []);
+
+	if (loading) {
+		return (
+			<div>
+				<div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white w-full min-h-screen">
+					<div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
+						<NotificationSkeleton />
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<div className="min-h-screen bg-[#0B1220]">
-			<div className="w-full h-full bg-[#0F172A] px-6 py-6">
+		<div>
+			<div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white w-full min-h-screen">
+				<div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
 				<div className="flex items-center gap-4">
 					<div className="w-[56px] h-[56px] bg-white rounded-2xl flex items-center justify-center">
 						<HiOutlineBell className="text-3xl text-blue-700" />
@@ -149,6 +171,7 @@ export default function NotificationPage() {
 							</div>
 						);
 					})}
+				</div>
 				</div>
 			</div>
 		</div>

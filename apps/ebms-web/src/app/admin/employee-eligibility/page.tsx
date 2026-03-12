@@ -2,7 +2,8 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { EmployeeEligibilitySkeleton } from "../components/EmployeeEligibilitySkeleton";
 import { createPortal } from "react-dom";
 
 type BenefitRow = {
@@ -82,6 +83,7 @@ const statusClass: Record<BenefitRow["status"], string> = {
 };
 
 export default function EmployeeEligibilityPage() {
+	const [loading, setLoading] = useState(true);
 	const [employeeList, setEmployeeList] =
 		useState<EmployeeRow[]>(initialEmployees);
 	const [search, setSearch] = useState("");
@@ -176,6 +178,15 @@ export default function EmployeeEligibilityPage() {
 		setDraftReasonByKey((prev) => ({ ...prev, [key]: "" }));
 		setExpandedBenefitKey(null);
 	};
+
+	useEffect(() => {
+		const t = setTimeout(() => setLoading(false), 400);
+		return () => clearTimeout(t);
+	}, []);
+
+	if (loading) {
+		return <EmployeeEligibilitySkeleton />;
+	}
 
 	return (
 		<div className="space-y-6">

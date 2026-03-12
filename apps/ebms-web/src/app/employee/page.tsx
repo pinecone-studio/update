@@ -7,6 +7,7 @@ import { FiCheck, FiStar, FiActivity, FiLock, FiMessageCircle } from "react-icon
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import { Header } from "./components/Header";
+import { EmployeeDashboardSkeleton } from "./components/EmployeeDashboardSkeleton";
 import {
 	fetchMe,
 	fetchMyBenefits,
@@ -147,6 +148,7 @@ export default function EmployeeDashboardPage() {
 	const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
 	const eligibleCount = benefits.filter((b) => b.status === "ELIGIBLE").length;
 	const lockedCount = benefits.filter((b) => b.status === "LOCKED").length;
+	const pendingCount = benefits.filter((b) => b.status === "PENDING").length;
 
 	const handleFeedbackSubmit = useCallback(async () => {
 		if (!feedbackMessage.trim()) return;
@@ -176,8 +178,10 @@ export default function EmployeeDashboardPage() {
 					</div>
 
 					{loading ? (
-					<p className="text-slate-600 dark:text-[#94A3B8]">Loading...</p>
-				) : (
+						<EmployeeDashboardSkeleton
+							benefitCount={benefits.length || 4}
+						/>
+					) : (
 					<>
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
 							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
@@ -241,17 +245,17 @@ export default function EmployeeDashboardPage() {
 								<div className="flex justify-between items-start">
 									<div>
 										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">
-											OKR Performance
+											Pending Benefits
 										</p>
 										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
-											{me?.okrSubmitted ? "—" : "—"}
+											{pendingCount}
 										</p>
 										<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
-											{me?.okrSubmitted ? "OKR submitted" : "OKR not submitted"}
+											Awaiting approval
 										</p>
 									</div>
-									<CardIcon className="bg-[#9C27B0]/20">
-										<FiActivity size={24} color="#9C27B0" strokeWidth={2} />
+									<CardIcon className="bg-[#f59e0b]/20">
+										<FiActivity size={24} color="#f59e0b" strokeWidth={2} />
 									</CardIcon>
 								</div>
 							</div>

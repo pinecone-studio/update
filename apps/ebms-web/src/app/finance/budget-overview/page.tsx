@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { FinancePageSkeleton } from "../components/FinancePageSkeleton";
+
 const statCards = [
   {
     title: "Total Budget",
@@ -36,6 +41,17 @@ const monthlySpending = [
 ];
 
 export default function BudgetOverviewPage() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading) {
+    return <FinancePageSkeleton statCardCount={4} tableRowCount={3} />;
+  }
+
   return (
     <div className="space-y-8">
       <header>
