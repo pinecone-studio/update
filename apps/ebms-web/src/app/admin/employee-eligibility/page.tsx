@@ -5,82 +5,102 @@
 import { useEffect, useMemo, useState } from "react";
 import { EmployeeEligibilitySkeleton } from "../components/EmployeeEligibilitySkeleton";
 import { createPortal } from "react-dom";
+import { GraphQLClient, gql } from "graphql-request";
 
-type BenefitRow = {
-	name: string;
-	status: "Active" | "Eligible" | "Locked" | "Pending";
-	history: BenefitHistoryRow[];
+type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
+
+type EmployeeListItem = {
+  id: string;
+  name?: string | null;
+  role?: string | null;
+  employmentStatus?: string | null;
 };
 
-type BenefitHistoryRow = {
-	status: BenefitRow["status"];
-	reason: string;
-	changedAt: string;
-	changedBy: string;
+type EmployeeBenefit = {
+  benefit: { id: string; name: string };
+  status: BenefitStatus;
+  ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
 };
 
-type EmployeeRow = {
-	id: string;
-	name: string;
-	department: string;
-	startDate: string;
-	benefits: BenefitRow[];
+type EmployeeDetail = EmployeeListItem & {
+  benefits: EmployeeBenefit[];
 };
 
-const initialEmployees: EmployeeRow[] = [
-	{
-		id: "EMP-2847",
-		name: "Sarah Johnson",
-		department: "Engineering",
-		startDate: "January 15, 2023",
-		benefits: [
-			{ name: "Health Insurance", status: "Active", history: [] },
-			{ name: "401(k) Match", status: "Eligible", history: [] },
-			{ name: "Stock Options", status: "Locked", history: [] },
-			{ name: "Commuter Benefits", status: "Pending", history: [] },
-		],
-	},
-	{
-		id: "EMP-2914",
-		name: "Mike Chen",
-		department: "Product",
-		startDate: "March 02, 2022",
-		benefits: [
-			{ name: "Health Insurance", status: "Active", history: [] },
-			{ name: "Travel Subsidy", status: "Eligible", history: [] },
-			{ name: "Remote Work", status: "Pending", history: [] },
-		],
-	},
-	{
-		id: "EMP-3001",
-		name: "Emily Rodriguez",
-		department: "Marketing",
-		startDate: "June 11, 2021",
-		benefits: [
-			{ name: "Health Insurance", status: "Active", history: [] },
-			{ name: "Commuter Benefits", status: "Eligible", history: [] },
-			{ name: "Stock Options", status: "Locked", history: [] },
-		],
-	},
-	{
-		id: "EMP-3042",
-		name: "David Lee",
-		department: "Finance",
-		startDate: "October 23, 2020",
-		benefits: [
-			{ name: "Health Insurance", status: "Active", history: [] },
-			{ name: "Down Payment", status: "Eligible", history: [] },
-			{ name: "MacBook Subsidy", status: "Pending", history: [] },
-		],
-	},
-];
+const EMPLOYEES_QUERY = gql`
+  query Employees {
+    employees {
+      id
+      name
+      role
+      employmentStatus
+    }
+  }
+`;
 
-const statusClass: Record<BenefitRow["status"], string> = {
-	Active: "border-[#166534] bg-[#052E25] text-[#34D399]",
-	Eligible: "border-[#1D4ED8] bg-[#122B4C] text-[#60A5FA]",
-	Locked: "border-[#9F1239] bg-[#3A1026] text-[#FB7185]",
-	Pending: "border-[#B45309] bg-[#3B2A12] text-[#FBBF24]",
+const EMPLOYEE_QUERY = gql`
+  query Employee($id: ID!) {
+    employee(id: $id) {
+      id
+      name
+      role
+      employmentStatus
+      benefits {
+        benefit {
+          id
+          name
+        }
+        status
+        ruleEvaluations {
+          ruleType
+          passed
+          reason
+        }
+      }
+    }
+  }
+`;
+
+const OVERRIDE_ELIGIBILITY_MUTATION = gql`
+  mutation OverrideEligibility($input: OverrideInput!) {
+    overrideEligibility(input: $input) {
+      benefit {
+        id
+      }
+      status
+    }
+  }
+`;
+
+const statusClass: Record<BenefitStatus, string> = {
+  ACTIVE: "border-[#166534] bg-[#052E25] text-[#34D399]",
+  ELIGIBLE: "border-[#1D4ED8] bg-[#122B4C] text-[#60A5FA]",
+  LOCKED: "border-[#9F1239] bg-[#3A1026] text-[#FB7185]",
+  PENDING: "border-[#B45309] bg-[#3B2A12] text-[#FBBF24]",
 };
+
+const statusOptions: BenefitStatus[] = ["ACTIVE", "PENDING", "ELIGIBLE", "LOCKED"];
+
+function getClient(): GraphQLClient {
+  const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+  const base = raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
+  const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
+  return new GraphQLClient(url, {
+    headers: {
+      "x-employee-id": "admin",
+      "x-role": "admin",
+    },
+  });
+}
+
+function getErrorMessage(e: unknown): string {
+  if (e && typeof e === "object" && "response" in e) {
+    const res = (e as { response?: { errors?: Array<{ message?: string }> } }).response;
+    const msg = res?.errors?.[0]?.message;
+    if (msg) return msg;
+  }
+  if (e instanceof Error) return e.message;
+  return String(e);
+}
 
 export default function EmployeeEligibilityPage() {
 	const [loading, setLoading] = useState(true);
