@@ -26,6 +26,26 @@ type EmployeeDetail = EmployeeListItem & {
   benefits: EmployeeBenefit[];
 };
 
+type BenefitRow = {
+  name: string;
+  status: BenefitStatus;
+  history: Array<{
+    status: string;
+    reason: string;
+    changedAt: string;
+    changedBy: string;
+  }>;
+};
+
+type EmployeeRow = {
+  id: string;
+  name: string;
+  department: string;
+  benefits: BenefitRow[];
+};
+
+const initialEmployees: EmployeeRow[] = [];
+
 const EMPLOYEES_QUERY = gql`
   query Employees {
     employees {
@@ -166,7 +186,7 @@ export default function EmployeeEligibilityPage() {
 		const reason = (draftReasonByKey[key] ?? "").trim();
 		if (!reason) return;
 
-		const nextStatus = draftStatusByKey[key] ?? "Pending";
+		const nextStatus = draftStatusByKey[key] ?? "PENDING";
 		const changedAt = new Date().toLocaleString();
 		setEmployeeList((prev) =>
 			prev.map((emp) =>
@@ -200,9 +220,51 @@ export default function EmployeeEligibilityPage() {
 	};
 
 	useEffect(() => {
-		const t = setTimeout(() => setLoading(false), 400);
-		return () => clearTimeout(t);
+		const client = getClient();
+		client
+			.request<{ employees: EmployeeListItem[] }>(EMPLOYEES_QUERY)
+			.then((data) => {
+				const rows: EmployeeRow[] = (data.employees ?? []).map((e) => ({
+					id: e.id ?? "",
+					name: e.name ?? "Unknown",
+					department: e.role ?? e.employmentStatus ?? "—",
+					benefits: [],
+				}));
+				setEmployeeList(rows);
+			})
+			.catch(() => {
+				setEmployeeList([]);
+			})
+			.finally(() => setLoading(false));
 	}, []);
+
+	useEffect(() => {
+		if (!selectedId) return;
+		const client = getClient();
+		client
+			.request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, {
+				id: selectedId,
+			})
+			.then((data) => {
+				const emp = data.employee;
+				if (!emp) return;
+				setEmployeeList((prev) =>
+					prev.map((e) =>
+						e.id !== selectedId
+							? e
+							: {
+									...e,
+									benefits: (emp.benefits ?? []).map((b) => ({
+										name: b.benefit?.name ?? "Unknown",
+										status: b.status,
+										history: [],
+									})),
+								},
+					),
+				);
+			})
+			.catch(() => {});
+	}, [selectedId]);
 
 	if (loading) {
 		return <EmployeeEligibilitySkeleton />;
@@ -320,12 +382,7 @@ export default function EmployeeEligibilityPage() {
 									const draftReason = draftReasonByKey[key] ?? "";
 									const canSave = draftReason.trim().length > 0;
 									const lastReason = savedReasonByKey[key];
-									const statusOptions: BenefitRow["status"][] = [
-										"Active",
-										"Pending",
-										"Eligible",
-										"Locked",
-									];
+									const modalStatusOptions: BenefitStatus[] = statusOptions;
 
 									return (
 										<article
@@ -373,7 +430,7 @@ export default function EmployeeEligibilityPage() {
 														Status сонголт
 													</p>
 													<div className="mt-3 flex flex-wrap gap-2">
-														{statusOptions.map((option) => (
+														{modalStatusOptions.map((option) => (
 															<button
 																key={option}
 																type="button"
