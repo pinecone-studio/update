@@ -8,17 +8,17 @@ export function AdminDashboardSkeleton() {
 	return (
 		<>
 			{/* Header skeleton */}
-			<div className="mb-10">
+			<div className="mb-8 sm:mb-10">
 				<Skeleton className="h-9 w-48" />
 				<Skeleton className="h-5 w-80 mt-3" />
 			</div>
 
 			{/* Stat cards skeleton */}
-			<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+			<div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
 				{[1, 2].map((i) => (
 					<article
 						key={i}
-						className="flex items-start justify-between rounded-3xl border border-slate-200 bg-white px-8 py-7 dark:border-[#2C4264] dark:bg-[#1E293B]"
+						className="min-w-0 flex items-start justify-between rounded-2xl sm:rounded-3xl border border-slate-200 bg-white px-4 py-5 sm:px-8 sm:py-7 dark:border-[#2C4264] dark:bg-[#1E293B]"
 					>
 						<div>
 							<Skeleton className="h-4 w-28" />
@@ -30,8 +30,8 @@ export function AdminDashboardSkeleton() {
 			</div>
 
 			{/* Employee Benefit Requests section skeleton */}
-			<article className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
-				<div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+			<article className="mt-6 sm:mt-8 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
+				<div className="mb-4 sm:mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
 					<Skeleton className="h-6 w-52" />
 					<div className="flex gap-2">
 						{[1, 2, 3, 4].map((i) => (

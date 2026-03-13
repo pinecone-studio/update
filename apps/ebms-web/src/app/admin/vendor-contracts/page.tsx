@@ -86,8 +86,8 @@ export default function VendorContractsPage() {
         </p>
       )}
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <article className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
             <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Active Contracts</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#19D463]" />
@@ -97,7 +97,7 @@ export default function VendorContractsPage() {
           </p>
         </article>
 
-        <article className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
             <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Expiring Soon</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#FFB21C]" />
@@ -107,7 +107,7 @@ export default function VendorContractsPage() {
           </p>
         </article>
 
-        <article className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
             <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Pending Renewal</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#3E82F7]" />
@@ -117,7 +117,7 @@ export default function VendorContractsPage() {
           </p>
         </article>
 
-        <article className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
             <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Total Contract Value</p>
           </div>

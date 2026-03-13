@@ -8,7 +8,7 @@ export function FinanceDashboardSkeleton() {
 	return (
 		<div className="space-y-6">
 			{/* Header skeleton */}
-			<header className="flex items-start justify-between gap-4">
+			<header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 				<div>
 					<Skeleton className="h-8 w-56" />
 					<Skeleton className="h-5 w-80 mt-2" />
@@ -16,11 +16,11 @@ export function FinanceDashboardSkeleton() {
 			</header>
 
 			{/* Stat cards skeleton - 4 cards */}
-			<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+			<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				{[1, 2, 3, 4].map((i) => (
 					<div
 						key={i}
-						className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]"
+						className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B]"
 					>
 						<div className="mb-6 flex items-start justify-between">
 							<Skeleton className="h-14 w-14 rounded-2xl flex-shrink-0" />
@@ -36,7 +36,7 @@ export function FinanceDashboardSkeleton() {
 
 			{/* Financial Benefit Requests table skeleton */}
 			<section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#1E293B]">
-				<div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-[#2B405F]">
+				<div className="flex flex-col gap-2 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 dark:border-[#2B405F]">
 					<div>
 						<Skeleton className="h-5 w-48" />
 						<Skeleton className="h-4 w-64 mt-1" />

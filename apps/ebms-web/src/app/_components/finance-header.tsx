@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
+  HiBars3,
   HiOutlineArrowRightOnRectangle,
   HiOutlineBell,
   HiOutlineChartPie,
@@ -54,10 +55,12 @@ export function FinanceHeader() {
   const financeName = "Finance Manager";
   const financeId = "fin-1";
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const mobileNotificationRef = useRef<HTMLDivElement>(null);
   const normalizedPath =
     pathname.endsWith("/") && pathname.length > 1
       ? pathname.slice(0, -1)
@@ -69,16 +72,12 @@ export function FinanceHeader() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(e.target as Node)
-      ) {
-        setNotificationOpen(false);
-      }
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(e.target as Node)
-      ) {
+      const target = e.target as Node;
+      const inNotification =
+        notificationRef.current?.contains(target) ||
+        mobileNotificationRef.current?.contains(target);
+      if (!inNotification) setNotificationOpen(false);
+      if (profileRef.current && !profileRef.current.contains(target)) {
         setProfileOpen(false);
       }
     };
@@ -91,21 +90,20 @@ export function FinanceHeader() {
       <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
         <Link
           href="/finance"
-          className="flex min-w-[220px] items-center gap-3 transition-opacity hover:opacity-90"
+          className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 transition-opacity hover:opacity-90"
         >
-          <img src="/logo.png" alt="EBMS Logo" className="h-14 w-auto" />
-          <div className="leading-tight">
-            <p className="text-5 font-semibold text-slate-900 dark:text-white">
-              {" "}
+          <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto sm:h-14" />
+          <div className="leading-tight min-w-0">
+            <p className="text-5 font-semibold text-slate-900 dark:text-white truncate">
               UPDATE
             </p>
-            <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">
+            <p className="text-xs text-slate-600 dark:text-[#A7B6D3] truncate">
               Finance Panel
             </p>
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-2 xl:flex">
+        <nav className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -122,9 +120,17 @@ export function FinanceHeader() {
           ))}
         </nav>
 
-        <div className="flex min-w-[220px] items-center justify-end gap-3">
+        <div className="flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
+            aria-label="Toggle navigation"
+          >
+            <HiBars3 className="h-5 w-5" />
+          </button>
           <ThemeToggle />
-          <div className="relative" ref={notificationRef}>
+          <div className="relative hidden md:block" ref={notificationRef}>
             <button
               type="button"
               onClick={() => {
@@ -149,7 +155,7 @@ export function FinanceHeader() {
             )}
           </div>
 
-          <div className="relative" ref={profileRef}>
+          <div className="relative hidden md:block" ref={profileRef}>
             <button
               type="button"
               onClick={() => {
@@ -199,6 +205,69 @@ export function FinanceHeader() {
             )}
           </div>
         </div>
+      </div>
+
+      <div
+        className={`md:hidden absolute left-0 top-16 w-full bg-white border-t border-slate-200 dark:bg-[#1E293B] dark:border-[#24395C] ${
+          menuOpen ? "block" : "hidden"
+        }`}
+      >
+        <nav className="flex flex-col gap-1 p-3 text-slate-600 dark:text-[#D1DBEF] text-sm">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setMenuOpen(false)}
+              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 transition ${
+                isActive(item.href)
+                  ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
+                  : "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
+              }`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          ))}
+          <div className="h-px bg-slate-200 dark:bg-[#24395C] my-2" />
+          <div className="flex flex-col gap-2" ref={mobileNotificationRef}>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationOpen(!notificationOpen);
+                  setProfileOpen(false);
+                }}
+                className="relative h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                aria-label="Notifications"
+              >
+                <HiOutlineBell className="text-sm" />
+                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
+              </button>
+              <Link
+                href="/finance/profile"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2"
+              >
+                <div className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center">
+                  FM
+                </div>
+                <span className="text-slate-600 text-xs dark:text-slate-300">
+                  Account
+                </span>
+              </Link>
+            </div>
+            {notificationOpen && (
+              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-[#24395C] dark:bg-[#0F172A]">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                  Notifications
+                </p>
+                <p className="mt-2 text-xs text-slate-600 dark:text-[#A7B6D3]">
+                  No new finance notifications.
+                </p>
+              </div>
+            )}
+          </div>
+        </nav>
       </div>
     </header>
   );
