@@ -103,7 +103,7 @@ export default function EmployeeDashboardPage() {
     async (benefit: BenefitCardProps) => {
       if (!benefit.benefitId) return;
       const confirmed = window.confirm(
-        `Та "${benefit.name}" benefit-ийг хүсэхдээ итгэлтэй байна уу?`
+        `Та "${benefit.name}" benefit-ийг хүсэхдээ итгэлтэй байна уу?`,
       );
       if (!confirmed) return;
       try {
@@ -128,10 +128,10 @@ export default function EmployeeDashboardPage() {
     [load, me?.name],
   );
 
-	const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
-	const eligibleCount = benefits.filter((b) => b.status === "ELIGIBLE").length;
-	const lockedCount = benefits.filter((b) => b.status === "LOCKED").length;
-	const pendingCount = benefits.filter((b) => b.status === "PENDING").length;
+  const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
+  const eligibleCount = benefits.filter((b) => b.status === "ELIGIBLE").length;
+  const lockedCount = benefits.filter((b) => b.status === "LOCKED").length;
+  const pendingCount = benefits.filter((b) => b.status === "PENDING").length;
 
   const handleFeedbackSubmit = useCallback(async () => {
     if (!feedbackMessage.trim()) return;
@@ -151,7 +151,7 @@ export default function EmployeeDashboardPage() {
       <div className="min-h-screen w-full bg-slate-50 p-8 dark:bg-[#0f172a] flex flex-col items-center">
         <div className="flex flex-col w-full max-w-[1500px]">
           <div className="flex flex-col mb-8">
-            <h1 className="text-[32px] font-bold text-slate-900 leading-tight dark:text-white">
+            <h1 className="text-[24px] font-bold text-slate-900 leading-tight dark:text-white">
               Welcome back, {me?.name ?? "..."}!
             </h1>
             <p className="text-base text-slate-600 mt-1 dark:text-[#AAAAAA]">
@@ -162,89 +162,144 @@ export default function EmployeeDashboardPage() {
             )}
           </div>
 
-					{loading ? (
-						<EmployeeDashboardSkeleton
-							benefitCount={benefits.length || 4}
-						/>
-					) : (
-					<>
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
-								<div className="flex justify-between items-start">
-									<div>
-										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">
-											Active Benefits
-										</p>
-										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
-											{activeCount}
-										</p>
-										<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
-											Currently enrolled
-										</p>
-									</div>
-									<CardIcon className="bg-[#4CAF50]/20">
-										<FiCheck size={24} color="#4CAF50" strokeWidth={2.5} />
-									</CardIcon>
-								</div>
-							</div>
-
-                <div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm text-slate-600 dark:text-[#99A1AF]">
-                        Eligible Benefits
-                      </p>
-                      <p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
-                        {eligibleCount}
-                      </p>
-                      <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
-                        Ready to request
-                      </p>
+          {loading ? (
+            <EmployeeDashboardSkeleton benefitCount={benefits.length || 4} />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:col-span-7">
+                  <div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm text-slate-600 dark:text-[#99A1AF]">
+                          Active Benefits
+                        </p>
+                        <p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
+                          {activeCount}
+                        </p>
+                        <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
+                          Currently enrolled
+                        </p>
+                      </div>
+                      <CardIcon className="bg-[#4CAF50]/20">
+                        <FiCheck size={24} color="#4CAF50" strokeWidth={2.5} />
+                      </CardIcon>
                     </div>
-                    <CardIcon className="bg-[#2196F3]/20">
-                      <FiStar size={24} color="#2196F3" strokeWidth={2} />
-                    </CardIcon>
+                  </div>
+
+                  <div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm text-slate-600 dark:text-[#99A1AF]">
+                          Eligible Benefits
+                        </p>
+                        <p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
+                          {eligibleCount}
+                        </p>
+                        <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
+                          Ready to request
+                        </p>
+                      </div>
+                      <CardIcon className="bg-[#2196F3]/20">
+                        <FiStar size={24} color="#2196F3" strokeWidth={2} />
+                      </CardIcon>
+                    </div>
+                  </div>
+
+                  <div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm text-slate-600 dark:text-[#99A1AF]">
+                          Pending Benefits
+                        </p>
+                        <p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
+                          {pendingCount}
+                        </p>
+                        <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
+                          Awaiting approval
+                        </p>
+                      </div>
+                      <CardIcon className="bg-[#f59e0b]/20">
+                        <FiActivity size={24} color="#f59e0b" strokeWidth={2} />
+                      </CardIcon>
+                    </div>
+                  </div>
+
+                  <div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm text-slate-600 dark:text-[#99A1AF]">
+                          Locked Benefits
+                        </p>
+                        <p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
+                          {lockedCount}
+                        </p>
+                        <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
+                          Requirements not met
+                        </p>
+                      </div>
+                      <CardIcon className="bg-[#dc2626]/20">
+                        <FiLock size={24} color="#dc2626" strokeWidth={2} />
+                      </CardIcon>
+                    </div>
                   </div>
                 </div>
 
-                <div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm text-slate-600 dark:text-[#99A1AF]">
-                        Locked Benefits
-                      </p>
-                      <p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
-                        {lockedCount}
+                <div className="rounded-[10px] bg-white border border-slate-200 p-6 dark:bg-[#334155] dark:border-transparent lg:col-span-5 min-h-[420px]">
+                  <div className="mb-4">
+                    <h2 className="text-xl text-slate-900 font-semibold dark:text-white">
+                      Feedback
+                    </h2>
+                    <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
+                      Share your thoughts to help us improve the benefits experience
+                    </p>
+                  </div>
+                  {feedbackSubmitted ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <CardIcon className="bg-[#4CAF50]/20 mb-4">
+                        <FiCheck size={24} color="#4CAF50" strokeWidth={2.5} />
+                      </CardIcon>
+                      <p className="text-slate-900 font-medium dark:text-white">
+                        Thank you for your feedback!
                       </p>
                       <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
-                        Requirements not met
+                        We appreciate you taking the time to share your thoughts.
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => setFeedbackSubmitted(false)}
+                        className="mt-4 text-sm text-slate-600 hover:text-slate-900 dark:text-[#99A1AF] dark:hover:text-white underline"
+                      >
+                        Submit another feedback
+                      </button>
                     </div>
-                    <CardIcon className="bg-[#dc2626]/20">
-                      <FiLock size={24} color="#dc2626" strokeWidth={2} />
-                    </CardIcon>
-                  </div>
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-[#E2E8F0] mb-2">
+                          Your feedback
+                        </label>
+                        <textarea
+                          value={feedbackMessage}
+                          onChange={(e) => setFeedbackMessage(e.target.value)}
+                          placeholder="Tell us what we can improve..."
+                          rows={8}
+                          className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-[#2196F3] focus:outline-none focus:ring-1 focus:ring-[#2196F3] dark:border-slate-600 dark:bg-[#1E293B] dark:text-white dark:placeholder:text-slate-500"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleFeedbackSubmit}
+                        disabled={!feedbackMessage.trim() || feedbackSubmitting}
+                        className="w-fit px-5 py-2.5 rounded-lg bg-[#2196F3] text-white font-medium hover:bg-[#1976D2] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      >
+                        <FiMessageCircle size={18} />
+                        {feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
+                      </button>
+                    </div>
+                  )}
                 </div>
-
-							<div className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent">
-								<div className="flex justify-between items-start">
-									<div>
-										<p className="text-sm text-slate-600 dark:text-[#99A1AF]">
-											Pending Benefits
-										</p>
-										<p className="text-[48px] font-bold text-slate-900 leading-none mt-1 dark:text-white">
-											{pendingCount}
-										</p>
-										<p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
-											Awaiting approval
-										</p>
-									</div>
-									<CardIcon className="bg-[#f59e0b]/20">
-										<FiActivity size={24} color="#f59e0b" strokeWidth={2} />
-									</CardIcon>
-								</div>
-							</div>
-						</div>
+              </div>
 
               <div className="mt-8 mb-6">
                 <h2 className="text-xl text-slate-900 font-semibold dark:text-white">
@@ -256,62 +311,6 @@ export default function EmployeeDashboardPage() {
                 benefits={benefits.filter((b) => b.status === "ACTIVE")}
                 onRequestBenefit={handleRequestBenefit}
               />
-
-              <div className="mt-10 mb-6">
-                <h2 className="text-xl text-slate-900 font-semibold dark:text-white">
-                  Feedback
-                </h2>
-                <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
-                  Share your thoughts to help us improve the benefits experience
-                </p>
-              </div>
-
-              <div className="rounded-[10px] bg-white border border-slate-200 p-6 dark:bg-[#334155] dark:border-transparent">
-                {feedbackSubmitted ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <CardIcon className="bg-[#4CAF50]/20 mb-4">
-                      <FiCheck size={24} color="#4CAF50" strokeWidth={2.5} />
-                    </CardIcon>
-                    <p className="text-slate-900 font-medium dark:text-white">
-                      Thank you for your feedback!
-                    </p>
-                    <p className="text-sm text-slate-600 mt-1 dark:text-[#99A1AF]">
-                      We appreciate you taking the time to share your thoughts.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setFeedbackSubmitted(false)}
-                      className="mt-4 text-sm text-slate-600 hover:text-slate-900 dark:text-[#99A1AF] dark:hover:text-white underline"
-                    >
-                      Submit another feedback
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-[#E2E8F0] mb-2">
-                        Your feedback (required)
-                      </label>
-                      <textarea
-                        value={feedbackMessage}
-                        onChange={(e) => setFeedbackMessage(e.target.value)}
-                        placeholder="Tell us what we can improve..."
-                        rows={4}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-[#2196F3] focus:outline-none focus:ring-1 focus:ring-[#2196F3] dark:border-slate-600 dark:bg-[#1E293B] dark:text-white dark:placeholder:text-slate-500"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleFeedbackSubmit}
-                      disabled={!feedbackMessage.trim() || feedbackSubmitting}
-                      className="w-fit px-5 py-2.5 rounded-lg bg-[#2196F3] text-white font-medium hover:bg-[#1976D2] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                    >
-                      <FiMessageCircle size={18} />
-                      {feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
-                    </button>
-                  </div>
-                )}
-              </div>
             </>
           )}
         </div>

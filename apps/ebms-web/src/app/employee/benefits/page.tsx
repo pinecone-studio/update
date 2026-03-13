@@ -103,6 +103,28 @@ export default function EmployeeBenefitsPage() {
 					(b) => b.category.toLowerCase() === selectedCategory.toLowerCase(),
 				);
 
+	const statusOrder: Record<BenefitCardProps["status"], number> = {
+		ACTIVE: 0,
+		ELIGIBLE: 1,
+		PENDING: 2,
+		LOCKED: 3,
+		REJECTED: 4,
+	};
+
+	const allBenefitsOrdered = useMemo(
+		() =>
+			benefits
+				.slice()
+				.sort((a, b) => {
+					const byStatus = statusOrder[a.status] - statusOrder[b.status];
+					if (byStatus !== 0) return byStatus;
+					const byCategory = a.category.localeCompare(b.category);
+					if (byCategory !== 0) return byCategory;
+					return a.name.localeCompare(b.name);
+				}),
+		[benefits],
+	);
+
 	const categoryBuckets = useMemo(() => {
 		const visibleCategories =
 			selectedCategory === "ALL" ? categories : [selectedCategory];
@@ -110,7 +132,11 @@ export default function EmployeeBenefitsPage() {
 			category,
 			items: filteredBenefits
 				.filter((b) => b.category.toLowerCase() === category.toLowerCase())
-				.sort((a, b) => a.name.localeCompare(b.name)),
+				.sort((a, b) => {
+					const byStatus = statusOrder[a.status] - statusOrder[b.status];
+					if (byStatus !== 0) return byStatus;
+					return a.name.localeCompare(b.name);
+				}),
 		}));
 	}, [categories, filteredBenefits, selectedCategory]);
 
@@ -141,21 +167,28 @@ export default function EmployeeBenefitsPage() {
 					{error && <p className="text-sm text-red-400">Error: {error}</p>}
 
 							<div className="w-full max-w-[1500px] flex flex-col gap-8">
-								{categoryBuckets.map((bucket) =>
-									bucket.items.length === 0 ? null : (
-										<section
-											key={bucket.category}
-											className="flex flex-col gap-3"
-										>
-											<h2 className="text-sm uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
-												{bucket.category}
-											</h2>
-											<BenefitPortfolio
-												benefits={bucket.items}
-												onRequestBenefit={handleRequestBenefit}
-											/>
-										</section>
-									),
+								{selectedCategory === "ALL" ? (
+									<BenefitPortfolio
+										benefits={allBenefitsOrdered}
+										onRequestBenefit={handleRequestBenefit}
+									/>
+								) : (
+									categoryBuckets.map((bucket) =>
+										bucket.items.length === 0 ? null : (
+											<section
+												key={bucket.category}
+												className="flex flex-col gap-3"
+											>
+												<h2 className="text-sm uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
+													{bucket.category}
+												</h2>
+												<BenefitPortfolio
+													benefits={bucket.items}
+													onRequestBenefit={handleRequestBenefit}
+												/>
+											</section>
+										),
+									)
 								)}
 							</div>
 						</>

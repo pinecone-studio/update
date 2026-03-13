@@ -103,6 +103,10 @@ export default function AddBenefitsBuilderClient() {
       category: target.category,
       subsidyPercent: target.subsidyPercent,
       requiresContract: target.requiresContract,
+      contractNumber: "",
+      contractName: "",
+      contractFileName: "",
+      contractUrl: "",
     });
   }, [benefitIdFromQuery, catalogBenefits]);
 
@@ -124,6 +128,20 @@ export default function AddBenefitsBuilderClient() {
     if (subsidy < 0 || subsidy > 100) {
       setError1(ERROR_MESSAGES.SUBSIDY_RANGE);
       return;
+    }
+    if (form.requiresContract) {
+      if (!form.contractNumber.trim()) {
+        setError1(ERROR_MESSAGES.CONTRACT_NUMBER_REQUIRED);
+        return;
+      }
+      if (!form.contractName.trim()) {
+        setError1(ERROR_MESSAGES.CONTRACT_NAME_REQUIRED);
+        return;
+      }
+      if (!form.contractUrl.trim()) {
+        setError1(ERROR_MESSAGES.CONTRACT_FILE_REQUIRED);
+        return;
+      }
     }
 
     if (isEditMode && benefitIdFromQuery) return;
@@ -248,6 +266,20 @@ export default function AddBenefitsBuilderClient() {
         if (subsidy < 0 || subsidy > 100) {
           setError2(ERROR_MESSAGES.SUBSIDY_RANGE);
           return;
+        }
+        if (form.requiresContract) {
+          if (!form.contractNumber.trim()) {
+            setError2(ERROR_MESSAGES.CONTRACT_NUMBER_REQUIRED);
+            return;
+          }
+          if (!form.contractName.trim()) {
+            setError2(ERROR_MESSAGES.CONTRACT_NAME_REQUIRED);
+            return;
+          }
+          if (!form.contractUrl.trim()) {
+            setError2(ERROR_MESSAGES.CONTRACT_FILE_REQUIRED);
+            return;
+          }
         }
 
         await updateBenefitInCatalog(getClient(), {
