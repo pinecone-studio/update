@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
 import { Header } from "@/app/_components/header";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: 'EBMS — Admin Dashboard',
+	description: 'Pinequest S3 Ep1 — Employee Benefits Management System',
+  };
+  
 
 export default function HrAdminLayout({ children }: { children: ReactNode }) {
   return (
