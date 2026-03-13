@@ -141,8 +141,16 @@ export const Header = () => {
             href="/employee"
             className="flex items-center gap-2 text-slate-900 dark:text-white hover:opacity-90 transition-opacity"
           >
-            <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto" />
-            <span className="text-lg font-semibold tracking-wide">EBMS</span>
+            <img src="/logo.png" alt="EBMS Logo" className="h-14 w-auto" />
+            <div className="leading-tight">
+              <p className="text-5 font-semibold text-slate-900 dark:text-white">
+                {" "}
+                UPDATE
+              </p>
+              <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">
+                Employee Panel
+              </p>
+            </div>
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-4 text-slate-600 dark:text-slate-300 text-xs ml-6">

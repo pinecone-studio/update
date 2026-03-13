@@ -144,12 +144,12 @@ export function Header() {
       <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
         <Link
           href="/admin"
-          className="flex min-w-[220px] items-center gap-3 hover:opacity-90 transition-opacity"
+          className="flex min-w-[220px] items-center gap-2 hover:opacity-90 transition-opacity"
         >
-          <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto" />
+          <img src="/logo.png" alt="EBMS Logo" className="h-14 w-auto" />
           <div className="leading-tight">
-            <p className="text-lg font-semibold text-slate-900 dark:text-white">
-              EBMS
+            <p className="text-5 font-semibold text-slate-900 dark:text-white">
+              UPDATE
             </p>
             <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">
               Admin Panel
@@ -203,7 +203,9 @@ export function Header() {
                 <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-2">
                     <HiOutlineBell className="text-base text-slate-600 dark:text-[#D1DBEF]" />
-                    <span className="font-semibold text-slate-900 dark:text-white">Notifications</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">
+                      Notifications
+                    </span>
                     {unreadCount > 0 && (
                       <span className="rounded-full bg-red-500/80 px-2 py-0.5 text-xs font-medium text-white">
                         {unreadCount} new
@@ -242,7 +244,9 @@ export function Header() {
                         key={n.id}
                         className="flex gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 transition hover:border-slate-300 dark:border-[#24395C] dark:bg-[#1f2a40] dark:hover:border-slate-600"
                       >
-                        <div className={`grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg ${iconClass}`}>
+                        <div
+                          className={`grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg ${iconClass}`}
+                        >
                           {n.tone === "success" ? (
                             <HiOutlineCheckCircle className="text-lg" />
                           ) : n.tone === "info" ? (
@@ -252,8 +256,12 @@ export function Header() {
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">{n.title}</p>
-                          <p className="mt-0.5 line-clamp-2 text-xs text-slate-600 dark:text-slate-400">{n.body}</p>
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                            {n.title}
+                          </p>
+                          <p className="mt-0.5 line-clamp-2 text-xs text-slate-600 dark:text-slate-400">
+                            {n.body}
+                          </p>
                           <Link
                             href="/admin/admin-notification"
                             className="mt-2 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -262,9 +270,13 @@ export function Header() {
                             View Details
                             <HiOutlineArrowTopRightOnSquare className="text-xs" />
                           </Link>
-                          <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">{n.time}</p>
+                          <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">
+                            {n.time}
+                          </p>
                         </div>
-                        {n.unread && <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />}
+                        {n.unread && (
+                          <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+                        )}
                       </div>
                     );
                   })}

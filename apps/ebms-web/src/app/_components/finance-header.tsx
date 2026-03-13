@@ -23,7 +23,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/finance", icon: <HiOutlineChartPie className="h-4 w-4" /> },
+  {
+    label: "Dashboard",
+    href: "/finance",
+    icon: <HiOutlineChartPie className="h-4 w-4" />,
+  },
   {
     label: "Rejected Requests",
     href: "/finance/rejected-requests",
@@ -65,10 +69,16 @@ export function FinanceHeader() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (notificationRef.current && !notificationRef.current.contains(e.target as Node)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(e.target as Node)
+      ) {
         setNotificationOpen(false);
       }
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
         setProfileOpen(false);
       }
     };
@@ -83,10 +93,15 @@ export function FinanceHeader() {
           href="/finance"
           className="flex min-w-[220px] items-center gap-3 transition-opacity hover:opacity-90"
         >
-          <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto" />
+          <img src="/logo.png" alt="EBMS Logo" className="h-14 w-auto" />
           <div className="leading-tight">
-            <p className="text-lg font-semibold text-slate-900 dark:text-white">EBMS</p>
-            <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">Finance Panel</p>
+            <p className="text-5 font-semibold text-slate-900 dark:text-white">
+              {" "}
+              UPDATE
+            </p>
+            <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">
+              Finance Panel
+            </p>
           </div>
         </Link>
 
@@ -124,7 +139,9 @@ export function FinanceHeader() {
             </button>
             {notificationOpen && (
               <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-[#24395C] dark:bg-[#1E293B]">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">Notifications</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                  Notifications
+                </p>
                 <p className="mt-2 text-xs text-slate-600 dark:text-[#A7B6D3]">
                   No new finance notifications.
                 </p>
@@ -152,27 +169,31 @@ export function FinanceHeader() {
                       FM
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-slate-900 dark:text-white">{financeName}</p>
-                      <p className="mt-1 text-4 text-slate-500 dark:text-[#A7B6D3]">{financeId}</p>
+                      <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                        {financeName}
+                      </p>
+                      <p className="mt-1 text-4 text-slate-500 dark:text-[#A7B6D3]">
+                        {financeId}
+                      </p>
                     </div>
                   </div>
                 </div>
                 <div className="p-2">
-                <Link
-                  href="/finance/profile"
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
-                >
-                  <HiOutlineUserCircle className="h-4 w-4" />
-                  Profile
-                </Link>
-                <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-500/10"
-                >
-                  <HiOutlineArrowRightOnRectangle className="h-4 w-4" />
-                  Sign out
-                </button>
+                  <Link
+                    href="/finance/profile"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+                  >
+                    <HiOutlineUserCircle className="h-4 w-4" />
+                    Profile
+                  </Link>
+                  <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-500/10"
+                  >
+                    <HiOutlineArrowRightOnRectangle className="h-4 w-4" />
+                    Sign out
+                  </button>
                 </div>
               </div>
             )}
