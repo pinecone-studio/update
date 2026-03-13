@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 type Contract = {
   vendor: string;
   benefit: string;
@@ -36,7 +38,50 @@ const contracts: Contract[] = [
   },
 ];
 
+function getApiBaseUrl(): string {
+  const env = process.env.NEXT_PUBLIC_API_URL || "";
+  const base = env.replace(/\/graphql\/?$/, "").trim();
+  return base || "http://localhost:8787";
+}
+
 export default function VendorContractsPage() {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+
+  async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setUploading(true);
+    setUploadError(null);
+    setUploadMessage(null);
+
+    const formEl = e.currentTarget;
+    const formData = new FormData(formEl);
+
+    try {
+      const base = getApiBaseUrl();
+      const res = await fetch(`${base}/admin/contracts/upload`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const msg =
+          (data && typeof data === "object" && "error" in data && (data as any).error) ||
+          res.statusText ||
+          "Upload failed";
+        setUploadError(String(msg));
+        return;
+      }
+      setUploadMessage("Contract uploaded successfully.");
+      formEl.reset();
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -79,6 +124,88 @@ export default function VendorContractsPage() {
           </div>
           <p className="text-5 font-semibold text-white">$3.19M/yr</p>
         </article>
+      </section>
+
+      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
+        <h2 className="text-5 font-semibold text-white mb-4">
+          Upload Vendor Contract PDF
+        </h2>
+        {uploadError && (
+          <p className="mb-3 rounded-xl border border-[#7F1D1D] bg-[#2F1212] p-3 text-[#FCA5A5] text-5">
+            {uploadError}
+          </p>
+        )}
+        {uploadMessage && (
+          <p className="mb-3 rounded-xl border border-[#166534] bg-[#052E25] p-3 text-[#BBF7D0] text-5">
+            {uploadMessage}
+          </p>
+        )}
+        <form
+          onSubmit={handleUpload}
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+        >
+          <div className="flex flex-col gap-1">
+            <label className="text-5 text-[#A7B6D3]">Benefit ID</label>
+            <input
+              name="benefitId"
+              required
+              placeholder="gym_pinefit"
+              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-5 text-[#A7B6D3]">Version</label>
+            <input
+              name="version"
+              required
+              placeholder="2025.1"
+              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-5 text-[#A7B6D3]">Vendor Name (optional)</label>
+            <input
+              name="vendorName"
+              placeholder="PineFit"
+              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-5 text-[#A7B6D3]">Effective Date (optional)</label>
+            <input
+              name="effectiveDate"
+              type="date"
+              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-5 text-[#A7B6D3]">Expiry Date (optional)</label>
+            <input
+              name="expiryDate"
+              type="date"
+              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-5 text-[#A7B6D3]">Contract PDF</label>
+            <input
+              name="file"
+              type="file"
+              accept="application/pdf"
+              required
+              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-2 text-5 text-white file:mr-3 file:rounded-lg file:border-none file:bg-[#334160] file:px-3 file:py-1.5 file:text-5 file:text-[#D4DEEF] hover:file:bg-[#3A4A6C]"
+            />
+          </div>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              disabled={uploading}
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2F66E8] px-5 text-5 font-medium text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {uploading ? "Uploading..." : "Upload Contract"}
+            </button>
+          </div>
+        </form>
       </section>
 
       <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
