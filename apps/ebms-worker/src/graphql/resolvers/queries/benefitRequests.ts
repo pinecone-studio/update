@@ -33,6 +33,7 @@ export const benefitRequests: NonNullable<
       benefitId: benefitRequestsTable.benefitId,
       status: benefitRequestsTable.status,
       createdAt: benefitRequestsTable.createdAt,
+      rejectReason: benefitRequestsTable.rejectReason,
       employeeName: employees.name,
       benefitName: benefits.name,
     })
@@ -58,5 +59,6 @@ export const benefitRequests: NonNullable<
     createdAt: r.createdAt ?? '',
     employeeName: r.employeeName ?? null,
     benefitName: r.benefitName ?? null,
+    rejectReason: r.rejectReason ?? null,
   }));
 };

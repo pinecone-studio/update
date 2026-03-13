@@ -7,7 +7,7 @@
 import type { Env } from '../../types';
 import { getDb } from '../../db/drizzle';
 import { benefits as benefitsTable, benefitEligibility, benefitRequests } from '../../db/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { asBool01, mapBenefitStatus, safeJsonParse } from './utils';
 import {
   getActiveEligibilityConfig,
@@ -26,9 +26,10 @@ export type BenefitEligibilityRow = {
     vendorName: string | null;
     activeContractId: string | null;
   };
-  status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING';
+  status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED';
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
   computedAt: string;
+  rejectedReason?: string | null;
 };
 
 export async function getBenefitEligibilityForEmployee(
@@ -38,7 +39,7 @@ export async function getBenefitEligibilityForEmployee(
   const db = getDb(env);
   const now = new Date().toISOString();
 
-  const [config, employee, pendingRequestRows] = await Promise.all([
+  const [config, employee, pendingRequestRows, rejectedRequestRows] = await Promise.all([
     getActiveEligibilityConfig(env),
     getEmployeeForEligibility(env, employeeId),
     db
@@ -50,9 +51,28 @@ export async function getBenefitEligibilityForEmployee(
           eq(benefitRequests.status, 'pending')
         )
       ),
+    db
+      .select({
+        benefitId: benefitRequests.benefitId,
+        rejectReason: benefitRequests.rejectReason,
+      })
+      .from(benefitRequests)
+      .where(
+        and(
+          eq(benefitRequests.employeeId, employeeId),
+          eq(benefitRequests.status, 'rejected')
+        )
+      )
+      .orderBy(desc(benefitRequests.createdAt)),
   ]);
 
   const pendingBenefitIds = new Set(pendingRequestRows.map((r) => r.benefitId));
+  const rejectedByBenefit = new Map<string, string>();
+  for (const r of rejectedRequestRows) {
+    if (!rejectedByBenefit.has(r.benefitId)) {
+      rejectedByBenefit.set(r.benefitId, r.rejectReason ?? '');
+    }
+  }
 
   const rows = await db
     .select({
@@ -84,10 +104,17 @@ export async function getBenefitEligibilityForEmployee(
 
     if (rules?.length && employee) {
       const { status, ruleEvaluations } = evaluateBenefitRules(rules, employee);
-      let finalStatus: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' =
+      let finalStatus: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED' =
         row.eligibilityStatus === 'active' ? 'ACTIVE' : status;
       if (finalStatus === 'ELIGIBLE' && pendingBenefitIds.has(row.benefitId)) {
         finalStatus = 'PENDING';
+      }
+      if (
+        rejectedByBenefit.has(row.benefitId) &&
+        !pendingBenefitIds.has(row.benefitId) &&
+        finalStatus !== 'ACTIVE'
+      ) {
+        finalStatus = 'REJECTED';
       }
       return {
         benefit: {
@@ -103,6 +130,8 @@ export async function getBenefitEligibilityForEmployee(
         status: finalStatus,
         ruleEvaluations,
         computedAt: now,
+        rejectedReason:
+          finalStatus === 'REJECTED' ? rejectedByBenefit.get(row.benefitId) ?? null : null,
       };
     }
 
@@ -117,9 +146,17 @@ export async function getBenefitEligibilityForEmployee(
         }))
       : [];
 
-    let status = mapBenefitStatus(row.eligibilityStatus ?? 'locked');
+    let status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED' =
+      mapBenefitStatus(row.eligibilityStatus ?? 'locked');
     if (status === 'ELIGIBLE' && pendingBenefitIds.has(row.benefitId)) {
       status = 'PENDING';
+    }
+    if (
+      rejectedByBenefit.has(row.benefitId) &&
+      !pendingBenefitIds.has(row.benefitId) &&
+      status !== 'ACTIVE'
+    ) {
+      status = 'REJECTED';
     }
     return {
       benefit: {
@@ -135,6 +172,7 @@ export async function getBenefitEligibilityForEmployee(
       status,
       ruleEvaluations,
       computedAt: row.computedAt ?? now,
+      rejectedReason: status === 'REJECTED' ? rejectedByBenefit.get(row.benefitId) ?? null : null,
     };
   });
 }

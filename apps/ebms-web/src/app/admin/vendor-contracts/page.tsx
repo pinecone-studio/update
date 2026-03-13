@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
+import { TablePageSkeleton } from "../components/TablePageSkeleton";
+import { fetchBenefits, getApiErrorMessage, getFinanceClient } from "../../finance/_lib/api";
 
 type Contract = {
   vendor: string;
@@ -85,44 +88,57 @@ export default function VendorContractsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-5 font-semibold text-white">
+        <h1 className="text-5 font-semibold text-slate-900 dark:text-white">
           Vendor Contract Management
         </h1>
-        <p className="mt-3 text-5 text-[#A7B6D3]">
+        <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
           Manage vendor contracts and track lifecycle status
         </p>
       </div>
+      {error && (
+        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </p>
+      )}
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <article className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-5">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
-            <p className="text-5 text-[#A7B6D3]">Active Contracts</p>
+            <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Active Contracts</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#19D463]" />
           </div>
-          <p className="text-5 font-semibold text-white">2</p>
+          <p className="text-5 font-semibold text-slate-900 dark:text-white">
+            {contracts.filter((c) => c.status === "Active").length}
+          </p>
         </article>
 
-        <article className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-5">
+        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
-            <p className="text-5 text-[#A7B6D3]">Expiring Soon</p>
+            <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Expiring Soon</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#FFB21C]" />
           </div>
-          <p className="text-5 font-semibold text-white">1</p>
+          <p className="text-5 font-semibold text-slate-900 dark:text-white">
+            {contracts.filter((c) => c.status === "Expiring soon").length}
+          </p>
         </article>
 
-        <article className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-5">
+        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
-            <p className="text-5 text-[#A7B6D3]">Pending Renewal</p>
+            <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Pending Renewal</p>
             <span className="mt-1 h-4 w-4 rounded-full bg-[#3E82F7]" />
           </div>
-          <p className="text-5 font-semibold text-white">1</p>
+          <p className="text-5 font-semibold text-slate-900 dark:text-white">
+            {contracts.filter((c) => c.renewal === "Auto-renew").length}
+          </p>
         </article>
 
-        <article className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-5">
+        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
           <div className="mb-4 flex items-start justify-between">
-            <p className="text-5 text-[#A7B6D3]">Total Contract Value</p>
+            <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Total Contract Value</p>
           </div>
-          <p className="text-5 font-semibold text-white">$3.19M/yr</p>
+          <p className="text-5 font-semibold text-slate-900 dark:text-white">
+            {contracts.length}
+          </p>
         </article>
       </section>
 
@@ -210,7 +226,7 @@ export default function VendorContractsPage() {
 
       <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
         <div className="relative">
-          <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#8FA3C5]">
+          <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -225,13 +241,13 @@ export default function VendorContractsPage() {
           <input
             type="text"
             placeholder="Search by vendor name, benefit, or contract ID..."
-            className="h-14 w-full rounded-2xl border border-[#324A70] bg-[#0F172A] pl-14 pr-4 text-l text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+            className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 pl-14 pr-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
           />
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
-        <h2 className="text-5 font-semibold text-white">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <h2 className="text-5 font-semibold text-slate-900 dark:text-white">
           All Vendor Contracts
         </h2>
 
@@ -239,7 +255,7 @@ export default function VendorContractsPage() {
           {contracts.map((contract) => (
             <article
               key={contract.contractId}
-              className="rounded-3xl border border-[#324A70] bg-[#23324C] p-5"
+              className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-[#324A70] dark:bg-[#23324C]"
             >
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-[#3E82F7]">
@@ -255,7 +271,7 @@ export default function VendorContractsPage() {
                     <path d="M8 12h8M8 16h8" />
                   </svg>
                 </span>
-                <h3 className="text-5 font-semibold text-white">
+                <h3 className="text-5 font-semibold text-slate-900 dark:text-white">
                   {contract.vendor}
                 </h3>
                 <span
@@ -278,24 +294,24 @@ export default function VendorContractsPage() {
                 Benefit: {contract.benefit}
               </p>
 
-              <div className="mt-4 grid grid-cols-1 gap-4 rounded-2xl bg-[#2A3555] p-4 md:grid-cols-4">
+              <div className="mt-4 grid grid-cols-1 gap-4 rounded-2xl bg-slate-100 p-4 md:grid-cols-4 dark:bg-[#2A3555]">
                 <div>
-                  <p className="text-5 text-[#95A7C6]">Contract ID</p>
-                  <p className="mt-1 text-5 text-white">
+                  <p className="text-5 text-slate-500 dark:text-[#95A7C6]">Contract ID</p>
+                  <p className="mt-1 text-5 text-slate-900 dark:text-white">
                     {contract.contractId}
                   </p>
                 </div>
                 <div>
-                  <p className="text-5 text-[#95A7C6]">Contract Value</p>
-                  <p className="mt-1 text-5 text-white">{contract.value}</p>
+                  <p className="text-5 text-slate-500 dark:text-[#95A7C6]">Contract Value</p>
+                  <p className="mt-1 text-5 text-slate-900 dark:text-white">{contract.value}</p>
                 </div>
                 <div>
-                  <p className="text-5 text-[#95A7C6]">Start Date</p>
-                  <p className="mt-1 text-5 text-white">{contract.startDate}</p>
+                  <p className="text-5 text-slate-500 dark:text-[#95A7C6]">Start Date</p>
+                  <p className="mt-1 text-5 text-slate-900 dark:text-white">{contract.startDate}</p>
                 </div>
                 <div>
-                  <p className="text-5 text-[#95A7C6]">End Date</p>
-                  <p className="mt-1 text-5 text-white">{contract.endDate}</p>
+                  <p className="text-5 text-slate-500 dark:text-[#95A7C6]">End Date</p>
+                  <p className="mt-1 text-5 text-slate-900 dark:text-white">{contract.endDate}</p>
                 </div>
               </div>
 
@@ -320,6 +336,11 @@ export default function VendorContractsPage() {
               </div>
             </article>
           ))}
+          {contracts.length === 0 && (
+            <p className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#23324C] dark:text-[#A7B6D3]">
+              Contract өгөгдөл алга байна.
+            </p>
+          )}
         </div>
       </section>
     </div>

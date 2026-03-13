@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ProfileSkeleton } from "@/app/_components/ProfileSkeleton";
 import { Header } from "../components/Header";
 import {
   HiOutlineUserCircle,
@@ -55,25 +56,35 @@ export default function MyProfilePage() {
     { key: "security", label: "Security" },
   ];
 
-  const initials = me?.name
-    ?.split(" ")
-    .map((s) => s[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() ?? "—";
+  const initials =
+    me?.name
+      ?.split(" ")
+      .map((s) => s[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() ?? "—";
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 w-full dark:bg-[#0B1220]">
+        <div className="w-full bg-slate-50 px-6 py-6 dark:bg-transparent">
+          <ProfileSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 w-full dark:bg-[#0B1220]">
-      <Header />
-      <div className="w-full bg-slate-50 px-6 py-6 dark:bg-[#0F172A]">
-        <div className="max-w-[921px] mx-auto">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Profile</h1>
+    <div className="min-h-screen">
+      <div className="w-full bg-slate-50 px-6 py-6 dark:bg-transparent">
+        <div className="max-w-[1500px] mx-auto">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            My Profile
+          </h1>
           <p className="text-slate-600 text-sm mt-1 dark:text-slate-400">
             Manage your account information and settings
           </p>
-          {error && (
-            <p className="mt-2 text-sm text-red-400">Error: {error}</p>
-          )}
+          {error && <p className="mt-2 text-sm text-red-400">Error: {error}</p>}
 
           {/* Profile Summary */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-6">
@@ -82,17 +93,19 @@ export default function MyProfilePage() {
             </div>
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                {loading ? "Loading..." : me?.name ?? "—"}
+                {loading ? "Loading..." : (me?.name ?? "—")}
               </h2>
               <p className="text-slate-600 text-sm dark:text-slate-400">
-                {loading ? "…" : me?.role ?? "—"}
+                {loading ? "…" : (me?.role ?? "—")}
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
                 <span className="px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs dark:bg-slate-700/80 dark:text-slate-200">
                   {me?.role ?? "—"}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs dark:bg-slate-700/80 dark:text-slate-200">
-                  {me?.employmentStatus ? me.employmentStatus.replace(/_/g, " ") : "—"}
+                  {me?.employmentStatus
+                    ? me.employmentStatus.replace(/_/g, " ")
+                    : "—"}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs dark:bg-slate-700/80 dark:text-slate-200">
                   {me?.id ?? "—"}
@@ -142,7 +155,9 @@ export default function MyProfilePage() {
                       <HiOutlineUserCircle className="text-slate-600 text-lg dark:text-slate-400" />
                     </div>
                     <div>
-                      <p className="text-slate-500 text-xs dark:text-slate-500">Full Name</p>
+                      <p className="text-slate-500 text-xs dark:text-slate-500">
+                        Full Name
+                      </p>
                       <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">
                         {me?.name ?? "—"}
                       </p>
@@ -154,7 +169,9 @@ export default function MyProfilePage() {
                     </div>
                     <div>
                       <p className="text-slate-500 text-xs">Phone Number</p>
-                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">—</p>
+                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">
+                        —
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -163,7 +180,9 @@ export default function MyProfilePage() {
                     </div>
                     <div>
                       <p className="text-slate-500 text-xs">Email Address</p>
-                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">—</p>
+                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">
+                        —
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -196,7 +215,9 @@ export default function MyProfilePage() {
                     </div>
                     <div>
                       <p className="text-slate-500 text-xs">Department</p>
-                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">—</p>
+                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">
+                        —
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -205,7 +226,9 @@ export default function MyProfilePage() {
                     </div>
                     <div>
                       <p className="text-slate-500 text-xs">Start Date</p>
-                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">—</p>
+                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">
+                        —
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -214,7 +237,9 @@ export default function MyProfilePage() {
                     </div>
                     <div>
                       <p className="text-slate-500 text-xs">Manager</p>
-                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">—</p>
+                      <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">
+                        —
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -235,7 +260,9 @@ export default function MyProfilePage() {
                     <div>
                       <p className="text-slate-500 text-xs">Employment Type</p>
                       <p className="text-slate-900 text-sm font-medium mt-0.5 dark:text-white">
-                        {me?.employmentStatus ? me.employmentStatus.replace(/_/g, " ") : "—"}
+                        {me?.employmentStatus
+                          ? me.employmentStatus.replace(/_/g, " ")
+                          : "—"}
                       </p>
                     </div>
                   </div>
@@ -247,7 +274,9 @@ export default function MyProfilePage() {
           {activeTab === "performance" && (
             <div className="mt-6 bg-slate-100 rounded-xl p-8 text-center w-full min-h-[200px] dark:bg-[#0f172a]">
               <div className="mt-6 bg-white border border-slate-200 rounded-xl p-8 text-center dark:bg-[#1A2333] dark:border-[#243041]">
-                <p className="text-slate-600 dark:text-slate-400">Performance & Benefits content coming soon</p>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Performance & Benefits content coming soon
+                </p>
               </div>
             </div>
           )}
@@ -255,7 +284,9 @@ export default function MyProfilePage() {
           {activeTab === "security" && (
             <div className="mt-6 bg-slate-100 rounded-xl p-8 text-center w-full min-h-[200px] dark:bg-[#0f172a]">
               <div className="mt-6 bg-white border border-slate-200 rounded-xl p-8 text-center dark:bg-[#1A2333] dark:border-[#243041]">
-                <p className="text-slate-600 dark:text-slate-400">Security settings coming soon</p>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Security settings coming soon
+                </p>
               </div>
             </div>
           )}

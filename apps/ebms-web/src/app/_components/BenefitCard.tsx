@@ -3,7 +3,7 @@
 import { FiExternalLink, FiLock } from "react-icons/fi";
 import type { ReactNode } from "react";
 
-export type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
+export type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED";
 
 export interface EligibilityRule {
 	rule: string;
@@ -16,6 +16,7 @@ const STATUS_STYLES: Record<BenefitStatus, string> = {
 	ELIGIBLE: "bg-[#2563eb] text-white",
 	LOCKED: "bg-[#dc2626] text-white",
 	PENDING: "bg-[#f59e0b] text-white",
+	REJECTED: "bg-[#dc2626] text-white",
 };
 
 const BUTTON_TEXT_BY_STATUS: Record<BenefitStatus, string> = {
@@ -23,6 +24,7 @@ const BUTTON_TEXT_BY_STATUS: Record<BenefitStatus, string> = {
 	ACTIVE: "Manage Benefit",
 	PENDING: "Request sent",
 	LOCKED: "View details",
+	REJECTED: "Request benefit",
 };
 
 export interface BenefitCardProps {
@@ -38,6 +40,8 @@ export interface BenefitCardProps {
 	status: BenefitStatus;
 	/** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
 	lockReason?: string;
+	/** Rejection reason when status is REJECTED (admin's feedback) */
+	rejectReason?: string;
 	/** Rules evaluated for eligibility breakdown (shown in detail view) */
 	eligibilityRules?: EligibilityRule[];
 	icon: ReactNode;
@@ -47,6 +51,8 @@ export interface BenefitCardProps {
 	onClick?: () => void;
 	/** Called when user clicks "Request benefit" on ELIGIBLE benefits */
 	onRequestBenefit?: () => void;
+	/** Custom footer actions (replaces default button when provided) */
+	footerActions?: ReactNode;
 }
 
 export const BenefitCard = ({
@@ -59,6 +65,7 @@ export const BenefitCard = ({
 	contractLink,
 	status,
 	lockReason,
+	rejectReason,
 	eligibilityRules: _eligibilityRules,
 	icon,
 	iconBgColor = "bg-[#4CAF50]/20",
@@ -66,12 +73,13 @@ export const BenefitCard = ({
 	buttonText,
 	onClick,
 	onRequestBenefit,
+	footerActions,
 }: BenefitCardProps) => {
 	const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[status];
 
 	const handleButtonClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		if (status === "ELIGIBLE" && onRequestBenefit) {
+		if ((status === "ELIGIBLE" || status === "REJECTED") && onRequestBenefit) {
 			onRequestBenefit();
 		} else if (onClick) {
 			onClick();
@@ -179,21 +187,34 @@ export const BenefitCard = ({
 									{lockReason}
 								</p>
 							</div>
+						) : status === "REJECTED" && rejectReason ? (
+							<div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 dark:bg-red-950/30 dark:border-red-800/50">
+								<p className="text-xs font-medium text-red-600 uppercase tracking-wider mb-0.5 dark:text-red-400">
+									Татгалзсан шалтгаан
+								</p>
+								<p className="text-sm text-red-800 line-clamp-2 dark:text-red-200">
+									{rejectReason}
+								</p>
+							</div>
 						) : null}
 					</div>
 
-					<button
-						type="button"
-						disabled={status !== "ELIGIBLE"}
-						className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
-							status === "ELIGIBLE"
-								? "bg-slate-800 hover:bg-slate-700 text-white dark:bg-[#0f172a] dark:hover:bg-[#1e293b]"
-								: "bg-slate-400 text-white cursor-not-allowed dark:bg-slate-600"
-						}`}
-						onClick={handleButtonClick}
-					>
-						{displayButtonText}
-					</button>
+					{footerActions ? (
+						<div className="w-full">{footerActions}</div>
+					) : (
+						<button
+							type="button"
+							disabled={status !== "ELIGIBLE" && status !== "REJECTED"}
+							className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+								status === "ELIGIBLE" || status === "REJECTED"
+									? "bg-slate-800 hover:bg-slate-700 text-white dark:bg-[#0f172a] dark:hover:bg-[#1e293b]"
+									: "bg-slate-400 text-white cursor-not-allowed dark:bg-slate-600"
+							}`}
+							onClick={handleButtonClick}
+						>
+							{displayButtonText}
+						</button>
+					)}
 				</div>
 				{status === "LOCKED" && (
 					<div className="absolute inset-0 flex items-center justify-center rounded-xl bg-slate-900/60 dark:bg-slate-950/70 opacity-0 transition-opacity duration-200 pointer-events-none group-hover:opacity-100">

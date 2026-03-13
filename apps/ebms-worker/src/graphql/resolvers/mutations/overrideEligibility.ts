@@ -15,6 +15,7 @@ import { getBenefitEligibilityForEmployee } from '../getBenefitEligibility';
 export const overrideEligibility: NonNullable<
   MutationResolvers<Ctx>['overrideEligibility']
 > = async (_:any, args:any, ctx:any) => {
+  requireHR(ctx);
   const db = getDb(ctx.env);
 
   const { employeeId, benefitId, status, reason, expiresAt } = args.input;

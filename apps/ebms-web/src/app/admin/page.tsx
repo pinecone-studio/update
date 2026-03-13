@@ -1,11 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { GraphQLClient, gql } from 'graphql-request';
 import { HrTotalEmployeeIcon } from "../icons/hrTotalEmployee";
 import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
+import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
+import {
+  getAdminClient,
+  confirmBenefitRequest,
+  getApiErrorMessage,
+} from "./_lib/api";
 
 const BENEFIT_REQUESTS_QUERY = gql`
   query BenefitRequests($status: RequestStatus) {
@@ -17,19 +22,26 @@ const BENEFIT_REQUESTS_QUERY = gql`
       createdAt
       employeeName
       benefitName
+      rejectReason
     }
   }
 `;
 
-const CONFIRM_BENEFIT_REQUEST_MUTATION = gql`
-  mutation ConfirmBenefitRequest($requestId: ID!, $contractAccepted: Boolean!) {
-    confirmBenefitRequest(requestId: $requestId, contractAccepted: $contractAccepted) {
+const EMPLOYEES_COUNT_QUERY = gql`
+  query EmployeesCount {
+    employees {
       id
-      status
     }
   }
 `;
 
+const ACTIVE_BENEFITS_COUNT_QUERY = gql`
+  query ActiveBenefitsCount {
+    benefits {
+      id
+    }
+  }
+`;
 type BenefitRequest = {
   id: string;
   employeeId: string;
@@ -38,6 +50,7 @@ type BenefitRequest = {
   createdAt: string;
   employeeName?: string | null;
   benefitName?: string | null;
+  rejectReason?: string | null;
 };
 
 type StatCard = {
@@ -46,31 +59,6 @@ type StatCard = {
   icon: ReactNode;
   iconBg: string;
 };
-
-const statCards: StatCard[] = [
-  {
-    title: "Total Employees",
-    value: "1,247",
-    iconBg: "bg-[#2A8BFF]",
-    icon: <HrTotalEmployeeIcon />,
-  },
-  {
-    title: "Active Benefits",
-    value: "3,892",
-    iconBg: "bg-[#00C95F]",
-    icon: <HrActiveBenefitsIcon />,
-  },
-];
-function getErrorMessage(e: unknown): string {
-  if (e && typeof e === 'object' && 'response' in e) {
-    const res = (e as { response?: { errors?: Array<{ message?: string }> } }).response;
-    const msg = res?.errors?.[0]?.message;
-    if (msg) return msg;
-  }
-  if (e instanceof Error) return e.message;
-  return String(e);
-}
-
 function formatDate(iso: string): string {
   if (!iso) return '—';
   try {
@@ -106,39 +94,140 @@ export default function HrDashboardPage() {
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalEmployees, setTotalEmployees] = useState<number>(0);
+  const [activeBenefits, setActiveBenefits] = useState<number>(0);
   const [statusFilter, setStatusFilter] = useState<string | undefined>('PENDING');
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+    const client = getAdminClient();
+    setLoading(true);
+    setError(null);
+    (async () => {
+      try {
+        const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
+          BENEFIT_REQUESTS_QUERY,
+          { status: statusFilter ?? undefined }
+        );
+        if (!cancelled) {
+          const data = (res.benefitRequests ?? []).map((r) => ({
+            ...r,
+            status: (r.status || 'PENDING').toUpperCase(),
+          }));
+          setRequests(data);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(getApiErrorMessage(e));
+          setRequests([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [statusFilter]);
 
-  const handleApprove = (requestId: string) => {
-    setRequests((prev) =>
-      prev.map((r) => (r.id === requestId ? { ...r, status: 'APPROVED' } : r))
-    );
+  useEffect(() => {
+    let cancelled = false;
+    const client = getAdminClient();
+    async function loadStats() {
+      try {
+        const [employeesRes, benefitsRes] = await Promise.all([
+          client.request<{ employees: Array<{ id: string }> }>(EMPLOYEES_COUNT_QUERY),
+          client.request<{ benefits: Array<{ id: string }> }>(ACTIVE_BENEFITS_COUNT_QUERY),
+        ]);
+        if (!cancelled) {
+          setTotalEmployees((employeesRes.employees ?? []).length);
+          setActiveBenefits((benefitsRes.benefits ?? []).length);
+        }
+      } catch {
+        if (!cancelled) {
+          setTotalEmployees(0);
+          setActiveBenefits(0);
+        }
+      }
+    }
+    loadStats();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const statCards: StatCard[] = [
+    {
+      title: "Total Employees",
+      value: String(totalEmployees),
+      iconBg: "bg-[#2A8BFF]",
+      icon: <HrTotalEmployeeIcon />,
+    },
+    {
+      title: "All Benefits",
+      value: String(activeBenefits),
+      iconBg: "bg-[#00C95F]",
+      icon: <HrActiveBenefitsIcon />,
+    },
+  ];
+
+  const handleApprove = async (requestId: string) => {
+    setActionLoadingId(requestId);
+    try {
+      const client = getAdminClient();
+      await confirmBenefitRequest(client, requestId, true);
+      setRequests((prev) =>
+        prev.map((r) => (r.id === requestId ? { ...r, status: 'APPROVED' } : r))
+      );
+    } catch (e) {
+      setError(getApiErrorMessage(e));
+    } finally {
+      setActionLoadingId(null);
+    }
   };
 
-  const handleReject = (requestId: string, _comment: string) => {
-    setRequests((prev) =>
-      prev.map((r) => (r.id === requestId ? { ...r, status: 'REJECTED' } : r))
-    );
-    setRejectingId(null);
-    setRejectComment('');
+  const handleReject = async (requestId: string, comment: string) => {
+    setActionLoadingId(requestId);
+    try {
+      const client = getAdminClient();
+      await confirmBenefitRequest(client, requestId, false, comment.trim() || undefined);
+      setRequests((prev) =>
+        prev.map((r) => (r.id === requestId ? { ...r, status: 'REJECTED' } : r))
+      );
+      setRejectingId(null);
+      setRejectComment('');
+    } catch (e) {
+      setError(getApiErrorMessage(e));
+    } finally {
+      setActionLoadingId(null);
+    }
   };
+
+  const displayRequests = requests.filter(
+    (req) => !statusFilter || (req.status || 'PENDING').toUpperCase() === statusFilter
+  );
 
   return (
     <>
-      <div className="mb-10">
-        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Dashboard</h1>
-        <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
+      {loading ? (
+        <AdminDashboardSkeleton />
+      ) : (
+        <>
+      <div className="mb-8 sm:mb-10">
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white sm:text-3xl">Dashboard</h1>
+        <p className="mt-2 sm:mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
           Overview of your HR benefits management system
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
         {statCards.map((card) => (
           <article
             key={card.title}
-            className="flex items-start justify-between rounded-3xl border border-slate-200 bg-white px-8 py-7 dark:border-[#2C4264] dark:bg-[#1E293B]"
+            className="min-w-0 flex items-start justify-between rounded-2xl sm:rounded-3xl border border-slate-200 bg-white px-4 py-5 sm:px-8 sm:py-7 dark:border-[#2C4264] dark:bg-[#1E293B]"
           >
             <div>
               <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">{card.title}</p>
@@ -155,12 +244,12 @@ export default function HrDashboardPage() {
         ))}
       </div>
 
-      <article className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <article className="mt-6 sm:mt-8 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <div className="mb-4 sm:mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <h2 className="text-11 font-semibold text-slate-900 dark:text-white">
             Employee Benefit Requests
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(
               [
                 { value: 'PENDING' as const, label: 'Pending' },
@@ -193,68 +282,79 @@ export default function HrDashboardPage() {
 
         {loading ? (
           <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">Loading requests...</p>
-        ) : requests.length === 0 ? (
-          <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
-            No benefit requests found.
-          </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-5">
-              <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
-                <tr>
-                  <th className="px-4 py-4 font-medium">Request (Benefit)</th>
-                  <th className="px-4 py-4 font-medium">Employee</th>
-                  <th className="px-4 py-4 font-medium">Status</th>
-                  <th className="px-4 py-4 font-medium">Date</th>
-                  <th className="px-4 py-4 font-medium">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map((req) => (
-                  <tr
-                    key={req.id}
-                    className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
-                  >
-                    <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
-                      {req.benefitName ?? req.benefitId}
-                    </td>
-                    <td className="px-4 py-4 text-slate-600 dark:text-[#A7B6D3]">
-                      {req.employeeName ?? req.employeeId}
-                    </td>
-                    <td className="px-4 py-4">{statusBadge(req.status)}</td>
-                    <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
-                      {formatDate(req.createdAt)}
-                    </td>
-                    <td className="px-4 py-4">
-                      {req.status === 'PENDING' ? (
-                        <div className="flex items-center gap-6">
-                          <button
-                            type="button"
-                            onClick={() => handleApprove(req.id)}
-                            className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setRejectingId(req.id);
-                              setRejectComment('');
-                            }}
-                            className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 dark:text-slate-500">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {displayRequests.length === 0 ? (
+              <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
+                No benefit requests found.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left text-5">
+                  <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
+                    <tr>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Request (Benefit)</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Employee</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Status</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Date</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayRequests.map((req) => {
+                        const status = (req.status || 'PENDING').toUpperCase();
+                        const isLoading = actionLoadingId === req.id;
+                        return (
+                      <tr
+                        key={req.id}
+                        className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
+                      >
+                        <td className="px-3 py-3 font-medium text-slate-900 dark:text-white sm:px-4 sm:py-4">
+                          {req.benefitName ?? req.benefitId}
+                        </td>
+                        <td className="px-3 py-3 text-slate-600 dark:text-[#A7B6D3] sm:px-4 sm:py-4">
+                          {req.employeeName ?? req.employeeId}
+                        </td>
+                        <td className="px-3 py-3 sm:px-4 sm:py-4">{statusBadge(status)}</td>
+                        <td className="px-3 py-3 text-slate-500 dark:text-[#8FA3C5] sm:px-4 sm:py-4">
+                          {formatDate(req.createdAt)}
+                        </td>
+                        <td className="px-3 py-3 sm:px-4 sm:py-4">
+                          {status === 'PENDING' ? (
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-6">
+                              <button
+                                type="button"
+                                onClick={() => handleApprove(req.id)}
+                                disabled={isLoading}
+                                className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+                              >
+                                {isLoading ? '...' : 'Approve'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRejectingId(req.id);
+                                  setRejectComment('');
+                                }}
+                                disabled={isLoading}
+                                className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 dark:text-slate-500">—</span>
+                          )}
+                        </td>
+                      </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+          </>
         )}
       </article>
 
@@ -288,14 +388,16 @@ export default function HrDashboardPage() {
               <button
                 type="button"
                 onClick={() => handleReject(rejectingId, rejectComment)}
-                disabled={!rejectComment.trim()}
+                disabled={!rejectComment.trim() || actionLoadingId === rejectingId}
                 className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Confirm Reject
+                {actionLoadingId === rejectingId ? '...' : 'Confirm Reject'}
               </button>
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </>
   );

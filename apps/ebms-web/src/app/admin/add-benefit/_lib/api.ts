@@ -54,6 +54,24 @@ export const CREATE_BENEFIT = gql`
   }
 `;
 
+export const UPDATE_BENEFIT = gql`
+  mutation UpdateBenefit($input: UpdateBenefitInput!) {
+    updateBenefit(input: $input) {
+      id
+      name
+      category
+      subsidyPercent
+      requiresContract
+    }
+  }
+`;
+
+export const DELETE_BENEFIT = gql`
+  mutation DeleteBenefit($id: ID!) {
+    deleteBenefit(id: $id)
+  }
+`;
+
 export function getClient(): GraphQLClient {
   const base = getBaseUrl();
   const url = base.endsWith('/graphql') ? base : `${base}/graphql`;
@@ -93,4 +111,29 @@ export async function fetchConfigAndAttributes(client: GraphQLClient): Promise<{
     'responsibility_level',
   ];
   return { config: parsed.benefits ?? {}, attributes };
+}
+
+export async function updateBenefitInCatalog(
+  client: GraphQLClient,
+  input: {
+    id: string;
+    name: string;
+    category: string;
+    subsidyPercent: number;
+    requiresContract: boolean;
+  }
+): Promise<BenefitFromCatalog> {
+  const res = await client.request<{ updateBenefit: BenefitFromCatalog }>(
+    UPDATE_BENEFIT,
+    { input }
+  );
+  return res.updateBenefit;
+}
+
+export async function deleteBenefitFromCatalog(
+  client: GraphQLClient,
+  id: string
+): Promise<boolean> {
+  const res = await client.request<{ deleteBenefit: boolean }>(DELETE_BENEFIT, { id });
+  return Boolean(res.deleteBenefit);
 }

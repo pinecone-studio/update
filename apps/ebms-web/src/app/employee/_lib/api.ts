@@ -2,7 +2,6 @@
 
 import { GraphQLClient, gql } from 'graphql-request';
 import type { Me, MyBenefitEligibility } from './types';
-
 const ME_QUERY = gql`
   query Me {
     me {
@@ -60,6 +59,7 @@ const MY_BENEFITS_QUERY = gql`
         reason
       }
       computedAt
+      rejectedReason
     }
   }
 `;
@@ -83,7 +83,7 @@ function getBaseUrl(): string {
 }
 
 /** Нэвтрэлтгүй үед default emp-1 ашиглана — хэрэглэгч логин хийгээгүй ч app ажиллана. */
-function getEmployeeId(): string {
+export function getEmployeeId(): string {
   return process.env.NEXT_PUBLIC_EMPLOYEE_ID || 'emp-1';
 }
 
@@ -108,7 +108,10 @@ export async function fetchMyBenefits(): Promise<MyBenefitEligibility[]> {
   return res.myBenefits ?? [];
 }
 
-export async function requestBenefit(benefitId: string): Promise<{ id: string; status: string; createdAt: string }> {
+export async function requestBenefit(
+  benefitId: string,
+  _options?: { benefitName?: string; employeeName?: string }
+): Promise<{ id: string; status: string; createdAt: string }> {
   const res = await getEmployeeClient().request<{
     requestBenefit: { id: string; status: string; createdAt: string };
   }>(REQUEST_BENEFIT_MUTATION, { input: { benefitId } });

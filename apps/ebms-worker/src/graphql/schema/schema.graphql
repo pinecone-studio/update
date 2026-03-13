@@ -4,6 +4,7 @@ enum BenefitStatus {
   ELIGIBLE
   LOCKED
   PENDING
+  REJECTED
 }
 
 enum RequestStatus {
@@ -43,6 +44,7 @@ type BenefitEligibility {
   status: BenefitStatus!
   ruleEvaluations: [RuleEvaluation!]!
   computedAt: String!
+  rejectedReason: String
 }
 
 type RuleEvaluation {
@@ -83,6 +85,7 @@ type BenefitRequest {
   createdAt: String!
   employeeName: String
   benefitName: String
+  rejectReason: String
 }
 
 # ─── Audit (HR) ────────────────────────────────────────────────
@@ -129,6 +132,14 @@ input CreateBenefitInput {
   rules: [EligibilityRuleInput!]
 }
 
+input UpdateBenefitInput {
+  id: ID!
+  name: String!
+  category: String!
+  subsidyPercent: Int!
+  requiresContract: Boolean!
+}
+
 # ─── Eligibility Rule Config (HR) ────────────────────────────────
 type EligibilityRuleConfig {
   config: String!
@@ -151,9 +162,11 @@ type Query {
 # ─── Mutations ──────────────────────────────────────────────────
 type Mutation {
   requestBenefit(input: BenefitRequestInput!): BenefitRequest!
-  confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!): BenefitRequest!
+  confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!, rejectReason: String): BenefitRequest!
   cancelBenefitRequest(requestId: ID!): BenefitRequest!
   overrideEligibility(input: OverrideInput!): BenefitEligibility!
   updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!
   createBenefit(input: CreateBenefitInput!): Benefit!
+  updateBenefit(input: UpdateBenefitInput!): Benefit!
+  deleteBenefit(id: ID!): Boolean!
 }
