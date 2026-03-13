@@ -23,11 +23,11 @@ export function TablePageSkeleton({
 			</div>
 
 			{statCardCount > 0 && (
-				<section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+				<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					{Array.from({ length: statCardCount }).map((_, i) => (
 						<article
 							key={i}
-							className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-5"
+							className="min-w-0 rounded-2xl sm:rounded-3xl border border-[#2C4264] bg-[#1E293B] p-4 sm:p-5"
 						>
 							<div className="mb-4 flex items-start justify-between">
 								<Skeleton className="h-4 w-24" />

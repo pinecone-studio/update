@@ -216,18 +216,18 @@ export default function HrDashboardPage() {
         <AdminDashboardSkeleton />
       ) : (
         <>
-      <div className="mb-10">
-        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Dashboard</h1>
-        <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
+      <div className="mb-8 sm:mb-10">
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white sm:text-3xl">Dashboard</h1>
+        <p className="mt-2 sm:mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
           Overview of your HR benefits management system
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
         {statCards.map((card) => (
           <article
             key={card.title}
-            className="flex items-start justify-between rounded-3xl border border-slate-200 bg-white px-8 py-7 dark:border-[#2C4264] dark:bg-[#1E293B]"
+            className="min-w-0 flex items-start justify-between rounded-2xl sm:rounded-3xl border border-slate-200 bg-white px-4 py-5 sm:px-8 sm:py-7 dark:border-[#2C4264] dark:bg-[#1E293B]"
           >
             <div>
               <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">{card.title}</p>
@@ -244,12 +244,12 @@ export default function HrDashboardPage() {
         ))}
       </div>
 
-      <article className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <article className="mt-6 sm:mt-8 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <div className="mb-4 sm:mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <h2 className="text-11 font-semibold text-slate-900 dark:text-white">
             Employee Benefit Requests
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(
               [
                 { value: 'PENDING' as const, label: 'Pending' },
@@ -293,11 +293,11 @@ export default function HrDashboardPage() {
                 <table className="min-w-full text-left text-5">
                   <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
                     <tr>
-                      <th className="px-4 py-4 font-medium">Request (Benefit)</th>
-                      <th className="px-4 py-4 font-medium">Employee</th>
-                      <th className="px-4 py-4 font-medium">Status</th>
-                      <th className="px-4 py-4 font-medium">Date</th>
-                      <th className="px-4 py-4 font-medium">Action</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Request (Benefit)</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Employee</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Status</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Date</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -309,24 +309,24 @@ export default function HrDashboardPage() {
                         key={req.id}
                         className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
                       >
-                        <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
+                        <td className="px-3 py-3 font-medium text-slate-900 dark:text-white sm:px-4 sm:py-4">
                           {req.benefitName ?? req.benefitId}
                         </td>
-                        <td className="px-4 py-4 text-slate-600 dark:text-[#A7B6D3]">
+                        <td className="px-3 py-3 text-slate-600 dark:text-[#A7B6D3] sm:px-4 sm:py-4">
                           {req.employeeName ?? req.employeeId}
                         </td>
-                        <td className="px-4 py-4">{statusBadge(status)}</td>
-                        <td className="px-4 py-4 text-slate-500 dark:text-[#8FA3C5]">
+                        <td className="px-3 py-3 sm:px-4 sm:py-4">{statusBadge(status)}</td>
+                        <td className="px-3 py-3 text-slate-500 dark:text-[#8FA3C5] sm:px-4 sm:py-4">
                           {formatDate(req.createdAt)}
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-3 sm:px-4 sm:py-4">
                           {status === 'PENDING' ? (
-                            <div className="flex items-center gap-6">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-6">
                               <button
                                 type="button"
                                 onClick={() => handleApprove(req.id)}
                                 disabled={isLoading}
-                                className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+                                className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
                               >
                                 {isLoading ? '...' : 'Approve'}
                               </button>
@@ -337,7 +337,7 @@ export default function HrDashboardPage() {
                                   setRejectComment('');
                                 }}
                                 disabled={isLoading}
-                                className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2"
                               >
                                 Reject
                               </button>

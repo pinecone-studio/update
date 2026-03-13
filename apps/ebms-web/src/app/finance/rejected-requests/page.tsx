@@ -79,11 +79,11 @@ export default function RejectedRequestsPage() {
           <table className="min-w-full text-left text-5">
             <thead className="border-b border-slate-200 text-slate-500 dark:border-[#1E3258] dark:text-[#A7B6D3]">
               <tr>
-                <th className="px-6 py-5 font-medium">Employee</th>
-                <th className="px-6 py-5 font-medium">Benefit</th>
-                <th className="px-6 py-5 font-medium">Amount</th>
-                <th className="px-6 py-5 font-medium">Reason</th>
-                <th className="px-6 py-5 font-medium">Date</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Employee</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Benefit</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Amount</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Reason</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Date</th>
               </tr>
             </thead>
             <tbody>
@@ -92,24 +92,24 @@ export default function RejectedRequestsPage() {
                   key={`${item.employee}-${item.date}`}
                   className="border-b border-slate-200 last:border-b-0 dark:border-[#182A4A]"
                 >
-                  <td className="px-6 py-6 font-semibold text-slate-900 dark:text-white">
+                  <td className="px-4 py-4 font-semibold text-slate-900 dark:text-white sm:px-6 sm:py-6">
                     {item.employee}
                   </td>
-                  <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{item.benefit}</td>
-                  <td className="px-6 py-6 font-semibold text-slate-900 dark:text-white">
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-300 sm:px-6 sm:py-6">{item.benefit}</td>
+                  <td className="px-4 py-4 font-semibold text-slate-900 dark:text-white sm:px-6 sm:py-6">
                     {item.amount}
                   </td>
-                  <td className="px-6 py-6">
-                    <span className="inline-flex items-center rounded-xl border border-[#7B2940] bg-[#3B1A2A] px-4 py-2 text-5 text-[#F39AAF]">
+                  <td className="px-4 py-4 sm:px-6 sm:py-6">
+                    <span className="inline-flex max-w-[200px] items-center rounded-xl border border-[#7B2940] bg-[#3B1A2A] px-3 py-1.5 text-5 text-[#F39AAF] sm:max-w-none sm:px-4 sm:py-2">
                       {item.reason}
                     </span>
                   </td>
-                  <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{item.date}</td>
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-300 sm:px-6 sm:py-6">{item.date}</td>
                 </tr>
               ))}
               {rejectedRequests.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-6 text-center text-5 text-slate-500 dark:text-slate-300">
+                  <td colSpan={5} className="px-4 py-6 text-center text-5 text-slate-500 dark:text-slate-300 sm:px-6">
                     Rejected хүсэлт алга байна.
                   </td>
                 </tr>

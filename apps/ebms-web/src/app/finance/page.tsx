@@ -169,7 +169,7 @@ export default function FinancePage() {
 
 	return (
 		<div className="space-y-6">
-			<header className="flex items-start justify-between gap-4">
+			<header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 				<div>
 					<h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
 						Finance Manager Panel
@@ -185,13 +185,13 @@ export default function FinancePage() {
 				</p>
 			)}
 
-			<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+			<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				{statCards.map((card) => (
 					<button
 						key={card.key}
 						type="button"
 						onClick={() => setSelectedCardKey(card.key)}
-						className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-slate-300 dark:border-[#2C4264] dark:bg-[#1E293B] dark:hover:border-[#2B405F]"
+						className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-slate-300 dark:border-[#2C4264] dark:bg-[#1E293B] dark:hover:border-[#2B405F]"
 					>
 						<div className="mb-6 flex items-start justify-between">
 							<div
@@ -224,7 +224,7 @@ export default function FinancePage() {
 			</section>
 
 			<section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#1E293B]">
-				<div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-[#2B405F]">
+				<div className="flex flex-col gap-2 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 dark:border-[#2B405F]">
 					<div>
 						<h2 className="text-5 font-semibold text-slate-900 dark:text-white">
 							Financial Benefit Requests
@@ -242,56 +242,56 @@ export default function FinancePage() {
 					<table className="min-w-full text-left text-5">
 						<thead className="border-b border-slate-200 uppercase tracking-wide text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
 							<tr>
-								<th className="px-6 py-4">№</th>
-								<th className="px-6 py-4">Employee</th>
-								<th className="px-6 py-4">Benefit Type</th>
-								<th className="px-4 py-4 whitespace-nowrap">
+								<th className="px-4 py-3 sm:px-6 sm:py-4">№</th>
+								<th className="px-4 py-3 sm:px-6 sm:py-4">Employee</th>
+								<th className="px-4 py-3 sm:px-6 sm:py-4">Benefit Type</th>
+								<th className="px-4 py-3 sm:px-6 sm:py-4 whitespace-nowrap">
 									Requested Amount
 								</th>
-								<th className="px-6 py-4">Department</th>
-								<th className="px-6 py-4">Date</th>
-								<th className="px-6 py-4">Action</th>
+								<th className="px-4 py-3 sm:px-6 sm:py-4">Department</th>
+								<th className="px-4 py-3 sm:px-6 sm:py-4">Date</th>
+								<th className="px-4 py-3 sm:px-6 sm:py-4">Action</th>
 							</tr>
 						</thead>
 						<tbody>
 							{visibleRequests.map((request, index) => (
 								<tr key={request.id} className="border-b border-slate-200 dark:border-[#2B405F]">
-									<td className="px-6 py-5 text-5 font-semibold text-slate-900 dark:text-white">
+									<td className="px-4 py-4 sm:px-6 sm:py-5 text-5 font-semibold text-slate-900 dark:text-white">
 										{index + 1}
 									</td>
-									<td className="px-6 py-5">
-										<div className="flex items-center gap-3">
-											<div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-5 font-semibold text-blue-700 dark:bg-[#2A8BFF]/30 dark:text-white">
+									<td className="px-4 py-4 sm:px-6 sm:py-5">
+										<div className="flex items-center gap-2 sm:gap-3">
+											<div className="flex h-8 w-8 shrink-0 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-blue-100 text-5 font-semibold text-blue-700 dark:bg-[#2A8BFF]/30 dark:text-white">
 												{getInitials(request.employeeName || request.employeeId)}
 											</div>
-											<span className="whitespace-nowrap text-5 text-slate-900 dark:text-white">
+											<span className="min-w-0 truncate text-5 text-slate-900 dark:text-white">
 												{request.employeeName || request.employeeId}
 											</span>
 										</div>
 									</td>
-									<td className="px-6 py-5 whitespace-nowrap text-5 text-slate-600 dark:text-[#A7B6D3]">
+									<td className="px-4 py-4 sm:px-6 sm:py-5 whitespace-nowrap text-5 text-slate-600 dark:text-[#A7B6D3]">
 										{request.benefitName || request.benefitId}
 									</td>
-									<td className="px-4 py-5 whitespace-nowrap text-5 font-semibold text-slate-900 dark:text-white">
+									<td className="px-4 py-4 sm:px-6 sm:py-5 whitespace-nowrap text-5 font-semibold text-slate-900 dark:text-white">
 										{benefitSubsidyMap[request.benefitId] != null
 											? `${benefitSubsidyMap[request.benefitId]}%`
 											: "—"}
 									</td>
-									<td className="px-6 py-5">
-										<span className="rounded-lg bg-slate-100 px-3 py-1 text-5 text-slate-600 dark:bg-[#24364F] dark:text-[#A7B6D3]">
+									<td className="px-4 py-4 sm:px-6 sm:py-5">
+										<span className="rounded-lg bg-slate-100 px-2 py-1 sm:px-3 text-5 text-slate-600 dark:bg-[#24364F] dark:text-[#A7B6D3]">
 											{employees[request.employeeId]?.role || "—"}
 										</span>
 									</td>
-									<td className="px-6 py-5 text-5 text-slate-500 dark:text-[#8FA3C5]">
+									<td className="px-4 py-4 sm:px-6 sm:py-5 text-5 text-slate-500 dark:text-[#8FA3C5]">
 										{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "—"}
 									</td>
-									<td className="px-6 py-5">
-										<div className="flex items-center gap-2">
+									<td className="px-4 py-4 sm:px-6 sm:py-5">
+										<div className="flex flex-wrap items-center gap-2">
 											<button
 												type="button"
 												onClick={() => void handleDecision(request.id, true)}
 												disabled={submittingRequestId === request.id}
-												className="rounded-xl bg-green-600 px-4 py-2 text-5 font-medium text-white hover:bg-green-700 disabled:opacity-60 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+												className="rounded-lg bg-green-600 px-3 py-1.5 text-5 font-medium text-white hover:bg-green-700 disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
 											>
 												Approve
 											</button>
@@ -302,7 +302,7 @@ export default function FinancePage() {
 													setRejectionReason("");
 												}}
 												disabled={submittingRequestId === request.id}
-												className="rounded-xl bg-red-500/90 px-4 py-2 text-5 font-medium text-white hover:bg-red-500"
+												className="rounded-lg bg-red-500/90 px-3 py-1.5 text-5 font-medium text-white hover:bg-red-500 sm:rounded-xl sm:px-4 sm:py-2"
 											>
 												Reject
 											</button>

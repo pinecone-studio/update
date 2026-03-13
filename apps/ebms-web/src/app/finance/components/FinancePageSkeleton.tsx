@@ -21,11 +21,11 @@ export function FinancePageSkeleton({
 			</header>
 
 			{statCardCount > 0 && (
-				<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+				<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					{Array.from({ length: statCardCount }).map((_, i) => (
 						<article
 							key={i}
-							className="rounded-2xl border border-[#1F345C] bg-[#0D1B3A] p-5"
+							className="min-w-0 rounded-2xl border border-[#1F345C] bg-[#0D1B3A] p-5"
 						>
 							<div className="mb-4 flex items-center gap-3">
 								<Skeleton className="h-10 w-10 rounded-xl" />

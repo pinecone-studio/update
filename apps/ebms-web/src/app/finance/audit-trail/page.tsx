@@ -88,23 +88,23 @@ export default function AuditTrailPage() {
           <table className="min-w-full text-left text-5">
             <thead className="border-b border-slate-200 text-slate-500 dark:border-[#1E3258] dark:text-[#A7B6D3]">
               <tr>
-                <th className="px-6 py-5 font-medium">Time</th>
-                <th className="px-6 py-5 font-medium">User</th>
-                <th className="px-6 py-5 font-medium">Action</th>
-                <th className="px-6 py-5 font-medium">Benefit</th>
-                <th className="px-6 py-5 font-medium">Result</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Time</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">User</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Action</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Benefit</th>
+                <th className="px-4 py-3 font-medium sm:px-6 sm:py-5">Result</th>
               </tr>
             </thead>
             <tbody>
               {auditEntries.map((entry) => (
                 <tr key={`${entry.time}-${entry.user}`} className="border-b border-slate-200 last:border-b-0 dark:border-[#182A4A]">
-                  <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{entry.time}</td>
-                  <td className="px-6 py-6 font-semibold text-slate-900 dark:text-white">{entry.user}</td>
-                  <td className="px-6 py-6 text-slate-600 dark:text-slate-300">{entry.action}</td>
-                  <td className="px-6 py-6 text-slate-700 dark:text-slate-200">{entry.benefit}</td>
-                  <td className="px-6 py-6">
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-300 sm:px-6 sm:py-6">{entry.time}</td>
+                  <td className="px-4 py-4 font-semibold text-slate-900 dark:text-white sm:px-6 sm:py-6">{entry.user}</td>
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-300 sm:px-6 sm:py-6">{entry.action}</td>
+                  <td className="px-4 py-4 text-slate-700 dark:text-slate-200 sm:px-6 sm:py-6">{entry.benefit}</td>
+                  <td className="px-4 py-4 sm:px-6 sm:py-6">
                     <span
-                      className={`inline-flex items-center rounded-xl border px-4 py-2 text-5 ${
+                      className={`inline-flex items-center rounded-xl border px-3 py-1.5 text-5 sm:px-4 sm:py-2 ${
                         entry.result === "Completed"
                           ? "border-[#0E6B4F] bg-[#15342B] text-[#00E08B]"
                           : entry.result === "Approved"
@@ -119,7 +119,7 @@ export default function AuditTrailPage() {
               ))}
               {auditEntries.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-6 text-center text-5 text-slate-500 dark:text-slate-300">
+                  <td colSpan={5} className="px-4 py-6 text-center text-5 text-slate-500 dark:text-slate-300 sm:px-6">
                     Audit өгөгдөл алга байна.
                   </td>
                 </tr>

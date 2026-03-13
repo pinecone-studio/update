@@ -61,11 +61,11 @@ export default function BudgetOverviewPage() {
         </p>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card) => (
           <article
             key={card.title}
-            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[inset_0_0_30px_rgba(46,94,204,0.08)] dark:border-[#1F345C] dark:bg-[#0D1B3A]"
+            className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-[inset_0_0_30px_rgba(46,94,204,0.08)] dark:border-[#1F345C] dark:bg-[#0D1B3A]"
           >
             <div className="mb-4 flex items-center gap-3">
               <div
@@ -88,7 +88,7 @@ export default function BudgetOverviewPage() {
           {topSpending.map((item) => (
             <div
               key={item.name}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 dark:border-[#1E3258] dark:bg-[#07132B]"
+              className="flex flex-col gap-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4 dark:border-[#1E3258] dark:bg-[#07132B]"
             >
               <p className="text-5 text-slate-700 dark:text-slate-200">{item.name}</p>
               <p className="text-5 font-semibold text-slate-900 dark:text-white">{item.value}</p>
@@ -101,8 +101,8 @@ export default function BudgetOverviewPage() {
         <h2 className="text-5 font-semibold text-slate-900 dark:text-white">
           Monthly Spending Chart
         </h2>
-        <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-5 select-none dark:border-[#1E3258] dark:bg-[#0A1630]">
-          <div className="flex h-[450px] items-end gap-2">
+        <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5 select-none dark:border-[#1E3258] dark:bg-[#0A1630]">
+          <div className="flex h-[200px] min-w-[280px] items-end gap-1 sm:h-[300px] sm:gap-2 lg:h-[450px]">
             {monthlySpending.map((value, index) => (
               <div
                 key={`${value}-${index}`}
