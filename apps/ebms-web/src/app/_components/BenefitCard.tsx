@@ -1,6 +1,6 @@
 /** @format */
 
-import { FiExternalLink, FiLock } from "react-icons/fi";
+import { FiExternalLink } from "react-icons/fi";
 import type { ReactNode } from "react";
 
 export type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED";
@@ -102,7 +102,7 @@ export const BenefitCard = ({
 			role={onClick ? "button" : undefined}
 			tabIndex={onClick ? 0 : undefined}
 		>
-			<div className={`group relative w-full min-w-0 max-w-full flex-1 min-h-0 rounded-xl bg-white border border-slate-200 overflow-hidden shadow-inner flex flex-col dark:bg-[#1A2536] dark:border-[#2d3a4d] ${status === "LOCKED" ? "cursor-pointer" : ""}`}>
+			<div className="relative w-full min-w-0 max-w-full flex-1 min-h-0 rounded-xl bg-white border border-slate-200 overflow-hidden shadow-inner flex flex-col dark:bg-[#1A2536] dark:border-[#2d3a4d]">
 				<div className="p-5 pt-4 flex flex-col">
 					<div className="flex items-start gap-4 mb-5">
 						<div
@@ -216,18 +216,6 @@ export const BenefitCard = ({
 						</button>
 					)}
 				</div>
-				{status === "LOCKED" && (
-					<div className="absolute inset-0 flex items-center justify-center rounded-xl bg-slate-900/60 dark:bg-slate-950/70 opacity-0 transition-opacity duration-200 pointer-events-none group-hover:opacity-100">
-						<div className="flex flex-col items-center gap-2">
-							<div className="w-14 h-14 rounded-full bg-[#dc2626]/90 flex items-center justify-center">
-								<FiLock size={28} className="text-white" strokeWidth={2.5} />
-							</div>
-							<span className="text-sm font-medium text-white drop-shadow-sm">
-								Locked
-							</span>
-						</div>
-					</div>
-				)}
 			</div>
 		</div>
 	);
