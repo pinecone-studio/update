@@ -56,7 +56,7 @@ export default function NotificationPage() {
 	if (loading) {
 		return (
 			<div>
-				<div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white w-full min-h-screen">
+				<div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 w-full min-h-screen dark:bg-[#0f172A] dark:text-white">
 					<div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
 						<NotificationSkeleton />
 					</div>
@@ -67,111 +67,111 @@ export default function NotificationPage() {
 
 	return (
 		<div>
-			<div className="bg-[#0f172A] px-4 py-4 flex flex-col items-center gap-6 text-white w-full min-h-screen">
+			<div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 w-full min-h-screen dark:bg-[#0f172A] dark:text-white">
 				<div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
-				<div className="flex items-center gap-4">
-					<div className="w-[56px] h-[56px] bg-white rounded-2xl flex items-center justify-center">
-						<HiOutlineBell className="text-3xl text-blue-700" />
+					<div className="flex items-center gap-4">
+						<div className="w-[56px] h-[56px] bg-white rounded-2xl flex items-center justify-center">
+							<HiOutlineBell className="text-3xl text-blue-700" />
+						</div>
+						<div className="flex flex-col">
+							<p className="text-2xl font-semibold text-slate-900 dark:text-white">Notifications</p>
+							<p className="text-slate-600 text-sm dark:text-slate-300">
+								Stay updated on your benefits and eligibility
+							</p>
+						</div>
 					</div>
-					<div className="flex flex-col">
-						<p className="text-2xl text-white font-semibold">Notifications</p>
-						<p className="text-slate-300 text-sm">
-							Stay updated on your benefits and eligibility
-						</p>
-					</div>
-				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-					<div className="bg-[#1A2333] border border-[#243041] rounded-xl p-4 flex items-center justify-between">
-						<div>
-							<p className="text-xs text-slate-400">Unread</p>
-							<p className="text-white text-xl font-semibold">2</p>
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+						<div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between dark:bg-[#1A2333] dark:border-[#243041]">
+							<div>
+								<p className="text-xs text-slate-500 dark:text-slate-400">Unread</p>
+								<p className="text-slate-900 text-xl font-semibold dark:text-white">2</p>
+							</div>
+							<div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-blue-600 dark:bg-[#122033] dark:text-blue-500">
+								<HiOutlineBell className="text-lg" />
+							</div>
 						</div>
-						<div className="h-8 w-8 rounded-full bg-[#122033] grid place-items-center text-blue-500">
-							<HiOutlineBell className="text-lg" />
+						<div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between dark:bg-[#1A2333] dark:border-[#243041]">
+							<div>
+								<p className="text-xs text-slate-500 dark:text-slate-400">Today</p>
+								<p className="text-slate-900 text-xl font-semibold dark:text-white">2</p>
+							</div>
+							<div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-orange-500 dark:bg-[#122033] dark:text-orange-400">
+								<HiOutlineClock className="text-lg" />
+							</div>
+						</div>
+						<div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between dark:bg-[#1A2333] dark:border-[#243041]">
+							<div>
+								<p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
+								<p className="text-slate-900 text-xl font-semibold dark:text-white">5</p>
+							</div>
+							<div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-green-600 dark:bg-[#122033] dark:text-green-400">
+								<HiOutlineCheckCircle className="text-lg" />
+							</div>
 						</div>
 					</div>
-					<div className="bg-[#1A2333] border border-[#243041] rounded-xl p-4 flex items-center justify-between">
-						<div>
-							<p className="text-xs text-slate-400">Today</p>
-							<p className="text-white text-xl font-semibold">2</p>
-						</div>
-						<div className="h-8 w-8 rounded-full bg-[#122033] grid place-items-center text-orange-400">
-							<HiOutlineClock className="text-lg" />
-						</div>
-					</div>
-					<div className="bg-[#1A2333] border border-[#243041] rounded-xl p-4 flex items-center justify-between">
-						<div>
-							<p className="text-xs text-slate-400">Total</p>
-							<p className="text-white text-xl font-semibold">5</p>
-						</div>
-						<div className="h-8 w-8 rounded-full bg-[#122033] grid place-items-center text-green-400">
-							<HiOutlineCheckCircle className="text-lg" />
-						</div>
-					</div>
-				</div>
 
-				<div className="flex items-center gap-2 mt-6 text-xs text-slate-300">
-					<button className="px-3 py-1.5 rounded-full bg-[#1A2333] border border-[#243041] text-white">
+				<div className="flex items-center gap-2 mt-6 text-xs text-slate-600 dark:text-slate-300">
+					<button className="px-3 py-1.5 rounded-full bg-slate-800 text-white dark:bg-[#1A2333] dark:border dark:border-[#243041]">
 						All Notifications
 					</button>
-					<button className="px-3 py-1.5 rounded-full bg-[#111A2A] border border-[#243041] hover:text-white hover:bg-[#1A2333]">
+					<button className="px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-[#111A2A] dark:border-[#243041] dark:text-slate-200 dark:hover:bg-[#1A2333]">
 						Unread (2)
 					</button>
-					<button className="px-3 py-1.5 rounded-full bg-[#111A2A] border border-[#243041] hover:text-white hover:bg-[#1A2333]">
+					<button className="px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-[#111A2A] dark:border-[#243041] dark:text-slate-200 dark:hover:bg-[#1A2333]">
 						Settings
 					</button>
 				</div>
 
-				<div className="mt-4 bg-[#1A2333] border border-[#243041] rounded-xl p-3 flex items-center gap-3">
-					<HiOutlineMagnifyingGlass className="text-slate-400" />
+				<div className="mt-4 bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 dark:bg-[#1A2333] dark:border-[#243041]">
+					<HiOutlineMagnifyingGlass className="text-slate-500 dark:text-slate-400" />
 					<input
-						className="flex-1 bg-transparent text-sm text-slate-200 placeholder:text-slate-500 outline-none"
+						className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none dark:text-slate-200 dark:placeholder:text-slate-500"
 						placeholder="Search notifications..."
 					/>
-					<button className="px-3 py-1.5 text-xs rounded-full bg-[#111A2A] border border-[#243041] text-slate-200 hover:text-white hover:bg-[#1A2333]">
-						Mark All as Read
-					</button>
-				</div>
+					<button className="px-3 py-1.5 text-xs rounded-full bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-[#111A2A] dark:border-[#243041] dark:text-slate-200 dark:hover:bg-[#1A2333]">
+							Mark All as Read
+						</button>
+					</div>
 
-				<div className="mt-5 space-y-3">
+					<div className="mt-5 space-y-3">
 					{notifications.map((item) => {
 						const toneClasses =
 							item.tone === "success"
-								? "text-green-400"
+								? "text-green-600 dark:text-green-400"
 								: item.tone === "warning"
-									? "text-orange-400"
-									: "text-blue-400";
+									? "text-orange-600 dark:text-orange-400"
+									: "text-blue-600 dark:text-blue-400";
 
 						return (
 							<div
 								key={item.title}
-								className="bg-[#1A2333] border border-[#243041] rounded-xl p-4 flex items-start justify-between gap-4"
+								className="bg-white border border-slate-200 rounded-xl p-4 flex items-start justify-between gap-4 dark:bg-[#1A2333] dark:border-[#243041]"
 							>
 								<div className="flex items-start gap-3">
 									<div
-										className={`h-8 w-8 rounded-full bg-[#122033] grid place-items-center ${toneClasses}`}
+										className={`h-8 w-8 rounded-full bg-slate-100 grid place-items-center dark:bg-[#122033] ${toneClasses}`}
 									>
 										<HiOutlineInformationCircle className="text-lg" />
 									</div>
 									<div>
-										<p className="text-white text-sm font-semibold">
+										<p className="text-slate-900 text-sm font-semibold dark:text-white">
 											{item.title}
 										</p>
-										<p className="text-slate-400 text-xs mt-1">{item.body}</p>
+										<p className="text-slate-600 text-xs mt-1 dark:text-slate-400">{item.body}</p>
 										<p className="text-slate-500 text-[10px] mt-2">
 											{item.time}
 										</p>
 									</div>
 								</div>
-								<button className="text-xs text-blue-400 hover:text-blue-300 inline-flex items-center gap-1 whitespace-nowrap">
-									View Details
-									<HiOutlineArrowUpRight className="text-sm" />
-								</button>
-							</div>
-						);
-					})}
-				</div>
+								<button className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300">
+										View Details
+										<HiOutlineArrowUpRight className="text-sm" />
+									</button>
+								</div>
+							);
+						})}
+					</div>
 				</div>
 			</div>
 		</div>
