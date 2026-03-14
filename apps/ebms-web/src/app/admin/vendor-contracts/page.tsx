@@ -59,13 +59,14 @@ export default function VendorContractsPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [contractRows, setContractRows] = useState<Contract[]>(contracts);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 400);
     return () => clearTimeout(t);
   }, []);
 
-  const filteredContracts = contracts.filter((contract) => {
+  const filteredContracts = contractRows.filter((contract) => {
     const query = search.trim().toLowerCase();
     if (!query) return true;
     return (

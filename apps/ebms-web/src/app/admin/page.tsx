@@ -1,4 +1,5 @@
 /** @format */
+"use client";
 
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -213,21 +214,6 @@ export default function HrDashboardPage() {
       icon: <HrActiveBenefitsIcon />,
     },
   ];
-
-	const statCards: StatCard[] = [
-		{
-			title: "Total Employees",
-			value: String(totalEmployees),
-			iconBg: "bg-[#2A8BFF]",
-			icon: <HrTotalEmployeeIcon />,
-		},
-		{
-			title: "All Benefits",
-			value: String(activeBenefits),
-			iconBg: "bg-[#00C95F]",
-			icon: <HrActiveBenefitsIcon />,
-		},
-	];
 
 	const handleApprove = async (requestId: string) => {
 		setActionLoadingId(requestId);
@@ -456,7 +442,7 @@ export default function HrDashboardPage() {
 							</p>
 						) : (
 							<>
-								{displayRequests.length === 0 ? (
+								{requests.length === 0 ? (
 									<p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
 										No benefit requests found.
 									</p>
@@ -483,7 +469,7 @@ export default function HrDashboardPage() {
 												</tr>
 											</thead>
 											<tbody>
-												{displayRequests.map((req) => {
+												{requests.map((req) => {
 													const status = (
 														req.status || "PENDING"
 													).toUpperCase();
