@@ -191,11 +191,9 @@ export default function VendorContractsPage() {
         </p>
       )}
 
-      <section className="grid grid-cols-1 gap-3 lg:grid-cols-5">
+      <section className="grid w-full grid-cols-1 gap-3 lg:grid-cols-5">
         <div
-          className={`grid grid-cols-1 gap-2 ${
-            activeTab === "vendor" ? "sm:grid-cols-2 lg:col-span-2" : "sm:grid-cols-3 lg:col-span-3"
-          }`}
+          className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3 lg:col-span-3"
         >
           <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
             <div className="mb-2 flex items-start justify-between">
@@ -221,7 +219,7 @@ export default function VendorContractsPage() {
             </p>
           </article>
 
-          {activeTab !== "vendor" && (
+          {activeTab !== "vendor" ? (
             <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
               <div className="mb-2 flex items-start justify-between">
                 <p className="text-6 text-slate-600 dark:text-[#A7B6D3]">
@@ -233,16 +231,14 @@ export default function VendorContractsPage() {
                 {contractRows.filter((c) => c.renewal === "Auto-renew").length}
               </p>
             </article>
+          ) : (
+            <div className="hidden sm:block" />
           )}
         </div>
 
-        <div
-          className={`rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B] ${
-            activeTab === "vendor" ? "lg:col-span-2" : "lg:col-span-1"
-          }`}
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative min-w-[260px] flex-1">
+        <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B] lg:col-span-2">
+          <div className="flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
               <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
                 <svg
                   viewBox="0 0 24 24"
@@ -270,7 +266,7 @@ export default function VendorContractsPage() {
                 setUploadError(null);
                 setUploadMessage(null);
               }}
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2F66E8] px-4 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
+              className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center rounded-xl bg-[#2F66E8] px-4 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
             >
               {showUploadForm ? "Close" : "+ Add Contract"}
             </button>
