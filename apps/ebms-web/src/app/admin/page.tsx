@@ -9,6 +9,7 @@ import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import {
   getAdminClient,
   confirmBenefitRequest,
+  fetchBenefitRequestContractHtml,
   getApiErrorMessage,
 } from "./_lib/api";
 
@@ -23,6 +24,9 @@ const BENEFIT_REQUESTS_QUERY = gql`
       employeeName
       benefitName
       rejectReason
+      requiresContract
+      contractAcceptedAt
+      contractTemplateUrl
     }
   }
 `;
@@ -51,6 +55,9 @@ type BenefitRequest = {
   employeeName?: string | null;
   benefitName?: string | null;
   rejectReason?: string | null;
+  requiresContract: boolean;
+  contractAcceptedAt?: string | null;
+  contractTemplateUrl?: string | null;
 };
 
 type StatCard = {
@@ -206,6 +213,20 @@ export default function HrDashboardPage() {
     }
   };
 
+  const handleViewTemplate = async (requestId: string) => {
+    try {
+      const html = await fetchBenefitRequestContractHtml(getAdminClient(), requestId);
+      const popup = window.open("", "_blank", "noopener,noreferrer");
+      if (popup) {
+        popup.document.open();
+        popup.document.write(html);
+        popup.document.close();
+      }
+    } catch (e) {
+      setError(getApiErrorMessage(e));
+    }
+  };
+
   const displayRequests = requests.filter(
     (req) => !statusFilter || (req.status || 'PENDING').toUpperCase() === statusFilter
   );
@@ -296,6 +317,7 @@ export default function HrDashboardPage() {
                       <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Request (Benefit)</th>
                       <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Employee</th>
                       <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Status</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Contract</th>
                       <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Date</th>
                       <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Action</th>
                     </tr>
@@ -304,6 +326,7 @@ export default function HrDashboardPage() {
                     {displayRequests.map((req) => {
                         const status = (req.status || 'PENDING').toUpperCase();
                         const isLoading = actionLoadingId === req.id;
+                        const needsSignature = req.requiresContract && !req.contractAcceptedAt;
                         return (
                       <tr
                         key={req.id}
@@ -316,6 +339,26 @@ export default function HrDashboardPage() {
                           {req.employeeName ?? req.employeeId}
                         </td>
                         <td className="px-3 py-3 sm:px-4 sm:py-4">{statusBadge(status)}</td>
+                        <td className="px-3 py-3 sm:px-4 sm:py-4">
+                          {req.requiresContract ? (
+                            <div className="flex flex-col gap-1">
+                              <span className={`text-xs font-medium ${needsSignature ? 'text-amber-500' : 'text-emerald-500'}`}>
+                                {needsSignature ? 'Not signed' : 'Signed'}
+                              </span>
+                              {req.contractTemplateUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleViewTemplate(req.id)}
+                                  className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-300"
+                                >
+                                  View template
+                                </button>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 dark:text-slate-500 text-xs">N/A</span>
+                          )}
+                        </td>
                         <td className="px-3 py-3 text-slate-500 dark:text-[#8FA3C5] sm:px-4 sm:py-4">
                           {formatDate(req.createdAt)}
                         </td>
@@ -325,10 +368,10 @@ export default function HrDashboardPage() {
                               <button
                                 type="button"
                                 onClick={() => handleApprove(req.id)}
-                                disabled={isLoading}
+                                disabled={isLoading || needsSignature}
                                 className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
                               >
-                                {isLoading ? '...' : 'Approve'}
+                                {needsSignature ? 'Await sign' : isLoading ? '...' : 'Approve'}
                               </button>
                               <button
                                 type="button"

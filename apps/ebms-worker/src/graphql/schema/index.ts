@@ -88,6 +88,20 @@ export const typeDefs = /* GraphQL */ `
     employeeName: String
     benefitName: String
     rejectReason: String
+    contractVersionAccepted: String
+    contractAcceptedAt: String
+    requiresContract: Boolean!
+    contractId: ID
+    contractTemplateUrl: String
+  }
+
+  type ContractTemplate {
+    requestId: ID!
+    benefitId: ID!
+    contractId: ID
+    contractVersion: String
+    requiresContract: Boolean!
+    html: String!
   }
 
   input AuditFilters {
@@ -159,6 +173,7 @@ export const typeDefs = /* GraphQL */ `
     employees(department: String, employmentStatus: String): [Employee!]!
     auditLog(filters: AuditFilters!): [AuditEntry!]!
     benefitRequests(status: RequestStatus): [BenefitRequest!]!
+    benefitRequestContractTemplate(requestId: ID!): ContractTemplate!
     dashboardStats: DashboardStats!
     getEligibilityRuleConfig: EligibilityRuleConfig!
     getAvailableRuleAttributes: [String!]!
@@ -167,6 +182,7 @@ export const typeDefs = /* GraphQL */ `
   type Mutation {
     # Employee-only:
     requestBenefit(input: BenefitRequestInput!): BenefitRequest!
+    signBenefitContract(requestId: ID!): BenefitRequest!
     confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!, rejectReason: String): BenefitRequest!
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
     overrideEligibility(input: OverrideInput!): BenefitEligibility!

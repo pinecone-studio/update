@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { gql } from "graphql-request";
+import { useEffect, useState } from "react";
+import { getAdminClient, getApiErrorMessage } from "../_lib/api";
 
 type Contract = {
   id: number;
@@ -12,6 +14,24 @@ type Contract = {
   status: "Active" | "Expiring soon";
   renewal?: "Auto-renew";
 };
+
+type BenefitOption = {
+  id: string;
+  name: string;
+  category: string;
+  vendorName?: string | null;
+};
+
+const BENEFITS_QUERY = gql`
+  query BenefitsForContracts {
+    benefits {
+      id
+      name
+      category
+      vendorName
+    }
+  }
+`;
 
 const contracts: Contract[] = [
   {
@@ -56,6 +76,35 @@ export default function VendorContractsPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [benefitOptions, setBenefitOptions] = useState<BenefitOption[]>([]);
+  const [selectedVendorBenefitId, setSelectedVendorBenefitId] = useState("");
+  const [benefitsLoading, setBenefitsLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setBenefitsLoading(true);
+    setUploadError(null);
+    (async () => {
+      try {
+        const client = getAdminClient();
+        const res = await client.request<{ benefits: BenefitOption[] }>(
+          BENEFITS_QUERY,
+        );
+        const list = res.benefits ?? [];
+        if (!cancelled) {
+          setBenefitOptions(list);
+          setSelectedVendorBenefitId((prev) => prev || list[0]?.id || "");
+        }
+      } catch (e) {
+        if (!cancelled) setUploadError(getApiErrorMessage(e));
+      } finally {
+        if (!cancelled) setBenefitsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredContracts = contracts.filter((contract) => {
     const query = search.trim().toLowerCase();
@@ -269,8 +318,40 @@ export default function VendorContractsPage() {
             </>
           ) : (
             <>
-              <input type="hidden" name="benefitId" value="vendor_contract" />
-              <input type="hidden" name="version" value="1.0" />
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">Benefit</label>
+                <select
+                  name="benefitId"
+                  required
+                  value={selectedVendorBenefitId}
+                  onChange={(e) => setSelectedVendorBenefitId(e.target.value)}
+                  disabled={benefitsLoading || benefitOptions.length === 0}
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8] disabled:opacity-60"
+                >
+                  {benefitOptions.length === 0 ? (
+                    <option value="">
+                      {benefitsLoading
+                        ? "Loading benefits..."
+                        : "No benefits available"}
+                    </option>
+                  ) : (
+                    benefitOptions.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} ({b.id})
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">Version</label>
+                <input
+                  name="version"
+                  required
+                  placeholder="vendor-2026.1"
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                />
+              </div>
             </>
           )}
           <div className="flex flex-col gap-1">
@@ -316,7 +397,7 @@ export default function VendorContractsPage() {
           <div className="flex items-end">
             <button
               type="submit"
-              disabled={uploading}
+              disabled={uploading || (activeTab === "vendor" && !selectedVendorBenefitId)}
               className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2F66E8] px-5 text-5 font-medium text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {uploading ? "Uploading..." : "Upload Contract"}

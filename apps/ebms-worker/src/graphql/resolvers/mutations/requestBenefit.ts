@@ -4,6 +4,7 @@ import { requireEmployeeId } from '../context';
 import type { MutationResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
 import { benefits as benefitsTable, benefitRequests } from '../../../db/schema';
+import { asBool01 } from '../utils';
 import { and, eq } from 'drizzle-orm';
 
 export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit']> = async (
@@ -22,12 +23,23 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
   // Eligibility is from HR config (UI); we never block requests by LOCKED/ELIGIBLE.
   // Employees can always submit for HR review; config changes need no code deploy.
   const benefitRow = await db
-    .select({ id: benefitsTable.id })
+    .select({
+      id: benefitsTable.id,
+      requiresContract: benefitsTable.requiresContract,
+      activeContractId: benefitsTable.activeContractId,
+    })
     .from(benefitsTable)
     .where(and(eq(benefitsTable.id, benefitId), eq(benefitsTable.isActive, 1)))
     .limit(1);
-  if (!benefitRow[0]) {
+  const benefit = benefitRow[0];
+  if (!benefit) {
     throw new GraphQLError('Benefit not found', { extensions: { code: 'NOT_FOUND' } });
+  }
+  const requiresContract = asBool01(benefit.requiresContract);
+  if (requiresContract && !benefit.activeContractId) {
+    throw new GraphQLError('Benefit requires an active contract before requests can be submitted', {
+      extensions: { code: 'CONFLICT' },
+    });
   }
 
   const id = crypto.randomUUID();
@@ -47,6 +59,12 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
     benefitId,
     status: 'PENDING' as const,
     createdAt: now,
+    rejectReason: null,
+    contractVersionAccepted: null,
+    contractAcceptedAt: null,
+    requiresContract,
+    contractId: benefit.activeContractId ?? null,
+    contractTemplateUrl: requiresContract ? `/contracts/requests/${id}/template` : null,
   };
 };
 

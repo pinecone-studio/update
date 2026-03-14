@@ -2,10 +2,12 @@ import type { Ctx } from '../context';
 import { requireHR } from '../context';
 import type { QueryResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
+import { asBool01 } from '../utils';
 import {
   benefitRequests as benefitRequestsTable,
   employees,
   benefits,
+  contracts,
 } from '../../../db/schema';
 import { eq, sql } from 'drizzle-orm';
 
@@ -33,13 +35,18 @@ export const benefitRequests: NonNullable<
       benefitId: benefitRequestsTable.benefitId,
       status: benefitRequestsTable.status,
       createdAt: benefitRequestsTable.createdAt,
+      contractVersionAccepted: benefitRequestsTable.contractVersionAccepted,
+      contractAcceptedAt: benefitRequestsTable.contractAcceptedAt,
       rejectReason: benefitRequestsTable.rejectReason,
       employeeName: employees.name,
       benefitName: benefits.name,
+      requiresContract: benefits.requiresContract,
+      contractId: contracts.id,
     })
     .from(benefitRequestsTable)
     .leftJoin(employees, eq(benefitRequestsTable.employeeId, employees.id))
     .leftJoin(benefits, eq(benefitRequestsTable.benefitId, benefits.id))
+    .leftJoin(contracts, eq(benefits.activeContractId, contracts.id))
     .where(
       statusFilter
         ? eq(benefitRequestsTable.status, statusFilter)
@@ -60,5 +67,10 @@ export const benefitRequests: NonNullable<
     employeeName: r.employeeName ?? null,
     benefitName: r.benefitName ?? null,
     rejectReason: r.rejectReason ?? null,
+    contractVersionAccepted: r.contractVersionAccepted ?? null,
+    contractAcceptedAt: r.contractAcceptedAt ?? null,
+    requiresContract: asBool01(r.requiresContract),
+    contractId: r.contractId ?? null,
+    contractTemplateUrl: asBool01(r.requiresContract) ? `/contracts/requests/${r.id}/template` : null,
   }));
 };

@@ -1,4 +1,5 @@
 export * from './requestBenefit';
+export * from './signBenefitContract';
 export * from './cancelBenefitRequest';
 export * from './confirmBenefitRequest';
 export * from './overrideEligibility';

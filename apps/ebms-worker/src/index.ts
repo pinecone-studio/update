@@ -4,10 +4,12 @@
  */
 
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { createYoga, createSchema } from "graphql-yoga";
 import type { Env } from "./types";
 import { typeDefs, resolvers } from "./graphql";
 import adminContracts from "./routes/adminContracts";
+import contractsRoute from "./routes/contracts";
 
 type YogaContext = {
   env: Env;
@@ -21,6 +23,15 @@ const yoga = createYoga<YogaContext>({
 });
 
 const app = new Hono<{ Bindings: Env }>();
+
+app.use(
+  "*",
+  cors({
+    origin: "*",
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "x-employee-id", "x-role"],
+  }),
+);
 
 app.get("/", (c) =>
   c.json({
@@ -39,6 +50,7 @@ app.get("/health", (c) =>
 );
 
 app.route("/admin/contracts", adminContracts);
+app.route("/contracts", contractsRoute);
 
 app.all("/graphql", (c) => {
   // MVP auth: forward employee identity via headers.

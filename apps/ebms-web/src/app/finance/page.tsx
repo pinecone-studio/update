@@ -7,6 +7,7 @@ import { FinanceDashboardSkeleton } from "./components/FinanceDashboardSkeleton"
 import {
 	confirmBenefitRequest,
 	fetchBenefitRequests,
+	fetchBenefitRequestContractHtml,
 	fetchBenefits,
 	fetchEmployees,
 	getApiErrorMessage,
@@ -165,6 +166,20 @@ export default function FinancePage() {
 		}
 	};
 
+	const handleViewTemplate = async (requestId: string) => {
+		try {
+			const html = await fetchBenefitRequestContractHtml(getFinanceClient(), requestId);
+			const popup = window.open("", "_blank", "noopener,noreferrer");
+			if (popup) {
+				popup.document.open();
+				popup.document.write(html);
+				popup.document.close();
+			}
+		} catch (e) {
+			setError(getApiErrorMessage(e));
+		}
+	};
+
 	const visibleRequests = pendingRequests;
 
 	return (
@@ -250,11 +265,15 @@ export default function FinancePage() {
 								</th>
 								<th className="px-4 py-3 sm:px-6 sm:py-4">Department</th>
 								<th className="px-4 py-3 sm:px-6 sm:py-4">Date</th>
+								<th className="px-4 py-3 sm:px-6 sm:py-4">Contract</th>
 								<th className="px-4 py-3 sm:px-6 sm:py-4">Action</th>
 							</tr>
 						</thead>
 						<tbody>
-							{visibleRequests.map((request, index) => (
+							{visibleRequests.map((request, index) => {
+								const needsSignature =
+									request.requiresContract && !request.contractAcceptedAt;
+								return (
 								<tr key={request.id} className="border-b border-slate-200 dark:border-[#2B405F]">
 									<td className="px-4 py-4 sm:px-6 sm:py-5 text-5 font-semibold text-slate-900 dark:text-white">
 										{index + 1}
@@ -285,15 +304,39 @@ export default function FinancePage() {
 									<td className="px-4 py-4 sm:px-6 sm:py-5 text-5 text-slate-500 dark:text-[#8FA3C5]">
 										{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "—"}
 									</td>
+									<td className="px-4 py-4 sm:px-6 sm:py-5 whitespace-nowrap">
+										{request.requiresContract ? (
+											<div className="flex flex-col gap-1">
+												<span
+													className={`text-xs font-medium ${
+														needsSignature ? "text-amber-500" : "text-emerald-500"
+													}`}
+												>
+													{needsSignature ? "Not signed" : "Signed"}
+												</span>
+												{request.contractTemplateUrl ? (
+													<button
+														type="button"
+														onClick={() => void handleViewTemplate(request.id)}
+														className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-300"
+													>
+														View template
+													</button>
+												) : null}
+											</div>
+										) : (
+											<span className="text-xs text-slate-400 dark:text-slate-500">N/A</span>
+										)}
+									</td>
 									<td className="px-4 py-4 sm:px-6 sm:py-5">
 										<div className="flex flex-wrap items-center gap-2">
 											<button
 												type="button"
 												onClick={() => void handleDecision(request.id, true)}
-												disabled={submittingRequestId === request.id}
+												disabled={submittingRequestId === request.id || needsSignature}
 												className="rounded-lg bg-green-600 px-3 py-1.5 text-5 font-medium text-white hover:bg-green-700 disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
 											>
-												Approve
+												{needsSignature ? "Await sign" : "Approve"}
 											</button>
 											<button
 												type="button"
@@ -309,11 +352,12 @@ export default function FinancePage() {
 										</div>
 									</td>
 								</tr>
-							))}
+								);
+							})}
 							{visibleRequests.length === 0 && (
 								<tr>
 									<td
-										colSpan={7}
+										colSpan={8}
 										className="px-6 py-6 text-center text-5 text-slate-500 dark:text-[#A7B6D3]"
 									>
 										Pending хүсэлт алга байна.
