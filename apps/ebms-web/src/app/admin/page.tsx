@@ -336,12 +336,12 @@ export default function HrDashboardPage() {
               Employee Eligibility Overview
             </h2>
           </div>
-        )}
+      
 
         {loading ? (
           <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">Loading requests...</p>
         ) : (
-          <>
+          <div>
             {displayRequests.length === 0 ? (
               <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
                 No benefit requests found.
@@ -433,7 +433,7 @@ export default function HrDashboardPage() {
                 </table>
               </div>
             )}
-          </div>
+          </div>)}
         </section>
       </section>
 
