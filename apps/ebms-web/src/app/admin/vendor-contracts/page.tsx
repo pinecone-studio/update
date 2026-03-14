@@ -1,43 +1,46 @@
 "use client";
 
 import { useState } from "react";
-import { useEffect } from "react";
-import { TablePageSkeleton } from "../components/TablePageSkeleton";
-import { fetchBenefits, getApiErrorMessage, getFinanceClient } from "../../finance/_lib/api";
 
 type Contract = {
-  vendor: string;
-  benefit: string;
-  contractId: string;
-  value: string;
+  id: number;
+  contractNumber: string;
+  contractName: string;
   startDate: string;
   endDate: string;
+  contractUrl: string;
   status: "Active" | "Expiring soon";
   renewal?: "Auto-renew";
-  reviewed: string;
 };
 
 const contracts: Contract[] = [
   {
-    vendor: "BlueCross Health Network",
-    benefit: "Health Insurance",
-    contractId: "CNT-001",
-    value: "$2,450,000/year",
-    startDate: "January 1, 2024",
-    endDate: "December 31, 2026",
+    id: 1,
+    contractNumber: "CNT-001",
+    contractName: "Mack Vendor Master Agreement",
+    startDate: "2025-01-01",
+    endDate: "2026-12-31",
+    contractUrl: "https://contracts.update.mn/cnt-001",
     status: "Active",
     renewal: "Auto-renew",
-    reviewed: "January 15, 2026",
   },
   {
-    vendor: "Vanguard Retirement Services",
-    benefit: "401(k) Management",
-    contractId: "CNT-002",
-    value: "$125,000/year",
-    startDate: "March 1, 2025",
-    endDate: "May 31, 2026",
+    id: 2,
+    contractNumber: "CNT-002",
+    contractName: "Mack Employee Benefit Contract",
+    startDate: "2025-03-01",
+    endDate: "2026-05-31",
+    contractUrl: "https://contracts.update.mn/cnt-002",
     status: "Expiring soon",
-    reviewed: "February 2, 2026",
+  },
+  {
+    id: 3,
+    contractNumber: "CNT-003",
+    contractName: "Mack Medical Support Addendum",
+    startDate: "2026-01-15",
+    endDate: "2027-01-14",
+    contractUrl: "https://contracts.update.mn/cnt-003",
+    status: "Active",
   },
 ];
 
@@ -48,9 +51,21 @@ function getApiBaseUrl(): string {
 }
 
 export default function VendorContractsPage() {
+  const [activeTab, setActiveTab] = useState<"employee" | "vendor">("vendor");
+  const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+
+  const filteredContracts = contracts.filter((contract) => {
+    const query = search.trim().toLowerCase();
+    if (!query) return true;
+    return (
+      contract.contractNumber.toLowerCase().includes(query) ||
+      contract.contractName.toLowerCase().includes(query) ||
+      contract.contractUrl.toLowerCase().includes(query)
+    );
+  });
 
   async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -70,7 +85,10 @@ export default function VendorContractsPage() {
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         const msg =
-          (data && typeof data === "object" && "error" in data && (data as any).error) ||
+          (data &&
+            typeof data === "object" &&
+            "error" in data &&
+            (data as any).error) ||
           res.statusText ||
           "Upload failed";
         setUploadError(String(msg));
@@ -88,11 +106,42 @@ export default function VendorContractsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-5 font-semibold text-slate-900 dark:text-white">
-          Vendor Contract Management
-        </h1>
+        <div
+          className="flex flex-wrap items-center gap-3"
+          role="tablist"
+          aria-label="Contract type"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "employee"}
+            onClick={() => setActiveTab("employee")}
+            className={`rounded-xl px-3 py-2 text-5 font-semibold transition ${
+              activeTab === "employee"
+                ? "bg-[#2F66E8] text-white"
+                : "text-slate-300 hover:bg-[#24364F] hover:text-white"
+            }`}
+          >
+            Employee contract
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "vendor"}
+            onClick={() => setActiveTab("vendor")}
+            className={`rounded-xl px-3 py-2 text-5 font-semibold transition ${
+              activeTab === "vendor"
+                ? "bg-[#2F66E8] text-white"
+                : "text-slate-300 hover:bg-[#24364F] hover:text-white"
+            }`}
+          >
+            Vendor contract
+          </button>
+        </div>
         <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
-          Manage vendor contracts and track lifecycle status
+          {activeTab === "employee"
+            ? "Manage employee contracts and track lifecycle status"
+            : "Manage vendor contracts and track lifecycle status"}
         </p>
       </div>
       {uploadError && (
@@ -101,50 +150,87 @@ export default function VendorContractsPage() {
         </p>
       )}
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
-          <div className="mb-4 flex items-start justify-between">
-            <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Active Contracts</p>
-            <span className="mt-1 h-4 w-4 rounded-full bg-[#19D463]" />
-          </div>
-          <p className="text-5 font-semibold text-slate-900 dark:text-white">
-            {contracts.filter((c) => c.status === "Active").length}
-          </p>
-        </article>
+      <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div
+          className={`grid grid-cols-1 gap-2 ${
+            activeTab === "vendor" ? "sm:grid-cols-2 lg:col-span-1" : "sm:grid-cols-3 lg:col-span-2"
+          }`}
+        >
+          <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
+            <div className="mb-2 flex items-start justify-between">
+              <p className="text-6 text-slate-600 dark:text-[#A7B6D3]">
+                Active Contracts
+              </p>
+              <span className="mt-1 h-3 w-3 rounded-full bg-[#19D463]" />
+            </div>
+            <p className="text-5 font-semibold text-slate-900 dark:text-white">
+              {contracts.filter((c) => c.status === "Active").length}
+            </p>
+          </article>
 
-        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
-          <div className="mb-4 flex items-start justify-between">
-            <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Expiring Soon</p>
-            <span className="mt-1 h-4 w-4 rounded-full bg-[#FFB21C]" />
-          </div>
-          <p className="text-5 font-semibold text-slate-900 dark:text-white">
-            {contracts.filter((c) => c.status === "Expiring soon").length}
-          </p>
-        </article>
+          <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
+            <div className="mb-2 flex items-start justify-between">
+              <p className="text-6 text-slate-600 dark:text-[#A7B6D3]">
+                Expiring Soon
+              </p>
+              <span className="mt-1 h-3 w-3 rounded-full bg-[#FFB21C]" />
+            </div>
+            <p className="text-5 font-semibold text-slate-900 dark:text-white">
+              {contracts.filter((c) => c.status === "Expiring soon").length}
+            </p>
+          </article>
 
-        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
-          <div className="mb-4 flex items-start justify-between">
-            <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Pending Renewal</p>
-            <span className="mt-1 h-4 w-4 rounded-full bg-[#3E82F7]" />
-          </div>
-          <p className="text-5 font-semibold text-slate-900 dark:text-white">
-            {contracts.filter((c) => c.renewal === "Auto-renew").length}
-          </p>
-        </article>
+          {activeTab !== "vendor" && (
+            <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
+              <div className="mb-2 flex items-start justify-between">
+                <p className="text-6 text-slate-600 dark:text-[#A7B6D3]">
+                  Pending Renewal
+                </p>
+                <span className="mt-1 h-3 w-3 rounded-full bg-[#3E82F7]" />
+              </div>
+              <p className="text-5 font-semibold text-slate-900 dark:text-white">
+                {contracts.filter((c) => c.renewal === "Auto-renew").length}
+              </p>
+            </article>
+          )}
+        </div>
 
-        <article className="min-w-0 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-[#2C4264] dark:bg-[#1E293B]">
-          <div className="mb-4 flex items-start justify-between">
-            <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Total Contract Value</p>
+        <div
+          className={`rounded-xl border border-[#2C4264] bg-[#1E293B] p-3 ${
+            activeTab === "vendor" ? "lg:col-span-2" : "lg:col-span-1"
+          }`}
+        >
+          <div className="relative">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="h-5 w-5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-4-4" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by contract number, name, or URL..."
+              className={`w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8] ${
+                activeTab === "vendor" ? "h-14" : "h-12"
+              }`}
+            />
           </div>
-          <p className="text-5 font-semibold text-slate-900 dark:text-white">
-            {contracts.length}
-          </p>
-        </article>
+        </div>
       </section>
 
       <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
         <h2 className="text-5 font-semibold text-white mb-4">
-          Upload Vendor Contract PDF
+          {activeTab === "employee"
+            ? "Upload Employee Contract PDF"
+            : "Upload Vendor Contract PDF"}
         </h2>
         {uploadError && (
           <p className="mb-3 rounded-xl border border-[#7F1D1D] bg-[#2F1212] p-3 text-[#FCA5A5] text-5">
@@ -160,26 +246,37 @@ export default function VendorContractsPage() {
           onSubmit={handleUpload}
           className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
         >
+          {activeTab === "employee" ? (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">Benefit ID</label>
+                <input
+                  name="benefitId"
+                  required
+                  placeholder="gym_pinefit"
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">Version</label>
+                <input
+                  name="version"
+                  required
+                  placeholder="2025.1"
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <input type="hidden" name="benefitId" value="vendor_contract" />
+              <input type="hidden" name="version" value="1.0" />
+            </>
+          )}
           <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">Benefit ID</label>
-            <input
-              name="benefitId"
-              required
-              placeholder="gym_pinefit"
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">Version</label>
-            <input
-              name="version"
-              required
-              placeholder="2025.1"
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">Vendor Name (optional)</label>
+            <label className="text-5 text-[#A7B6D3]">
+              Vendor Name (optional)
+            </label>
             <input
               name="vendorName"
               placeholder="PineFit"
@@ -187,7 +284,9 @@ export default function VendorContractsPage() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">Effective Date (optional)</label>
+            <label className="text-5 text-[#A7B6D3]">
+              Effective Date (optional)
+            </label>
             <input
               name="effectiveDate"
               type="date"
@@ -195,7 +294,9 @@ export default function VendorContractsPage() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">Expiry Date (optional)</label>
+            <label className="text-5 text-[#A7B6D3]">
+              Expiry Date (optional)
+            </label>
             <input
               name="expiryDate"
               type="date"
@@ -224,123 +325,77 @@ export default function VendorContractsPage() {
         </form>
       </section>
 
-      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
-        <div className="relative">
-          <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              className="h-6 w-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-4-4" />
-            </svg>
-          </span>
-          <input
-            type="text"
-            placeholder="Search by vendor name, benefit, or contract ID..."
-            className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 pl-14 pr-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
-          />
-        </div>
-      </section>
-
       <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
         <h2 className="text-5 font-semibold text-slate-900 dark:text-white">
-          All Vendor Contracts
+          {activeTab === "employee"
+            ? "All Employee Contracts"
+            : "All Vendor Contracts"}
         </h2>
 
-        <div className="mt-5 space-y-5">
-          {contracts.map((contract) => (
-            <article
-              key={contract.contractId}
-              className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-[#324A70] dark:bg-[#23324C]"
-            >
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-[#3E82F7]">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="h-7 w-7"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
+        <div className="mt-5 overflow-x-auto rounded-3xl border border-[#2C4264]">
+          <table className="min-w-full divide-y divide-[#2C4264]">
+            <thead className="bg-[#0F1D3A]">
+              <tr>
+                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                  №
+                </th>
+                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                  Гэрээний дугаар
+                </th>
+                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                  Гэрээний нэр
+                </th>
+                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                  Эхлэх хугацаа
+                </th>
+                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                  Дуусах хугацаа
+                </th>
+                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                  Гэрээний URL
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#2C4264] bg-[#0E2047]">
+              {filteredContracts.map((contract, index) => (
+                <tr key={contract.id}>
+                  <td className="px-5 py-5 text-5 text-white">{index + 1}</td>
+                  <td className="px-5 py-5 text-5 font-semibold text-white">
+                    {contract.contractNumber}
+                  </td>
+                  <td className="px-5 py-5 text-5 text-white">
+                    {contract.contractName}
+                  </td>
+                  <td className="px-5 py-5 text-5 text-[#D1DBEF]">
+                    {contract.startDate}
+                  </td>
+                  <td className="px-5 py-5 text-5 text-[#D1DBEF]">
+                    {contract.endDate}
+                  </td>
+                  <td className="px-5 py-5 text-5">
+                    <a
+                      href={contract.contractUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#6FA3FF] underline decoration-[#6FA3FF]/40 underline-offset-4 hover:text-[#8AB6FF]"
+                    >
+                      {contract.contractUrl}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+              {filteredContracts.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-5 py-6 text-center text-5 text-[#A7B6D3]"
                   >
-                    <path d="M8 3h8l4 4v14H4V3h4Z" />
-                    <path d="M16 3v5h5" />
-                    <path d="M8 12h8M8 16h8" />
-                  </svg>
-                </span>
-                <h3 className="text-5 font-semibold text-slate-900 dark:text-white">
-                  {contract.vendor}
-                </h3>
-                <span
-                  className={`rounded-xl border px-3 py-1 text-5 font-medium ${
-                    contract.status === "Active"
-                      ? "border-[#166534] bg-[#052E25] text-[#34D399]"
-                      : "border-[#B45309] bg-[#3B2A12] text-[#FBBF24]"
-                  }`}
-                >
-                  {contract.status}
-                </span>
-                {contract.renewal && (
-                  <span className="rounded-xl border border-[#5F6D89] bg-[#3A4560] px-3 py-1 text-5 font-medium text-[#C8D2E8]">
-                    {contract.renewal}
-                  </span>
-                )}
-              </div>
-
-              <p className="mt-3 text-5 text-[#A7B6D3]">
-                Benefit: {contract.benefit}
-              </p>
-
-              <div className="mt-4 grid grid-cols-1 gap-4 rounded-2xl bg-slate-100 p-4 md:grid-cols-4 dark:bg-[#2A3555]">
-                <div>
-                  <p className="text-5 text-slate-500 dark:text-[#95A7C6]">Contract ID</p>
-                  <p className="mt-1 text-5 text-slate-900 dark:text-white">
-                    {contract.contractId}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-5 text-slate-500 dark:text-[#95A7C6]">Contract Value</p>
-                  <p className="mt-1 text-5 text-slate-900 dark:text-white">{contract.value}</p>
-                </div>
-                <div>
-                  <p className="text-5 text-slate-500 dark:text-[#95A7C6]">Start Date</p>
-                  <p className="mt-1 text-5 text-slate-900 dark:text-white">{contract.startDate}</p>
-                </div>
-                <div>
-                  <p className="text-5 text-slate-500 dark:text-[#95A7C6]">End Date</p>
-                  <p className="mt-1 text-5 text-slate-900 dark:text-white">{contract.endDate}</p>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-5 text-[#8192B3]">
-                  Last reviewed: {contract.reviewed}
-                </p>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    className="rounded-xl border border-[#4B5D83] bg-[#334160] px-5 py-2 text-5 text-[#D4DEEF] transition hover:bg-[#3A4A6C]"
-                  >
-                    Update Status
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-xl border border-[#2F66E8] bg-[#1A2D59] px-5 py-2 text-5 text-[#4F86FF] transition hover:bg-[#213872]"
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-          {contracts.length === 0 && (
-            <p className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#23324C] dark:text-[#A7B6D3]">
-              Contract өгөгдөл алга байна.
-            </p>
-          )}
+                    Contract олдсонгүй.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>

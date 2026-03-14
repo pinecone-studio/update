@@ -36,7 +36,7 @@ const navItems: NavItem[] = [
     icon: <HrEmployeeIcon />,
   },
   {
-    label: "Vendor Contracts",
+    label: "Contracts",
     href: "/admin/vendor-contracts",
     icon: <HrVendorIcon />,
   },

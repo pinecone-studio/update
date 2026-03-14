@@ -3,11 +3,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { EmployeeEligibilitySkeleton } from "../components/EmployeeEligibilitySkeleton";
-import { createPortal } from "react-dom";
 import { GraphQLClient, gql } from "graphql-request";
-
-type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
 type EmployeeListItem = {
 	id: string;
@@ -135,22 +133,6 @@ export default function EmployeeEligibilityPage() {
 	const [employeeList, setEmployeeList] =
 		useState<EmployeeRow[]>(initialEmployees);
 	const [search, setSearch] = useState("");
-	const [selectedId, setSelectedId] = useState<string | null>(null);
-	const [expandedBenefitKey, setExpandedBenefitKey] = useState<string | null>(
-		null,
-	);
-	const [draftStatusByKey, setDraftStatusByKey] = useState<
-		Record<string, BenefitRow["status"]>
-	>({});
-	const [draftReasonByKey, setDraftReasonByKey] = useState<
-		Record<string, string>
-	>({});
-	const [savedReasonByKey, setSavedReasonByKey] = useState<
-		Record<string, string>
-	>({});
-	const [savingByKey, setSavingByKey] = useState<Record<string, boolean>>({});
-	const [errorByKey, setErrorByKey] = useState<Record<string, string>>({});
-	const currentAdmin = "HR Admin";
 
 	const filteredEmployees = useMemo(() => {
 		const q = search.trim().toLowerCase();
@@ -162,11 +144,6 @@ export default function EmployeeEligibilityPage() {
 				emp.department.toLowerCase().includes(q),
 		);
 	}, [search, employeeList]);
-
-	const selectedEmployee = useMemo(
-		() => employeeList.find((emp) => emp.id === selectedId) ?? null,
-		[selectedId, employeeList],
-	);
 
 	const getInitials = (name: string) =>
 		name
@@ -259,7 +236,6 @@ export default function EmployeeEligibilityPage() {
 					id: e.id ?? "",
 					name: e.name ?? "Unknown",
 					department: e.role ?? e.employmentStatus ?? "—",
-					benefits: [],
 				}));
 				setEmployeeList(rows);
 			})
@@ -309,7 +285,7 @@ export default function EmployeeEligibilityPage() {
 					Employee Eligibility Overview
 				</h1>
 				<p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
-					Нэрээр хайж, ажилтан дээр дарахад benefit eligibility-г төв popup дээр
+					Нэрээр хайж, ажилтан дээр дарахад benefit eligibility-г бүтэн дэлгэц дээр
 					харна.
 				</p>
 			</div>
@@ -344,10 +320,9 @@ export default function EmployeeEligibilityPage() {
 				</h2>
 				<div className="mt-4 space-y-2">
 					{filteredEmployees.map((emp) => (
-						<button
+						<Link
 							key={emp.id}
-							type="button"
-							onClick={() => setSelectedId(emp.id)}
+							href={`/admin/employee-eligibility/${emp.id}`}
 							className="flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:bg-slate-100 dark:border-[#324A70] dark:bg-[#0F172A] dark:hover:bg-[#142544]"
 						>
 							<span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-5 font-semibold text-white">
@@ -361,7 +336,7 @@ export default function EmployeeEligibilityPage() {
 									{emp.department}
 								</p>
 							</div>
-						</button>
+						</Link>
 					))}
 					{filteredEmployees.length === 0 && (
 						<p className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-[#9FB0CF]">
