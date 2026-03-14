@@ -77,7 +77,6 @@ export default function VendorContractsPage() {
   const [contractRows, setContractRows] = useState<Contract[]>(contracts);
   const [search, setSearch] = useState("");
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [contractRows, setContractRows] = useState<Contract[]>(contracts);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
