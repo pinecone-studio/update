@@ -17,7 +17,6 @@ import {
 import { HrAuditIcon } from "@/app/icons/hrAudit";
 import { HrBenefitsRuleIcon } from "@/app/icons/hrBenefitsRule";
 import { HrDashboardIcon } from "@/app/icons/hrDashboard";
-import { HrEmployeeIcon } from "@/app/icons/hrEmployee";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import type { ReactNode } from "react";
@@ -30,11 +29,6 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: <HrDashboardIcon /> },
-  {
-    label: "Employee Eligibility",
-    href: "/admin/employee-eligibility",
-    icon: <HrEmployeeIcon />,
-  },
   {
     label: "Contracts",
     href: "/admin/vendor-contracts",

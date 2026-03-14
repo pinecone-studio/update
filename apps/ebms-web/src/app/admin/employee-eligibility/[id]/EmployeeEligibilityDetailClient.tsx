@@ -120,7 +120,7 @@ export default function EmployeeEligibilityDetailClient() {
   const currentAdmin = "HR Admin";
 
   const handleBack = () => {
-    router.push("/admin/employee-eligibility");
+    router.push("/admin");
   };
 
   const handleShowToggle = (key: string, currentStatus: BenefitStatus) => {
