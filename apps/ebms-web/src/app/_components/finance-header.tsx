@@ -12,7 +12,6 @@ import {
   HiOutlineCurrencyDollar,
   HiOutlineDocumentText,
   HiOutlineUserCircle,
-  HiOutlineXCircle,
 } from "react-icons/hi2";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
@@ -28,11 +27,6 @@ const navItems: NavItem[] = [
     label: "Dashboard",
     href: "/finance",
     icon: <HiOutlineChartPie className="h-4 w-4" />,
-  },
-  {
-    label: "Rejected Requests",
-    href: "/finance/rejected-requests",
-    icon: <HiOutlineXCircle className="h-4 w-4" />,
   },
   {
     label: "Budget Overview",

@@ -8,25 +8,25 @@ const statCards = [
     title: "Total Budget",
     value: "$100,000",
     icon: "◫",
-    tone: "text-[#4EA2FF] bg-[#11284D]",
+    tone: "text-[#4EA2FF] dark:bg-[#11284D] border border-slate-200 dark:border-[#1F345C] bg-white dark:bg-[#0D1B3A]",
   },
   {
     title: "Used Budget",
     value: "$63,500",
     icon: "↗",
-    tone: "text-[#B878FF] bg-[#2B2149]",
+    tone: "text-[#B878FF] dark:bg-[#2B2149] border border-slate-200 dark:border-[#1F345C] bg-white dark:bg-[#0D1B3A]",
   },
   {
     title: "Remaining Budget",
     value: "$36,500",
     icon: "$",
-    tone: "text-[#00E08B] bg-[#15342B]",
+    tone: "text-[#00E08B] dark:bg-[#15342B] border border-slate-200 dark:border-[#1F345C] bg-white dark:bg-[#0D1B3A]",
   },
   {
     title: "Pending Requests",
     value: "$18,200",
     icon: "◔",
-    tone: "text-[#FF9D33] bg-[#3A2A16]",
+    tone: "text-[#FF9D33]  dark:bg-[#3A2A16] border border-slate-200 dark:border-[#1F345C] bg-white dark:bg-[#0D1B3A]",
   },
 ];
 
