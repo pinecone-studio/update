@@ -73,7 +73,8 @@ function getApiBaseUrl(): string {
 
 export default function VendorContractsPage() {
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"employee" | "vendor">("vendor");
+  const [activeTab, setActiveTab] = useState<"employee" | "vendor">("employee");
+  const [contractRows, setContractRows] = useState<Contract[]>(contracts);
   const [search, setSearch] = useState("");
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [contractRows, setContractRows] = useState<Contract[]>(contracts);
@@ -328,18 +329,35 @@ export default function VendorContractsPage() {
               }}
               className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center rounded-xl bg-[#2F66E8] px-4 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
             >
-              {showUploadForm ? "Close" : "+ Add Contract"}
+              + Add Contract
             </button>
           </div>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
-        <h2 className="text-5 font-semibold text-slate-900 dark:text-white mb-4">
-          {activeTab === "employee"
-            ? "Upload Employee Contract PDF"
-            : "Upload Vendor Contract PDF"}
-        </h2>
+      {showUploadForm && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <button
+          type="button"
+          aria-label="Close add contract modal"
+          onClick={() => setShowUploadForm(false)}
+          className="absolute inset-0 bg-white/25 backdrop-blur-md dark:bg-black/30 dark:backdrop-blur-lg"
+        />
+      <section className="relative z-10 max-h-[92vh] w-full max-w-7xl overflow-auto rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-5 font-semibold text-slate-900 dark:text-white">
+            {activeTab === "employee"
+              ? "Upload Employee Contract PDF"
+              : "Upload Vendor Contract PDF"}
+          </h2>
+          <button
+            type="button"
+            onClick={() => setShowUploadForm(false)}
+            className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
+          >
+            Close
+          </button>
+        </div>
         {uploadError && (
           <p className="mb-3 rounded-xl border border-[#7F1D1D] bg-[#2F1212] p-3 text-[#FCA5A5] text-5">
             {uploadError}
@@ -378,14 +396,14 @@ export default function VendorContractsPage() {
           ) : (
             <>
               <div className="flex flex-col gap-1">
-                <label className="text-5 text-[#A7B6D3]">Benefit</label>
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Benefit</label>
                 <select
                   name="benefitId"
                   required
                   value={selectedVendorBenefitId}
                   onChange={(e) => setSelectedVendorBenefitId(e.target.value)}
                   disabled={benefitsLoading || benefitOptions.length === 0}
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8] disabled:opacity-60"
+                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 outline-none focus:border-blue-500 disabled:opacity-60 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
                 >
                   {benefitOptions.length === 0 ? (
                     <option value="">
@@ -403,12 +421,12 @@ export default function VendorContractsPage() {
                 </select>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-5 text-[#A7B6D3]">Version</label>
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Version</label>
                 <input
                   name="version"
                   required
                   placeholder="vendor-2026.1"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
                 />
               </div>
             </>
@@ -464,6 +482,8 @@ export default function VendorContractsPage() {
           </div>
         </form>
       </section>
+      </div>
+      )}
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
         <h2 className="text-5 font-semibold text-slate-900 dark:text-white">

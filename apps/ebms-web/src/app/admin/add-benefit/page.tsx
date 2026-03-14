@@ -7,6 +7,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { BenefitCard, type BenefitStatus } from "@/app/_components/BenefitCard";
 import { HrActiveBenefitsIcon } from "@/app/icons/hrActiveBenefits";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import AddBenefitsBuilderClient from "./new/AddBenefitsBuilderClient";
 import type { BenefitFromCatalog, BenefitConfig } from "./_lib/types";
 import {
   getClient,
@@ -26,6 +27,7 @@ function BenefitsAndRulePageContent() {
   const [error, setError] = useState<string | null>(null);
   const [actionBusyId, setActionBusyId] = useState<string | null>(null);
   const [highlightBenefitId, setHighlightBenefitId] = useState<string | null>(null);
+  const [showAddBenefitModal, setShowAddBenefitModal] = useState(false);
 
   const loadAll = useCallback(async () => {
     setLoadingCatalog(true);
@@ -91,12 +93,13 @@ function BenefitsAndRulePageContent() {
             Таны үүсгэсэн бүх benefit энд харагдана.
           </p>
         </div>
-        <Link
-          href="/admin/add-benefit/new"
+        <button
+          type="button"
+          onClick={() => setShowAddBenefitModal(true)}
           className="rounded-xl bg-[#2F66E8] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#3E82F7]"
         >
           + Add Benefits
-        </Link>
+        </button>
       </div>
 
       <section className="mt-8">
@@ -173,6 +176,28 @@ function BenefitsAndRulePageContent() {
           </div>
         )}
       </section>
+
+      {showAddBenefitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <button
+            type="button"
+            aria-label="Close add benefit modal"
+            onClick={() => setShowAddBenefitModal(false)}
+            className="absolute inset-0 bg-[#020B1FCC] backdrop-blur-md"
+          />
+          <div className="relative z-10 max-h-[92vh] w-full max-w-6xl overflow-auto rounded-3xl">
+            <AddBenefitsBuilderClient
+              inModal
+              compactCreateMode
+              onClose={() => setShowAddBenefitModal(false)}
+              onSaved={async () => {
+                setShowAddBenefitModal(false);
+                await loadAll();
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

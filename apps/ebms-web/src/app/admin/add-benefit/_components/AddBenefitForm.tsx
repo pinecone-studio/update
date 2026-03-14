@@ -1,12 +1,14 @@
-'use client';
+"use client";
 
 import { useEffect, useRef } from "react";
-import type { AddBenefitFormState } from '../_lib/types';
-import { BENEFIT_SUGGESTIONS } from '../_lib/constants';
+import type { AddBenefitFormState } from "../_lib/types";
+import { BENEFIT_SUGGESTIONS } from "../_lib/constants";
 
-const sectionClass = 'mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]';
-const inputClass = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white';
-const labelClass = 'block text-sm text-slate-600 mb-1 dark:text-[#94A3B8]';
+const sectionClass =
+  "mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+const inputClass =
+  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white";
+const labelClass = "block text-sm text-slate-600 mb-1 dark:text-[#94A3B8]";
 const CATEGORY_OPTIONS = [
   "wellness",
   "health",
@@ -40,9 +42,7 @@ export function AddBenefitForm({
   const objectUrlRef = useRef<string | null>(null);
   const normalizedCategory = (form.category ?? "").trim().toLowerCase();
   const isPresetCategory = CATEGORY_OPTIONS.includes(normalizedCategory);
-  const categorySelectValue = isPresetCategory
-    ? normalizedCategory
-    : "__other";
+  const categorySelectValue = isPresetCategory ? normalizedCategory : "__other";
 
   useEffect(() => {
     return () => {
@@ -93,7 +93,10 @@ export function AddBenefitForm({
             onChange={(e) => {
               const value = e.target.value;
               if (value === "__other") {
-                onChange({ ...form, category: isPresetCategory ? "" : form.category });
+                onChange({
+                  ...form,
+                  category: isPresetCategory ? "" : form.category,
+                });
                 return;
               }
               onChange({ ...form, category: value });
@@ -123,8 +126,13 @@ export function AddBenefitForm({
             type="number"
             min={0}
             max={100}
-            value={form.subsidyPercent ?? ''}
-            onChange={(e) => onChange({ ...form, subsidyPercent: e.target.value ? Number(e.target.value) : 0 })}
+            value={form.subsidyPercent ?? ""}
+            onChange={(e) =>
+              onChange({
+                ...form,
+                subsidyPercent: e.target.value ? Number(e.target.value) : 0,
+              })
+            }
             className={inputClass}
           />
         </div>
@@ -134,11 +142,16 @@ export function AddBenefitForm({
               type="checkbox"
               id="s1-finance-check"
               checked={!!form.financeCheck}
-              onChange={(e) => onChange({ ...form, financeCheck: e.target.checked })}
+              onChange={(e) =>
+                onChange({ ...form, financeCheck: e.target.checked })
+              }
               className="rounded border-[#334155]"
             />
-            <label htmlFor="s1-finance-check" className="text-sm text-slate-600 dark:text-[#94A3B8]">
-              Finance check
+            <label
+              htmlFor="s1-finance-check"
+              className="text-sm text-slate-600 dark:text-[#94A3B8]"
+            >
+              Finance
             </label>
           </div>
           <div className="flex items-center gap-2">
@@ -163,7 +176,10 @@ export function AddBenefitForm({
               }}
               className="rounded border-[#334155]"
             />
-            <label htmlFor="s1-requires-contract" className="text-sm text-slate-600 dark:text-[#94A3B8]">
+            <label
+              htmlFor="s1-requires-contract"
+              className="text-sm text-slate-600 dark:text-[#94A3B8]"
+            >
               Гэрээ шаардлагатай
             </label>
           </div>
@@ -181,7 +197,9 @@ export function AddBenefitForm({
               <input
                 type="text"
                 value={form.contractNumber}
-                onChange={(e) => onChange({ ...form, contractNumber: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...form, contractNumber: e.target.value })
+                }
                 className={inputClass}
                 placeholder="жишээ: CNT-2026-001"
               />
@@ -191,7 +209,9 @@ export function AddBenefitForm({
               <input
                 type="text"
                 value={form.contractName}
-                onChange={(e) => onChange({ ...form, contractName: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...form, contractName: e.target.value })
+                }
                 className={inputClass}
                 placeholder="жишээ: PineFit Vendor Contract"
               />
@@ -224,7 +244,10 @@ export function AddBenefitForm({
           {form.contractUrl ? (
             <div className="mt-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm dark:border-green-700/50 dark:bg-green-900/20">
               <p className="text-green-700 dark:text-green-300">
-                Uploaded: <span className="font-medium">{form.contractFileName || "Contract file"}</span>
+                Uploaded:{" "}
+                <span className="font-medium">
+                  {form.contractFileName || "Contract file"}
+                </span>
               </p>
               <a
                 href={form.contractUrl}
@@ -259,7 +282,9 @@ export function AddBenefitForm({
             type="button"
             onClick={() => {
               const suggestion =
-                BENEFIT_SUGGESTIONS[Math.floor(Math.random() * BENEFIT_SUGGESTIONS.length)];
+                BENEFIT_SUGGESTIONS[
+                  Math.floor(Math.random() * BENEFIT_SUGGESTIONS.length)
+                ];
               onChange({ ...form, ...suggestion });
             }}
             className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-slate-300 dark:hover:bg-[#24364F]"
