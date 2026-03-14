@@ -382,7 +382,7 @@ export default function EmployeeDashboardPage() {
 				{!feedbackPanelOpen && (
 					<button
 						type="button"
-						className="fixed bottom-14 right-14 w-16 h-16 bg-[#1E293B] border border-gray-300 rounded-full flex justify-center items-center hover:bg-[#334155] duration-200 cursor-pointer text-white shadow-lg"
+						className="fixed bottom-14 right-14 w-16 h-16 bg-slate-800 border border-gray-300 rounded-full flex justify-center items-center hover:bg-slate-700 duration-200 cursor-pointer text-white shadow-lg dark:bg-[#1E293B] dark:hover:bg-[#334155]"
 						onClick={() => setFeedbackPanelOpen(true)}
 						aria-label="Help & Feedback"
 					>

@@ -25,7 +25,7 @@ export function FinancePageSkeleton({
 					{Array.from({ length: statCardCount }).map((_, i) => (
 						<article
 							key={i}
-							className="min-w-0 rounded-2xl border border-[#1F345C] bg-[#0D1B3A] p-5"
+							className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#1F345C] dark:bg-[#0D1B3A]"
 						>
 							<div className="mb-4 flex items-center gap-3">
 								<Skeleton className="h-10 w-10 rounded-xl" />
@@ -37,13 +37,13 @@ export function FinancePageSkeleton({
 				</section>
 			)}
 
-			<section className="overflow-hidden rounded-2xl border border-[#1E3258] bg-[#0D1B3A]">
-				<div className="border-b border-[#1E3258] px-6 py-5">
+			<section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#1E3258] dark:bg-[#0D1B3A]">
+				<div className="border-b border-slate-200 px-6 py-5 dark:border-[#1E3258]">
 					<Skeleton className="h-5 w-40" />
 				</div>
 				<div className="overflow-x-auto">
 					<table className="min-w-full text-left">
-						<thead className="border-b border-[#1E3258]">
+						<thead className="border-b border-slate-200 dark:border-[#1E3258]">
 							<tr>
 								{[1, 2, 3, 4].map((i) => (
 									<th key={i} className="px-6 py-5">
@@ -56,7 +56,7 @@ export function FinancePageSkeleton({
 							{Array.from({ length: tableRowCount }).map((_, i) => (
 								<tr
 									key={i}
-									className="border-b border-[#182A4A] last:border-b-0"
+									className="border-b border-slate-200 last:border-b-0 dark:border-[#182A4A]"
 								>
 									{[1, 2, 3, 4].map((j) => (
 										<td key={j} className="px-6 py-6">

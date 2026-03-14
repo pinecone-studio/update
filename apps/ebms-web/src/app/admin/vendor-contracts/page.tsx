@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { VendorContractsSkeleton } from "../components/VendorContractsSkeleton";
 
 type Contract = {
   id: number;
@@ -51,11 +52,17 @@ function getApiBaseUrl(): string {
 }
 
 export default function VendorContractsPage() {
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"employee" | "vendor">("vendor");
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
 
   const filteredContracts = contracts.filter((contract) => {
     const query = search.trim().toLowerCase();
@@ -101,6 +108,10 @@ export default function VendorContractsPage() {
     } finally {
       setUploading(false);
     }
+  }
+
+  if (loading) {
+    return <VendorContractsSkeleton />;
   }
 
   return (
@@ -196,7 +207,7 @@ export default function VendorContractsPage() {
         </div>
 
         <div
-          className={`rounded-xl border border-[#2C4264] bg-[#1E293B] p-3 ${
+          className={`rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B] ${
             activeTab === "vendor" ? "lg:col-span-2" : "lg:col-span-1"
           }`}
         >
@@ -226,8 +237,8 @@ export default function VendorContractsPage() {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
-        <h2 className="text-5 font-semibold text-white mb-4">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <h2 className="text-5 font-semibold text-slate-900 dark:text-white mb-4">
           {activeTab === "employee"
             ? "Upload Employee Contract PDF"
             : "Upload Vendor Contract PDF"}
@@ -249,21 +260,21 @@ export default function VendorContractsPage() {
           {activeTab === "employee" ? (
             <>
               <div className="flex flex-col gap-1">
-                <label className="text-5 text-[#A7B6D3]">Benefit ID</label>
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Benefit ID</label>
                 <input
                   name="benefitId"
                   required
                   placeholder="gym_pinefit"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-5 text-[#A7B6D3]">Version</label>
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Version</label>
                 <input
                   name="version"
                   required
                   placeholder="2025.1"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
                 />
               </div>
             </>
@@ -274,43 +285,43 @@ export default function VendorContractsPage() {
             </>
           )}
           <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">
+            <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
               Vendor Name (optional)
             </label>
             <input
               name="vendorName"
               placeholder="PineFit"
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">
+            <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
               Effective Date (optional)
             </label>
             <input
               name="effectiveDate"
               type="date"
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">
+            <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
               Expiry Date (optional)
             </label>
             <input
               name="expiryDate"
               type="date"
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">Contract PDF</label>
+            <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Contract PDF</label>
             <input
               name="file"
               type="file"
               accept="application/pdf"
               required
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-2 text-5 text-white file:mr-3 file:rounded-lg file:border-none file:bg-[#334160] file:px-3 file:py-1.5 file:text-5 file:text-[#D4DEEF] hover:file:bg-[#3A4A6C]"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-2 text-5 text-slate-900 file:mr-3 file:rounded-lg file:border-none file:bg-blue-600 file:px-3 file:py-1.5 file:text-5 file:text-white hover:file:bg-blue-700 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:file:bg-[#334160] dark:file:text-[#D4DEEF] dark:hover:file:bg-[#3A4A6C]"
             />
           </div>
           <div className="flex items-end">
@@ -332,44 +343,44 @@ export default function VendorContractsPage() {
             : "All Vendor Contracts"}
         </h2>
 
-        <div className="mt-5 overflow-x-auto rounded-3xl border border-[#2C4264]">
-          <table className="min-w-full divide-y divide-[#2C4264]">
-            <thead className="bg-[#0F1D3A]">
+        <div className="mt-5 overflow-x-auto rounded-3xl border border-slate-200 dark:border-[#2C4264]">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-[#2C4264]">
+            <thead className="bg-slate-100 dark:bg-[#0F1D3A]">
               <tr>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">
                   №
                 </th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">
                   Гэрээний дугаар
                 </th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">
                   Гэрээний нэр
                 </th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">
                   Эхлэх хугацаа
                 </th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">
                   Дуусах хугацаа
                 </th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-[#A7B6D3]">
+                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">
                   Гэрээний URL
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2C4264] bg-[#0E2047]">
+            <tbody className="divide-y divide-slate-200 bg-slate-50 dark:divide-[#2C4264] dark:bg-[#0E2047]">
               {filteredContracts.map((contract, index) => (
                 <tr key={contract.id}>
-                  <td className="px-5 py-5 text-5 text-white">{index + 1}</td>
-                  <td className="px-5 py-5 text-5 font-semibold text-white">
+                  <td className="px-5 py-5 text-5 text-slate-900 dark:text-white">{index + 1}</td>
+                  <td className="px-5 py-5 text-5 font-semibold text-slate-900 dark:text-white">
                     {contract.contractNumber}
                   </td>
-                  <td className="px-5 py-5 text-5 text-white">
+                  <td className="px-5 py-5 text-5 text-slate-900 dark:text-white">
                     {contract.contractName}
                   </td>
-                  <td className="px-5 py-5 text-5 text-[#D1DBEF]">
+                  <td className="px-5 py-5 text-5 text-slate-600 dark:text-[#D1DBEF]">
                     {contract.startDate}
                   </td>
-                  <td className="px-5 py-5 text-5 text-[#D1DBEF]">
+                  <td className="px-5 py-5 text-5 text-slate-600 dark:text-[#D1DBEF]">
                     {contract.endDate}
                   </td>
                   <td className="px-5 py-5 text-5">
@@ -388,7 +399,7 @@ export default function VendorContractsPage() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-5 py-6 text-center text-5 text-[#A7B6D3]"
+                    className="px-5 py-6 text-center text-5 text-slate-600 dark:text-[#A7B6D3]"
                   >
                     Contract олдсонгүй.
                   </td>

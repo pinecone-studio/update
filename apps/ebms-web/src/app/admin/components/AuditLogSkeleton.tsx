@@ -17,7 +17,7 @@ export function AuditLogSkeleton() {
 			</div>
 
 			{/* Filters section */}
-			<section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
+			<section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
 				<div className="mb-5 flex items-center justify-between">
 					<Skeleton className="h-6 w-24" />
 					<Skeleton className="h-9 w-24 rounded-xl" />
@@ -35,13 +35,13 @@ export function AuditLogSkeleton() {
 			<Skeleton className="h-4 w-48" />
 
 			{/* Audit Trail section - entry cards */}
-			<section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
+			<section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
 				<Skeleton className="h-6 w-32 mb-5" />
 				<div className="space-y-5">
 					{[1, 2, 3].map((i) => (
 						<article
 							key={i}
-							className="rounded-3xl border border-[#324A70] bg-[#23324C] p-5"
+							className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-[#324A70] dark:bg-[#23324C]"
 						>
 							<div className="flex flex-wrap items-center justify-between gap-3">
 								<div className="flex items-center gap-3">

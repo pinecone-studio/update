@@ -19,7 +19,7 @@ export function NotificationSkeleton() {
 				{[1, 2, 3].map((i) => (
 					<div
 						key={i}
-						className="bg-[#1E293B] border border-[#2d3a4d] rounded-xl p-4 flex items-center justify-between"
+						className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between dark:bg-[#1E293B] dark:border-[#2d3a4d]"
 					>
 						<div>
 							<Skeleton className="h-3 w-16" />
@@ -36,7 +36,7 @@ export function NotificationSkeleton() {
 				))}
 			</div>
 
-			<div className="w-full bg-[#1E293B] border border-[#2d3a4d] rounded-xl p-3 flex items-center gap-3 mt-6">
+			<div className="w-full bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 mt-6 dark:bg-[#1E293B] dark:border-[#2d3a4d]">
 				<Skeleton className="h-5 w-5 flex-shrink-0" />
 				<Skeleton className="h-4 flex-1" />
 				<Skeleton className="h-8 w-28 rounded-full flex-shrink-0" />
@@ -46,7 +46,7 @@ export function NotificationSkeleton() {
 				{[1, 2, 3, 4].map((i) => (
 					<div
 						key={i}
-						className="bg-[#1E293B] border border-[#2d3a4d] rounded-xl p-4 flex items-start justify-between gap-4"
+						className="bg-white border border-slate-200 rounded-xl p-4 flex items-start justify-between gap-4 dark:bg-[#1E293B] dark:border-[#2d3a4d]"
 					>
 						<div className="flex items-start gap-3 flex-1">
 							<Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />

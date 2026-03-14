@@ -30,12 +30,16 @@ export default function FinancePage() {
 	const [error, setError] = useState<string | null>(null);
 	const [requests, setRequests] = useState<BenefitRequest[]>([]);
 	const [employees, setEmployees] = useState<Record<string, EmployeeLite>>({});
-	const [benefitSubsidyMap, setBenefitSubsidyMap] = useState<Record<string, number>>({});
+	const [benefitSubsidyMap, setBenefitSubsidyMap] = useState<
+		Record<string, number>
+	>({});
 	const [selectedCardKey, setSelectedCardKey] = useState<string | null>(null);
 	const [rejectingRequestId, setRejectingRequestId] = useState<string | null>(
 		null,
 	);
-	const [submittingRequestId, setSubmittingRequestId] = useState<string | null>(null);
+	const [submittingRequestId, setSubmittingRequestId] = useState<string | null>(
+		null,
+	);
 	const [rejectionReason, setRejectionReason] = useState("");
 
 	const pendingRequests = useMemo(
@@ -47,7 +51,9 @@ export default function FinancePage() {
 		return requests.filter((r) => {
 			if (r.status !== "APPROVED") return false;
 			const d = new Date(r.createdAt);
-			return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+			return (
+				d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+			);
 		}).length;
 	}, [requests]);
 	const totalAllocated = useMemo(
@@ -94,7 +100,12 @@ export default function FinancePage() {
 				icon: "trend",
 			},
 		],
-		[pendingRequests.length, approvedThisMonth, totalAllocated, remainingBudgetEstimate],
+		[
+			pendingRequests.length,
+			approvedThisMonth,
+			totalAllocated,
+			remainingBudgetEstimate,
+		],
 	);
 	const selectedCard = useMemo(
 		() => statCards.find((card) => card.key === selectedCardKey) ?? null,
@@ -122,7 +133,9 @@ export default function FinancePage() {
 			setRequests(reqList);
 			setEmployees(Object.fromEntries(employeeList.map((e) => [e.id, e])));
 			setBenefitSubsidyMap(
-				Object.fromEntries(benefits.map((b) => [b.id, Number(b.subsidyPercent ?? 0)])),
+				Object.fromEntries(
+					benefits.map((b) => [b.id, Number(b.subsidyPercent ?? 0)]),
+				),
 			);
 		} catch (e) {
 			setError(getApiErrorMessage(e));
@@ -211,8 +224,12 @@ export default function FinancePage() {
 								›
 							</span>
 						</div>
-						<p className="text-5 font-bold text-slate-900 dark:text-white">{card.value}</p>
-						<p className="mt-2 text-5 text-slate-600 dark:text-[#A7B6D3]">{card.title}</p>
+						<p className="text-5 font-bold text-slate-900 dark:text-white">
+							{card.value}
+						</p>
+						<p className="mt-2 text-5 text-slate-600 dark:text-[#A7B6D3]">
+							{card.title}
+						</p>
 						<div className="mt-4 h-px bg-slate-200 dark:bg-[#2B405F]" />
 						<p
 							className={`mt-4 text-5 ${card.tone === "green" ? "text-green-600 dark:text-[#00C95F]" : "text-slate-600 dark:text-[#A7B6D3]"}`}
@@ -255,14 +272,19 @@ export default function FinancePage() {
 						</thead>
 						<tbody>
 							{visibleRequests.map((request, index) => (
-								<tr key={request.id} className="border-b border-slate-200 dark:border-[#2B405F]">
+								<tr
+									key={request.id}
+									className="border-b border-slate-200 dark:border-[#2B405F]"
+								>
 									<td className="px-4 py-4 sm:px-6 sm:py-5 text-5 font-semibold text-slate-900 dark:text-white">
 										{index + 1}
 									</td>
 									<td className="px-4 py-4 sm:px-6 sm:py-5">
 										<div className="flex items-center gap-2 sm:gap-3">
 											<div className="flex h-8 w-8 shrink-0 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-blue-100 text-5 font-semibold text-blue-700 dark:bg-[#2A8BFF]/30 dark:text-white">
-												{getInitials(request.employeeName || request.employeeId)}
+												{getInitials(
+													request.employeeName || request.employeeId,
+												)}
 											</div>
 											<span className="min-w-0 truncate text-5 text-slate-900 dark:text-white">
 												{request.employeeName || request.employeeId}
@@ -283,7 +305,9 @@ export default function FinancePage() {
 										</span>
 									</td>
 									<td className="px-4 py-4 sm:px-6 sm:py-5 text-5 text-slate-500 dark:text-[#8FA3C5]">
-										{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "—"}
+										{request.createdAt
+											? new Date(request.createdAt).toLocaleDateString()
+											: "—"}
 									</td>
 									<td className="px-4 py-4 sm:px-6 sm:py-5">
 										<div className="flex flex-wrap items-center gap-2">
@@ -330,7 +354,9 @@ export default function FinancePage() {
 					<div className="w-full max-w-[560px] rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-[#2C4264] dark:bg-[#1E293B]">
 						<div className="flex items-start justify-between">
 							<div>
-								<p className="text-5 text-slate-600 dark:text-[#A7B6D3]">{selectedCard.title}</p>
+								<p className="text-5 text-slate-600 dark:text-[#A7B6D3]">
+									{selectedCard.title}
+								</p>
 								<p className="mt-3 text-5 font-bold text-slate-900 dark:text-white">
 									{selectedCard.value}
 								</p>
