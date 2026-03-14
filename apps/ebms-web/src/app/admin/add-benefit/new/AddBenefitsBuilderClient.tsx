@@ -23,7 +23,19 @@ import { AddBenefitForm } from "../_components/AddBenefitForm";
 import { BenefitCatalogTable } from "../_components/BenefitCatalogTable";
 import { RuleConfigSection } from "../_components/RuleConfigSection";
 
-export default function AddBenefitsBuilderClient() {
+type AddBenefitsBuilderClientProps = {
+  inModal?: boolean;
+  compactCreateMode?: boolean;
+  onSaved?: () => void;
+  onClose?: () => void;
+};
+
+export default function AddBenefitsBuilderClient({
+  inModal = false,
+  compactCreateMode = false,
+  onSaved,
+  onClose,
+}: AddBenefitsBuilderClientProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const benefitIdFromQuery = searchParams.get("benefitId");
@@ -168,6 +180,7 @@ export default function AddBenefitsBuilderClient() {
       );
       setForm(DEFAULT_FORM);
       await Promise.all([loadCatalog(), loadConfigAndAttributes()]);
+      if (onSaved) onSaved();
     } catch (e) {
       setError1(ERROR_MESSAGES.D1_CREATE + getApiErrorMessage(e));
     } finally {
@@ -350,12 +363,22 @@ export default function AddBenefitsBuilderClient() {
             Benefit шинээр нэмэх, мөн rule тохиргоо хийх хэсэг.
           </p>
         </div>
-        <Link
-          href="/admin/add-benefit"
-          className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
-        >
-          Back to Benefits&Rule
-        </Link>
+        {inModal ? (
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
+          >
+            Close
+          </button>
+        ) : (
+          <Link
+            href="/admin/add-benefit"
+            className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
+          >
+            Back to Benefits&Rule
+          </Link>
+        )}
       </div>
 
       <AddBenefitForm
@@ -369,7 +392,7 @@ export default function AddBenefitsBuilderClient() {
         hideSubmitButton={isEditMode}
       />
 
-      {!isEditMode && (
+      {!isEditMode && !compactCreateMode && (
         <BenefitCatalogTable
           benefits={catalogBenefits}
           loading={loadingCatalog}
@@ -377,26 +400,28 @@ export default function AddBenefitsBuilderClient() {
         />
       )}
 
-      <RuleConfigSection
-        catalogBenefits={catalogBenefits}
-        selectedBenefitId={selectedBenefitId}
-        onSelectBenefitId={setSelectedBenefitId}
-        rulesForSelected={rulesForSelected}
-        attributes={attributes}
-        onUpdateRule={updateRuleForSelected}
-        onAddRule={addRuleForSelected}
-        onRemoveRule={removeRuleForSelected}
-        onSave={handleSaveRules}
-        loadingCatalog={loadingCatalog}
-        loadingConfig={loadingConfig}
-        saving={saving}
-        error={error2}
-        message={message2}
-        hideBenefitSelector={isEditMode}
-        showCancelButton={isEditMode}
-        onCancel={() => router.push("/admin/add-benefit")}
-        saveButtonLabel={isEditMode ? "Save" : "Дүрмүүдийг хадгалах"}
-      />
+      {!compactCreateMode && (
+        <RuleConfigSection
+          catalogBenefits={catalogBenefits}
+          selectedBenefitId={selectedBenefitId}
+          onSelectBenefitId={setSelectedBenefitId}
+          rulesForSelected={rulesForSelected}
+          attributes={attributes}
+          onUpdateRule={updateRuleForSelected}
+          onAddRule={addRuleForSelected}
+          onRemoveRule={removeRuleForSelected}
+          onSave={handleSaveRules}
+          loadingCatalog={loadingCatalog}
+          loadingConfig={loadingConfig}
+          saving={saving}
+          error={error2}
+          message={message2}
+          hideBenefitSelector={isEditMode}
+          showCancelButton={isEditMode}
+          onCancel={() => router.push("/admin/add-benefit")}
+          saveButtonLabel={isEditMode ? "Save" : "Дүрмүүдийг хадгалах"}
+        />
+      )}
     </div>
   );
 }
