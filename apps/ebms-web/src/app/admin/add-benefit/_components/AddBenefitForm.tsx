@@ -128,31 +128,45 @@ export function AddBenefitForm({
             className={inputClass}
           />
         </div>
-        <div className="flex items-center gap-2 pt-6">
-          <input
-            type="checkbox"
-            id="s1-requires-contract"
-            checked={!!form.requiresContract}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              if (!checked && objectUrlRef.current) {
-                URL.revokeObjectURL(objectUrlRef.current);
-                objectUrlRef.current = null;
-              }
-              onChange({
-                ...form,
-                requiresContract: checked,
-                contractNumber: checked ? form.contractNumber : "",
-                contractName: checked ? form.contractName : "",
-                contractFileName: checked ? form.contractFileName : "",
-                contractUrl: checked ? form.contractUrl : "",
-              });
-            }}
-            className="rounded border-[#334155]"
-          />
-          <label htmlFor="s1-requires-contract" className="text-sm text-slate-600 dark:text-[#94A3B8]">
-            Гэрээ шаардлагатай
-          </label>
+        <div className="flex items-center gap-6 pt-6">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="s1-finance-check"
+              checked={!!form.financeCheck}
+              onChange={(e) => onChange({ ...form, financeCheck: e.target.checked })}
+              className="rounded border-[#334155]"
+            />
+            <label htmlFor="s1-finance-check" className="text-sm text-slate-600 dark:text-[#94A3B8]">
+              Finance check
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="s1-requires-contract"
+              checked={!!form.requiresContract}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                if (!checked && objectUrlRef.current) {
+                  URL.revokeObjectURL(objectUrlRef.current);
+                  objectUrlRef.current = null;
+                }
+                onChange({
+                  ...form,
+                  requiresContract: checked,
+                  contractNumber: checked ? form.contractNumber : "",
+                  contractName: checked ? form.contractName : "",
+                  contractFileName: checked ? form.contractFileName : "",
+                  contractUrl: checked ? form.contractUrl : "",
+                });
+              }}
+              className="rounded border-[#334155]"
+            />
+            <label htmlFor="s1-requires-contract" className="text-sm text-slate-600 dark:text-[#94A3B8]">
+              Гэрээ шаардлагатай
+            </label>
+          </div>
         </div>
       </div>
 

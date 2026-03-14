@@ -42,7 +42,7 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-[#334155] text-[#94A3B8]">
+                <tr className="border-b border-slate-200 text-slate-600 dark:border-[#334155] dark:text-[#94A3B8]">
                   {["ID", "Нэр", "Ангилал", "Subsidy %", "Гэрээ"].map((h) => (
                     <th key={h} className="py-2 pr-4 font-medium">
                       <Skeleton className="h-4 w-12" />
@@ -54,7 +54,7 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
                 {[1, 2, 3, 4, 5].map((i) => (
                   <tr
                     key={i}
-                    className="border-b border-[#334155]/70 last:border-b-0"
+                    className="border-b border-slate-200 last:border-b-0 dark:border-[#334155]/70"
                   >
                     <td className="py-2 pr-4">
                       <Skeleton className="h-4 w-16" />

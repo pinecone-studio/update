@@ -82,7 +82,7 @@ export default function VendorPaymentsPage() {
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-[#1E3258] dark:bg-[#0D1B3A]">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3A2A16] text-5 text-[#FF9D33]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl dark:bg-[#3A2A16] bg-white text-5 text-[#FF9D33] border border-slate-200 dark:border-none">
             $
           </div>
           <p className="text-5 text-slate-600 dark:text-slate-300">Total Pending Payments</p>

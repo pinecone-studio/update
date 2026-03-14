@@ -2,8 +2,9 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { EmployeeEligibilitySkeleton } from "../components/EmployeeEligibilitySkeleton";
 import { GraphQLClient, gql } from "graphql-request";
 
@@ -46,11 +47,13 @@ function getClient(): GraphQLClient {
 	});
 }
 
-export default function EmployeeEligibilityPage() {
+function EmployeeEligibilityPageContent() {
+	const searchParams = useSearchParams();
+	const initialSearch = searchParams.get("search") ?? "";
 	const [loading, setLoading] = useState(true);
 	const [employeeList, setEmployeeList] =
 		useState<EmployeeRow[]>(initialEmployees);
-	const [search, setSearch] = useState("");
+	const [search, setSearch] = useState(initialSearch);
 
 	const filteredEmployees = useMemo(() => {
 		const q = search.trim().toLowerCase();
@@ -88,6 +91,10 @@ export default function EmployeeEligibilityPage() {
 			})
 			.finally(() => setLoading(false));
 	}, []);
+
+	useEffect(() => {
+		setSearch(initialSearch);
+	}, [initialSearch]);
 
 	if (loading) {
 		return <EmployeeEligibilitySkeleton />;
@@ -161,5 +168,13 @@ export default function EmployeeEligibilityPage() {
 				</div>
 			</section>
 		</div>
+	);
+}
+
+export default function EmployeeEligibilityPage() {
+	return (
+		<Suspense fallback={<EmployeeEligibilitySkeleton />}>
+			<EmployeeEligibilityPageContent />
+		</Suspense>
 	);
 }

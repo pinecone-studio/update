@@ -8,14 +8,16 @@ interface ProfileSkeletonProps {
 	variant?: "admin" | "employee";
 }
 
-export function ProfileSkeleton({ variant = "employee" }: ProfileSkeletonProps) {
+export function ProfileSkeleton({
+	variant = "employee",
+}: ProfileSkeletonProps) {
 	const isAdmin = variant === "admin";
 	const maxWidthClass = isAdmin ? "max-w-[921px]" : "max-w-[1500px]";
 	const tabBorderClass = isAdmin
 		? "border-slate-700/60"
 		: "border-slate-200 dark:border-slate-700/60";
 	const sectionClass = isAdmin
-		? "bg-[#1A2333] border border-[#243041] rounded-xl p-6"
+		? "bg-white border border-slate-200 rounded-xl p-6 dark:bg-[#1A2333] dark:border-[#243041]"
 		: "bg-white border border-slate-200 rounded-xl p-6 dark:bg-[#1A2333] dark:border-[#243041]";
 
 	return (

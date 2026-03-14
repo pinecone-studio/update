@@ -30,7 +30,9 @@ export function BenefitEligibilityModal({
 	onRequestBenefit,
 	initialOpenContractStep = false,
 }: BenefitEligibilityModalProps) {
-	const [showContractStep, setShowContractStep] = useState(initialOpenContractStep);
+	const [showContractStep, setShowContractStep] = useState(
+		initialOpenContractStep,
+	);
 	const [contractAccepted, setContractAccepted] = useState(false);
 
 	// Reset or set contract step when benefit or initialOpenContractStep changes
@@ -97,9 +99,15 @@ export function BenefitEligibilityModal({
 							<div className="flex items-center gap-1.5">
 								{benefit.status === "ACTIVE" && rules.length > 0 && (
 									<span className="relative group">
-										<FiInfo size={14} className="text-slate-500 hover:text-slate-700 cursor-help dark:text-slate-400 dark:hover:text-slate-200" aria-label="Requirements to maintain benefit" />
+										<FiInfo
+											size={14}
+											className="text-slate-500 hover:text-slate-700 cursor-help dark:text-slate-400 dark:hover:text-slate-200"
+											aria-label="Requirements to maintain benefit"
+										/>
 										<span className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 px-2.5 py-2 w-48 rounded-lg bg-slate-800 text-white text-xs font-normal shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
-											<p className="font-semibold mb-1.5">To maintain this benefit</p>
+											<p className="font-semibold mb-1.5">
+												To maintain this benefit
+											</p>
 											<ul className="space-y-1 list-disc list-inside">
 												{rules.slice(0, 4).map((r, i) => (
 													<li key={i}>{r.rule}</li>
@@ -136,7 +144,8 @@ export function BenefitEligibilityModal({
 								Accept vendor contract before requesting
 							</h3>
 							<p className="text-sm text-amber-800 dark:text-amber-300 mb-3">
-								You must read and accept the vendor contract before your request can be submitted.
+								You must read and accept the vendor contract before your request
+								can be submitted.
 							</p>
 							{benefit.contractLink && (
 								<a
@@ -195,113 +204,119 @@ export function BenefitEligibilityModal({
 					)}
 
 					{!showContractStep && (
-					<>
-					<div className="grid grid-cols-2 gap-4">
-						<div>
-							<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
-								Subsidy
-							</h3>
-							<p className="text-sm font-medium text-slate-900 dark:text-white">
-								{benefit.subsidyPercentage ?? "—"}
-							</p>
-						</div>
-						<div>
-							<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
-								Vendor
-							</h3>
-							<p className="text-sm font-medium text-slate-900 dark:text-white">
-								{benefit.vendorDetails ?? "—"}
-							</p>
-						</div>
-					</div>
-
-					<div>
-						<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
-							Eligibility criteria
-						</h3>
-						<p className="text-sm text-slate-700 dark:text-slate-300">
-							{benefit.eligibilityCriteria}
-						</p>
-					</div>
-
-					{benefit.contractLink != null ? (
-						<div>
-							<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
-								Vendor contract
-							</h3>
-							<a
-								href={benefit.contractLink}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400 dark:hover:text-blue-300"
-							>
-								View vendor contract
-								<FiExternalLink size={14} />
-							</a>
-						</div>
-					) : null}
-
-					{(benefit.status === "ACTIVE" && (benefit.benefitStartDate != null && benefit.benefitStartDate !== "")) ||
-					(benefit.benefitEndDate != null && benefit.benefitEndDate !== "") ? (
-						<div className="grid grid-cols-2 gap-4">
-							{benefit.status === "ACTIVE" && benefit.benefitStartDate != null && benefit.benefitStartDate !== "" ? (
+						<>
+							<div className="grid grid-cols-2 gap-4">
 								<div>
 									<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
-										Benefit started
+										Subsidy
 									</h3>
 									<p className="text-sm font-medium text-slate-900 dark:text-white">
-										{benefit.benefitStartDate}
+										{benefit.subsidyPercentage ?? "—"}
 									</p>
 								</div>
-							) : null}
-							{benefit.benefitEndDate != null && benefit.benefitEndDate !== "" ? (
 								<div>
 									<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
-										Benefit ends
+										Vendor
 									</h3>
 									<p className="text-sm font-medium text-slate-900 dark:text-white">
-										{benefit.benefitEndDate}
+										{benefit.vendorDetails ?? "—"}
 									</p>
 								</div>
-							) : null}
-						</div>
-					) : null}
-
-					{benefit.status === "LOCKED" && benefit.lockReason && (
-						<div className="rounded-lg bg-amber-50 border border-amber-200 p-4 dark:bg-amber-950/30 dark:border-amber-800/50">
-							<h3 className="text-xs font-semibold text-amber-800 uppercase tracking-wide mb-1 dark:text-amber-400">
-								Why it&apos;s locked
-							</h3>
-							<p className="text-sm text-amber-900 dark:text-amber-200">
-								{benefit.lockReason}
-							</p>
-						</div>
-					)}
-
-					{benefit.status === "REJECTED" && benefit.rejectReason && (
-						<div className="rounded-lg bg-red-50 border border-red-200 p-4 dark:bg-red-950/30 dark:border-red-800/50">
-							<h3 className="text-xs font-semibold text-red-800 uppercase tracking-wide mb-1 dark:text-red-400">
-								Rejection reason
-							</h3>
-							<p className="text-sm text-red-900 dark:text-red-200">
-								{benefit.rejectReason}
-							</p>
-						</div>
-					)}
-
-					{rules.length > 0 && (
-						<div>
-							<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-								Eligibility rules
-							</h3>
-							<div className="space-y-2">
-								{rules.map((r: EligibilityRule, i: number) => (
-									<RuleRow key={i} rule={r} />
-								))}
 							</div>
-						</div>
-					)}
-					</>
+
+							<div>
+								<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+									Eligibility criteria
+								</h3>
+								<p className="text-sm text-slate-700 dark:text-slate-300">
+									{benefit.eligibilityCriteria}
+								</p>
+							</div>
+
+							{benefit.contractLink != null ? (
+								<div>
+									<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+										Vendor contract
+									</h3>
+									<a
+										href={benefit.contractLink}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400 dark:hover:text-blue-300"
+									>
+										View vendor contract
+										<FiExternalLink size={14} />
+									</a>
+								</div>
+							) : null}
+
+							{(benefit.status === "ACTIVE" &&
+								benefit.benefitStartDate != null &&
+								benefit.benefitStartDate !== "") ||
+							(benefit.benefitEndDate != null &&
+								benefit.benefitEndDate !== "") ? (
+								<div className="grid grid-cols-2 gap-4">
+									{benefit.status === "ACTIVE" &&
+									benefit.benefitStartDate != null &&
+									benefit.benefitStartDate !== "" ? (
+										<div>
+											<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+												Benefit started
+											</h3>
+											<p className="text-sm font-medium text-slate-900 dark:text-white">
+												{benefit.benefitStartDate}
+											</p>
+										</div>
+									) : null}
+									{benefit.benefitEndDate != null &&
+									benefit.benefitEndDate !== "" ? (
+										<div>
+											<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+												Benefit ends
+											</h3>
+											<p className="text-sm font-medium text-slate-900 dark:text-white">
+												{benefit.benefitEndDate}
+											</p>
+										</div>
+									) : null}
+								</div>
+							) : null}
+
+							{benefit.status === "LOCKED" && benefit.lockReason && (
+								<div className="rounded-lg bg-amber-50 border border-amber-200 p-4 dark:bg-amber-950/30 dark:border-amber-800/50">
+									<h3 className="text-xs font-semibold text-amber-800 uppercase tracking-wide mb-1 dark:text-amber-400">
+										Why it&apos;s locked
+									</h3>
+									<p className="text-sm text-amber-900 dark:text-amber-200">
+										{benefit.lockReason}
+									</p>
+								</div>
+							)}
+
+							{benefit.status === "REJECTED" && benefit.rejectReason && (
+								<div className="rounded-lg bg-red-50 border border-red-200 p-4 dark:bg-red-950/30 dark:border-red-800/50">
+									<h3 className="text-xs font-semibold text-red-800 uppercase tracking-wide mb-1 dark:text-red-400">
+										Rejection reason
+									</h3>
+									<p className="text-sm text-red-900 dark:text-red-200">
+										{benefit.rejectReason}
+									</p>
+								</div>
+							)}
+
+							{rules.length > 0 && (
+								<div>
+									<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+										Eligibility rules
+									</h3>
+									<div className="space-y-2">
+										{rules.map((r: EligibilityRule, i: number) => (
+											<RuleRow key={i} rule={r} />
+										))}
+									</div>
+								</div>
+							)}
+						</>
 					)}
 				</div>
 
