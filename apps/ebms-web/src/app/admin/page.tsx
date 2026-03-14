@@ -68,6 +68,12 @@ type BenefitRequest = {
   contractTemplateUrl?: string | null;
 };
 
+type EmployeeSearchItem = {
+  id: string;
+  name: string;
+  department: string;
+};
+
 type StatCard = {
   key: "employees" | "benefits";
   title: string;
@@ -113,13 +119,14 @@ export default function HrDashboardPage() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>("PENDING");
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [eligibilitySearch, setEligibilitySearch] = useState("");
-  const [employeesForSearch, setEmployeesForSearch] = useState<Array<{ id: string; name: string; department: string }>>([]);
+  const [employeesForSearch, setEmployeesForSearch] = useState<EmployeeSearchItem[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     const client = getAdminClient();
     setLoading(true);
     setError(null);
+
     (async () => {
       try {
         const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
@@ -138,6 +145,7 @@ export default function HrDashboardPage() {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -146,6 +154,7 @@ export default function HrDashboardPage() {
   useEffect(() => {
     let cancelled = false;
     const client = getAdminClient();
+
     (async () => {
       try {
         const [employeesRes, benefitsRes] = await Promise.all([
@@ -154,6 +163,7 @@ export default function HrDashboardPage() {
           }>(EMPLOYEES_COUNT_QUERY),
           client.request<{ benefits: Array<{ id: string }> }>(ACTIVE_BENEFITS_COUNT_QUERY),
         ]);
+
         if (!cancelled) {
           const employees = employeesRes.employees ?? [];
           setTotalEmployees(employees.length);
@@ -176,6 +186,7 @@ export default function HrDashboardPage() {
         }
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -217,7 +228,9 @@ export default function HrDashboardPage() {
       .slice(0, 12);
   }, [employeesForSearch, normalizedSearch]);
 
-  const displayRequests = requests.filter((req) => !statusFilter || (req.status || "PENDING").toUpperCase() === statusFilter);
+  const displayRequests = requests.filter(
+    (req) => !statusFilter || (req.status || "PENDING").toUpperCase() === statusFilter
+  );
 
   const handleApprove = async (requestId: string) => {
     setActionLoadingId(requestId);
@@ -271,10 +284,7 @@ export default function HrDashboardPage() {
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="grid grid-cols-2 gap-2 lg:col-span-1">
           {statCards.map((card) => (
-            <article
-              key={card.title}
-              className="min-w-0 h-[128px] rounded-xl border border-slate-200 bg-white p-3 text-left dark:border-[#2C4264] dark:bg-[#1E293B]"
-            >
+            <article key={card.title} className="min-w-0 h-[128px] rounded-xl border border-slate-200 bg-white p-3 text-left dark:border-[#2C4264] dark:bg-[#1E293B]">
               <div className="flex h-full flex-col justify-between">
                 <div className="flex items-start justify-between">
                   <div className={`flex h-8 w-8 items-center justify-center rounded-lg border text-base ${card.toneClass}`}>{card.icon}</div>
@@ -334,104 +344,9 @@ export default function HrDashboardPage() {
                 ) : (
                   <div className="px-4 py-3 text-5 text-slate-500 dark:text-[#9FB0CF]">Хайлтад тохирох ажилтан олдсонгүй.</div>
                 )}
-      
-
-        {loading ? (
-          <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">Loading requests...</p>
-        ) : (
-          <div>
-            {displayRequests.length === 0 ? (
-              <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
-                No benefit requests found.
-              </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-left text-5">
-                  <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
-                    <tr>
-                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Request (Benefit)</th>
-                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Employee</th>
-                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Status</th>
-                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Contract</th>
-                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Date</th>
-                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {displayRequests.map((req) => {
-                        const status = (req.status || 'PENDING').toUpperCase();
-                        const isLoading = actionLoadingId === req.id;
-                        const needsSignature = req.requiresContract && !req.contractAcceptedAt;
-                        return (
-                      <tr
-                        key={req.id}
-                        className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
-                      >
-                        <td className="px-3 py-3 font-medium text-slate-900 dark:text-white sm:px-4 sm:py-4">
-                          {req.benefitName ?? req.benefitId}
-                        </td>
-                        <td className="px-3 py-3 text-slate-600 dark:text-[#A7B6D3] sm:px-4 sm:py-4">
-                          {req.employeeName ?? req.employeeId}
-                        </td>
-                        <td className="px-3 py-3 sm:px-4 sm:py-4">{statusBadge(status)}</td>
-                        <td className="px-3 py-3 sm:px-4 sm:py-4">
-                          {req.requiresContract ? (
-                            <div className="flex flex-col gap-1">
-                              <span className={`text-xs font-medium ${needsSignature ? 'text-amber-500' : 'text-emerald-500'}`}>
-                                {needsSignature ? 'Not signed' : 'Signed'}
-                              </span>
-                              {req.contractTemplateUrl ? (
-                                <button
-                                  type="button"
-                                  onClick={() => handleViewTemplate(req.id)}
-                                  className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-300"
-                                >
-                                  View template
-                                </button>
-                              ) : null}
-                            </div>
-                          ) : (
-                            <span className="text-slate-400 dark:text-slate-500 text-xs">N/A</span>
-                          )}
-                        </td>
-                        <td className="px-3 py-3 text-slate-500 dark:text-[#8FA3C5] sm:px-4 sm:py-4">
-                          {formatDate(req.createdAt)}
-                        </td>
-                        <td className="px-3 py-3 sm:px-4 sm:py-4">
-                          {status === 'PENDING' ? (
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-6">
-                              <button
-                                type="button"
-                                onClick={() => handleApprove(req.id)}
-                                disabled={isLoading || needsSignature}
-                                className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
-                              >
-                                {needsSignature ? 'Await sign' : isLoading ? '...' : 'Approve'}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setRejectingId(req.id);
-                                  setRejectComment('');
-                                }}
-                                disabled={isLoading}
-                                className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="text-slate-400 dark:text-slate-500">—</span>
-                          )}
-                        </td>
-                      </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
               </div>
             )}
-          </div>)}
+          </div>
         </section>
       </section>
 
@@ -483,6 +398,7 @@ export default function HrDashboardPage() {
                   const status = (req.status || "PENDING").toUpperCase();
                   const isLoading = actionLoadingId === req.id;
                   const needsSignature = req.requiresContract && !req.contractAcceptedAt;
+
                   return (
                     <tr key={req.id} className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]">
                       <td className="px-3 py-3 font-medium text-slate-900 dark:text-white sm:px-4 sm:py-4">{req.benefitName ?? req.benefitId}</td>
