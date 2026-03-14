@@ -98,17 +98,19 @@ export default function AddBenefitsBuilderClient() {
     if (!benefitIdFromQuery) return;
     const target = catalogBenefits.find((b) => b.id === benefitIdFromQuery);
     if (!target) return;
+    const cfg = config[benefitIdFromQuery];
     setForm({
       name: target.name,
       category: target.category,
       subsidyPercent: target.subsidyPercent,
+      financeCheck: cfg?.financeCheck ?? false,
       requiresContract: target.requiresContract,
-      contractNumber: "",
-      contractName: "",
-      contractFileName: "",
-      contractUrl: "",
+      contractNumber: cfg?.contractNumber ?? "",
+      contractName: cfg?.contractName ?? "",
+      contractFileName: cfg?.contractFileName ?? "",
+      contractUrl: cfg?.contractUrl ?? "",
     });
-  }, [benefitIdFromQuery, catalogBenefits]);
+  }, [benefitIdFromQuery, catalogBenefits, config]);
 
   const handleCreateBenefit = useCallback(async () => {
     const name = form.name?.trim();
@@ -130,6 +132,10 @@ export default function AddBenefitsBuilderClient() {
       return;
     }
     if (form.requiresContract) {
+      if (!form.financeCheck) {
+        setError1(ERROR_MESSAGES.FINANCE_CHECK_REQUIRED);
+        return;
+      }
       if (!form.contractNumber.trim()) {
         setError1(ERROR_MESSAGES.CONTRACT_NUMBER_REQUIRED);
         return;
@@ -268,6 +274,10 @@ export default function AddBenefitsBuilderClient() {
           return;
         }
         if (form.requiresContract) {
+          if (!form.financeCheck) {
+            setError2(ERROR_MESSAGES.FINANCE_CHECK_REQUIRED);
+            return;
+          }
           if (!form.contractNumber.trim()) {
             setError2(ERROR_MESSAGES.CONTRACT_NUMBER_REQUIRED);
             return;
@@ -297,7 +307,12 @@ export default function AddBenefitsBuilderClient() {
             name,
             category,
             subsidyPercent: subsidy,
+            financeCheck: form.financeCheck ?? false,
             requiresContract: form.requiresContract ?? false,
+            contractNumber: form.contractNumber ?? "",
+            contractName: form.contractName ?? "",
+            contractFileName: form.contractFileName ?? "",
+            contractUrl: form.contractUrl ?? "",
           },
         };
       }
@@ -306,9 +321,12 @@ export default function AddBenefitsBuilderClient() {
         config: JSON.stringify({ benefits: payloadConfig }),
       });
       setMessage2("Сонгосон benefit-ийн дүрмүүд амжилттай хадгалагдлаа.");
-      if (isEditMode) {
-        router.push("/admin/add-benefit");
-      }
+      const focusId = selectedBenefitId ?? benefitIdFromQuery;
+      router.push(
+        focusId
+          ? `/admin/add-benefit?focusBenefitId=${encodeURIComponent(focusId)}`
+          : "/admin/add-benefit"
+      );
     } catch (e) {
       setError2(ERROR_MESSAGES.CONFIG_SAVE + getApiErrorMessage(e));
     } finally {
@@ -375,6 +393,8 @@ export default function AddBenefitsBuilderClient() {
         error={error2}
         message={message2}
         hideBenefitSelector={isEditMode}
+        showCancelButton={isEditMode}
+        onCancel={() => router.push("/admin/add-benefit")}
         saveButtonLabel={isEditMode ? "Save" : "Дүрмүүдийг хадгалах"}
       />
     </div>

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { GraphQLClient, gql } from 'graphql-request';
+import { useRouter } from 'next/navigation';
+import { gql } from 'graphql-request';
 import { HrTotalEmployeeIcon } from "../icons/hrTotalEmployee";
 import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
 import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
@@ -31,6 +32,9 @@ const EMPLOYEES_COUNT_QUERY = gql`
   query EmployeesCount {
     employees {
       id
+      name
+      role
+      employmentStatus
     }
   }
 `;
@@ -39,6 +43,8 @@ const ACTIVE_BENEFITS_COUNT_QUERY = gql`
   query ActiveBenefitsCount {
     benefits {
       id
+      name
+      category
     }
   }
 `;
@@ -54,10 +60,12 @@ type BenefitRequest = {
 };
 
 type StatCard = {
+  key: 'employees' | 'benefits';
   title: string;
   value: string;
   icon: ReactNode;
   iconBg: string;
+  toneClass: string;
 };
 function formatDate(iso: string): string {
   if (!iso) return '—';
@@ -91,6 +99,7 @@ function statusBadge(status: string) {
 }
 
 export default function HrDashboardPage() {
+  const router = useRouter();
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +109,10 @@ export default function HrDashboardPage() {
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [eligibilitySearch, setEligibilitySearch] = useState('');
+  const [employeesForSearch, setEmployeesForSearch] = useState<
+    Array<{ id: string; name: string; department: string }>
+  >([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -139,17 +152,38 @@ export default function HrDashboardPage() {
     async function loadStats() {
       try {
         const [employeesRes, benefitsRes] = await Promise.all([
-          client.request<{ employees: Array<{ id: string }> }>(EMPLOYEES_COUNT_QUERY),
-          client.request<{ benefits: Array<{ id: string }> }>(ACTIVE_BENEFITS_COUNT_QUERY),
+          client.request<{
+            employees: Array<{
+              id: string;
+              name?: string | null;
+              role?: string | null;
+              employmentStatus?: string | null;
+            }>;
+          }>(EMPLOYEES_COUNT_QUERY),
+          client.request<{ benefits: Array<{ id: string; name?: string | null; category?: string | null }> }>(
+            ACTIVE_BENEFITS_COUNT_QUERY
+          ),
         ]);
         if (!cancelled) {
-          setTotalEmployees((employeesRes.employees ?? []).length);
-          setActiveBenefits((benefitsRes.benefits ?? []).length);
+          const employees = employeesRes.employees ?? [];
+          const benefits = benefitsRes.benefits ?? [];
+          setTotalEmployees(employees.length);
+          setActiveBenefits(benefits.length);
+          setEmployeesForSearch(
+            employees
+              .map((e) => ({
+                id: e.id,
+                name: (e.name ?? '').trim(),
+                department: (e.role ?? e.employmentStatus ?? '').trim(),
+              }))
+              .filter((e) => e.id.length > 0 && e.name.length > 0)
+          );
         }
       } catch {
         if (!cancelled) {
           setTotalEmployees(0);
           setActiveBenefits(0);
+          setEmployeesForSearch([]);
         }
       }
     }
@@ -161,15 +195,19 @@ export default function HrDashboardPage() {
 
   const statCards: StatCard[] = [
     {
+      key: 'employees',
       title: "Total Employees",
       value: String(totalEmployees),
       iconBg: "bg-[#2A8BFF]",
+      toneClass: "border-[#2A8BFF]/40 bg-[#2A8BFF]/20 text-[#2A8BFF]",
       icon: <HrTotalEmployeeIcon />,
     },
     {
+      key: 'benefits',
       title: "All Benefits",
       value: String(activeBenefits),
       iconBg: "bg-[#00C95F]",
+      toneClass: "border-[#00C95F]/40 bg-[#00C95F]/20 text-[#00C95F]",
       icon: <HrActiveBenefitsIcon />,
     },
   ];
@@ -210,6 +248,24 @@ export default function HrDashboardPage() {
     (req) => !statusFilter || (req.status || 'PENDING').toUpperCase() === statusFilter
   );
 
+  const normalizedSearch = eligibilitySearch.trim().toLowerCase();
+  const employeeSuggestions = normalizedSearch
+    ? employeesForSearch
+        .filter(
+          (emp) =>
+            emp.name.toLowerCase().includes(normalizedSearch) ||
+            emp.id.toLowerCase().includes(normalizedSearch) ||
+            emp.department.toLowerCase().includes(normalizedSearch)
+        )
+        .sort((a, b) => {
+          const aStarts = a.name.toLowerCase().startsWith(normalizedSearch) ? 0 : 1;
+          const bStarts = b.name.toLowerCase().startsWith(normalizedSearch) ? 0 : 1;
+          if (aStarts !== bStarts) return aStarts - bStarts;
+          return a.name.localeCompare(b.name);
+        })
+        .slice(0, 12)
+    : [];
+
   return (
     <>
       {loading ? (
@@ -223,26 +279,95 @@ export default function HrDashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
-        {statCards.map((card) => (
-          <article
-            key={card.title}
-            className="min-w-0 flex items-start justify-between rounded-2xl sm:rounded-3xl border border-slate-200 bg-white px-4 py-5 sm:px-8 sm:py-7 dark:border-[#2C4264] dark:bg-[#1E293B]"
-          >
-            <div>
-              <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">{card.title}</p>
-              <p className="mt-2 text-15 leading-none text-slate-900 dark:text-white">
-                {card.value}
-              </p>
-            </div>
-            <div
-              className={`flex h-12 w-12 items-center justify-center rounded-2xl ${card.iconBg}`}
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 lg:col-span-1">
+          {statCards.map((card) => (
+            <article
+              key={card.title}
+              className="min-w-0 h-[128px] rounded-xl border border-slate-200 bg-white p-3 text-left dark:border-[#2C4264] dark:bg-[#1E293B]"
             >
-              {card.icon}
-            </div>
-          </article>
-        ))}
-      </div>
+              <div className="flex h-full flex-col justify-between">
+                <div className="flex items-start justify-between">
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg border text-base ${card.toneClass}`}
+                  >
+                    {card.icon}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      router.push(
+                        card.key === 'employees' ? '/admin/employee-eligibility' : '/admin/add-benefit'
+                      )
+                    }
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-xl text-blue-600 dark:bg-[#24364F] dark:text-[#2A8BFF]"
+                    aria-label={`${card.title} details`}
+                  >
+                    ›
+                  </button>
+                </div>
+                <p className="flex items-baseline gap-2 text-8 font-medium text-slate-600 dark:text-[#A7B6D3]">
+                  <span>{card.title}</span>
+                  <span className="text-10 font-semibold text-slate-900 dark:text-white">{card.value}</span>
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <section className="self-start rounded-xl border border-[#2C4264] bg-[#1E293B] p-5 lg:col-span-2">
+          <div className="mb-4">
+            <h2 className="text-11 font-semibold text-slate-900 dark:text-white">
+              Employee Eligibility Overview
+            </h2>
+          </div>
+          <div className="relative">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="h-5 w-5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-4-4" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={eligibilitySearch}
+              onChange={(e) => setEligibilitySearch(e.target.value)}
+              placeholder="Ажилтны нэр, ID, албаар хайх..."
+              className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8FA3C5] dark:focus:border-[#4B6FA8]"
+            />
+            {normalizedSearch.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-64 overflow-auto rounded-xl border border-[#324A70] bg-[#0F172A] shadow-xl">
+                {employeeSuggestions.length > 0 ? (
+                  employeeSuggestions.map((emp) => (
+                    <button
+                      key={emp.id}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        router.push(`/admin/employee-eligibility/${emp.id}`);
+                      }}
+                      className="flex w-full items-center justify-between px-4 py-3 text-left text-5 text-white transition hover:bg-[#142544]"
+                    >
+                      <span className="truncate">{emp.name}</span>
+                      <span className="ml-3 text-xs text-[#8FA3C5]">{emp.id}</span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-3 text-5 text-[#9FB0CF]">
+                    Хайлтад тохирох ажилтан олдсонгүй.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      </section>
 
       <article className="mt-6 sm:mt-8 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
         <div className="mb-4 sm:mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">

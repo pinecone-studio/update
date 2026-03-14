@@ -51,13 +51,15 @@ function getApiBaseUrl(): string {
 }
 
 export default function VendorContractsPage() {
-  const [activeTab, setActiveTab] = useState<"employee" | "vendor">("vendor");
+  const [activeTab, setActiveTab] = useState<"employee" | "vendor">("employee");
+  const [contractRows, setContractRows] = useState<Contract[]>(contracts);
   const [search, setSearch] = useState("");
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
 
-  const filteredContracts = contracts.filter((contract) => {
+  const filteredContracts = contractRows.filter((contract) => {
     const query = search.trim().toLowerCase();
     if (!query) return true;
     return (
@@ -75,6 +77,11 @@ export default function VendorContractsPage() {
 
     const formEl = e.currentTarget;
     const formData = new FormData(formEl);
+    const contractNumber = String(formData.get("contractNumber") ?? "").trim();
+    const vendorName = String(formData.get("vendorName") ?? "").trim();
+    const effectiveDate = String(formData.get("effectiveDate") ?? "").trim();
+    const expiryDate = String(formData.get("expiryDate") ?? "").trim();
+    const uploadedFile = formData.get("file");
 
     try {
       const base = getApiBaseUrl();
@@ -95,7 +102,41 @@ export default function VendorContractsPage() {
         return;
       }
       setUploadMessage("Contract uploaded successfully.");
+      const contractName =
+        vendorName.length > 0
+          ? `${vendorName} Contract`
+          : activeTab === "employee"
+            ? `Employee Contract ${contractNumber || "New"}`
+            : `Vendor Contract ${contractNumber || "New"}`;
+      const fallbackUrl = contractNumber
+        ? `https://contracts.update.mn/${contractNumber.toLowerCase()}`
+        : "https://contracts.update.mn/new-contract";
+      const responseUrl =
+        data && typeof data === "object" && "url" in data && typeof (data as any).url === "string"
+          ? (data as any).url
+          : fallbackUrl;
+      const isExpiringSoon = !!expiryDate && new Date(expiryDate).getTime() - Date.now() < 1000 * 60 * 60 * 24 * 90;
+      setContractRows((prev) => [
+        ...prev,
+        (() => {
+          const nextId = prev.length > 0 ? Math.max(...prev.map((row) => row.id)) + 1 : 1;
+          return {
+            id: nextId,
+            contractNumber: contractNumber || `CNT-${String(nextId).padStart(3, "0")}`,
+            contractName,
+            startDate: effectiveDate || "—",
+            endDate: expiryDate || "—",
+            contractUrl:
+              responseUrl ||
+              (uploadedFile instanceof File && uploadedFile.name
+                ? `https://contracts.update.mn/files/${encodeURIComponent(uploadedFile.name)}`
+                : fallbackUrl),
+            status: isExpiringSoon ? "Expiring soon" : "Active",
+          };
+        })(),
+      ]);
       formEl.reset();
+      setShowUploadForm(false);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -150,10 +191,10 @@ export default function VendorContractsPage() {
         </p>
       )}
 
-      <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <section className="grid grid-cols-1 gap-3 lg:grid-cols-5">
         <div
           className={`grid grid-cols-1 gap-2 ${
-            activeTab === "vendor" ? "sm:grid-cols-2 lg:col-span-1" : "sm:grid-cols-3 lg:col-span-2"
+            activeTab === "vendor" ? "sm:grid-cols-2 lg:col-span-2" : "sm:grid-cols-3 lg:col-span-3"
           }`}
         >
           <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
@@ -164,7 +205,7 @@ export default function VendorContractsPage() {
               <span className="mt-1 h-3 w-3 rounded-full bg-[#19D463]" />
             </div>
             <p className="text-5 font-semibold text-slate-900 dark:text-white">
-              {contracts.filter((c) => c.status === "Active").length}
+              {contractRows.filter((c) => c.status === "Active").length}
             </p>
           </article>
 
@@ -176,7 +217,7 @@ export default function VendorContractsPage() {
               <span className="mt-1 h-3 w-3 rounded-full bg-[#FFB21C]" />
             </div>
             <p className="text-5 font-semibold text-slate-900 dark:text-white">
-              {contracts.filter((c) => c.status === "Expiring soon").length}
+              {contractRows.filter((c) => c.status === "Expiring soon").length}
             </p>
           </article>
 
@@ -189,7 +230,7 @@ export default function VendorContractsPage() {
                 <span className="mt-1 h-3 w-3 rounded-full bg-[#3E82F7]" />
               </div>
               <p className="text-5 font-semibold text-slate-900 dark:text-white">
-                {contracts.filter((c) => c.renewal === "Auto-renew").length}
+                {contractRows.filter((c) => c.renewal === "Auto-renew").length}
               </p>
             </article>
           )}
@@ -197,133 +238,172 @@ export default function VendorContractsPage() {
 
         <div
           className={`rounded-xl border border-[#2C4264] bg-[#1E293B] p-3 ${
-            activeTab === "vendor" ? "lg:col-span-2" : "lg:col-span-1"
+            activeTab === "vendor" ? "lg:col-span-3" : "lg:col-span-2"
           }`}
         >
-          <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                className="h-5 w-5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-4-4" />
-              </svg>
-            </span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by contract number, name, or URL..."
-              className={`w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8] ${
-                activeTab === "vendor" ? "h-14" : "h-12"
-              }`}
-            />
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[260px] flex-1">
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-5 w-5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-4-4" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by contract number, name, or URL..."
+                className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowUploadForm((prev) => !prev);
+                setUploadError(null);
+                setUploadMessage(null);
+              }}
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2F66E8] px-4 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
+            >
+              {showUploadForm ? "Close" : "+ Add Contract"}
+            </button>
           </div>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6">
-        <h2 className="text-5 font-semibold text-white mb-4">
-          {activeTab === "employee"
-            ? "Upload Employee Contract PDF"
-            : "Upload Vendor Contract PDF"}
-        </h2>
-        {uploadError && (
-          <p className="mb-3 rounded-xl border border-[#7F1D1D] bg-[#2F1212] p-3 text-[#FCA5A5] text-5">
-            {uploadError}
-          </p>
-        )}
-        {uploadMessage && (
-          <p className="mb-3 rounded-xl border border-[#166534] bg-[#052E25] p-3 text-[#BBF7D0] text-5">
-            {uploadMessage}
-          </p>
-        )}
-        <form
-          onSubmit={handleUpload}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
-        >
-          {activeTab === "employee" ? (
-            <>
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-[#A7B6D3]">Benefit ID</label>
-                <input
-                  name="benefitId"
-                  required
-                  placeholder="gym_pinefit"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-[#A7B6D3]">Version</label>
-                <input
-                  name="version"
-                  required
-                  placeholder="2025.1"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <input type="hidden" name="benefitId" value="vendor_contract" />
-              <input type="hidden" name="version" value="1.0" />
-            </>
-          )}
-          <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">
-              Vendor Name (optional)
-            </label>
-            <input
-              name="vendorName"
-              placeholder="PineFit"
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">
-              Effective Date (optional)
-            </label>
-            <input
-              name="effectiveDate"
-              type="date"
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">
-              Expiry Date (optional)
-            </label>
-            <input
-              name="expiryDate"
-              type="date"
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-5 text-[#A7B6D3]">Contract PDF</label>
-            <input
-              name="file"
-              type="file"
-              accept="application/pdf"
-              required
-              className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-2 text-5 text-white file:mr-3 file:rounded-lg file:border-none file:bg-[#334160] file:px-3 file:py-1.5 file:text-5 file:text-[#D4DEEF] hover:file:bg-[#3A4A6C]"
-            />
-          </div>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              disabled={uploading}
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2F66E8] px-5 text-5 font-medium text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:opacity-60"
+      {showUploadForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <button
+            type="button"
+            aria-label="Close add contract modal"
+            onClick={() => setShowUploadForm(false)}
+            className="absolute inset-0 bg-[#020B1FCC] backdrop-blur-md"
+          />
+          <section className="relative z-10 w-full max-w-6xl rounded-3xl border border-[#2C4264] bg-[#1E293B] p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="text-5 font-semibold text-white">
+                {activeTab === "employee"
+                  ? "Upload Employee Contract PDF"
+                  : "Upload Vendor Contract PDF"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowUploadForm(false)}
+                className="inline-flex h-9 items-center justify-center rounded-lg border border-[#324A70] px-3 text-5 text-[#D4DEEF] transition hover:bg-[#24364F]"
+              >
+                Close
+              </button>
+            </div>
+            {uploadError && (
+              <p className="mb-3 rounded-xl border border-[#7F1D1D] bg-[#2F1212] p-3 text-[#FCA5A5] text-5">
+                {uploadError}
+              </p>
+            )}
+            {uploadMessage && (
+              <p className="mb-3 rounded-xl border border-[#166534] bg-[#052E25] p-3 text-[#BBF7D0] text-5">
+                {uploadMessage}
+              </p>
+            )}
+            <form
+              onSubmit={handleUpload}
+              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
             >
-              {uploading ? "Uploading..." : "Upload Contract"}
-            </button>
-          </div>
-        </form>
-      </section>
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">Contract Number</label>
+                <input
+                  name="contractNumber"
+                  required
+                  placeholder="CNT-004"
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                />
+              </div>
+              {activeTab === "employee" ? (
+                <>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-5 text-[#A7B6D3]">Benefit ID</label>
+                    <input
+                      name="benefitId"
+                      required
+                      placeholder="gym_pinefit"
+                      className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-5 text-[#A7B6D3]">Version</label>
+                    <input
+                      name="version"
+                      required
+                      placeholder="2025.1"
+                      className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <input type="hidden" name="benefitId" value="vendor_contract" />
+                  <input type="hidden" name="version" value="1.0" />
+                </>
+              )}
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">
+                  Vendor Name (optional)
+                </label>
+                <input
+                  name="vendorName"
+                  placeholder="PineFit"
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">
+                  Effective Date (optional)
+                </label>
+                <input
+                  name="effectiveDate"
+                  type="date"
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">
+                  Expiry Date (optional)
+                </label>
+                <input
+                  name="expiryDate"
+                  type="date"
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-5 text-[#A7B6D3]">Contract PDF</label>
+                <input
+                  name="file"
+                  type="file"
+                  accept="application/pdf"
+                  required
+                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-2 text-5 text-white file:mr-3 file:rounded-lg file:border-none file:bg-[#334160] file:px-3 file:py-1.5 file:text-5 file:text-[#D4DEEF] hover:file:bg-[#3A4A6C]"
+                />
+              </div>
+              <div className="flex items-end">
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2F66E8] px-5 text-5 font-medium text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {uploading ? "Saving..." : "Save Contract"}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
         <h2 className="text-5 font-semibold text-slate-900 dark:text-white">

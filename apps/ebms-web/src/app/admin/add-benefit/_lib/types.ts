@@ -20,7 +20,12 @@ export type BenefitConfig = {
   name: string;
   category: string;
   subsidyPercent?: number;
+  financeCheck?: boolean;
   requiresContract?: boolean;
+  contractNumber?: string;
+  contractName?: string;
+  contractFileName?: string;
+  contractUrl?: string;
   rules: Rule[];
 };
 
@@ -29,6 +34,7 @@ export type AddBenefitFormState = {
   name: string;
   category: string;
   subsidyPercent: number;
+  financeCheck: boolean;
   requiresContract: boolean;
   contractNumber: string;
   contractName: string;
