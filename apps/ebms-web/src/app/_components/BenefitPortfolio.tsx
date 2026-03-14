@@ -11,44 +11,91 @@ interface BenefitPortfolioProps {
 	benefits: BenefitCardProps[];
 	/** When provided, called when user clicks "Request benefit" on an ELIGIBLE benefit (e.g. to call requestBenefit API) */
 	onRequestBenefit?: (benefit: BenefitCardProps) => void;
+	/** Use single column layout (e.g. for sidebar) */
+	compact?: boolean;
 }
 
 export function BenefitPortfolio({
 	benefits,
 	onRequestBenefit,
+	compact,
 }: BenefitPortfolioProps) {
 	const [selectedBenefit, setSelectedBenefit] =
 		useState<BenefitCardProps | null>(null);
+	const [openWithContractStep, setOpenWithContractStep] = useState(false);
 
-	const handleRequestBenefit = (benefit: BenefitCardProps) => {
+	const handleRequestBenefit = async (benefit: BenefitCardProps) => {
 		if (onRequestBenefit) {
-			onRequestBenefit(benefit);
+			await onRequestBenefit(benefit);
+			setSelectedBenefit(null);
 		} else {
 			alert(
 				`Request submitted for ${benefit.name}. You'll be notified when it's reviewed.`,
 			);
+			setSelectedBenefit(null);
 		}
 	};
 
+	if (benefits.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+				<p className="text-slate-500 dark:text-slate-400 text-sm">
+					No benefits match this filter.
+				</p>
+				<p className="text-slate-400 dark:text-slate-500 text-xs mt-1">
+					Try selecting a different status or view All benefits.
+				</p>
+			</div>
+		);
+	}
+
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full min-w-0 items-stretch">
-				{benefits.map((benefit) => (
-					<BenefitCard
-						key={benefit.benefitId ?? benefit.name}
-						{...benefit}
-						onClick={() => setSelectedBenefit(benefit)}
-						onRequestBenefit={
-							benefit.status === "ELIGIBLE"
-								? () => handleRequestBenefit(benefit)
-								: undefined
-						}
-					/>
-				))}
+			<div
+				className={`grid w-full min-w-0 ${
+					compact
+						? "grid-cols-1 gap-4 items-start"
+						: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 items-stretch"
+				}`}
+			>
+				{benefits.map((benefit) => {
+					const canRequest =
+						benefit.status === "ELIGIBLE" || benefit.status === "REJECTED";
+					const needsContract =
+						canRequest &&
+						(benefit.requiresContract || benefit.contractLink);
+					// If contract required: button opens modal with contract; else direct request
+					return (
+						<BenefitCard
+							key={benefit.benefitId ?? benefit.name}
+							{...benefit}
+							compact={compact}
+							onClick={() => {
+								setOpenWithContractStep(false);
+								setSelectedBenefit(benefit);
+							}}
+							onRequestBenefit={
+								canRequest
+									? needsContract
+										? () => {
+												setOpenWithContractStep(true);
+												setSelectedBenefit(benefit);
+											}
+										: () => handleRequestBenefit(benefit)
+									: undefined
+							}
+						/>
+					);
+				})}
 			</div>
 			<BenefitEligibilityModal
 				benefit={selectedBenefit}
-				onClose={() => setSelectedBenefit(null)}
+				onClose={() => {
+					setSelectedBenefit(null);
+					setOpenWithContractStep(false);
+				}}
+				onRequestBenefit={onRequestBenefit ? handleRequestBenefit : undefined}
+				initialOpenContractStep={openWithContractStep}
 			/>
 		</>
 	);

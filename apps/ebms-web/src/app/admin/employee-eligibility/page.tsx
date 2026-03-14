@@ -10,117 +10,124 @@ import { GraphQLClient, gql } from "graphql-request";
 type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
 type EmployeeListItem = {
-  id: string;
-  name?: string | null;
-  role?: string | null;
-  employmentStatus?: string | null;
+	id: string;
+	name?: string | null;
+	role?: string | null;
+	employmentStatus?: string | null;
 };
 
 type EmployeeBenefit = {
-  benefit: { id: string; name: string };
-  status: BenefitStatus;
-  ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
+	benefit: { id: string; name: string };
+	status: BenefitStatus;
+	ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
 };
 
 type EmployeeDetail = EmployeeListItem & {
-  benefits: EmployeeBenefit[];
+	benefits: EmployeeBenefit[];
 };
 
 type BenefitRow = {
-  benefitId: string;
-  name: string;
-  status: BenefitStatus;
-  history: Array<{
-    status: string;
-    reason: string;
-    changedAt: string;
-    changedBy: string;
-  }>;
+	benefitId: string;
+	name: string;
+	status: BenefitStatus;
+	history: Array<{
+		status: string;
+		reason: string;
+		changedAt: string;
+		changedBy: string;
+	}>;
 };
 
 type EmployeeRow = {
-  id: string;
-  name: string;
-  department: string;
-  benefits: BenefitRow[];
+	id: string;
+	name: string;
+	department: string;
+	benefits: BenefitRow[];
 };
 
 const initialEmployees: EmployeeRow[] = [];
 
 const EMPLOYEES_QUERY = gql`
-  query Employees {
-    employees {
-      id
-      name
-      role
-      employmentStatus
-    }
-  }
+	query Employees {
+		employees {
+			id
+			name
+			role
+			employmentStatus
+		}
+	}
 `;
 
 const EMPLOYEE_QUERY = gql`
-  query Employee($id: ID!) {
-    employee(id: $id) {
-      id
-      name
-      role
-      employmentStatus
-      benefits {
-        benefit {
-          id
-          name
-        }
-        status
-        ruleEvaluations {
-          ruleType
-          passed
-          reason
-        }
-      }
-    }
-  }
+	query Employee($id: ID!) {
+		employee(id: $id) {
+			id
+			name
+			role
+			employmentStatus
+			benefits {
+				benefit {
+					id
+					name
+				}
+				status
+				ruleEvaluations {
+					ruleType
+					passed
+					reason
+				}
+			}
+		}
+	}
 `;
 
 const OVERRIDE_ELIGIBILITY_MUTATION = gql`
-  mutation OverrideEligibility($input: OverrideInput!) {
-    overrideEligibility(input: $input) {
-      benefit {
-        id
-      }
-      status
-    }
-  }
+	mutation OverrideEligibility($input: OverrideInput!) {
+		overrideEligibility(input: $input) {
+			benefit {
+				id
+			}
+			status
+		}
+	}
 `;
 
 const statusClass: Record<BenefitStatus, string> = {
-  ACTIVE: "border-[#166534] bg-[#052E25] text-[#34D399]",
-  ELIGIBLE: "border-[#1D4ED8] bg-[#122B4C] text-[#60A5FA]",
-  LOCKED: "border-[#9F1239] bg-[#3A1026] text-[#FB7185]",
-  PENDING: "border-[#B45309] bg-[#3B2A12] text-[#FBBF24]",
+	ACTIVE: "border-[#166534] bg-[#052E25] text-[#34D399]",
+	ELIGIBLE: "border-[#1D4ED8] bg-[#122B4C] text-[#60A5FA]",
+	LOCKED: "border-[#9F1239] bg-[#3A1026] text-[#FB7185]",
+	PENDING: "border-[#B45309] bg-[#3B2A12] text-[#FBBF24]",
 };
 
-const statusOptions: BenefitStatus[] = ["ACTIVE", "PENDING", "ELIGIBLE", "LOCKED"];
+const statusOptions: BenefitStatus[] = [
+	"ACTIVE",
+	"PENDING",
+	"ELIGIBLE",
+	"LOCKED",
+];
 
 function getClient(): GraphQLClient {
-  const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
-  const base = raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
-  const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
-  return new GraphQLClient(url, {
-    headers: {
-      "x-employee-id": "admin",
-      "x-role": "admin",
-    },
-  });
+	const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+	const base =
+		raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
+	const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
+	return new GraphQLClient(url, {
+		headers: {
+			"x-employee-id": "admin",
+			"x-role": "admin",
+		},
+	});
 }
 
 function getErrorMessage(e: unknown): string {
-  if (e && typeof e === "object" && "response" in e) {
-    const res = (e as { response?: { errors?: Array<{ message?: string }> } }).response;
-    const msg = res?.errors?.[0]?.message;
-    if (msg) return msg;
-  }
-  if (e instanceof Error) return e.message;
-  return String(e);
+	if (e && typeof e === "object" && "response" in e) {
+		const res = (e as { response?: { errors?: Array<{ message?: string }> } })
+			.response;
+		const msg = res?.errors?.[0]?.message;
+		if (msg) return msg;
+	}
+	if (e instanceof Error) return e.message;
+	return String(e);
 }
 
 export default function EmployeeEligibilityPage() {
@@ -184,7 +191,11 @@ export default function EmployeeEligibilityPage() {
 		);
 	};
 
-	const handleSaveStatus = async (benefitId: string, benefitName: string, key: string) => {
+	const handleSaveStatus = async (
+		benefitId: string,
+		benefitName: string,
+		key: string,
+	) => {
 		if (!selectedId) return;
 		const reason = (draftReasonByKey[key] ?? "").trim();
 		if (!reason) return;
@@ -275,7 +286,7 @@ export default function EmployeeEligibilityPage() {
 							: {
 									...e,
 									benefits: (emp.benefits ?? []).map((b) => ({
-											benefitId: b.benefit?.id ?? "",
+										benefitId: b.benefit?.id ?? "",
 										name: b.benefit?.name ?? "Unknown",
 										status: b.status,
 										history: [],
@@ -343,8 +354,12 @@ export default function EmployeeEligibilityPage() {
 								{getInitials(emp.name)}
 							</span>
 							<div>
-								<p className="text-5 font-medium text-slate-900 dark:text-white">{emp.name}</p>
-								<p className="text-5 text-slate-500 dark:text-[#8FA3C5]">{emp.department}</p>
+								<p className="text-5 font-medium text-slate-900 dark:text-white">
+									{emp.name}
+								</p>
+								<p className="text-5 text-slate-500 dark:text-[#8FA3C5]">
+									{emp.department}
+								</p>
 							</div>
 						</button>
 					))}
@@ -376,189 +391,193 @@ export default function EmployeeEligibilityPage() {
 							className="max-h-[85vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-slate-300 bg-white p-6 shadow-2xl dark:border-[#2C4264] dark:bg-[#0F172A]"
 							onClick={(e) => e.stopPropagation()}
 						>
-						<div className="mb-5 flex items-center justify-between">
-							<div>
-								<h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-									{selectedEmployee.name}
-								</h2>
-								<p className="mt-2 text-5 text-slate-500 dark:text-[#9FB0CF]">
-									{selectedEmployee.id} • {selectedEmployee.department}
-								</p>
+							<div className="mb-5 flex items-center justify-between">
+								<div>
+									<h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+										{selectedEmployee.name}
+									</h2>
+									<p className="mt-2 text-5 text-slate-500 dark:text-[#9FB0CF]">
+										{selectedEmployee.id} • {selectedEmployee.department}
+									</p>
+								</div>
+								<button
+									type="button"
+									onClick={handleCloseModal}
+									className="rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-5 text-slate-700 hover:bg-slate-200 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-[#C9D5EA] dark:hover:text-white"
+								>
+									Хаах
+								</button>
 							</div>
-							<button
-								type="button"
-								onClick={handleCloseModal}
-								className="rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-5 text-slate-700 hover:bg-slate-200 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-[#C9D5EA] dark:hover:text-white"
-							>
-								Хаах
-							</button>
-						</div>
 
-						<div className="space-y-4">
-							{selectedEmployee.benefits.map((benefit) =>
-								(() => {
-									const key = `${selectedEmployee.id}-${benefit.benefitId}`;
-									const isExpanded = expandedBenefitKey === key;
-									const draftStatus = draftStatusByKey[key] ?? benefit.status;
-									const draftReason = draftReasonByKey[key] ?? "";
-									const isSaving = savingByKey[key] ?? false;
-									const canSave = draftReason.trim().length > 0;
-									const lastReason = savedReasonByKey[key];
-									const saveError = errorByKey[key];
-									const modalStatusOptions: BenefitStatus[] = statusOptions;
+							<div className="space-y-4">
+								{selectedEmployee.benefits.map((benefit) =>
+									(() => {
+										const key = `${selectedEmployee.id}-${benefit.benefitId}`;
+										const isExpanded = expandedBenefitKey === key;
+										const draftStatus = draftStatusByKey[key] ?? benefit.status;
+										const draftReason = draftReasonByKey[key] ?? "";
+										const isSaving = savingByKey[key] ?? false;
+										const canSave = draftReason.trim().length > 0;
+										const lastReason = savedReasonByKey[key];
+										const saveError = errorByKey[key];
+										const modalStatusOptions: BenefitStatus[] = statusOptions;
 
-									return (
-										<article
-											key={benefit.benefitId || benefit.name}
-											className="rounded-3xl border border-slate-200 bg-slate-50 px-7 py-6 dark:border-[#2C4264] dark:bg-[#1E293B]"
-										>
-											<div className="flex items-center justify-between">
-												<div className="flex items-center gap-5">
-													<h3 className="text-2 font-medium text-slate-900 dark:text-white">
-														{benefit.name}
-													</h3>
-													<span
-														className={`rounded-lg border px-2 py-0.5 text-sm font-medium ${statusClass[benefit.status]}`}
+										return (
+											<article
+												key={benefit.benefitId || benefit.name}
+												className="rounded-3xl border border-slate-200 bg-slate-50 px-7 py-6 dark:border-[#2C4264] dark:bg-[#1E293B]"
+											>
+												<div className="flex items-center justify-between">
+													<div className="flex items-center gap-5">
+														<h3 className="text-2 font-medium text-slate-900 dark:text-white">
+															{benefit.name}
+														</h3>
+														<span
+															className={`rounded-lg border px-2 py-0.5 text-sm font-medium ${statusClass[benefit.status]}`}
+														>
+															{benefit.status}
+														</span>
+													</div>
+
+													<button
+														type="button"
+														onClick={() =>
+															handleShowToggle(key, benefit.status)
+														}
+														className="flex items-center gap-3 text-5 text-slate-500 hover:text-slate-900 dark:text-[#A7B6D3] dark:hover:text-white"
 													>
-														{benefit.status}
-													</span>
+														<span className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-5 text-slate-600 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-[#C9D5EA]">
+															Change {benefit.history.length}
+														</span>
+														<svg
+															viewBox="0 0 24 24"
+															fill="none"
+															className="h-6 w-6"
+															stroke="currentColor"
+															strokeWidth="1.8"
+														>
+															<path
+																d={
+																	isExpanded ? "m6 15 6-6 6 6" : "m6 9 6 6 6-6"
+																}
+															/>
+														</svg>
+														<span>Show</span>
+													</button>
 												</div>
 
-												<button
-													type="button"
-													onClick={() => handleShowToggle(key, benefit.status)}
-													className="flex items-center gap-3 text-5 text-slate-500 hover:text-slate-900 dark:text-[#A7B6D3] dark:hover:text-white"
-												>
-													<span className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-5 text-slate-600 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-[#C9D5EA]">
-														Change {benefit.history.length}
-													</span>
-													<svg
-														viewBox="0 0 24 24"
-														fill="none"
-														className="h-6 w-6"
-														stroke="currentColor"
-														strokeWidth="1.8"
-													>
-														<path
-															d={isExpanded ? "m6 15 6-6 6 6" : "m6 9 6 6 6-6"}
+												{isExpanded && (
+													<div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-[#324A70] dark:bg-[#0F172A]">
+														<p className="text-5 text-slate-600 dark:text-[#C9D5EA]">
+															Status сонголт
+														</p>
+														<div className="mt-3 flex flex-wrap gap-2">
+															{modalStatusOptions.map((option) => (
+																<button
+																	key={option}
+																	type="button"
+																	onClick={() =>
+																		setDraftStatusByKey((prev) => ({
+																			...prev,
+																			[key]: option,
+																		}))
+																	}
+																	className={`rounded-lg border px-3 py-1.5 text-5 transition ${
+																		draftStatus === option
+																			? statusClass[option]
+																			: "border-slate-300 text-slate-600 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:text-white"
+																	}`}
+																>
+																	{option}
+																</button>
+															))}
+														</div>
+														<label className="mt-4 block text-5 text-slate-600 dark:text-[#C9D5EA]">
+															Яагаад өөрчилснөө бичнэ үү
+														</label>
+														<textarea
+															rows={3}
+															value={draftReason}
+															onChange={(e) =>
+																setDraftReasonByKey((prev) => ({
+																	...prev,
+																	[key]: e.target.value,
+																}))
+															}
+															placeholder="Шалтгаан..."
+															className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-5 text-slate-900 outline-none dark:border-[#324A70] dark:bg-[#1E293B] dark:text-white"
 														/>
-													</svg>
-													<span>Show</span>
-												</button>
-											</div>
-
-											{isExpanded && (
-												<div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-[#324A70] dark:bg-[#0F172A]">
-													<p className="text-5 text-slate-600 dark:text-[#C9D5EA]">
-														Status сонголт
-													</p>
-													<div className="mt-3 flex flex-wrap gap-2">
-														{modalStatusOptions.map((option) => (
+														<div className="mt-3 flex items-center gap-3">
 															<button
-																key={option}
 																type="button"
 																onClick={() =>
-																	setDraftStatusByKey((prev) => ({
-																		...prev,
-																		[key]: option,
-																	}))
+																	void handleSaveStatus(
+																		benefit.benefitId,
+																		benefit.name,
+																		key,
+																	)
 																}
-																className={`rounded-lg border px-3 py-1.5 text-5 transition ${
-																	draftStatus === option
-																		? statusClass[option]
-																		: "border-slate-300 text-slate-600 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:text-white"
-																}`}
+																disabled={!canSave || isSaving}
+																className="rounded-xl bg-[#2F66E8] px-4 py-2 text-5 text-white disabled:cursor-not-allowed disabled:opacity-60"
 															>
-																{option}
+																{isSaving ? "Saving..." : "Save"}
 															</button>
-														))}
-													</div>
-													<label className="mt-4 block text-5 text-slate-600 dark:text-[#C9D5EA]">
-														Яагаад өөрчилснөө бичнэ үү
-													</label>
-													<textarea
-														rows={3}
-														value={draftReason}
-														onChange={(e) =>
-															setDraftReasonByKey((prev) => ({
-																...prev,
-																[key]: e.target.value,
-															}))
-														}
-														placeholder="Шалтгаан..."
-														className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-5 text-slate-900 outline-none dark:border-[#324A70] dark:bg-[#1E293B] dark:text-white"
-													/>
-													<div className="mt-3 flex items-center gap-3">
-														<button
-															type="button"
-															onClick={() =>
-																void handleSaveStatus(
-																	benefit.benefitId,
-																	benefit.name,
-																	key,
-																)
-															}
-															disabled={!canSave || isSaving}
-															className="rounded-xl bg-[#2F66E8] px-4 py-2 text-5 text-white disabled:cursor-not-allowed disabled:opacity-60"
-														>
-															{isSaving ? "Saving..." : "Save"}
-														</button>
-													</div>
-													{saveError && (
-														<p className="mt-3 text-5 text-red-600 dark:text-red-300">
-															{saveError}
-														</p>
-													)}
-													{lastReason && (
-														<p className="mt-3 text-5 text-slate-500 dark:text-[#8FA3C5]">
-															Сүүлд хадгалсан тайлбар: {lastReason}
-														</p>
-													)}
-
-													<div className="mt-4">
-														<p className="text-5 text-slate-600 dark:text-[#C9D5EA]">
-															Өөрчлөлтийн түүх
-														</p>
-														{benefit.history.length === 0 ? (
-															<p className="mt-2 text-5 text-slate-500 dark:text-[#8FA3C5]">
-																Түүх алга.
+														</div>
+														{saveError && (
+															<p className="mt-3 text-5 text-red-600 dark:text-red-300">
+																{saveError}
 															</p>
-													) : (
-															<div className="mt-2 space-y-2">
-																{benefit.history.map((entry, idx) => (
-																	<div
-																		key={`${entry.changedAt}-${idx}`}
-																		className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 dark:border-[#324A70] dark:bg-[#1E293B]"
-																	>
-																		<p className="text-5 text-slate-900 dark:text-white">
-																			{entry.changedBy} • {entry.changedAt}
-																		</p>
-																		<p className="mt-1 text-5 text-slate-600 dark:text-[#A7B6D3]">
-																			Status: {entry.status}
-																		</p>
-																		<p className="mt-1 text-5 text-slate-500 dark:text-[#8FA3C5]">
-																			Шалтгаан: {entry.reason}
-																		</p>
-																	</div>
-																))}
-															</div>
 														)}
+														{lastReason && (
+															<p className="mt-3 text-5 text-slate-500 dark:text-[#8FA3C5]">
+																Сүүлд хадгалсан тайлбар: {lastReason}
+															</p>
+														)}
+
+														<div className="mt-4">
+															<p className="text-5 text-slate-600 dark:text-[#C9D5EA]">
+																Өөрчлөлтийн түүх
+															</p>
+															{benefit.history.length === 0 ? (
+																<p className="mt-2 text-5 text-slate-500 dark:text-[#8FA3C5]">
+																	Түүх алга.
+																</p>
+															) : (
+																<div className="mt-2 space-y-2">
+																	{benefit.history.map((entry, idx) => (
+																		<div
+																			key={`${entry.changedAt}-${idx}`}
+																			className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 dark:border-[#324A70] dark:bg-[#1E293B]"
+																		>
+																			<p className="text-5 text-slate-900 dark:text-white">
+																				{entry.changedBy} • {entry.changedAt}
+																			</p>
+																			<p className="mt-1 text-5 text-slate-600 dark:text-[#A7B6D3]">
+																				Status: {entry.status}
+																			</p>
+																			<p className="mt-1 text-5 text-slate-500 dark:text-[#8FA3C5]">
+																				Шалтгаан: {entry.reason}
+																			</p>
+																		</div>
+																	))}
+																</div>
+															)}
+														</div>
 													</div>
-												</div>
-											)}
-										</article>
-									);
-								})(),
-							)}
-							{selectedEmployee.benefits.length === 0 && (
-								<p className="rounded-2xl border border-slate-300 bg-slate-50 px-6 py-5 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-[#9FB0CF]">
-									Benefit мэдээлэл олдсонгүй.
-								</p>
-							)}
+												)}
+											</article>
+										);
+									})(),
+								)}
+								{selectedEmployee.benefits.length === 0 && (
+									<p className="rounded-2xl border border-slate-300 bg-slate-50 px-6 py-5 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-[#9FB0CF]">
+										Benefit мэдээлэл олдсонгүй.
+									</p>
+								)}
+							</div>
 						</div>
-					</div>
-				</div>,
-					document.body
+					</div>,
+					document.body,
 				)}
 		</div>
 	);
