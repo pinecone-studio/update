@@ -3,6 +3,7 @@
 import { gql } from "graphql-request";
 import { useEffect, useState } from "react";
 import { getAdminClient, getApiErrorMessage } from "../_lib/api";
+import { VendorContractsSkeleton } from "../components/VendorContractsSkeleton";
 
 type Contract = {
   id: number;
@@ -75,6 +76,7 @@ export default function VendorContractsPage() {
   const [activeTab, setActiveTab] = useState<"employee" | "vendor">("vendor");
   const [search, setSearch] = useState("");
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [contractRows, setContractRows] = useState<Contract[]>(contracts);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
