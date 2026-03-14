@@ -62,8 +62,7 @@ export function BenefitPortfolio({
 					const canRequest =
 						benefit.status === "ELIGIBLE" || benefit.status === "REJECTED";
 					const needsContract =
-						canRequest &&
-						(benefit.requiresContract || benefit.contractLink);
+						canRequest && (benefit.requiresContract || benefit.contractLink);
 					// If contract required: button opens modal with contract; else direct request
 					return (
 						<BenefitCard
