@@ -30,9 +30,11 @@ export async function generateStaticParams() {
       EMPLOYEES_QUERY
     );
     const employees = data.employees ?? [];
-    return employees.map((emp) => ({ id: emp.id }));
+    const params = employees.map((emp) => ({ id: emp.id }));
+    // output: 'export' requires at least one param when API is unreachable at build time
+    return params.length > 0 ? params : [{ id: "placeholder" }];
   } catch {
-    return [];
+    return [{ id: "placeholder" }];
   }
 }
 
