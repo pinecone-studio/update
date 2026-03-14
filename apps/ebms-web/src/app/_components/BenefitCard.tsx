@@ -102,8 +102,9 @@ export const BenefitCard = ({
 	};
 
 	const isButtonClickable =
-		(status === "ELIGIBLE" || status === "REJECTED") ||
-		(status === "ACTIVE" || status === "LOCKED") && onClick;
+		status === "ELIGIBLE" ||
+		status === "REJECTED" ||
+		((status === "ACTIVE" || status === "LOCKED") && onClick);
 	return (
 		<div
 			className={`flex flex-col w-full ${compact ? "" : "h-full"} ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
@@ -158,19 +159,33 @@ export const BenefitCard = ({
 									</p>
 								</div>
 								<div className="flex-shrink-0 flex items-center gap-1">
-									{status === "ACTIVE" && (eligibilityRules ?? []).length > 0 && (
-										<span className="relative group" onClick={(e) => e.stopPropagation()}>
-											<FiInfo size={12} className="text-slate-500 hover:text-slate-700 cursor-help dark:text-slate-400 dark:hover:text-slate-200" aria-label="Requirements to maintain benefit" />
-											<span className="absolute right-0 top-full mt-1 px-2 py-1.5 w-44 rounded-lg bg-slate-800 text-white text-xs font-normal shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-50 pointer-events-none">
-												<p className="font-semibold mb-1">To maintain this benefit</p>
-												<ul className="space-y-0.5 list-disc list-inside">
-													{(eligibilityRules ?? []).slice(0, 3).map((r, i) => (
-														<li key={i} className="line-clamp-2">{r.rule}</li>
-													))}
-												</ul>
+									{status === "ACTIVE" &&
+										(eligibilityRules ?? []).length > 0 && (
+											<span
+												className="relative group"
+												onClick={(e) => e.stopPropagation()}
+											>
+												<FiInfo
+													size={12}
+													className="text-slate-500 hover:text-slate-700 cursor-help dark:text-slate-400 dark:hover:text-slate-200"
+													aria-label="Requirements to maintain benefit"
+												/>
+												<span className="absolute right-0 top-full mt-1 px-2 py-1.5 w-44 rounded-lg bg-slate-800 text-white text-xs font-normal shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-50 pointer-events-none">
+													<p className="font-semibold mb-1">
+														To maintain this benefit
+													</p>
+													<ul className="space-y-0.5 list-disc list-inside">
+														{(eligibilityRules ?? [])
+															.slice(0, 3)
+															.map((r, i) => (
+																<li key={i} className="line-clamp-2">
+																	{r.rule}
+																</li>
+															))}
+													</ul>
+												</span>
 											</span>
-										</span>
-									)}
+										)}
 									<span
 										className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${STATUS_STYLES[status]}`}
 									>

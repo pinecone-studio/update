@@ -153,7 +153,12 @@ export async function requestBenefit(
 		employeeName?: string;
 		contractPopup?: Window | null;
 	},
-): Promise<{ id: string; status: string; createdAt: string; requiresContract: boolean }> {
+): Promise<{
+	id: string;
+	status: string;
+	createdAt: string;
+	requiresContract: boolean;
+}> {
 	const res = await getEmployeeClient().request<{
 		requestBenefit: {
 			id: string;
@@ -167,7 +172,9 @@ export async function requestBenefit(
 
 	// Contract-required benefits: fetch dynamic HTML template and record employee signature.
 	if (request.requiresContract) {
-		const popup = _options?.contractPopup ?? window.open("", "_blank", "noopener,noreferrer");
+		const popup =
+			_options?.contractPopup ??
+			window.open("", "_blank", "noopener,noreferrer");
 		if (!popup) {
 			throw new Error("Popup blocked. Please allow popups and try again.");
 		}

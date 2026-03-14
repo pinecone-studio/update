@@ -27,6 +27,10 @@ const CATEGORY_ICONS: Record<string, ReactNode> = {
 
 const DEFAULT_ICON = <MdFitnessCenter size={24} />;
 
+/** Mock vendor contract URL — replace with backend contractLink when connected */
+const MOCK_CONTRACT_URL =
+	"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
 /** Map GraphQL myBenefits to BenefitCardProps (UI-д хэрэгтэй хэлбэр) */
 export function mapMyBenefitsToCardProps(
 	items: MyBenefitEligibility[],
@@ -51,8 +55,8 @@ export function mapMyBenefitsToCardProps(
 				detail: r.reason,
 			})) ?? [];
 
-		// Contract HTML is generated per request (requestId-based), so no static link here.
-		const contractLink = undefined;
+		// TODO: Replace with backend contractLink when connected (e.g. b.activeContract ? apiContractUrl : undefined)
+		const contractLink = MOCK_CONTRACT_URL;
 		const benefitEndDate = b.activeContract?.expiryDate ?? "2026-12-31";
 		const benefitStartDate =
 			b.activeContract?.effectiveDate ??
