@@ -4,12 +4,10 @@ import type { ReactNode } from "react";
 import { Header } from "./components/Header";
 import { Metadata } from "next";
 
-
 export const metadata: Metadata = {
-	title: 'EBMS — Employee Dashboard',
-	description: 'Pinequest S3 Ep1 — Employee Benefits Management System',
-  };
-  
+	title: "EBMS — Employee Dashboard",
+	description: "Pinequest S3 Ep1 — Employee Benefits Management System",
+};
 
 export default function EmployeeLayout({ children }: { children: ReactNode }) {
 	return (

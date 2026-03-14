@@ -13,15 +13,9 @@ export function EmployeeDashboardSkeleton({
 	benefitCount = 4,
 }: EmployeeDashboardSkeletonProps) {
 	return (
-		<>
-			{/* Header skeleton */}
-			<div className="flex flex-col mb-8">
-				<Skeleton className="h-9 w-72" />
-				<Skeleton className="h-5 w-96 mt-3" />
-			</div>
-
-			{/* Stats cards skeleton */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+		<div className="grid grid-cols-1 gap-4 lg:grid-cols-12 w-full min-h-0">
+			{/* Stats cards skeleton - matches lg:col-span-7 layout */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:col-span-7 min-h-0">
 				{[1, 2, 3, 4].map((i) => (
 					<div
 						key={i}
@@ -39,50 +33,39 @@ export function EmployeeDashboardSkeleton({
 				))}
 			</div>
 
-			{/* Benefit Portfolio section skeleton */}
-			<div className="mt-8 mb-6">
-				<Skeleton className="h-6 w-40" />
-			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full min-w-0">
-				{Array.from({ length: benefitCount }, (_, i) => i + 1).map((i) => (
-					<div
-						key={i}
-						className="w-full min-w-0 rounded-xl bg-white border border-slate-200 overflow-hidden shadow-inner dark:bg-[#1A2536] dark:border-[#2d3a4d]"
-					>
-						<div className="p-5 pt-4 flex flex-col">
-							<div className="flex items-start gap-4 mb-5">
-								<Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
+			{/* Benefit Portfolio section skeleton - matches lg:col-span-5 layout */}
+			<div className="rounded-2xl bg-white border border-slate-200/80 p-5 dark:bg-slate-800/50 dark:border-slate-700/80 lg:col-span-5 h-[480px] flex flex-col overflow-hidden">
+				<div className="flex-shrink-0 mb-4 flex flex-wrap items-center justify-between gap-3">
+					<Skeleton className="h-6 w-40" />
+					<Skeleton className="h-9 w-14 rounded-xl" />
+				</div>
+				<div className="flex-1 min-h-0 overflow-hidden space-y-4">
+					{Array.from({ length: benefitCount }, (_, i) => i + 1).map((i) => (
+						<div
+							key={i}
+							className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4"
+						>
+							<div className="flex items-start gap-4 mb-3">
+								<Skeleton className="w-10 h-10 rounded-lg flex-shrink-0" />
 								<div className="flex-1 min-w-0 space-y-2">
-									<Skeleton className="h-5 w-[75%]" />
-									<Skeleton className="h-4 w-full" />
+									<Skeleton className="h-4 w-[75%]" />
+									<Skeleton className="h-3 w-full" />
 								</div>
-								<Skeleton className="w-16 h-6 rounded-full flex-shrink-0" />
+								<Skeleton className="w-14 h-5 rounded-full flex-shrink-0" />
 							</div>
-							<div className="space-y-3 mb-5 pb-5 border-b border-slate-200 dark:border-[#2d3a4d]">
-								{[1, 2, 3, 4].map((j) => (
+							<div className="space-y-2">
+								{[1, 2, 3].map((j) => (
 									<div key={j} className="flex justify-between gap-2">
-										<Skeleton className="h-4 w-20" />
-										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-3 w-16" />
+										<Skeleton className="h-3 w-20" />
 									</div>
 								))}
 							</div>
-							<Skeleton className="h-10 w-full rounded-lg" />
+							<Skeleton className="h-9 w-full rounded-lg mt-3" />
 						</div>
-					</div>
-				))}
+					))}
+				</div>
 			</div>
-
-			{/* Feedback section skeleton */}
-			<div className="mt-10 mb-6">
-				<Skeleton className="h-6 w-24" />
-				<Skeleton className="h-4 w-80 mt-3" />
-			</div>
-			<div className="rounded-[10px] bg-white border border-slate-200 p-6 dark:bg-[#334155] dark:border-transparent">
-				<Skeleton className="h-4 w-32 mb-3" />
-				<Skeleton className="h-24 w-full rounded-lg" />
-				<Skeleton className="h-10 w-36 mt-4 rounded-lg" />
-			</div>
-		</>
+		</div>
 	);
 }
