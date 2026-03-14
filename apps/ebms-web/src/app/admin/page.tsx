@@ -9,24 +9,28 @@ import { HrTotalEmployeeIcon } from "../icons/hrTotalEmployee";
 import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
 import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import {
-	getAdminClient,
-	confirmBenefitRequest,
-	getApiErrorMessage,
+  getAdminClient,
+  confirmBenefitRequest,
+  fetchBenefitRequestContractHtml,
+  getApiErrorMessage,
 } from "./_lib/api";
 
 const BENEFIT_REQUESTS_QUERY = gql`
-	query BenefitRequests($status: RequestStatus) {
-		benefitRequests(status: $status) {
-			id
-			employeeId
-			benefitId
-			status
-			createdAt
-			employeeName
-			benefitName
-			rejectReason
-		}
-	}
+  query BenefitRequests($status: RequestStatus) {
+    benefitRequests(status: $status) {
+      id
+      employeeId
+      benefitId
+      status
+      createdAt
+      employeeName
+      benefitName
+      rejectReason
+      requiresContract
+      contractAcceptedAt
+      contractTemplateUrl
+    }
+  }
 `;
 
 const EMPLOYEES_COUNT_QUERY = gql`
@@ -50,14 +54,17 @@ const ACTIVE_BENEFITS_COUNT_QUERY = gql`
   }
 `;
 type BenefitRequest = {
-	id: string;
-	employeeId: string;
-	benefitId: string;
-	status: string;
-	createdAt: string;
-	employeeName?: string | null;
-	benefitName?: string | null;
-	rejectReason?: string | null;
+  id: string;
+  employeeId: string;
+  benefitId: string;
+  status: string;
+  createdAt: string;
+  employeeName?: string | null;
+  benefitName?: string | null;
+  rejectReason?: string | null;
+  requiresContract: boolean;
+  contractAcceptedAt?: string | null;
+  contractTemplateUrl?: string | null;
 };
 
 type StatCard = {
@@ -256,23 +263,23 @@ export default function HrDashboardPage() {
 		}
 	};
 
-  const normalizedSearch = eligibilitySearch.trim().toLowerCase();
-  const employeeSuggestions = normalizedSearch
-    ? employeesForSearch
-        .filter(
-          (emp) =>
-            emp.name.toLowerCase().includes(normalizedSearch) ||
-            emp.id.toLowerCase().includes(normalizedSearch) ||
-            emp.department.toLowerCase().includes(normalizedSearch)
-        )
-        .sort((a, b) => {
-          const aStarts = a.name.toLowerCase().startsWith(normalizedSearch) ? 0 : 1;
-          const bStarts = b.name.toLowerCase().startsWith(normalizedSearch) ? 0 : 1;
-          if (aStarts !== bStarts) return aStarts - bStarts;
-          return a.name.localeCompare(b.name);
-        })
-        .slice(0, 12)
-    : [];
+  const handleViewTemplate = async (requestId: string) => {
+    try {
+      const html = await fetchBenefitRequestContractHtml(getAdminClient(), requestId);
+      const popup = window.open("", "_blank", "noopener,noreferrer");
+      if (popup) {
+        popup.document.open();
+        popup.document.write(html);
+        popup.document.close();
+      }
+    } catch (e) {
+      setError(getApiErrorMessage(e));
+    }
+  };
+
+  const displayRequests = requests.filter(
+    (req) => !statusFilter || (req.status || 'PENDING').toUpperCase() === statusFilter
+  );
 
   return (
     <>
@@ -329,48 +336,101 @@ export default function HrDashboardPage() {
               Employee Eligibility Overview
             </h2>
           </div>
-          <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                className="h-5 w-5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-4-4" />
-              </svg>
-            </span>
-            <input
-              type="text"
-              value={eligibilitySearch}
-              onChange={(e) => setEligibilitySearch(e.target.value)}
-              placeholder="Ажилтны нэр, ID, албаар хайх..."
-              className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8FA3C5] dark:focus:border-[#4B6FA8]"
-            />
-            {normalizedSearch.length > 0 && (
-              <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-64 overflow-auto rounded-xl border border-[#324A70] bg-[#0F172A] shadow-xl">
-                {employeeSuggestions.length > 0 ? (
-                  employeeSuggestions.map((emp) => (
-                    <button
-                      key={emp.id}
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        router.push(`/admin/employee-eligibility/${emp.id}`);
-                      }}
-                      className="flex w-full items-center justify-between px-4 py-3 text-left text-5 text-white transition hover:bg-[#142544]"
-                    >
-                      <span className="truncate">{emp.name}</span>
-                      <span className="ml-3 text-xs text-[#8FA3C5]">{emp.id}</span>
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-4 py-3 text-5 text-[#9FB0CF]">
-                    Хайлтад тохирох ажилтан олдсонгүй.
-                  </div>
-                )}
+        )}
+
+        {loading ? (
+          <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">Loading requests...</p>
+        ) : (
+          <>
+            {displayRequests.length === 0 ? (
+              <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">
+                No benefit requests found.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left text-5">
+                  <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
+                    <tr>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Request (Benefit)</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Employee</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Status</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Contract</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Date</th>
+                      <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayRequests.map((req) => {
+                        const status = (req.status || 'PENDING').toUpperCase();
+                        const isLoading = actionLoadingId === req.id;
+                        const needsSignature = req.requiresContract && !req.contractAcceptedAt;
+                        return (
+                      <tr
+                        key={req.id}
+                        className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
+                      >
+                        <td className="px-3 py-3 font-medium text-slate-900 dark:text-white sm:px-4 sm:py-4">
+                          {req.benefitName ?? req.benefitId}
+                        </td>
+                        <td className="px-3 py-3 text-slate-600 dark:text-[#A7B6D3] sm:px-4 sm:py-4">
+                          {req.employeeName ?? req.employeeId}
+                        </td>
+                        <td className="px-3 py-3 sm:px-4 sm:py-4">{statusBadge(status)}</td>
+                        <td className="px-3 py-3 sm:px-4 sm:py-4">
+                          {req.requiresContract ? (
+                            <div className="flex flex-col gap-1">
+                              <span className={`text-xs font-medium ${needsSignature ? 'text-amber-500' : 'text-emerald-500'}`}>
+                                {needsSignature ? 'Not signed' : 'Signed'}
+                              </span>
+                              {req.contractTemplateUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleViewTemplate(req.id)}
+                                  className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-300"
+                                >
+                                  View template
+                                </button>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 dark:text-slate-500 text-xs">N/A</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-3 text-slate-500 dark:text-[#8FA3C5] sm:px-4 sm:py-4">
+                          {formatDate(req.createdAt)}
+                        </td>
+                        <td className="px-3 py-3 sm:px-4 sm:py-4">
+                          {status === 'PENDING' ? (
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-6">
+                              <button
+                                type="button"
+                                onClick={() => handleApprove(req.id)}
+                                disabled={isLoading || needsSignature}
+                                className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+                              >
+                                {needsSignature ? 'Await sign' : isLoading ? '...' : 'Approve'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRejectingId(req.id);
+                                  setRejectComment('');
+                                }}
+                                disabled={isLoading}
+                                className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed sm:rounded-xl sm:px-4 sm:py-2"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 dark:text-slate-500">—</span>
+                          )}
+                        </td>
+                      </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

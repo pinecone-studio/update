@@ -51,10 +51,8 @@ export function mapMyBenefitsToCardProps(
 				detail: r.reason,
 			})) ?? [];
 
-		// Example values for demo when API doesn't return them yet
-		const contractLink = b.activeContract?.id
-			? `/employee/contracts/${b.activeContract.id}`
-			: "/employee/contracts/example-contract-001";
+		// Contract HTML is generated per request (requestId-based), so no static link here.
+		const contractLink = undefined;
 		const benefitEndDate = b.activeContract?.expiryDate ?? "2026-12-31";
 		const benefitStartDate =
 			b.activeContract?.effectiveDate ??

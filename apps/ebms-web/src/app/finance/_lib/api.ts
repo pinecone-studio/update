@@ -38,6 +38,9 @@ export type BenefitRequest = {
   employeeName?: string | null;
   benefitName?: string | null;
   rejectReason?: string | null;
+  requiresContract: boolean;
+  contractAcceptedAt?: string | null;
+  contractTemplateUrl?: string | null;
 };
 
 export type EmployeeLite = {
@@ -82,6 +85,9 @@ const BENEFIT_REQUESTS_QUERY = gql`
       employeeName
       benefitName
       rejectReason
+      requiresContract
+      contractAcceptedAt
+      contractTemplateUrl
     }
   }
 `;
@@ -138,6 +144,14 @@ const CONFIRM_REQUEST_MUTATION = gql`
   }
 `;
 
+const BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY = gql`
+  query BenefitRequestContractTemplate($requestId: ID!) {
+    benefitRequestContractTemplate(requestId: $requestId) {
+      html
+    }
+  }
+`;
+
 export async function fetchBenefitRequests(
   client: GraphQLClient,
   status?: BenefitRequestStatus
@@ -175,4 +189,14 @@ export async function confirmBenefitRequest(
     contractAccepted,
     rejectReason: rejectReason || null,
   });
+}
+
+export async function fetchBenefitRequestContractHtml(
+  client: GraphQLClient,
+  requestId: string
+): Promise<string> {
+  const res = await client.request<{
+    benefitRequestContractTemplate: { html: string };
+  }>(BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY, { requestId });
+  return res.benefitRequestContractTemplate.html;
 }

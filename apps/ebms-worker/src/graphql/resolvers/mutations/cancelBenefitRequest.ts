@@ -3,7 +3,8 @@ import type { Ctx } from '../context';
 import { requireEmployeeId } from '../context';
 import type { MutationResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
-import { benefitRequests } from '../../../db/schema';
+import { benefitRequests, benefits } from '../../../db/schema';
+import { asBool01, mapRequestStatus } from '../utils';
 import { eq } from 'drizzle-orm';
 
 export const cancelBenefitRequest: NonNullable<
@@ -24,8 +25,14 @@ export const cancelBenefitRequest: NonNullable<
       benefitId: benefitRequests.benefitId,
       status: benefitRequests.status,
       createdAt: benefitRequests.createdAt,
+      contractVersionAccepted: benefitRequests.contractVersionAccepted,
+      contractAcceptedAt: benefitRequests.contractAcceptedAt,
+      rejectReason: benefitRequests.rejectReason,
+      requiresContract: benefits.requiresContract,
+      activeContractId: benefits.activeContractId,
     })
     .from(benefitRequests)
+    .leftJoin(benefits, eq(benefitRequests.benefitId, benefits.id))
     .where(eq(benefitRequests.id, requestId))
     .limit(1);
   const row = rows[0];
@@ -34,6 +41,11 @@ export const cancelBenefitRequest: NonNullable<
   }
   if (row.employeeId !== employeeId) {
     throw new GraphQLError('Forbidden', { extensions: { code: 'FORBIDDEN' } });
+  }
+  if ((row.status ?? '').toLowerCase() !== 'pending') {
+    throw new GraphQLError('Only pending requests can be cancelled', {
+      extensions: { code: 'BAD_USER_INPUT' },
+    });
   }
 
   const now = new Date().toISOString();
@@ -46,8 +58,14 @@ export const cancelBenefitRequest: NonNullable<
     id: row.id,
     employeeId: row.employeeId,
     benefitId: row.benefitId,
-    status: 'CANCELLED' as const,
+    status: mapRequestStatus('cancelled'),
     createdAt: row.createdAt ?? now,
+    rejectReason: row.rejectReason ?? null,
+    contractVersionAccepted: row.contractVersionAccepted ?? null,
+    contractAcceptedAt: row.contractAcceptedAt ?? null,
+    requiresContract: asBool01(row.requiresContract),
+    contractId: row.activeContractId ?? null,
+    contractTemplateUrl: asBool01(row.requiresContract) ? `/contracts/requests/${row.id}/template` : null,
   };
 };
 

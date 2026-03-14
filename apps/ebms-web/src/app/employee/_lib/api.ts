@@ -78,6 +78,36 @@ const REQUEST_BENEFIT_MUTATION = gql`
 			benefitId
 			status
 			createdAt
+			requiresContract
+			contractId
+			contractTemplateUrl
+		}
+	}
+`;
+
+const BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY = gql`
+	query BenefitRequestContractTemplate($requestId: ID!) {
+		benefitRequestContractTemplate(requestId: $requestId) {
+			requestId
+			benefitId
+			contractId
+			contractVersion
+			requiresContract
+			html
+		}
+	}
+`;
+
+const SIGN_BENEFIT_CONTRACT_MUTATION = gql`
+	mutation SignBenefitContract($requestId: ID!) {
+		signBenefitContract(requestId: $requestId) {
+			id
+			status
+			contractAcceptedAt
+			contractVersionAccepted
+			requiresContract
+			contractId
+			contractTemplateUrl
 		}
 	}
 `;
@@ -118,12 +148,52 @@ export async function fetchMyBenefits(): Promise<MyBenefitEligibility[]> {
 
 export async function requestBenefit(
 	benefitId: string,
-	_options?: { benefitName?: string; employeeName?: string },
-): Promise<{ id: string; status: string; createdAt: string }> {
+	_options?: {
+		benefitName?: string;
+		employeeName?: string;
+		contractPopup?: Window | null;
+	},
+): Promise<{ id: string; status: string; createdAt: string; requiresContract: boolean }> {
 	const res = await getEmployeeClient().request<{
-		requestBenefit: { id: string; status: string; createdAt: string };
+		requestBenefit: {
+			id: string;
+			status: string;
+			createdAt: string;
+			requiresContract: boolean;
+			contractTemplateUrl?: string | null;
+		};
 	}>(REQUEST_BENEFIT_MUTATION, { input: { benefitId } });
-	return res.requestBenefit;
+	const request = res.requestBenefit;
+
+	// Contract-required benefits: fetch dynamic HTML template and record employee signature.
+	if (request.requiresContract) {
+		const popup = _options?.contractPopup ?? window.open("", "_blank", "noopener,noreferrer");
+		if (!popup) {
+			throw new Error("Popup blocked. Please allow popups and try again.");
+		}
+
+		const templateRes = await getEmployeeClient().request<{
+			benefitRequestContractTemplate: { html: string };
+		}>(BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY, { requestId: request.id });
+
+		const contractHtml = templateRes.benefitRequestContractTemplate?.html;
+		if (contractHtml) {
+			popup.document.open();
+			popup.document.write(contractHtml);
+			popup.document.close();
+		}
+
+		await getEmployeeClient().request(SIGN_BENEFIT_CONTRACT_MUTATION, {
+			requestId: request.id,
+		});
+	}
+
+	return {
+		id: request.id,
+		status: request.status,
+		createdAt: request.createdAt,
+		requiresContract: request.requiresContract,
+	};
 }
 
 export function getApiErrorMessage(e: unknown): string {

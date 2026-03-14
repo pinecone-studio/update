@@ -86,6 +86,20 @@ type BenefitRequest {
   employeeName: String
   benefitName: String
   rejectReason: String
+  contractVersionAccepted: String
+  contractAcceptedAt: String
+  requiresContract: Boolean!
+  contractId: ID
+  contractTemplateUrl: String
+}
+
+type ContractTemplate {
+  requestId: ID!
+  benefitId: ID!
+  contractId: ID
+  contractVersion: String
+  requiresContract: Boolean!
+  html: String!
 }
 
 # ─── Audit (HR) ────────────────────────────────────────────────
@@ -155,6 +169,7 @@ type Query {
   employees(department: String, employmentStatus: String): [Employee!]!
   auditLog(filters: AuditFilters!): [AuditEntry!]!
   benefitRequests(status: RequestStatus): [BenefitRequest!]!
+  benefitRequestContractTemplate(requestId: ID!): ContractTemplate!
   getEligibilityRuleConfig: EligibilityRuleConfig!
   getAvailableRuleAttributes: [String!]!
 }
@@ -162,6 +177,7 @@ type Query {
 # ─── Mutations ──────────────────────────────────────────────────
 type Mutation {
   requestBenefit(input: BenefitRequestInput!): BenefitRequest!
+  signBenefitContract(requestId: ID!): BenefitRequest!
   confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!, rejectReason: String): BenefitRequest!
   cancelBenefitRequest(requestId: ID!): BenefitRequest!
   overrideEligibility(input: OverrideInput!): BenefitEligibility!

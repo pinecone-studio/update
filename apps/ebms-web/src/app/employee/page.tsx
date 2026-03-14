@@ -120,9 +120,14 @@ export default function EmployeeDashboardPage() {
 			);
 			if (!confirmed) return;
 			try {
+				const popup =
+					benefit.requiresContract
+						? window.open("", "_blank", "noopener,noreferrer")
+						: null;
 				await requestBenefit(benefit.benefitId, {
 					benefitName: benefit.name,
 					employeeName: me?.name ?? undefined,
+					contractPopup: popup,
 				});
 				// Optimistically update and switch to PENDING so user sees their request
 				setBenefits((prev) =>

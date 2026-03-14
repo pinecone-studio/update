@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { Env } from "../types";
 import { getDb } from "../db/drizzle";
 import { benefits as benefitsTable, contracts as contractsTable } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 const adminContracts = new Hono<{ Bindings: Env }>();
 
@@ -78,6 +78,12 @@ adminContracts.post("/upload", async (c) => {
   await c.env.CONTRACTS.put(r2ObjectKey, pdfBytes, {
     httpMetadata: { contentType: "application/pdf" },
   });
+
+  // Ensure only one active contract per benefit.
+  await db
+    .update(contractsTable)
+    .set({ isActive: 0, updatedAt: now })
+    .where(and(eq(contractsTable.benefitId, benefitId), eq(contractsTable.isActive, 1)));
 
   // Write contract metadata to D1 and set it as active.
   await db.insert(contractsTable).values({

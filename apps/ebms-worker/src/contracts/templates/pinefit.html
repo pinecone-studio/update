@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinefit үйлчилгээний гэрээ</title>
+    <style>
+        :root {
+            --text: #111827;
+            --muted: #6b7280;
+            --line: #d1d5db;
+            --strong-line: #9ca3af;
+        }
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+        html,
+        body {
+            width: 210mm;
+            min-height: 297mm;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Arial", "Helvetica Neue", sans-serif;
+            line-height: 1.55;
+            color: var(--text);
+            margin: 0 auto;
+            padding: 12mm;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        p {
+            margin: 0 0 10px;
+            font-size: 14px;
+        }
+        h1 {
+            text-align: center;
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 0.4px;
+        }
+        h2 {
+            margin: 0 0 12px;
+            font-size: 16px;
+        }
+        h3 {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .subtitle {
+            text-align: center;
+            margin: 6px 0 20px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .top-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 18px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding: 10px 0;
+        }
+        .top-meta div {
+            flex: 1;
+        }
+        .muted {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .value {
+            font-weight: 600;
+        }
+        .section {
+            margin-bottom: 16px;
+        }
+        .section-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 14px 14px 6px;
+            margin-bottom: 12px;
+            break-inside: avoid-page;
+            page-break-inside: avoid;
+        }
+        .kv {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 12px;
+            font-size: 14px;
+        }
+        .kv th,
+        .kv td {
+            border: 1px solid var(--line);
+            padding: 8px 10px;
+            vertical-align: top;
+        }
+        .kv th {
+            width: 220px;
+            text-align: left;
+            background: #f9fafb;
+            font-weight: 600;
+        }
+        .list {
+            margin: 6px 0 10px 0;
+            padding-left: 18px;
+        }
+        .list li {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .final-note {
+            border-left: 4px solid var(--strong-line);
+            background: #f9fafb;
+            padding: 10px 12px;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .signature {
+            margin-top: 22px;
+        }
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 10px;
+        }
+        .sign-box {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 170px;
+        }
+        .sign-line {
+            border-bottom: 1px solid var(--strong-line);
+            height: 32px;
+            margin: 8px 0 4px;
+        }
+        .sign-caption {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .stamp {
+            margin-top: 10px;
+            border: 1px dashed var(--strong-line);
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        @media print {
+            html,
+            body {
+                width: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+            }
+            .section-card {
+                border-color: #bfc3c9;
+            }
+        }
+        @media screen {
+            body {
+                box-shadow: 0 0 0 1px #e5e7eb;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+    <h1>PINEFIT ҮЙЛЧИЛГЭЭНИЙ ГЭРЭЭ</h1>
+    <p class="subtitle">
+        (Монгол Улсын Иргэний хууль болон холбогдох эрх зүйн актад нийцүүлэн байгуулсан үйлчилгээний гэрээний загвар)
+    </p>
+
+    <div class="top-meta">
+        <div>
+            <p class="muted">Гэрээний дугаар</p>
+            <p class="value">{{contractNumber}}</p>
+        </div>
+        <div>
+            <p class="muted">Байгуулсан огноо</p>
+            <p class="value">{{contractDate}}</p>
+        </div>
+        <div>
+            <p class="muted">Байгуулсан газар</p>
+            <p class="value">{{contractLocation}}</p>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>1. Талууд</h2>
+        <p>
+            Энэхүү гэрээг нэг талаас <span class="value">{{companyName}}</span>
+            (цаашид "Үйлчилгээ үзүүлэгч" гэх), нөгөө талаас
+            <span class="value">{{clientName}}</span> (цаашид "Үйлчлүүлэгч" гэх) нар дараах нөхцөлөөр байгуулав.
+        </p>
+        <table class="kv">
+            <tr>
+                <th>Үйлчилгээ үзүүлэгчийн регистр</th>
+                <td>{{providerRegister}}</td>
+            </tr>
+            <tr>
+                <th>Үйлчилгээ үзүүлэгчийн хаяг</th>
+                <td>{{providerAddress}}</td>
+            </tr>
+            <tr>
+                <th>Үйлчлүүлэгчийн регистр/ID</th>
+                <td>{{clientId}}</td>
+            </tr>
+            <tr>
+                <th>Үйлчлүүлэгчийн хаяг</th>
+                <td>{{clientAddress}}</td>
+            </tr>
+            <tr>
+                <th>Төлөөлөх эрхийн үндэс</th>
+                <td>{{authorityBasis}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section-card">
+        <h2>2. Гэрээний зүйл</h2>
+        <p>
+            Үйлчилгээ үзүүлэгч нь Үйлчлүүлэгчид <span class="value">{{serviceName}}</span> хөтөлбөрийн
+            хүрээнд дараах үйлчилгээг үзүүлнэ: <span class="value">{{serviceDescription}}</span>.
+        </p>
+    </div>
+
+    <div class="section-card">
+        <h2>3. Гэрээний хугацаа</h2>
+        <p>
+            Гэрээний хүчинтэй хугацаа нь
+            <span class="value">{{effectiveDate}}</span>-с
+            <span class="value">{{expiryDate}}</span> хүртэл байна.
+        </p>
+        <p>Гэрээний хугацааг талууд харилцан бичгээр тохиролцож сунгаж болно.</p>
+    </div>
+
+    <div class="section-card">
+        <h2>4. Төлбөр ба тооцоо</h2>
+        <table class="kv">
+            <tr>
+                <th>Нийт төлбөр</th>
+                <td><span class="value">{{amount}}</span></td>
+            </tr>
+            <tr>
+                <th>Төлбөрийн нөхцөл</th>
+                <td><span class="value">{{paymentTerms}}</span></td>
+            </tr>
+            <tr>
+                <th>Төлбөр хийх данс</th>
+                <td>{{providerBankInfo}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section-card">
+        <h2>5. Талуудын эрх, үүрэг</h2>
+        <h3>5.1 Үйлчилгээ үзүүлэгчийн үүрэг</h3>
+        <ul class="list">
+            <li>Гэрээнд заасан хугацаа, нөхцөлийн дагуу үйлчилгээг чанартай үзүүлэх.</li>
+            <li>Үйлчлүүлэгчийн хувийн болон байгууллагын мэдээллийн нууцлалыг хангах.</li>
+            <li>Үйлчилгээний явц, үр дүнгийн тайланг шаардлагатай үед танилцуулах.</li>
+        </ul>
+        <h3>5.2 Үйлчлүүлэгчийн үүрэг</h3>
+        <ul class="list">
+            <li>Үйлчилгээ авахад шаардлагатай үнэн зөв мэдээллийг цаг тухайд нь өгөх.</li>
+            <li>Төлбөрийг гэрээнд заасан хугацаанд бүрэн төлөх.</li>
+            <li>Гэрээний хэрэгжилттэй холбоотой харилцаанд үнэнч шударгаар оролцох.</li>
+        </ul>
+    </div>
+
+    <div class="section-card">
+        <h2>6. Нууцлал ба мэдээлэл хамгаалалт</h2>
+        <p>
+            Гэрээний хэрэгжилтийн явцад олж авсан нууц мэдээллийг талууд гуравдагч этгээдэд
+            тухайн талын бичгээр өгсөн зөвшөөрөлгүйгээр задруулахгүй. Хуульд заасан үндэслэлээр
+            эрх бүхий байгууллагад гаргах тохиолдол үүнд хамаарахгүй.
+        </p>
+    </div>
+
+    <div class="section-card">
+        <h2>7. Хариуцлага, алданги</h2>
+        <p>
+            Талууд гэрээгээр хүлээсэн үүргээ биелүүлээгүй, эсхүл зохих ёсоор биелүүлээгүй бол
+            Монгол Улсын хууль тогтоомж болон энэ гэрээнд заасан нөхцөлийн дагуу хариуцлага хүлээнэ.
+        </p>
+    </div>
+
+    <div class="section-card">
+        <h2>8. Форс-мажор</h2>
+        <p>
+            Давагдашгүй хүчин зүйлийн улмаас гэрээний үүргээ биелүүлэх боломжгүй болсон тал нь
+            энэ тухай 3 (гурав) хоногийн дотор нөгөө талдаа мэдэгдэнэ.
+        </p>
+    </div>
+
+    <div class="section-card">
+        <h2>9. Гэрээ цуцлах, нэмэлт өөрчлөлт</h2>
+        <p>
+            Талууд харилцан зөвшилцсөнөөр гэрээг цуцалж болно. Гэрээний нөхцөлд оруулах нэмэлт,
+            өөрчлөлт нь зөвхөн бичгээр үйлдэж, талууд гарын үсэг зурсан тохиолдолд хүчинтэй.
+        </p>
+    </div>
+
+    <div class="section-card">
+        <h2>10. Маргаан шийдвэрлэх журам</h2>
+        <p>
+            Энэхүү гэрээтэй холбоотой маргааныг талууд эхлээд харилцан зөвшилцлөөр шийдвэрлэх бөгөөд
+            зөвшилцөлд хүрээгүй тохиолдолд Монгол Улсын холбогдох хууль тогтоомжийн дагуу шийдвэрлэнэ.
+        </p>
+    </div>
+
+    <div class="section-card">
+        <h2>11. Эцсийн заалт</h2>
+        <p>
+            Энэхүү гэрээ нь монгол хэл дээр 2 (хоёр) хувь үйлдэгдэж, талууд тус бүр нэг хувийг хадгална.
+            Хоёр хувь нь адил хүчинтэй байна.
+        </p>
+        <p class="final-note">
+            Энэхүү загвар нь ерөнхий загвар бөгөөд байгууллагынхаа хууль, комплаенсын шаардлагад нийцүүлэн
+            хуульчийн хяналтаар эцэслэн баталгаажуулж ашиглана.
+        </p>
+    </div>
+
+    <div class="signature">
+        <h2>12. Талуудын гарын үсэг</h2>
+        <div class="signature-grid">
+            <div>
+                <p><strong>Үйлчилгээ үзүүлэгч</strong></p>
+                <div class="sign-box">
+                    <p>Нэр: <span class="value">{{providerSigner}}</span></p>
+                    <p>Албан тушаал: <span class="value">{{providerRole}}</span></p>
+                    <p>Огноо: <span class="value">{{providerSignatureDate}}</span></p>
+                    <div class="sign-line"></div>
+                    <p class="sign-caption">Гарын үсэг</p>
+                    <div class="stamp">Тамга</div>
+                </div>
+            </div>
+            <div>
+                <p><strong>Үйлчлүүлэгч</strong></p>
+                <div class="sign-box">
+                    <p>Нэр: <span class="value">{{clientSigner}}</span></p>
+                    <p>Регистр/ID: <span class="value">{{clientId}}</span></p>
+                    <p>Огноо: <span class="value">{{signatureDate}}</span></p>
+                    <div class="sign-line"></div>
+                    <p class="sign-caption">Гарын үсэг</p>
+                    <div class="stamp">Тэмдэглэл</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

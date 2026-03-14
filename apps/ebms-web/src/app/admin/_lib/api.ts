@@ -32,6 +32,14 @@ const CONFIRM_BENEFIT_REQUEST_MUTATION = gql`
   }
 `;
 
+const BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY = gql`
+  query BenefitRequestContractTemplate($requestId: ID!) {
+    benefitRequestContractTemplate(requestId: $requestId) {
+      html
+    }
+  }
+`;
+
 export async function confirmBenefitRequest(
   client: GraphQLClient,
   requestId: string,
@@ -46,6 +54,16 @@ export async function confirmBenefitRequest(
     rejectReason: rejectReason || null,
   });
   return res.confirmBenefitRequest;
+}
+
+export async function fetchBenefitRequestContractHtml(
+  client: GraphQLClient,
+  requestId: string
+): Promise<string> {
+  const res = await client.request<{
+    benefitRequestContractTemplate: { html: string };
+  }>(BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY, { requestId });
+  return res.benefitRequestContractTemplate.html;
 }
 
 export function getApiErrorMessage(e: unknown): string {
