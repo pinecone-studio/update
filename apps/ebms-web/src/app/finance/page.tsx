@@ -34,6 +34,9 @@ export default function FinancePage() {
 		Record<string, number>
 	>({});
 	const [selectedCardKey, setSelectedCardKey] = useState<string | null>(null);
+	const [statusFilter, setStatusFilter] = useState<
+		"PENDING" | "APPROVED" | "REJECTED" | undefined
+	>("PENDING");
 	const [rejectingRequestId, setRejectingRequestId] = useState<string | null>(
 		null,
 	);
@@ -112,6 +115,14 @@ export default function FinancePage() {
 		[selectedCardKey],
 	);
 
+	const visibleRequests = useMemo(
+		() =>
+			statusFilter
+				? requests.filter((r) => (r.status || "PENDING").toUpperCase() === statusFilter)
+				: requests,
+		[requests, statusFilter],
+	);
+
 	const getInitials = (name: string) =>
 		name
 			.split(" ")
@@ -119,6 +130,24 @@ export default function FinancePage() {
 			.join("")
 			.slice(0, 2)
 			.toUpperCase();
+
+	const statusBadge = (status: string) => {
+		const s = (status || "PENDING").toUpperCase();
+		const styles: Record<string, string> = {
+			PENDING: "border-[#FFAD0F]/40 bg-[#FFAD0F]/20 text-[#FFAD0F]",
+			APPROVED: "border-[#00C95F]/40 bg-[#00C95F]/20 text-[#00C95F]",
+			REJECTED: "border-red-500/40 bg-red-500/20 text-red-400",
+			CANCELLED: "border-[#64748B]/40 bg-[#64748B]/20 text-[#94A3B8]",
+		};
+		const cls = styles[s] ?? "border-[#64748B]/40 bg-[#64748B]/20 text-[#94A3B8]";
+		return (
+			<span
+				className={`inline-flex rounded-xl border px-3 py-1 text-xs font-medium ${cls}`}
+			>
+				{s}
+			</span>
+		);
+	};
 
 	const loadData = async () => {
 		setLoading(true);
@@ -165,11 +194,20 @@ export default function FinancePage() {
 		return <FinanceDashboardSkeleton />;
 	}
 
-	const handleDecision = async (requestId: string, accepted: boolean) => {
+	const handleDecision = async (
+		requestId: string,
+		accepted: boolean,
+		rejectReason?: string,
+	) => {
 		setSubmittingRequestId(requestId);
 		setError(null);
 		try {
-			await confirmBenefitRequest(getFinanceClient(), requestId, accepted);
+			await confirmBenefitRequest(
+				getFinanceClient(),
+				requestId,
+				accepted,
+				accepted ? undefined : (rejectReason?.trim() || undefined),
+			);
 			await loadData();
 		} catch (e) {
 			setError(getApiErrorMessage(e));
@@ -177,8 +215,6 @@ export default function FinancePage() {
 			setSubmittingRequestId(null);
 		}
 	};
-
-	const visibleRequests = pendingRequests;
 
 	return (
 		<div className="space-y-6">
@@ -241,18 +277,35 @@ export default function FinancePage() {
 			</section>
 
 			<section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#1E293B]">
-				<div className="flex flex-col gap-2 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 dark:border-[#2B405F]">
+				<div className="flex flex-col gap-4 border-b border-slate-200 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6 sm:py-5 dark:border-[#2B405F]">
 					<div>
 						<h2 className="text-5 font-semibold text-slate-900 dark:text-white">
 							Financial Benefit Requests
 						</h2>
-						<p className="mt-1 text-5 text-slate-600 dark:text-[#A7B6D3]">
-							Review and process pending requests
-						</p>
 					</div>
-					<p className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-						Showing {visibleRequests.length} requests
-					</p>
+					<div className="flex flex-wrap items-center gap-2">
+						{(
+							[
+								{ value: "PENDING" as const, label: "Pending" },
+								{ value: "APPROVED" as const, label: "Approved" },
+								{ value: "REJECTED" as const, label: "Rejected" },
+								{ value: undefined, label: "All" },
+							] as const
+						).map(({ value, label }) => (
+							<button
+								key={value ?? "all"}
+								type="button"
+								onClick={() => setStatusFilter(value)}
+								className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+									statusFilter === value
+										? "bg-blue-600 text-white dark:bg-[#2A8BFF]"
+										: "border border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-[#2C4264] dark:text-[#A7B6D3] dark:hover:bg-[#24364F]"
+								}`}
+							>
+								{label}
+							</button>
+						))}
+					</div>
 				</div>
 
 				<div className="overflow-x-auto">
@@ -267,6 +320,7 @@ export default function FinancePage() {
 								</th>
 								<th className="px-4 py-3 sm:px-6 sm:py-4">Department</th>
 								<th className="px-4 py-3 sm:px-6 sm:py-4">Date</th>
+								<th className="px-4 py-3 sm:px-6 sm:py-4">Status</th>
 								<th className="px-4 py-3 sm:px-6 sm:py-4">Action</th>
 							</tr>
 						</thead>
@@ -310,37 +364,46 @@ export default function FinancePage() {
 											: "—"}
 									</td>
 									<td className="px-4 py-4 sm:px-6 sm:py-5">
-										<div className="flex flex-wrap items-center gap-2">
-											<button
-												type="button"
-												onClick={() => void handleDecision(request.id, true)}
-												disabled={submittingRequestId === request.id}
-												className="rounded-lg bg-green-600 px-3 py-1.5 text-5 font-medium text-white hover:bg-green-700 disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
-											>
-												Approve
-											</button>
-											<button
-												type="button"
-												onClick={() => {
-													setRejectingRequestId(request.id);
-													setRejectionReason("");
-												}}
-												disabled={submittingRequestId === request.id}
-												className="rounded-lg bg-red-500/90 px-3 py-1.5 text-5 font-medium text-white hover:bg-red-500 sm:rounded-xl sm:px-4 sm:py-2"
-											>
-												Reject
-											</button>
-										</div>
+										{statusBadge(request.status || "PENDING")}
+									</td>
+									<td className="px-4 py-4 sm:px-6 sm:py-5">
+										{(request.status || "PENDING").toUpperCase() === "PENDING" ? (
+											<div className="flex flex-wrap items-center gap-2">
+												<button
+													type="button"
+													onClick={() => void handleDecision(request.id, true)}
+													disabled={submittingRequestId === request.id}
+													className="rounded-lg bg-green-600 px-3 py-1.5 text-5 font-medium text-white hover:bg-green-700 disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
+												>
+													Approve
+												</button>
+												<button
+													type="button"
+													onClick={() => {
+														setRejectingRequestId(request.id);
+														setRejectionReason("");
+													}}
+													disabled={submittingRequestId === request.id}
+													className="rounded-lg bg-red-500/90 px-3 py-1.5 text-5 font-medium text-white hover:bg-red-500 sm:rounded-xl sm:px-4 sm:py-2"
+												>
+													Reject
+												</button>
+											</div>
+										) : (
+											<span className="text-slate-400 dark:text-slate-500">—</span>
+										)}
 									</td>
 								</tr>
 							))}
 							{visibleRequests.length === 0 && (
 								<tr>
 									<td
-										colSpan={7}
+										colSpan={8}
 										className="px-6 py-6 text-center text-5 text-slate-500 dark:text-[#A7B6D3]"
 									>
-										Pending хүсэлт алга байна.
+										{statusFilter
+											? `${statusFilter.charAt(0) + statusFilter.slice(1).toLowerCase()} хүсэлт алга байна.`
+											: "Хүсэлт алга байна."}
 									</td>
 								</tr>
 							)}
@@ -407,7 +470,7 @@ export default function FinancePage() {
 								type="button"
 								onClick={() => {
 									if (!rejectingRequestId) return;
-									void handleDecision(rejectingRequestId, false);
+									void handleDecision(rejectingRequestId, false, rejectionReason);
 									setRejectingRequestId(null);
 									setRejectionReason("");
 								}}

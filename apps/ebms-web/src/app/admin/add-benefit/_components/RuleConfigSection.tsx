@@ -28,6 +28,8 @@ type Props = {
   hideSaveButton?: boolean;
   hideBenefitSelector?: boolean;
   saveButtonLabel?: string;
+  showCancelButton?: boolean;
+  onCancel?: () => void;
 };
 
 export function RuleConfigSection({
@@ -48,6 +50,8 @@ export function RuleConfigSection({
   hideSaveButton = false,
   hideBenefitSelector = false,
   saveButtonLabel = "Дүрмүүдийг хадгалах",
+  showCancelButton = false,
+  onCancel,
 }: Props) {
   return (
     <section className={sectionClass}>
@@ -181,7 +185,16 @@ export function RuleConfigSection({
             + Дүрэм нэмэх
           </button>
           {!hideSaveButton && (
-            <div className="mt-4">
+            <div className="mt-4 flex items-center gap-3">
+              {showCancelButton && onCancel && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+                >
+                  Cancel
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onSave}

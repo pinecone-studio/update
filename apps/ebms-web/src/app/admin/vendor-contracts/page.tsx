@@ -55,6 +55,7 @@ export default function VendorContractsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"employee" | "vendor">("vendor");
   const [search, setSearch] = useState("");
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
@@ -82,6 +83,11 @@ export default function VendorContractsPage() {
 
     const formEl = e.currentTarget;
     const formData = new FormData(formEl);
+    const contractNumber = String(formData.get("contractNumber") ?? "").trim();
+    const vendorName = String(formData.get("vendorName") ?? "").trim();
+    const effectiveDate = String(formData.get("effectiveDate") ?? "").trim();
+    const expiryDate = String(formData.get("expiryDate") ?? "").trim();
+    const uploadedFile = formData.get("file");
 
     try {
       const base = getApiBaseUrl();
@@ -102,7 +108,41 @@ export default function VendorContractsPage() {
         return;
       }
       setUploadMessage("Contract uploaded successfully.");
+      const contractName =
+        vendorName.length > 0
+          ? `${vendorName} Contract`
+          : activeTab === "employee"
+            ? `Employee Contract ${contractNumber || "New"}`
+            : `Vendor Contract ${contractNumber || "New"}`;
+      const fallbackUrl = contractNumber
+        ? `https://contracts.update.mn/${contractNumber.toLowerCase()}`
+        : "https://contracts.update.mn/new-contract";
+      const responseUrl =
+        data && typeof data === "object" && "url" in data && typeof (data as any).url === "string"
+          ? (data as any).url
+          : fallbackUrl;
+      const isExpiringSoon = !!expiryDate && new Date(expiryDate).getTime() - Date.now() < 1000 * 60 * 60 * 24 * 90;
+      setContractRows((prev) => [
+        ...prev,
+        (() => {
+          const nextId = prev.length > 0 ? Math.max(...prev.map((row) => row.id)) + 1 : 1;
+          return {
+            id: nextId,
+            contractNumber: contractNumber || `CNT-${String(nextId).padStart(3, "0")}`,
+            contractName,
+            startDate: effectiveDate || "—",
+            endDate: expiryDate || "—",
+            contractUrl:
+              responseUrl ||
+              (uploadedFile instanceof File && uploadedFile.name
+                ? `https://contracts.update.mn/files/${encodeURIComponent(uploadedFile.name)}`
+                : fallbackUrl),
+            status: isExpiringSoon ? "Expiring soon" : "Active",
+          };
+        })(),
+      ]);
       formEl.reset();
+      setShowUploadForm(false);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -129,8 +169,8 @@ export default function VendorContractsPage() {
             onClick={() => setActiveTab("employee")}
             className={`rounded-xl px-3 py-2 text-5 font-semibold transition ${
               activeTab === "employee"
-                ? "bg-[#2F66E8] text-white"
-                : "text-slate-300 hover:bg-[#24364F] hover:text-white"
+                ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-[#24364F] dark:hover:text-white"
             }`}
           >
             Employee contract
@@ -142,8 +182,8 @@ export default function VendorContractsPage() {
             onClick={() => setActiveTab("vendor")}
             className={`rounded-xl px-3 py-2 text-5 font-semibold transition ${
               activeTab === "vendor"
-                ? "bg-[#2F66E8] text-white"
-                : "text-slate-300 hover:bg-[#24364F] hover:text-white"
+                ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-[#24364F] dark:hover:text-white"
             }`}
           >
             Vendor contract
@@ -161,10 +201,10 @@ export default function VendorContractsPage() {
         </p>
       )}
 
-      <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <section className="grid grid-cols-1 gap-3 lg:grid-cols-5">
         <div
           className={`grid grid-cols-1 gap-2 ${
-            activeTab === "vendor" ? "sm:grid-cols-2 lg:col-span-1" : "sm:grid-cols-3 lg:col-span-2"
+            activeTab === "vendor" ? "sm:grid-cols-2 lg:col-span-2" : "sm:grid-cols-3 lg:col-span-3"
           }`}
         >
           <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
@@ -175,7 +215,7 @@ export default function VendorContractsPage() {
               <span className="mt-1 h-3 w-3 rounded-full bg-[#19D463]" />
             </div>
             <p className="text-5 font-semibold text-slate-900 dark:text-white">
-              {contracts.filter((c) => c.status === "Active").length}
+              {contractRows.filter((c) => c.status === "Active").length}
             </p>
           </article>
 
@@ -184,10 +224,10 @@ export default function VendorContractsPage() {
               <p className="text-6 text-slate-600 dark:text-[#A7B6D3]">
                 Expiring Soon
               </p>
-              <span className="mt-1 h-3 w-3 rounded-full bg-[#FFB21C]" />
+              <span className="mt-1 h-3 w-3 rounded-full bg-amber-500 dark:bg-[#FFB21C]" />
             </div>
             <p className="text-5 font-semibold text-slate-900 dark:text-white">
-              {contracts.filter((c) => c.status === "Expiring soon").length}
+              {contractRows.filter((c) => c.status === "Expiring soon").length}
             </p>
           </article>
 
@@ -200,7 +240,7 @@ export default function VendorContractsPage() {
                 <span className="mt-1 h-3 w-3 rounded-full bg-[#3E82F7]" />
               </div>
               <p className="text-5 font-semibold text-slate-900 dark:text-white">
-                {contracts.filter((c) => c.renewal === "Auto-renew").length}
+                {contractRows.filter((c) => c.renewal === "Auto-renew").length}
               </p>
             </article>
           )}
@@ -211,28 +251,39 @@ export default function VendorContractsPage() {
             activeTab === "vendor" ? "lg:col-span-2" : "lg:col-span-1"
           }`}
         >
-          <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                className="h-5 w-5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-4-4" />
-              </svg>
-            </span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by contract number, name, or URL..."
-              className={`w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8] ${
-                activeTab === "vendor" ? "h-14" : "h-12"
-              }`}
-            />
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[260px] flex-1">
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-5 w-5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-4-4" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by contract number, name, or URL..."
+                className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowUploadForm((prev) => !prev);
+                setUploadError(null);
+                setUploadMessage(null);
+              }}
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2F66E8] px-4 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
+            >
+              {showUploadForm ? "Close" : "+ Add Contract"}
+            </button>
           </div>
         </div>
       </section>
@@ -262,7 +313,7 @@ export default function VendorContractsPage() {
               <div className="flex flex-col gap-1">
                 <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Benefit ID</label>
                 <input
-                  name="benefitId"
+                  name="contractNumber"
                   required
                   placeholder="gym_pinefit"
                   className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
@@ -388,7 +439,7 @@ export default function VendorContractsPage() {
                       href={contract.contractUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#6FA3FF] underline decoration-[#6FA3FF]/40 underline-offset-4 hover:text-[#8AB6FF]"
+                      className="text-blue-600 underline decoration-blue-600/40 underline-offset-4 hover:text-blue-700 dark:text-[#6FA3FF] dark:decoration-[#6FA3FF]/40 dark:hover:text-[#8AB6FF]"
                     >
                       {contract.contractUrl}
                     </a>

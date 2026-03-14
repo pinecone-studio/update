@@ -106,10 +106,10 @@ export default function AuditTrailPage() {
                     <span
                       className={`inline-flex items-center rounded-xl border px-3 py-1.5 text-5 sm:px-4 sm:py-2 ${
                         entry.result === "Completed"
-                          ? "border-[#0E6B4F] bg-[#15342B] text-[#00E08B]"
+                          ? "border-[#0E6B4F] dark:bg-[#15342B] bg-white text-[#00E08B]"
                           : entry.result === "Approved"
-                            ? "border-[#1B4F95] bg-[#122545] text-[#4EA2FF]"
-                            : "border-[#7D4B21] bg-[#3A2A16] text-[#FF9D33]"
+                            ? "border-[#1B4F95] dark:bg-[#122545] bg-white text-[#4EA2FF]"
+                            : "border-[#7D4B21] dark:bg-[#3A2A16] bg-white text-[#FF9D33]"
                       }`}
                     >
                       {entry.result}
