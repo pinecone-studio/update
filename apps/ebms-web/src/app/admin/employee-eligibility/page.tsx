@@ -2,54 +2,58 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { EmployeeEligibilitySkeleton } from "../components/EmployeeEligibilitySkeleton";
 import { GraphQLClient, gql } from "graphql-request";
 
 type EmployeeListItem = {
-  id: string;
-  name?: string | null;
-  role?: string | null;
-  employmentStatus?: string | null;
+	id: string;
+	name?: string | null;
+	role?: string | null;
+	employmentStatus?: string | null;
 };
 
 type EmployeeRow = {
-  id: string;
-  name: string;
-  department: string;
+	id: string;
+	name: string;
+	department: string;
 };
 
 const initialEmployees: EmployeeRow[] = [];
 
 const EMPLOYEES_QUERY = gql`
-  query Employees {
-    employees {
-      id
-      name
-      role
-      employmentStatus
-    }
-  }
+	query Employees {
+		employees {
+			id
+			name
+			role
+			employmentStatus
+		}
+	}
 `;
 
 function getClient(): GraphQLClient {
-  const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
-  const base = raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
-  const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
-  return new GraphQLClient(url, {
-    headers: {
-      "x-employee-id": "admin",
-      "x-role": "admin",
-    },
-  });
+	const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+	const base =
+		raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
+	const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
+	return new GraphQLClient(url, {
+		headers: {
+			"x-employee-id": "admin",
+			"x-role": "admin",
+		},
+	});
 }
 
-export default function EmployeeEligibilityPage() {
+function EmployeeEligibilityPageContent() {
+	const searchParams = useSearchParams();
+	const initialSearch = searchParams.get("search") ?? "";
 	const [loading, setLoading] = useState(true);
 	const [employeeList, setEmployeeList] =
 		useState<EmployeeRow[]>(initialEmployees);
-	const [search, setSearch] = useState("");
+	const [search, setSearch] = useState(initialSearch);
 
 	const filteredEmployees = useMemo(() => {
 		const q = search.trim().toLowerCase();
@@ -87,6 +91,10 @@ export default function EmployeeEligibilityPage() {
 			})
 			.finally(() => setLoading(false));
 	}, []);
+
+	useEffect(() => {
+		setSearch(initialSearch);
+	}, [initialSearch]);
 
 	if (loading) {
 		return <EmployeeEligibilitySkeleton />;
@@ -143,8 +151,12 @@ export default function EmployeeEligibilityPage() {
 								{getInitials(emp.name)}
 							</span>
 							<div>
-								<p className="text-5 font-medium text-slate-900 dark:text-white">{emp.name}</p>
-								<p className="text-5 text-slate-500 dark:text-[#8FA3C5]">{emp.department}</p>
+								<p className="text-5 font-medium text-slate-900 dark:text-white">
+									{emp.name}
+								</p>
+								<p className="text-5 text-slate-500 dark:text-[#8FA3C5]">
+									{emp.department}
+								</p>
 							</div>
 						</Link>
 					))}
@@ -156,5 +168,13 @@ export default function EmployeeEligibilityPage() {
 				</div>
 			</section>
 		</div>
+	);
+}
+
+export default function EmployeeEligibilityPage() {
+	return (
+		<Suspense fallback={<EmployeeEligibilitySkeleton />}>
+			<EmployeeEligibilityPageContent />
+		</Suspense>
 	);
 }

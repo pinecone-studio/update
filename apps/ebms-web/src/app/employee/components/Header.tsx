@@ -7,8 +7,6 @@ import { fetchMe } from "../_lib/api";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 
 import {
-  HiSquares2X2,
-  HiOutlineBookmark,
   HiOutlineBell,
   HiBars3,
   HiXMark,
@@ -112,23 +110,6 @@ export const Header = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
   }, [notifications]);
 
-  const navItems = [
-    {
-      key: "dashboard",
-      label: "Dashboard",
-      href: "/employee",
-      icon: HiSquares2X2,
-    },
-    {
-      key: "eligibility",
-      label: "Benefit Eligibility",
-      href: "/employee/benefits",
-      icon: HiOutlineBookmark,
-    },
-  ];
-
-  const isActive = (href: string) =>
-    pathname === href || (href !== "/employee" && pathname?.startsWith(href));
   const unreadCount = pathname?.startsWith("/employee/notification")
     ? 0
     : notifications.filter((n) => n.unread).length;
@@ -153,23 +134,6 @@ export const Header = () => {
             </div>
           </Link>
         </div>
-        <nav className="hidden md:flex items-center gap-4 text-slate-600 dark:text-slate-300 text-xs ml-6">
-          {navItems.map(({ key, label, href, icon: Icon }) => (
-            <Link
-              key={key}
-              href={href}
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition ${
-                isActive(href)
-                  ? "text-white bg-blue-600 ring-blue-300 hover:bg-blue-700 dark:bg-[#2A8BFF] dark:ring-blue-500 dark:hover:bg-[#3E82F7]"
-                  : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
-              }`}
-            >
-              <Icon className="text-base" />
-              {label}
-            </Link>
-          ))}
-        </nav>
-
         <div className="flex items-center gap-2">
           <Link
             href="/admin"
@@ -364,22 +328,6 @@ export const Header = () => {
         }`}
       >
         <nav className="flex flex-col gap-1 p-3 text-slate-600 dark:text-slate-300 text-sm">
-          {navItems.map(({ key, label, href, icon: Icon }) => (
-            <Link
-              key={key}
-              href={href}
-              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 ring-1 transition ${
-                isActive(href)
-                  ? "text-white bg-blue-600 ring-blue-300 hover:bg-blue-700 dark:bg-[#2A8BFF] dark:ring-blue-500 dark:hover:bg-[#3E82F7]"
-                  : "text-slate-600 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <Icon className="text-base" />
-              {label}
-            </Link>
-          ))}
-          <div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
           <Link
             href="/admin"
             onClick={() => setMenuOpen(false)}

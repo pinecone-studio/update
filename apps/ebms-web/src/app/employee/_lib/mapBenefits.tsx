@@ -51,9 +51,14 @@ export function mapMyBenefitsToCardProps(
 				detail: r.reason,
 			})) ?? [];
 
+		// Example values for demo when API doesn't return them yet
 		const contractLink = b.activeContract?.id
 			? `/employee/contracts/${b.activeContract.id}`
-			: undefined;
+			: "/employee/contracts/example-contract-001";
+		const benefitEndDate = b.activeContract?.expiryDate ?? "2026-12-31";
+		const benefitStartDate =
+			b.activeContract?.effectiveDate ??
+			(item.status === "ACTIVE" ? "2025-01-15" : undefined);
 
 		return {
 			benefitId: b.id,
@@ -71,6 +76,9 @@ export function mapMyBenefitsToCardProps(
 				? eligibilityRules.map((r) => r.rule).join(", ")
 				: "See eligibility details.",
 			contractLink,
+			benefitEndDate,
+			benefitStartDate,
+			requiresContract: b.requiresContract ?? false,
 			status: item.status as BenefitCardProps["status"],
 			lockReason,
 			rejectReason,
