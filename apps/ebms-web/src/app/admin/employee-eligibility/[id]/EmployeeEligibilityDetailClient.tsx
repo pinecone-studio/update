@@ -293,7 +293,7 @@ export default function EmployeeEligibilityDetailClient() {
         <h2 className="mb-6 text-lg font-semibold text-slate-900 dark:text-white">
           Benefit eligibility
         </h2>
-        <div className="flex flex-row gap-6">
+        <div className="flex flex-row gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {employee.benefits.map((benefit) => {
             const key = `${employee.id}-${benefit.benefitId}`;
             const isExpanded = expandedBenefitKey === key;
