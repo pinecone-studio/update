@@ -106,6 +106,7 @@ export type ContractTemplate = {
 
 export type CreateBenefitInput = {
   category: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   requiresContract?: InputMaybe<Scalars['Boolean']['input']>;
   rules?: InputMaybe<Array<EligibilityRuleInput>>;
@@ -277,6 +278,7 @@ export type RuleEvaluation = {
 
 export type UpdateBenefitInput = {
   category: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name: Scalars['String']['input'];
   requiresContract: Scalars['Boolean']['input'];

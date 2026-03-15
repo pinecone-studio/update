@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS employees (
 CREATE TABLE IF NOT EXISTS benefits (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
+  description TEXT,
   category TEXT NOT NULL,
   subsidy_percent INTEGER NOT NULL DEFAULT 0,
   vendor_name TEXT,
@@ -64,6 +65,8 @@ CREATE TABLE IF NOT EXISTS benefit_requests (
   status TEXT NOT NULL DEFAULT 'pending',
   contract_version_accepted TEXT,
   contract_accepted_at TEXT,
+  employee_contract_r2_key TEXT,
+  employee_contract_uploaded_at TEXT,
   reviewed_by TEXT,
   created_at TEXT,
   updated_at TEXT

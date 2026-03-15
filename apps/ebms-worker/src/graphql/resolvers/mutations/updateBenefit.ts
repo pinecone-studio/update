@@ -9,6 +9,7 @@ type UpdateBenefitArgs = {
   input: {
     id: string;
     name: string;
+    description?: string | null;
     category: string;
     subsidyPercent: number;
     requiresContract: boolean;
@@ -24,6 +25,7 @@ export const updateBenefit = async (
   const input = args.input;
   const id = input.id?.trim();
   const name = input.name?.trim();
+  const description = input.description?.trim() || null;
   const category = input.category?.trim();
   const subsidyPercent = input.subsidyPercent;
   const requiresContract = input.requiresContract;
@@ -60,6 +62,7 @@ export const updateBenefit = async (
     .update(benefitsTable)
     .set({
       name,
+      description,
       category,
       subsidyPercent,
       requiresContract: requiresContract ? 1 : 0,
@@ -81,6 +84,7 @@ export const updateBenefit = async (
           string,
           {
             name?: string;
+            description?: string;
             category?: string;
             subsidyPercent?: number;
             requiresContract?: boolean;
@@ -93,6 +97,7 @@ export const updateBenefit = async (
       benefitsConfig[id] = {
         ...prev,
         name,
+        description: description ?? undefined,
         category,
         subsidyPercent,
         requiresContract,
@@ -119,6 +124,7 @@ export const updateBenefit = async (
   return {
     id,
     name,
+    description,
     category,
     subsidyPercent,
     requiresContract,

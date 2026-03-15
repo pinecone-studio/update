@@ -26,6 +26,7 @@ export const employees = sqliteTable('employees', {
 export const benefits = sqliteTable('benefits', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
+  description: text('description'),
   category: text('category').notNull(),
   subsidyPercent: integer('subsidy_percent').notNull().default(0),
   vendorName: text('vendor_name'),
@@ -67,6 +68,8 @@ export const benefitRequests = sqliteTable('benefit_requests', {
   status: text('status').notNull().default('pending'),
   contractVersionAccepted: text('contract_version_accepted'),
   contractAcceptedAt: text('contract_accepted_at'),
+  employeeContractR2Key: text('employee_contract_r2_key'),
+  employeeContractUploadedAt: text('employee_contract_uploaded_at'),
   reviewedBy: text('reviewed_by'),
   rejectReason: text('reject_reason'),
   createdAt: text('created_at').default(''),

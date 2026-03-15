@@ -139,6 +139,7 @@ export const typeDefs = /* GraphQL */ `
 
   input CreateBenefitInput {
     name: String!
+    description: String
     category: String!
     subsidyPercent: Int
     requiresContract: Boolean
@@ -148,6 +149,7 @@ export const typeDefs = /* GraphQL */ `
   input UpdateBenefitInput {
     id: ID!
     name: String!
+    description: String
     category: String!
     subsidyPercent: Int!
     requiresContract: Boolean!

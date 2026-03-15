@@ -21,6 +21,7 @@ type BenefitOption = {
   name: string;
   category: string;
   vendorName?: string | null;
+  requiresContract: boolean;
 };
 
 const BENEFITS_QUERY = gql`
@@ -30,6 +31,7 @@ const BENEFITS_QUERY = gql`
       name
       category
       vendorName
+      requiresContract
     }
   }
 `;
@@ -94,10 +96,12 @@ export default function VendorContractsPage() {
         const res = await client.request<{ benefits: BenefitOption[] }>(
           BENEFITS_QUERY,
         );
-        const list = res.benefits ?? [];
+        const list = (res.benefits ?? []).filter((b) => b.requiresContract);
         if (!cancelled) {
           setBenefitOptions(list);
-          setSelectedVendorBenefitId((prev) => prev || list[0]?.id || "");
+          setSelectedVendorBenefitId((prev) =>
+            prev && list.some((b) => b.id === prev) ? prev : (list[0]?.id ?? ""),
+          );
         }
       } catch (e) {
         if (!cancelled) setUploadError(getApiErrorMessage(e));
@@ -408,7 +412,7 @@ export default function VendorContractsPage() {
                     <option value="">
                       {benefitsLoading
                         ? "Loading benefits..."
-                        : "No benefits available"}
+                        : "No contract-required benefits"}
                     </option>
                   ) : (
                     benefitOptions.map((b) => (

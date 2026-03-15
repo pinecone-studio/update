@@ -134,6 +134,26 @@ export function getEmployeeClient(): GraphQLClient {
 	});
 }
 
+async function archiveContractPdfToR2(requestId: string, html: string): Promise<void> {
+	const base = getBaseUrl();
+	const res = await fetch(`${base}/contracts/requests/${requestId}/archive-pdf`, {
+		method: "POST",
+		headers: {
+			"x-employee-id": getEmployeeId(),
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ html }),
+	});
+	if (!res.ok) {
+		const data = await res.json().catch(() => null);
+		const message =
+			data && typeof data === "object" && "error" in data
+				? String((data as { error?: unknown }).error ?? "Failed to archive contract PDF")
+				: "Failed to archive contract PDF";
+		throw new Error(message);
+	}
+}
+
 export async function fetchMe(): Promise<Me> {
 	const res = await getEmployeeClient().request<{ me: Me }>(ME_QUERY);
 	return res.me;
@@ -188,6 +208,7 @@ export async function requestBenefit(
 			popup.document.open();
 			popup.document.write(contractHtml);
 			popup.document.close();
+			await archiveContractPdfToR2(request.id, contractHtml);
 		}
 
 		await getEmployeeClient().request(SIGN_BENEFIT_CONTRACT_MUTATION, {

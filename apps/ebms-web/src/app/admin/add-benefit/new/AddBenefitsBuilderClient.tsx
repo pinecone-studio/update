@@ -84,8 +84,9 @@ export default function AddBenefitsBuilderClient({
       setAttributes([
         "employment_status",
         "okr_submitted",
-        "attendance",
+        "late_arrival_count",
         "responsibility_level",
+        "tenure",
       ]);
     } finally {
       setLoadingConfig(false);
@@ -113,6 +114,7 @@ export default function AddBenefitsBuilderClient({
     const cfg = config[benefitIdFromQuery];
     setForm({
       name: target.name,
+      description: target.description ?? "",
       category: target.category,
       subsidyPercent: target.subsidyPercent,
       financeCheck: cfg?.financeCheck ?? false,
@@ -126,6 +128,7 @@ export default function AddBenefitsBuilderClient({
 
   const handleCreateBenefit = useCallback(async () => {
     const name = form.name?.trim();
+    const description = form.description?.trim();
     const category = form.category?.trim();
     setError1(null);
     setMessage1(null);
@@ -138,30 +141,15 @@ export default function AddBenefitsBuilderClient({
       setError1(ERROR_MESSAGES.CATEGORY_REQUIRED);
       return;
     }
+    if (!description) {
+      setError1("Тайлбар заавал бөглөнө үү.");
+      return;
+    }
     const subsidy = form.subsidyPercent ?? 0;
     if (subsidy < 0 || subsidy > 100) {
       setError1(ERROR_MESSAGES.SUBSIDY_RANGE);
       return;
     }
-    if (form.requiresContract) {
-      if (!form.financeCheck) {
-        setError1(ERROR_MESSAGES.FINANCE_CHECK_REQUIRED);
-        return;
-      }
-      if (!form.contractNumber.trim()) {
-        setError1(ERROR_MESSAGES.CONTRACT_NUMBER_REQUIRED);
-        return;
-      }
-      if (!form.contractName.trim()) {
-        setError1(ERROR_MESSAGES.CONTRACT_NAME_REQUIRED);
-        return;
-      }
-      if (!form.contractUrl.trim()) {
-        setError1(ERROR_MESSAGES.CONTRACT_FILE_REQUIRED);
-        return;
-      }
-    }
-
     if (isEditMode && benefitIdFromQuery) return;
 
     setCreating(true);
@@ -169,6 +157,7 @@ export default function AddBenefitsBuilderClient({
       await getClient().request(CREATE_BENEFIT, {
         input: {
           name,
+          description,
           category,
           subsidyPercent: subsidy,
           requiresContract: form.requiresContract ?? false,
@@ -198,6 +187,7 @@ export default function AddBenefitsBuilderClient({
   const rulesForSelected: BenefitConfig | null = selectedBenefitId
     ? (config[selectedBenefitId] ?? {
         name: selectedBenefit?.name ?? "",
+        description: selectedBenefit?.description ?? "",
         category: selectedBenefit?.category ?? "",
         rules: [],
       })
@@ -209,6 +199,7 @@ export default function AddBenefitsBuilderClient({
       setConfig((prev) => {
         const benefit = prev[selectedBenefitId] ?? {
           name: selectedBenefit?.name ?? "",
+          description: selectedBenefit?.description ?? "",
           category: selectedBenefit?.category ?? "",
           rules: [],
         };
@@ -225,6 +216,7 @@ export default function AddBenefitsBuilderClient({
     setConfig((prev) => {
       const benefit = prev[selectedBenefitId] ?? {
         name: selectedBenefit?.name ?? "",
+        description: selectedBenefit?.description ?? "",
         category: selectedBenefit?.category ?? "",
         rules: [],
       };
@@ -272,6 +264,7 @@ export default function AddBenefitsBuilderClient({
 
       if (isEditMode && benefitIdFromQuery) {
         const name = form.name?.trim();
+        const description = form.description?.trim();
         const category = form.category?.trim();
         const subsidy = form.subsidyPercent ?? 0;
         if (!name) {
@@ -282,32 +275,18 @@ export default function AddBenefitsBuilderClient({
           setError2(ERROR_MESSAGES.CATEGORY_REQUIRED);
           return;
         }
+        if (!description) {
+          setError2("Тайлбар заавал бөглөнө үү.");
+          return;
+        }
         if (subsidy < 0 || subsidy > 100) {
           setError2(ERROR_MESSAGES.SUBSIDY_RANGE);
           return;
         }
-        if (form.requiresContract) {
-          if (!form.financeCheck) {
-            setError2(ERROR_MESSAGES.FINANCE_CHECK_REQUIRED);
-            return;
-          }
-          if (!form.contractNumber.trim()) {
-            setError2(ERROR_MESSAGES.CONTRACT_NUMBER_REQUIRED);
-            return;
-          }
-          if (!form.contractName.trim()) {
-            setError2(ERROR_MESSAGES.CONTRACT_NAME_REQUIRED);
-            return;
-          }
-          if (!form.contractUrl.trim()) {
-            setError2(ERROR_MESSAGES.CONTRACT_FILE_REQUIRED);
-            return;
-          }
-        }
-
         await updateBenefitInCatalog(getClient(), {
           id: benefitIdFromQuery,
           name,
+          description,
           category,
           subsidyPercent: subsidy,
           requiresContract: form.requiresContract ?? false,
@@ -316,8 +295,9 @@ export default function AddBenefitsBuilderClient({
         payloadConfig = {
           ...config,
           [benefitIdFromQuery]: {
-            ...(config[benefitIdFromQuery] ?? { name, category, rules: [] }),
+            ...(config[benefitIdFromQuery] ?? { name, description, category, rules: [] }),
             name,
+            description,
             category,
             subsidyPercent: subsidy,
             financeCheck: form.financeCheck ?? false,

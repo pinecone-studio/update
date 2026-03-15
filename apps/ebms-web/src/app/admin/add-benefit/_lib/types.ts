@@ -10,6 +10,7 @@ export type Rule = {
 export type BenefitFromCatalog = {
   id: string;
   name: string;
+  description?: string | null;
   category: string;
   subsidyPercent: number;
   requiresContract: boolean;
@@ -18,6 +19,7 @@ export type BenefitFromCatalog = {
 /** Eligibility config доторх benefit-ийн бүтэц (дүрмүүдтэй) */
 export type BenefitConfig = {
   name: string;
+  description?: string;
   category: string;
   subsidyPercent?: number;
   financeCheck?: boolean;
@@ -32,6 +34,7 @@ export type BenefitConfig = {
 /** Benefit нэмэх form-ийн утга */
 export type AddBenefitFormState = {
   name: string;
+  description: string;
   category: string;
   subsidyPercent: number;
   financeCheck: boolean;

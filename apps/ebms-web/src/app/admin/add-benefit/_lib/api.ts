@@ -13,6 +13,7 @@ export const GET_BENEFITS = gql`
     benefits(category: $category) {
       id
       name
+      description
       category
       subsidyPercent
       requiresContract
@@ -47,6 +48,7 @@ export const CREATE_BENEFIT = gql`
     createBenefit(input: $input) {
       id
       name
+      description
       category
       subsidyPercent
       requiresContract
@@ -59,6 +61,7 @@ export const UPDATE_BENEFIT = gql`
     updateBenefit(input: $input) {
       id
       name
+      description
       category
       subsidyPercent
       requiresContract
@@ -107,8 +110,9 @@ export async function fetchConfigAndAttributes(client: GraphQLClient): Promise<{
   const attributes = attrsRes.getAvailableRuleAttributes ?? [
     'employment_status',
     'okr_submitted',
-    'attendance',
+    'late_arrival_count',
     'responsibility_level',
+    'tenure',
   ];
   return { config: parsed.benefits ?? {}, attributes };
 }
@@ -118,6 +122,7 @@ export async function updateBenefitInCatalog(
   input: {
     id: string;
     name: string;
+    description?: string | null;
     category: string;
     subsidyPercent: number;
     requiresContract: boolean;

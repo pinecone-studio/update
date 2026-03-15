@@ -1,4 +1,3 @@
-import Handlebars from "handlebars";
 import { pinefitTemplate } from "./templates/pinefitTemplate";
 
 export type PinefitTemplateData = {
@@ -43,7 +42,22 @@ type ContractTemplateContext = {
   providerBankInfo: string;
 };
 
-const renderPinefitTemplate = Handlebars.compile<ContractTemplateContext>(pinefitTemplate);
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderPinefitTemplate(ctx: ContractTemplateContext): string {
+  return pinefitTemplate.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key: string) => {
+    const raw = ctx[key as keyof ContractTemplateContext];
+    const value = raw == null ? "" : String(raw);
+    return escapeHtml(value);
+  });
+}
 
 function toDateOnly(value?: string | null): string {
   if (!value) return "";
