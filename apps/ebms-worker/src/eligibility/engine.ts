@@ -15,9 +15,21 @@ type ConfigBenefits = Record<string, BenefitConfig>;
 const EMPLOYEE_FIELD_MAP: Record<string, keyof typeof employees.$inferSelect> = {
   employment_status: 'employmentStatus',
   okr_submitted: 'okrSubmitted',
+  late_arrival_count: 'lateArrivalCount',
   attendance: 'lateArrivalCount',
   responsibility_level: 'responsibilityLevel',
+  tenure: 'tenureDays' as keyof typeof employees.$inferSelect,
 };
+
+function calculateTenureDays(hireDate?: string | null): number {
+  if (!hireDate) return 0;
+  const parsed = new Date(hireDate);
+  if (Number.isNaN(parsed.getTime())) return 0;
+  const now = new Date();
+  const diffMs = now.getTime() - parsed.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+}
 
 function compare(op: string, actual: unknown, expected: unknown): boolean {
   if (op === 'eq') {
@@ -97,6 +109,7 @@ export async function getEmployeeForEligibility(env: Env, employeeId: string): P
       okrSubmitted: employees.okrSubmitted,
       lateArrivalCount: employees.lateArrivalCount,
       responsibilityLevel: employees.responsibilityLevel,
+      hireDate: employees.hireDate,
     })
     .from(employees)
     .where(eq(employees.id, employeeId))
@@ -108,5 +121,6 @@ export async function getEmployeeForEligibility(env: Env, employeeId: string): P
     okrSubmitted: Number(row.okrSubmitted) === 1,
     lateArrivalCount: row.lateArrivalCount ?? 0,
     responsibilityLevel: row.responsibilityLevel ?? 0,
+    tenureDays: calculateTenureDays(row.hireDate),
   };
 }

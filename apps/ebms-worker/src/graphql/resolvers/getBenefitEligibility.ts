@@ -78,6 +78,7 @@ export async function getBenefitEligibilityForEmployee(
     .select({
       benefitId: benefitsTable.id,
       benefitName: benefitsTable.name,
+      benefitDescription: benefitsTable.description,
       benefitCategory: benefitsTable.category,
       benefitSubsidyPercent: benefitsTable.subsidyPercent,
       benefitRequiresContract: benefitsTable.requiresContract,
@@ -120,7 +121,7 @@ export async function getBenefitEligibilityForEmployee(
         benefit: {
           id: row.benefitId,
           name: row.benefitName,
-          description: `${row.benefitCategory} benefit`,
+          description: row.benefitDescription ?? `${row.benefitCategory} benefit`,
           category: row.benefitCategory,
           subsidyPercent: row.benefitSubsidyPercent ?? 0,
           requiresContract: asBool01(row.benefitRequiresContract),
@@ -162,7 +163,7 @@ export async function getBenefitEligibilityForEmployee(
       benefit: {
         id: row.benefitId,
         name: row.benefitName,
-        description: `${row.benefitCategory} benefit`,
+        description: row.benefitDescription ?? `${row.benefitCategory} benefit`,
         category: row.benefitCategory,
         subsidyPercent: row.benefitSubsidyPercent ?? 0,
         requiresContract: asBool01(row.benefitRequiresContract),

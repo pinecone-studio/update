@@ -86,6 +86,16 @@ export function AddBenefitForm({
             placeholder="жишээ: Gym Pinefit"
           />
         </div>
+        <div className="md:col-span-2">
+          <label className={labelClass}>Тайлбар *</label>
+          <textarea
+            value={form.description}
+            onChange={(e) => onChange({ ...form, description: e.target.value })}
+            className={inputClass}
+            rows={3}
+            placeholder="Benefit-ийн дэлгэрэнгүй тайлбар"
+          />
+        </div>
         <div>
           <label className={labelClass}>Ангилал *</label>
           <select
@@ -136,7 +146,7 @@ export function AddBenefitForm({
             className={inputClass}
           />
         </div>
-        <div className="flex items-center gap-6 pt-6">
+        <div className="flex flex-wrap gap-4 ">
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -151,7 +161,7 @@ export function AddBenefitForm({
               htmlFor="s1-finance-check"
               className="text-sm text-slate-600 dark:text-[#94A3B8]"
             >
-              Finance
+              Finance Approval
             </label>
           </div>
           <div className="flex items-center gap-2">
@@ -180,13 +190,24 @@ export function AddBenefitForm({
               htmlFor="s1-requires-contract"
               className="text-sm text-slate-600 dark:text-[#94A3B8]"
             >
-              Гэрээ шаардлагатай
+            Requires Vendor Contract
+            </label>
+          </div> 
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"         
+              className="rounded border-[#334155]"
+            />
+            <label
+              className="text-sm text-slate-600 dark:text-[#94A3B8]"
+            >
+              Manager Pre-Approval
             </label>
           </div>
         </div>
       </div>
 
-      {form.requiresContract && (
+      {/* {form.requiresContract && (
         <div className="mt-4 rounded-lg border border-slate-300 bg-white p-4 dark:border-[#334155] dark:bg-[#1E293B]">
           <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
             Гэрээний мэдээлэл
@@ -257,10 +278,10 @@ export function AddBenefitForm({
               >
                 {form.contractUrl}
               </a>
-            </div>
+            </div> 
           ) : null}
         </div>
-      )}
+      )} */}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {!hideSubmitButton && (

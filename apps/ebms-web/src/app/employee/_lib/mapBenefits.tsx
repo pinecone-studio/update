@@ -27,9 +27,15 @@ const CATEGORY_ICONS: Record<string, ReactNode> = {
 
 const DEFAULT_ICON = <MdFitnessCenter size={24} />;
 
-/** Mock vendor contract URL — replace with backend contractLink when connected */
-const MOCK_CONTRACT_URL =
-	"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+function getContractPreviewBaseUrl(): string {
+	const env = process.env.NEXT_PUBLIC_API_URL || "";
+	const base = env.replace(/\/graphql\/?$/, "").trim();
+	return base || "http://localhost:8787";
+}
+
+function getEmployeeId(): string {
+	return process.env.NEXT_PUBLIC_EMPLOYEE_ID || "emp-1";
+}
 
 /** Map GraphQL myBenefits to BenefitCardProps (UI-д хэрэгтэй хэлбэр) */
 export function mapMyBenefitsToCardProps(
@@ -55,8 +61,10 @@ export function mapMyBenefitsToCardProps(
 				detail: r.reason,
 			})) ?? [];
 
-		// TODO: Replace with backend contractLink when connected (e.g. b.activeContract ? apiContractUrl : undefined)
-		const contractLink = MOCK_CONTRACT_URL;
+		const contractLink =
+			b.requiresContract && b.id
+				? `${getContractPreviewBaseUrl()}/contracts/benefits/${encodeURIComponent(b.id)}/template-preview?employeeId=${encodeURIComponent(getEmployeeId())}`
+				: undefined;
 		const benefitEndDate = b.activeContract?.expiryDate ?? "2026-12-31";
 		const benefitStartDate =
 			b.activeContract?.effectiveDate ??

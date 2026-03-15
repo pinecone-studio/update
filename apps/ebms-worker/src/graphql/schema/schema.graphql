@@ -140,6 +140,7 @@ input EligibilityRuleInput {
 
 input CreateBenefitInput {
   name: String!
+  description: String
   category: String!
   subsidyPercent: Int
   requiresContract: Boolean
@@ -149,6 +150,7 @@ input CreateBenefitInput {
 input UpdateBenefitInput {
   id: ID!
   name: String!
+  description: String
   category: String!
   subsidyPercent: Int!
   requiresContract: Boolean!

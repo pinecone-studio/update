@@ -8,7 +8,9 @@ const inputSm = 'rounded border border-slate-300 bg-white px-2 py-1.5 text-slate
 const selectClass = 'w-full max-w-md rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white';
 const EMPLOYMENT_STATUS_VALUES = ['active', 'leave', 'terminated', 'probation'] as const;
 const RESPONSIBILITY_LEVEL_VALUES = [1, 2, 3] as const;
+const LATE_ARRIVAL_COUNT_VALUES = [0, 1, 2, 3, 4, 5, 6] as const;
 const OKR_SUBMITTED_VALUES = ['true', 'false'] as const;
+const DEFAULT_TENURE_DAYS = 180;
 
 type Props = {
   catalogBenefits: BenefitFromCatalog[];
@@ -53,6 +55,15 @@ export function RuleConfigSection({
   showCancelButton = false,
   onCancel,
 }: Props) {
+  const normalizedAttributes = Array.from(
+    new Set(
+      attributes.map((a) => (a === 'attendance' ? 'late_arrival_count' : a)),
+    ),
+  );
+  if (!normalizedAttributes.includes('tenure')) {
+    normalizedAttributes.push('tenure');
+  }
+
   return (
     <section className={sectionClass}>
       <h2 className="text-xl font-medium text-slate-900 dark:text-white">2. Дүрэм тохируулах</h2>
@@ -100,12 +111,17 @@ export function RuleConfigSection({
           </h3>
           {(rulesForSelected.rules ?? []).map((rule, ri) => (
             <div key={ri} className="mb-2 flex flex-wrap items-center gap-2 rounded bg-slate-100 p-2 dark:bg-[#1E293B]">
+              {/** Backward compatibility: existing `attendance` rules are treated as `late_arrival_count`. */}
+              {(() => {
+                const ruleType = rule.type === 'attendance' ? 'late_arrival_count' : rule.type;
+                return (
+                  <>
               <select
-                value={rule.type}
+                value={ruleType}
                 onChange={(e) => onUpdateRule(ri, 'type', e.target.value)}
                 className={inputSm}
               >
-                {attributes.map((a) => (
+                {normalizedAttributes.map((a) => (
                   <option key={a} value={a}>{a}</option>
                 ))}
               </select>
@@ -118,7 +134,7 @@ export function RuleConfigSection({
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
-              {rule.type === 'employment_status' ? (
+              {ruleType === 'employment_status' ? (
                 <select
                   value={String(rule.value ?? 'active').toLowerCase()}
                   onChange={(e) => onUpdateRule(ri, 'value', e.target.value)}
@@ -130,7 +146,7 @@ export function RuleConfigSection({
                     </option>
                   ))}
                 </select>
-              ) : rule.type === 'responsibility_level' || rule.type === 'attendance' ? (
+              ) : ruleType === 'responsibility_level' ? (
                 <select
                   value={Number(rule.value ?? 1)}
                   onChange={(e) => onUpdateRule(ri, 'value', Number(e.target.value))}
@@ -142,6 +158,27 @@ export function RuleConfigSection({
                     </option>
                   ))}
                 </select>
+              ) : ruleType === 'late_arrival_count' ? (
+                <select
+                  value={Number(rule.value ?? 0)}
+                  onChange={(e) => onUpdateRule(ri, 'value', Number(e.target.value))}
+                  className={`${inputSm} w-24`}
+                >
+                  {LATE_ARRIVAL_COUNT_VALUES.map((count) => (
+                    <option key={count} value={count}>
+                      {count}
+                    </option>
+                  ))}
+                </select>
+              ) : ruleType === 'tenure' ? (
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Хоног"
+                  value={Number(rule.value ?? DEFAULT_TENURE_DAYS)}
+                  onChange={(e) => onUpdateRule(ri, 'value', Number(e.target.value))}
+                  className={`${inputSm} w-24`}
+                />
               ) : rule.type === 'okr_submitted' ? (
                 <select
                   value={String(rule.value ?? 'false')}
@@ -179,6 +216,9 @@ export function RuleConfigSection({
               <button type="button" onClick={() => onRemoveRule(ri)} className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300">
                 Устгах
               </button>
+                  </>
+                );
+              })()}
             </div>
           ))}
           <button type="button" onClick={onAddRule} className="mt-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">

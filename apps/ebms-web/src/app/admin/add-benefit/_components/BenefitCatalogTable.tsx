@@ -43,7 +43,7 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-600 dark:border-[#334155] dark:text-[#94A3B8]">
-                  {["ID", "Нэр", "Ангилал", "Subsidy %", "Гэрээ"].map((h) => (
+                  {["ID", "Нэр", "Тайлбар", "Ангилал", "Subsidy %", "Гэрээ"].map((h) => (
                     <th key={h} className="py-2 pr-4 font-medium">
                       <Skeleton className="h-4 w-12" />
                     </th>
@@ -61,6 +61,9 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
                     </td>
                     <td className="py-2 pr-4">
                       <Skeleton className="h-4 w-24" />
+                    </td>
+                    <td className="py-2 pr-4">
+                      <Skeleton className="h-4 w-40" />
                     </td>
                     <td className="py-2 pr-4">
                       <Skeleton className="h-4 w-20" />
@@ -88,6 +91,7 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
               <tr className="border-b border-slate-300 text-slate-500 dark:border-[#334155] dark:text-[#94A3B8]">
                 <th className="py-2 pr-4 font-medium">ID</th>
                 <th className="py-2 pr-4 font-medium">Нэр</th>
+                <th className="py-2 pr-4 font-medium">Тайлбар</th>
                 <th className="py-2 pr-4 font-medium">Ангилал</th>
                 <th className="py-2 pr-4 font-medium">Subsidy %</th>
                 <th className="py-2 font-medium">Гэрээ</th>
@@ -104,6 +108,9 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
                   </td>
                   <td className="py-2 pr-4 text-slate-900 dark:text-white">
                     {b.name}
+                  </td>
+                  <td className="py-2 pr-4 text-slate-600 dark:text-[#A7B6D3]">
+                    {b.description?.trim() || "—"}
                   </td>
                   <td className="py-2 pr-4 text-slate-600 dark:text-[#A7B6D3]">
                     {b.category}

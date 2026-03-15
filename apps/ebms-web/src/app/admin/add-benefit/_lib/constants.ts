@@ -28,6 +28,7 @@ import type { AddBenefitFormState } from './types';
 
 export const DEFAULT_FORM: AddBenefitFormState = {
   name: '',
+  description: '',
   category: 'wellness',
   subsidyPercent: 0,
   financeCheck: false,
@@ -42,6 +43,7 @@ export const DEFAULT_FORM: AddBenefitFormState = {
 export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
   {
     name: 'Gym Pinefit',
+    description: 'Gym membership reimbursement for employee wellness.',
     category: 'Wellness',
     subsidyPercent: 80,
     financeCheck: false,
@@ -53,6 +55,7 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
   },
   {
     name: 'Health Insurance',
+    description: 'Company-supported health insurance package.',
     category: 'Health',
     subsidyPercent: 100,
     financeCheck: false,
@@ -64,6 +67,7 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
   },
   {
     name: 'Laptop Allowance',
+    description: 'Allowance for purchasing or upgrading work laptop.',
     category: 'Equipment',
     subsidyPercent: 50,
     financeCheck: false,
@@ -75,6 +79,7 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
   },
   {
     name: 'Learning Budget',
+    description: 'Annual budget for courses, certifications, and learning.',
     category: 'Career Development',
     subsidyPercent: 60,
     financeCheck: false,
@@ -86,6 +91,7 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
   },
   {
     name: 'Flexible Hours',
+    description: 'Flexible working schedule option based on team policy.',
     category: 'Flexibility',
     subsidyPercent: 0,
     financeCheck: false,
@@ -97,6 +103,7 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
   },
   {
     name: 'Mental Health Support',
+    description: 'Counseling and mental health support benefit.',
     category: 'Wellness',
     subsidyPercent: 100,
     financeCheck: false,
@@ -108,6 +115,7 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
   },
   {
     name: 'Home Office Stipend',
+    description: 'Stipend for home office setup and equipment.',
     category: 'Equipment',
     subsidyPercent: 30,
     financeCheck: false,
@@ -119,6 +127,7 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
   },
   {
     name: 'Transport Allowance',
+    description: 'Monthly transport reimbursement support.',
     category: 'Financial',
     subsidyPercent: 40,
     financeCheck: false,

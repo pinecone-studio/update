@@ -19,6 +19,7 @@ export const createBenefit: NonNullable<
 > = async (_, args, ctx) => {
   const input = args.input;
   const name = input.name?.trim();
+  const description = input.description?.trim() || null;
   const category = input.category?.trim();
   if (!name || !category) {
     throw new GraphQLError('name and category are required', {
@@ -65,6 +66,7 @@ export const createBenefit: NonNullable<
     await db.insert(benefitsTable).values({
       id: benefitId,
       name,
+      description,
       category,
       subsidyPercent,
       requiresContract: requiresContract ? 1 : 0,
@@ -88,6 +90,7 @@ export const createBenefit: NonNullable<
 
   const newBenefitConfig = {
     name,
+    description: description ?? undefined,
     category,
     subsidyPercent,
     requiresContract,
@@ -151,6 +154,7 @@ export const createBenefit: NonNullable<
   return {
     id: benefitId,
     name,
+    description,
     category,
     subsidyPercent,
     requiresContract,

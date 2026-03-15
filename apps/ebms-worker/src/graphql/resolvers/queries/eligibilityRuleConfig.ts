@@ -36,7 +36,8 @@ export const getAvailableRuleAttributes: NonNullable<
   return [
     'employment_status',
     'okr_submitted',
-    'attendance',
+    'late_arrival_count',
     'responsibility_level',
+    'tenure',
   ];
 };

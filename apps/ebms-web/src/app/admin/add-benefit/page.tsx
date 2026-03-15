@@ -120,6 +120,8 @@ function BenefitsAndRulePageContent() {
               const contractText = benefit.requiresContract
                 ? "Contract required"
                 : "No contract required";
+              const benefitDescription =
+                benefit.description?.trim() || `${benefit.category} benefit`;
               return (
                 <div
                   key={benefit.id}
@@ -134,7 +136,7 @@ function BenefitsAndRulePageContent() {
                     benefitId={benefit.id}
                     category={benefit.category}
                     name={benefit.name}
-                    description={`${benefit.category} benefit`}
+                    description={benefitDescription}
                     subsidyPercentage={`${benefit.subsidyPercent}%`}
                     vendorDetails={contractText}
                     eligibilityCriteria={`${ruleCount} rule configured`}
