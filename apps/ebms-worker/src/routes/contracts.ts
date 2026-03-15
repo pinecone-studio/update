@@ -32,8 +32,14 @@ function htmlToText(html: string): string {
     .join("\n");
 }
 
+function sanitizeForWinAnsi(value: string): string {
+  // pdf-lib standard Helvetica uses WinAnsi; replace unsupported Unicode chars.
+  return value.replace(/[^\x20-\x7E\xA0-\xFF]/g, "?");
+}
+
 function wrapLine(line: string, maxWidth: number, size: number, font: PDFFont): string[] {
-  const words = line.split(/\s+/).filter(Boolean);
+  const safeLine = sanitizeForWinAnsi(line);
+  const words = safeLine.split(/\s+/).filter(Boolean);
   if (words.length === 0) return [""];
   const rows: string[] = [];
   let current = words[0];

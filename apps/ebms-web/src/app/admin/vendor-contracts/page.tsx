@@ -1,19 +1,18 @@
 "use client";
 
 import { gql } from "graphql-request";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getAdminClient, getApiErrorMessage } from "../_lib/api";
 import { VendorContractsSkeleton } from "../components/VendorContractsSkeleton";
 
 type Contract = {
-  id: number;
+  id: string;
   contractNumber: string;
   contractName: string;
   startDate: string;
   endDate: string;
   contractUrl: string;
   status: "Active" | "Expiring soon";
-  renewal?: "Auto-renew";
 };
 
 type BenefitOption = {
@@ -36,36 +35,17 @@ const BENEFITS_QUERY = gql`
   }
 `;
 
-const contracts: Contract[] = [
-  {
-    id: 1,
-    contractNumber: "CNT-001",
-    contractName: "Mack Vendor Master Agreement",
-    startDate: "2025-01-01",
-    endDate: "2026-12-31",
-    contractUrl: "https://contracts.update.mn/cnt-001",
-    status: "Active",
-    renewal: "Auto-renew",
-  },
-  {
-    id: 2,
-    contractNumber: "CNT-002",
-    contractName: "Mack Employee Benefit Contract",
-    startDate: "2025-03-01",
-    endDate: "2026-05-31",
-    contractUrl: "https://contracts.update.mn/cnt-002",
-    status: "Expiring soon",
-  },
-  {
-    id: 3,
-    contractNumber: "CNT-003",
-    contractName: "Mack Medical Support Addendum",
-    startDate: "2026-01-15",
-    endDate: "2027-01-14",
-    contractUrl: "https://contracts.update.mn/cnt-003",
-    status: "Active",
-  },
-];
+type ContractApiRow = {
+  id: string;
+  benefitId: string;
+  benefitName?: string | null;
+  vendorName?: string | null;
+  version?: string | null;
+  effectiveDate?: string | null;
+  expiryDate?: string | null;
+  downloadUrl: string;
+  employeeName?: string | null;
+};
 
 function getApiBaseUrl(): string {
   const env = process.env.NEXT_PUBLIC_API_URL || "";
@@ -76,7 +56,7 @@ function getApiBaseUrl(): string {
 export default function VendorContractsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"employee" | "vendor">("employee");
-  const [contractRows, setContractRows] = useState<Contract[]>(contracts);
+  const [contractRows, setContractRows] = useState<Contract[]>([]);
   const [search, setSearch] = useState("");
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -85,6 +65,57 @@ export default function VendorContractsPage() {
   const [benefitOptions, setBenefitOptions] = useState<BenefitOption[]>([]);
   const [selectedVendorBenefitId, setSelectedVendorBenefitId] = useState("");
   const [benefitsLoading, setBenefitsLoading] = useState(false);
+
+  const mapContracts = useCallback((items: ContractApiRow[]): Contract[] => {
+    const nowMs = Date.now();
+    return items.map((item) => {
+      const endDate = item.expiryDate || "—";
+      const msToEnd = item.expiryDate
+        ? new Date(item.expiryDate).getTime() - nowMs
+        : Number.POSITIVE_INFINITY;
+      const isExpiringSoon = msToEnd > 0 && msToEnd < 1000 * 60 * 60 * 24 * 90;
+      return {
+        id: item.id,
+        contractNumber: item.version || item.id,
+        contractName:
+          activeTab === "employee"
+            ? `${item.benefitName ?? item.benefitId} - ${item.employeeName ?? "Employee"}`
+            : `${item.benefitName ?? item.benefitId} - ${item.vendorName ?? "Contract"}`,
+        startDate: item.effectiveDate || "—",
+        endDate,
+        contractUrl: `${getApiBaseUrl()}${item.downloadUrl}`,
+        status: isExpiringSoon ? "Expiring soon" : "Active",
+      };
+    });
+  }, [activeTab]);
+
+  const loadContracts = useCallback(async () => {
+    try {
+      const base = getApiBaseUrl();
+      const res = await fetch(`${base}/admin/contracts?tab=${activeTab}`);
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const msg =
+          data &&
+          typeof data === "object" &&
+          "error" in data &&
+          (data as { error?: unknown }).error
+            ? String((data as { error?: unknown }).error)
+            : "Failed to fetch contracts";
+        throw new Error(msg);
+      }
+      const items =
+        data && typeof data === "object" && "contracts" in data
+          ? ((data as { contracts?: ContractApiRow[] }).contracts ?? [])
+          : [];
+      setContractRows(mapContracts(items));
+    } catch (e) {
+      setUploadError(getApiErrorMessage(e));
+      setContractRows([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, mapContracts]);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,9 +146,8 @@ export default function VendorContractsPage() {
   }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
-  }, []);
+    loadContracts();
+  }, [loadContracts]);
 
   const filteredContracts = contractRows.filter((contract) => {
     const query = search.trim().toLowerCase();
@@ -139,9 +169,10 @@ export default function VendorContractsPage() {
     const formData = new FormData(formEl);
     const contractNumber = String(formData.get("contractNumber") ?? "").trim();
     const vendorName = String(formData.get("vendorName") ?? "").trim();
-    const effectiveDate = String(formData.get("effectiveDate") ?? "").trim();
-    const expiryDate = String(formData.get("expiryDate") ?? "").trim();
-    const uploadedFile = formData.get("file");
+    const benefitIdInput = String(formData.get("benefitId") ?? "").trim();
+    if (activeTab === "employee") {
+      formData.set("benefitId", benefitIdInput);
+    }
 
     try {
       const base = getApiBaseUrl();
@@ -162,39 +193,7 @@ export default function VendorContractsPage() {
         return;
       }
       setUploadMessage("Contract uploaded successfully.");
-      const contractName =
-        vendorName.length > 0
-          ? `${vendorName} Contract`
-          : activeTab === "employee"
-            ? `Employee Contract ${contractNumber || "New"}`
-            : `Vendor Contract ${contractNumber || "New"}`;
-      const fallbackUrl = contractNumber
-        ? `https://contracts.update.mn/${contractNumber.toLowerCase()}`
-        : "https://contracts.update.mn/new-contract";
-      const responseUrl =
-        data && typeof data === "object" && "url" in data && typeof (data as any).url === "string"
-          ? (data as any).url
-          : fallbackUrl;
-      const isExpiringSoon = !!expiryDate && new Date(expiryDate).getTime() - Date.now() < 1000 * 60 * 60 * 24 * 90;
-      setContractRows((prev) => [
-        ...prev,
-        (() => {
-          const nextId = prev.length > 0 ? Math.max(...prev.map((row) => row.id)) + 1 : 1;
-          return {
-            id: nextId,
-            contractNumber: contractNumber || `CNT-${String(nextId).padStart(3, "0")}`,
-            contractName,
-            startDate: effectiveDate || "—",
-            endDate: expiryDate || "—",
-            contractUrl:
-              responseUrl ||
-              (uploadedFile instanceof File && uploadedFile.name
-                ? `https://contracts.update.mn/files/${encodeURIComponent(uploadedFile.name)}`
-                : fallbackUrl),
-            status: isExpiringSoon ? "Expiring soon" : "Active",
-          };
-        })(),
-      ]);
+      await loadContracts();
       formEl.reset();
       setShowUploadForm(false);
     } catch (err) {
@@ -203,6 +202,11 @@ export default function VendorContractsPage() {
       setUploading(false);
     }
   }
+
+  const pendingRenewalCount = useMemo(
+    () => contractRows.filter((c) => c.status === "Expiring soon").length,
+    [contractRows],
+  );
 
   if (loading) {
     return <VendorContractsSkeleton />;
@@ -292,7 +296,7 @@ export default function VendorContractsPage() {
                 <span className="mt-1 h-3 w-3 rounded-full bg-[#3E82F7]" />
               </div>
               <p className="text-5 font-semibold text-slate-900 dark:text-white">
-                {contractRows.filter((c) => c.renewal === "Auto-renew").length}
+                {pendingRenewalCount}
               </p>
             </article>
           ) : (
@@ -380,7 +384,7 @@ export default function VendorContractsPage() {
               <div className="flex flex-col gap-1">
                 <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Benefit ID</label>
                 <input
-                  name="contractNumber"
+                  name="benefitId"
                   required
                   placeholder="gym_pinefit"
                   className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"

@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
     icon: <HrVendorIcon />,
   },
   {
-    label: "Benefits&Rule",
+    label: "Benefits & Rules",
     href: "/admin/add-benefit",
     icon: <HrBenefitsRuleIcon />,
   },
@@ -255,7 +255,7 @@ export function Header() {
                           ) : (
                             <HiOutlineInformationCircle className="text-lg" />
                           )}
-                        </div>
+                        </div>Benefit
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-slate-900 dark:text-white">
                             {n.title}

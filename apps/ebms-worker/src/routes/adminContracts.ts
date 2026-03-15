@@ -1,8 +1,13 @@
 import { Hono } from "hono";
 import type { Env } from "../types";
 import { getDb } from "../db/drizzle";
-import { benefits as benefitsTable, contracts as contractsTable } from "../db/schema";
-import { and, eq } from "drizzle-orm";
+import {
+  benefits as benefitsTable,
+  benefitRequests as benefitRequestsTable,
+  contracts as contractsTable,
+  employees as employeesTable,
+} from "../db/schema";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 
 const adminContracts = new Hono<{ Bindings: Env }>();
 
@@ -10,6 +15,120 @@ function toHex(bytes: ArrayBuffer): string {
   const arr = new Uint8Array(bytes);
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
 }
+
+adminContracts.get("/", async (c) => {
+  const tab = (c.req.query("tab") ?? "employee").toLowerCase();
+  const db = getDb(c.env);
+
+  if (tab === "employee") {
+    const rows = await db
+      .select({
+        id: benefitRequestsTable.id,
+        benefitId: benefitRequestsTable.benefitId,
+        benefitName: benefitsTable.name,
+        vendorName: benefitsTable.vendorName,
+        version: benefitRequestsTable.contractVersionAccepted,
+        effectiveDate: contractsTable.effectiveDate,
+        expiryDate: contractsTable.expiryDate,
+        isActive: contractsTable.isActive,
+        r2ObjectKey: benefitRequestsTable.employeeContractR2Key,
+        createdAt: benefitRequestsTable.employeeContractUploadedAt,
+        updatedAt: benefitRequestsTable.updatedAt,
+        employeeName: employeesTable.name,
+      })
+      .from(benefitRequestsTable)
+      .leftJoin(benefitsTable, eq(benefitRequestsTable.benefitId, benefitsTable.id))
+      .leftJoin(contractsTable, eq(benefitsTable.activeContractId, contractsTable.id))
+      .leftJoin(employeesTable, eq(benefitRequestsTable.employeeId, employeesTable.id))
+      .where(isNotNull(benefitRequestsTable.employeeContractR2Key))
+      .orderBy(desc(benefitRequestsTable.employeeContractUploadedAt));
+
+    return c.json({
+      contracts: rows.map((r) => ({
+        ...r,
+        downloadUrl: `/admin/contracts/employee-requests/${encodeURIComponent(r.id)}/file`,
+      })),
+    });
+  }
+
+  const where = eq(benefitsTable.requiresContract, 1);
+  const rows = await db
+    .select({
+      id: contractsTable.id,
+      benefitId: contractsTable.benefitId,
+      benefitName: benefitsTable.name,
+      vendorName: contractsTable.vendorName,
+      version: contractsTable.version,
+      effectiveDate: contractsTable.effectiveDate,
+      expiryDate: contractsTable.expiryDate,
+      isActive: contractsTable.isActive,
+      r2ObjectKey: contractsTable.r2ObjectKey,
+      createdAt: contractsTable.createdAt,
+      updatedAt: contractsTable.updatedAt,
+    })
+    .from(contractsTable)
+    .leftJoin(benefitsTable, eq(contractsTable.benefitId, benefitsTable.id))
+    .where(where)
+    .orderBy(desc(contractsTable.createdAt));
+
+  return c.json({
+    contracts: rows.map((r) => ({
+      ...r,
+      downloadUrl: `/admin/contracts/${encodeURIComponent(r.id)}/file`,
+    })),
+  });
+});
+
+adminContracts.get("/employee-requests/:requestId/file", async (c) => {
+  const requestId = c.req.param("requestId");
+  const db = getDb(c.env);
+  const rows = await db
+    .select({
+      id: benefitRequestsTable.id,
+      r2ObjectKey: benefitRequestsTable.employeeContractR2Key,
+    })
+    .from(benefitRequestsTable)
+    .where(eq(benefitRequestsTable.id, requestId))
+    .limit(1);
+  const row = rows[0];
+  if (!row || !row.r2ObjectKey) {
+    return c.json({ error: "Employee contract file not found" }, 404);
+  }
+
+  const object = await c.env.CONTRACTS.get(row.r2ObjectKey);
+  if (!object) return c.json({ error: "Employee contract file missing in R2" }, 404);
+  const bytes = await object.arrayBuffer();
+  const filename = row.r2ObjectKey.split("/").pop() || `${requestId}.pdf`;
+  return c.body(bytes, 200, {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `inline; filename="${filename}"`,
+  });
+});
+
+adminContracts.get("/:contractId/file", async (c) => {
+  const contractId = c.req.param("contractId");
+  const db = getDb(c.env);
+  const rows = await db
+    .select({
+      id: contractsTable.id,
+      r2ObjectKey: contractsTable.r2ObjectKey,
+    })
+    .from(contractsTable)
+    .where(eq(contractsTable.id, contractId))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return c.json({ error: "Contract not found" }, 404);
+
+  const object = await c.env.CONTRACTS.get(row.r2ObjectKey);
+  if (!object) return c.json({ error: "Contract file not found in R2" }, 404);
+
+  const bytes = await object.arrayBuffer();
+  const filename = row.r2ObjectKey.split("/").pop() || `${contractId}.pdf`;
+  return c.body(bytes, 200, {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `inline; filename="${filename}"`,
+  });
+});
 
 /**
  * POST /admin/contracts/upload
