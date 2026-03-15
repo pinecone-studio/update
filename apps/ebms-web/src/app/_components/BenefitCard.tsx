@@ -1,6 +1,9 @@
 /** @format */
 
+"use client";
+
 import { FiExternalLink, FiInfo } from "react-icons/fi";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 export type BenefitStatus =
@@ -17,19 +20,82 @@ export interface EligibilityRule {
 }
 
 const STATUS_STYLES: Record<BenefitStatus, string> = {
-	ACTIVE: "bg-[#16a34a] text-white",
-	ELIGIBLE: "bg-[#2563eb] text-white",
-	LOCKED: "bg-[#dc2626] text-white",
-	PENDING: "bg-[#f59e0b] text-white",
-	REJECTED: "bg-[#dc2626] text-white",
+	ACTIVE: "border-[#10d9b3]/30 bg-[#083a45]/65 text-[#0de0c0]",
+	ELIGIBLE: "border-[#5b86ff]/30 bg-[#243b86]/55 text-[#72a6ff]",
+	LOCKED: "border-[#f2548e]/30 bg-[#5a2358]/55 text-[#ff6aa4]",
+	PENDING: "border-[#f1922c]/30 bg-[#6a4028]/55 text-[#ff9a1f]",
+	REJECTED: "border-[#e16776]/30 bg-[#632b3c]/55 text-[#ff93a0]",
+};
+
+const STATUS_CARD_STYLES: Record<
+	BenefitStatus,
+	{
+		card: string;
+		button: string;
+		iconWrap: string;
+		iconColor: string;
+		sweep: string;
+	}
+> = {
+	ACTIVE: {
+		card: "border-[#0CB39B]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(87,165,255,0.20),transparent_28%),linear-gradient(135deg,rgba(14,64,73,0.96),rgba(25,39,65,0.96))]",
+		button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+		iconWrap: "border border-white/10 bg-white/5",
+		iconColor: "text-white/70",
+		sweep: "rgba(52,211,153,0.16)",
+	},
+	ELIGIBLE: {
+		card: "border-[#4A64FF]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(120,144,255,0.22),transparent_30%),linear-gradient(135deg,rgba(44,44,107,0.96),rgba(55,33,91,0.96))]",
+		button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+		iconWrap: "border border-white/10 bg-white/5",
+		iconColor: "text-white/70",
+		sweep: "rgba(96,165,250,0.16)",
+	},
+	PENDING: {
+		card: "border-[#C26E22]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(255,199,125,0.18),transparent_30%),linear-gradient(135deg,rgba(92,54,37,0.96),rgba(73,47,54,0.96))]",
+		button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+		iconWrap: "border border-white/10 bg-white/5",
+		iconColor: "text-white/70",
+		sweep: "rgba(251,146,60,0.16)",
+	},
+	LOCKED: {
+		card: "border-[#A23F82]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(225,117,232,0.18),transparent_30%),linear-gradient(135deg,rgba(76,33,89,0.96),rgba(66,27,68,0.96))]",
+		button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+		iconWrap: "border border-white/10 bg-white/5",
+		iconColor: "text-white/70",
+		sweep: "rgba(251,113,133,0.16)",
+	},
+	REJECTED: {
+		card: "border-[#C54D58]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(230,126,146,0.18),transparent_30%),linear-gradient(135deg,rgba(93,39,55,0.96),rgba(73,28,39,0.96))]",
+		button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+		iconWrap: "border border-white/10 bg-white/5",
+		iconColor: "text-white/70",
+		sweep: "rgba(251,113,133,0.16)",
+	},
 };
 
 const BUTTON_TEXT_BY_STATUS: Record<BenefitStatus, string> = {
 	ELIGIBLE: "Request benefit",
-	ACTIVE: "Manage Benefit",
-	PENDING: "Request sent",
-	LOCKED: "View details",
+	ACTIVE: "Manage benefit",
+	PENDING: "View request",
+	LOCKED: "View requirements",
 	REJECTED: "Request benefit",
+};
+
+const STATUS_MESSAGE: Record<BenefitStatus, string> = {
+	ACTIVE: "Benefit currently active",
+	ELIGIBLE: "You are eligible for this benefit",
+	PENDING: "Your request is under review",
+	LOCKED: "Eligibility requirements not satisfied",
+	REJECTED: "Your previous request was rejected",
+};
+
+const STATUS_LABELS: Record<BenefitStatus, string> = {
+	ACTIVE: "ACTIVE",
+	ELIGIBLE: "ELIGIBLE",
+	PENDING: "PENDING",
+	LOCKED: "LOCKED",
+	REJECTED: "REJECTED",
 };
 
 export interface BenefitCardProps {
@@ -68,22 +134,34 @@ export interface BenefitCardProps {
 	compact?: boolean;
 }
 
+function StatusBadge({ status }: { status: BenefitStatus }) {
+	return (
+		<span
+			className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold tracking-[0.04em] ${STATUS_STYLES[status]}`}
+		>
+			{status === "ELIGIBLE" ? <span className="h-1.5 w-1.5 rounded-full bg-current" /> : null}
+			{STATUS_LABELS[status]}
+		</span>
+	);
+}
+
 export const BenefitCard = ({
 	benefitId: _benefitId,
+	category,
 	name,
 	description,
 	subsidyPercentage,
 	vendorDetails,
-	eligibilityCriteria,
+	eligibilityCriteria: _eligibilityCriteria,
 	contractLink,
-	benefitEndDate,
+	benefitEndDate: _benefitEndDate,
 	status,
 	lockReason,
 	rejectReason,
 	eligibilityRules,
 	icon,
-	iconBgColor = "bg-[#4CAF50]/20",
-	iconColor = "text-[#4CAF50]",
+	iconBgColor: _iconBgColor = "bg-[#4CAF50]/20",
+	iconColor: _iconColor = "text-[#4CAF50]",
 	buttonText,
 	onClick,
 	onRequestBenefit,
@@ -91,6 +169,25 @@ export const BenefitCard = ({
 	compact,
 }: BenefitCardProps) => {
 	const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[status];
+	const theme = STATUS_CARD_STYLES[status];
+	const categoryLabel = category
+		? `${category.charAt(0).toUpperCase()}${category.slice(1)} benefit`
+		: description;
+	const supportText =
+		status === "LOCKED"
+			? lockReason ?? STATUS_MESSAGE[status]
+				: status === "REJECTED"
+					? rejectReason ?? STATUS_MESSAGE[status]
+					: STATUS_MESSAGE[status];
+	const [shouldAnimate, setShouldAnimate] = useState(false);
+
+	useEffect(() => {
+		const timer = window.setTimeout(() => {
+			setShouldAnimate(true);
+		}, 5000);
+
+		return () => window.clearTimeout(timer);
+	}, []);
 
 	const handleButtonClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -104,7 +201,8 @@ export const BenefitCard = ({
 	const isButtonClickable =
 		status === "ELIGIBLE" ||
 		status === "REJECTED" ||
-		((status === "ACTIVE" || status === "LOCKED") && onClick);
+		((status === "ACTIVE" || status === "LOCKED" || status === "PENDING") &&
+			onClick);
 	return (
 		<div
 			className={`flex flex-col w-full ${compact ? "" : "h-full"} ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
@@ -123,152 +221,104 @@ export const BenefitCard = ({
 			tabIndex={onClick ? 0 : undefined}
 		>
 			<div
-				className={`relative w-full min-w-0 max-w-full rounded-xl bg-white border border-slate-200 overflow-hidden shadow-inner flex flex-col dark:bg-[#1A2536] dark:border-[#2d3a4d] ${
+				className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-5 backdrop-blur-sm shadow-lg transition-all duration-300 ${
+					theme.card
+				} ${
 					compact ? "flex-none" : "flex-1 min-h-0"
 				}`}
 			>
-				<div
-					className={compact ? "p-4 flex flex-col" : "p-5 pt-4 flex flex-col"}
-				>
+				{shouldAnimate ? (
 					<div
-						className={`flex items-start gap-3 ${compact ? "mb-3" : "mb-5"}`}
-					>
-						<div
-							className={`flex-shrink-0 rounded-lg flex items-center justify-center ${iconBgColor} ${iconColor} ${
-								compact ? "w-10 h-10" : "w-12 h-12"
-							}`}
-						>
-							{icon}
-						</div>
-						<div className="flex-1 min-w-0">
-							<div className="flex items-start justify-between gap-2">
-								<div className="min-w-0">
-									<h3
-										className={`font-bold text-slate-900 dark:text-white ${
-											compact ? "text-sm" : "text-lg"
-										}`}
-									>
-										{name}
-									</h3>
-									<p
-										className={`text-slate-600 dark:text-[#94A3B8] ${
-											compact ? "text-xs mt-0.5 line-clamp-1" : "text-sm mt-0.5"
-										}`}
-									>
-										{description}
-									</p>
-								</div>
-								<div className="flex-shrink-0 flex items-center gap-1">
+						className="pointer-events-none absolute inset-0 opacity-70"
+						style={{
+							background: `radial-gradient(circle at center, rgba(255,255,255,0.20) 0%, ${theme.sweep} 34%, transparent 68%)`,
+							animation: "benefit-card-sweep 11s ease-in-out infinite",
+						}}
+					/>
+				) : null}
+				<div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+				<div className="relative">
+					<div className="mb-4 flex items-start justify-between">
+						<div className="flex items-start gap-4">
+							<div
+								className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${theme.iconWrap} ${theme.iconColor}`}
+							>
+								<div className="h-6 w-6">{icon}</div>
+							</div>
+
+							<div className="min-w-0">
+								<div className="flex items-center gap-2">
+									<h3 className="text-base font-semibold text-white">{name}</h3>
 									{status === "ACTIVE" &&
-										(eligibilityRules ?? []).length > 0 && (
-											<span
-												className="relative group"
-												onClick={(e) => e.stopPropagation()}
-											>
-												<FiInfo
-													size={12}
-													className="text-slate-500 hover:text-slate-700 cursor-help dark:text-slate-400 dark:hover:text-slate-200"
-													aria-label="Requirements to maintain benefit"
-												/>
-												<span className="absolute right-0 top-full mt-1 px-2 py-1.5 w-44 rounded-lg bg-slate-800 text-white text-xs font-normal shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-50 pointer-events-none">
-													<p className="font-semibold mb-1">
-														To maintain this benefit
-													</p>
-													<ul className="space-y-0.5 list-disc list-inside">
-														{(eligibilityRules ?? [])
-															.slice(0, 3)
-															.map((r, i) => (
-																<li key={i} className="line-clamp-2">
-																	{r.rule}
-																</li>
-															))}
-													</ul>
-												</span>
+									(eligibilityRules ?? []).length > 0 ? (
+										<span
+											className="relative group/info"
+											onClick={(e) => e.stopPropagation()}
+										>
+											<FiInfo
+												size={12}
+												className="cursor-help text-white/40 hover:text-white/70"
+												aria-label="Requirements to maintain benefit"
+											/>
+											<span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-44 -translate-x-1/2 rounded-lg bg-[#121624] px-2 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover/info:opacity-100">
+												<p className="mb-1 font-semibold">To maintain this benefit</p>
+												<ul className="list-inside list-disc space-y-0.5">
+													{(eligibilityRules ?? []).slice(0, 3).map((r, i) => (
+														<li key={i} className="line-clamp-2">
+															{r.rule}
+														</li>
+													))}
+												</ul>
 											</span>
-										)}
-									<span
-										className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${STATUS_STYLES[status]}`}
-									>
-										{status}
-									</span>
+										</span>
+									) : null}
 								</div>
+								<p className="mt-1 text-sm text-white/50">{categoryLabel}</p>
 							</div>
 						</div>
+
+						<StatusBadge status={status} />
 					</div>
 
-					{!compact && (
-						<div className="space-y-3 mb-5 pb-5 border-b border-slate-200 dark:border-[#2d3a4d]">
-							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-								<span className="text-sm text-slate-600 dark:text-[#94A3B8]">
-									Subsidy
-								</span>
-								<span className="text-sm text-slate-900 dark:text-white">
-									{subsidyPercentage ?? "—"}
-								</span>
-							</div>
-							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-								<span className="text-sm text-slate-600 dark:text-[#94A3B8]">
-									Vendor
-								</span>
-								<span className="text-sm text-slate-900 dark:text-white">
-									{vendorDetails ?? "—"}
-								</span>
-							</div>
-							<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
-								<span className="text-sm text-slate-600 dark:text-[#94A3B8]">
-									Eligibility
-								</span>
-								<span className="text-sm text-slate-900 text-right sm:text-right dark:text-white">
-									{eligibilityCriteria}
-								</span>
-							</div>
-							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-								<span className="text-sm text-slate-600 dark:text-[#94A3B8]">
-									Contract
-								</span>
-								{contractLink != null ? (
-									<a
-										href={contractLink}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 transition-colors dark:text-white dark:hover:text-[#60A5FA]"
-										onClick={(e) => e.stopPropagation()}
-									>
-										View active contract
-										<FiExternalLink size={12} className="flex-shrink-0" />
-									</a>
-								) : (
-									<span className="text-sm text-slate-500 dark:text-[#64748b]">
-										No active contract
+					{!compact && (subsidyPercentage || vendorDetails) ? (
+						<div className="mb-4 space-y-2 pl-16">
+							{subsidyPercentage ? (
+								<div className="flex items-center gap-2 text-sm">
+									<span className="text-white/40">Coverage:</span>
+									<span className="font-medium text-white/70">
+										{subsidyPercentage} subsidy
 									</span>
-								)}
-							</div>
-						</div>
-					)}
-
-					{!compact && (
-						<div className="h-[72px] flex flex-col justify-center">
-							{status === "LOCKED" && lockReason != null ? (
-								<div className="rounded-lg bg-slate-100 border border-slate-300 px-3 py-2 dark:bg-[#64748b]/20 dark:border-[#64748b]/40">
-									<p className="text-xs font-medium text-slate-600 uppercase tracking-wider mb-0.5 dark:text-[#94A3B8]">
-										Blocked by rule
-									</p>
-									<p className="text-sm text-slate-700 line-clamp-2 dark:text-[#E2E8F0]">
-										{lockReason}
-									</p>
 								</div>
-							) : status === "REJECTED" && rejectReason ? (
-								<div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 dark:bg-red-950/30 dark:border-red-800/50">
-									<p className="text-xs font-medium text-red-600 uppercase tracking-wider mb-0.5 dark:text-red-400">
-										Татгалзсан шалтгаан
-									</p>
-									<p className="text-sm text-red-800 line-clamp-2 dark:text-red-200">
-										{rejectReason}
-									</p>
+							) : null}
+							{vendorDetails ? (
+								<div className="flex items-center gap-2 text-sm">
+									<span className="text-white/40">Vendor:</span>
+									<span className="font-medium text-white/70">{vendorDetails}</span>
 								</div>
 							) : null}
 						</div>
-					)}
+					) : null}
+
+					{!compact ? (
+						<div className="mb-4 pl-16">
+							<p className="text-sm text-white/50">{supportText}</p>
+							{contractLink != null ? (
+								<a
+									href={contractLink}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="mt-2 inline-flex items-center gap-1.5 text-xs text-white/65 transition-colors hover:text-white"
+									onClick={(e) => e.stopPropagation()}
+								>
+									View active contract
+									<FiExternalLink size={12} />
+								</a>
+							) : null}
+						</div>
+					) : null}
+
+					<div className="mb-4 h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
 
 					{footerActions ? (
 						<div className="w-full">{footerActions}</div>
@@ -276,14 +326,10 @@ export const BenefitCard = ({
 						<button
 							type="button"
 							disabled={!isButtonClickable}
-							className={`w-full rounded-lg font-medium transition-colors ${
-								compact ? "py-2 px-3 text-xs" : "py-3 px-4 text-sm"
-							} ${
-								status === "ELIGIBLE" || status === "REJECTED"
-									? "bg-slate-800 hover:bg-slate-700 text-white dark:bg-[#0f172a] dark:hover:bg-[#1e293b]"
-									: status === "ACTIVE" || status === "LOCKED"
-										? "bg-slate-800 hover:bg-slate-700 text-white dark:bg-[#0f172a] dark:hover:bg-[#1e293b] cursor-pointer"
-										: "bg-slate-400 text-white cursor-not-allowed dark:bg-slate-600"
+							className={`flex h-11 w-full items-center justify-center gap-2 rounded-xl text-[14px] font-medium transition-all duration-200 ${
+								isButtonClickable
+									? `${theme.button} group-hover:bg-white/[0.08]`
+									: "cursor-not-allowed border border-white/10 bg-white/5 text-white/35"
 							}`}
 							onClick={handleButtonClick}
 						>

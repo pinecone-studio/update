@@ -115,22 +115,20 @@ export const Header = () => {
     : notifications.filter((n) => n.unread).length;
 
   return (
-    <header className="w-full bg-white border-b border-slate-200 h-[64px] px-4 sticky top-0 z-50 dark:bg-[#1E293B] dark:border-slate-800">
+    <header className="sticky top-0 z-50 h-[64px] w-full border-b border-white/10 bg-[#0F1419]/95 px-4">
       <div className="mx-auto h-full w-full max-w-[1500px] flex items-center justify-between gap-4">
         <div className="flex items-center gap-8 md:gap-6 ">
           <Link
             href="/employee"
             className="flex items-center gap-2 text-slate-900 dark:text-white hover:opacity-90 transition-opacity"
           >
-            <img src="/logo.png" alt="EBMS Logo" className="h-14 w-auto" />
-            <div className="leading-tight">
-              <p className="text-5 font-semibold text-slate-900 dark:text-white">
-                {" "}
-                UPDATE
-              </p>
-              <p className="text-xs text-slate-600 dark:text-[#A7B6D3]">
-                Employee Panel
-              </p>
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
+              <div className="leading-[24px] ">
+                <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
+                  UPDATE
+                </p>
+              </div>
             </div>
           </Link>
         </div>
