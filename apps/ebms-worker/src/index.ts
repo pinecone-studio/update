@@ -6,6 +6,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { createYoga, createSchema } from "graphql-yoga";
+import { eq } from "drizzle-orm";
 import type { Env } from "./types";
 import { typeDefs, resolvers } from "./graphql";
 import adminContracts from "./routes/adminContracts";
@@ -56,11 +57,21 @@ app.route("/admin/feedback", adminFeedback);
 app.route("/feedback", feedbackRoute);
 app.route("/contracts", contractsRoute);
 
-app.all("/graphql", (c) => {
-  // MVP auth: forward employee identity via headers.
-  // Later: replace with JWT (Clerk/Auth.js).
+app.all("/graphql", async (c) => {
   const employeeId = c.req.header("x-employee-id") ?? null;
-  const role = c.req.header("x-role") ?? null;
+  let role: string | null = null;
+
+  // Trust role from DB (source of truth), not from request headers.
+  if (employeeId) {
+    const db = getDb(c.env);
+    const rows = await db
+      .select({ role: employees.role })
+      .from(employees)
+      .where(eq(employees.id, employeeId))
+      .limit(1);
+    role = rows[0]?.role ?? null;
+  }
+
   return yoga.fetch(c.req.raw, { env: c.env, employeeId, role });
 });
 

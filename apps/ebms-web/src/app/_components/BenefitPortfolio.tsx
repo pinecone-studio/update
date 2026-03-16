@@ -4,13 +4,14 @@
 
 import { useState } from "react";
 import { BenefitCard } from "@/app/_components/BenefitCard";
-import { BenefitEligibilityModal } from "@/app/_components/BenefitEligibilityModal";
+import { BenefitStatusModal } from "@/app/employee/components/BenefitStatusModal";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 
 interface BenefitPortfolioProps {
 	benefits: BenefitCardProps[];
 	/** When provided, called when user clicks "Request benefit" on an ELIGIBLE benefit (e.g. to call requestBenefit API) */
 	onRequestBenefit?: (benefit: BenefitCardProps) => void;
+	onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
 	/** Use single column layout (e.g. for sidebar) */
 	compact?: boolean;
 }
@@ -18,6 +19,7 @@ interface BenefitPortfolioProps {
 export function BenefitPortfolio({
 	benefits,
 	onRequestBenefit,
+	onViewContract,
 	compact,
 }: BenefitPortfolioProps) {
 	const [selectedBenefit, setSelectedBenefit] =
@@ -87,13 +89,14 @@ export function BenefitPortfolio({
 					);
 				})}
 			</div>
-			<BenefitEligibilityModal
+			<BenefitStatusModal
 				benefit={selectedBenefit}
 				onClose={() => {
 					setSelectedBenefit(null);
 					setOpenWithContractStep(false);
 				}}
 				onRequestBenefit={onRequestBenefit ? handleRequestBenefit : undefined}
+				onViewContract={onViewContract}
 				initialOpenContractStep={openWithContractStep}
 			/>
 		</>

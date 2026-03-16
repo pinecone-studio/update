@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { GraphQLClient, gql } from "graphql-request";
+import { getActiveUserHeaders } from "@/app/_lib/activeUser";
 
 type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
@@ -83,8 +84,7 @@ function getClient(): GraphQLClient {
   const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
   return new GraphQLClient(url, {
     headers: {
-      "x-employee-id": "admin",
-      "x-role": "admin",
+      ...getActiveUserHeaders("admin"),
     },
   });
 }

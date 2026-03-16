@@ -11,13 +11,23 @@ const EMPLOYEES_QUERY = gql`
   }
 `;
 
+const FALLBACK_EMPLOYEE_IDS = [
+  "emp-1",
+  "angarag-1",
+  "zundui-1",
+  "ogoo-1",
+  "soroo-1",
+  "uganasa-1",
+  "ganaa-1",
+];
+
 function getClient(): GraphQLClient {
   const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
   const base = raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
   const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
   return new GraphQLClient(url, {
     headers: {
-      "x-employee-id": "admin",
+      "x-employee-id": "emp-1",
       "x-role": "admin",
     },
   });
@@ -29,12 +39,11 @@ export async function generateStaticParams() {
     const data = await client.request<{ employees: Array<{ id: string }> }>(
       EMPLOYEES_QUERY
     );
-    const employees = data.employees ?? [];
-    const params = employees.map((emp) => ({ id: emp.id }));
-    // output: 'export' requires at least one param when API is unreachable at build time
-    return params.length > 0 ? params : [{ id: "placeholder" }];
+    const fromApi = (data.employees ?? []).map((emp) => emp.id).filter(Boolean);
+    const ids = Array.from(new Set([...FALLBACK_EMPLOYEE_IDS, ...fromApi]));
+    return ids.map((id) => ({ id }));
   } catch {
-    return [{ id: "placeholder" }];
+    return FALLBACK_EMPLOYEE_IDS.map((id) => ({ id }));
   }
 }
 

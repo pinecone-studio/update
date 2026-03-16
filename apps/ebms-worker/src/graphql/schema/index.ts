@@ -26,6 +26,24 @@ export const typeDefs = /* GraphQL */ `
     TERMINATED
   }
 
+  enum NotificationType {
+    ELIGIBILITY_CHANGE
+    REQUEST_STATUS
+    WARNING
+  }
+
+  enum NotificationChannel {
+    IN_APP
+    EMAIL
+  }
+
+  enum NotificationTone {
+    SUCCESS
+    INFO
+    WARNING
+    NEUTRAL
+  }
+
   type Health {
     ok: Boolean!
     timestamp: String!
@@ -104,6 +122,59 @@ export const typeDefs = /* GraphQL */ `
     html: String!
   }
 
+  type ContractPreview {
+    benefitId: ID!
+    contractId: ID
+    contractVersion: String
+    requiresContract: Boolean!
+    html: String!
+  }
+
+  type SwitchUserOption {
+    id: ID!
+    name: String!
+    role: String!
+  }
+
+  type AdminContract {
+    id: ID!
+    benefitId: ID!
+    benefitName: String
+    vendorName: String
+    version: String
+    effectiveDate: String
+    expiryDate: String
+    isActive: Boolean!
+    r2ObjectKey: String
+    createdAt: String
+    updatedAt: String
+    employeeName: String
+    downloadUrl: String!
+  }
+
+  input UploadAdminContractInput {
+    benefitId: ID!
+    version: String!
+    vendorName: String
+    effectiveDate: String
+    expiryDate: String
+    fileName: String!
+    fileBase64: String!
+    contentType: String
+  }
+
+  type UploadAdminContractPayload {
+    ok: Boolean!
+    contract: AdminContract!
+  }
+
+  type ArchiveBenefitContractPdfPayload {
+    ok: Boolean!
+    requestId: ID!
+    objectKey: String!
+    uploadedAt: String!
+  }
+
   input AuditFilters {
     employeeId: ID
     benefitId: ID
@@ -120,6 +191,19 @@ export const typeDefs = /* GraphQL */ `
     computedAt: String!
     triggeredBy: String
     createdAt: String!
+  }
+
+  type EmployeeNotification {
+    id: ID!
+    employeeId: ID!
+    title: String!
+    body: String!
+    type: NotificationType!
+    tone: NotificationTone!
+    channel: NotificationChannel!
+    isRead: Boolean!
+    createdAt: String!
+    metadata: String
   }
 
   input OverrideInput {
@@ -159,26 +243,22 @@ export const typeDefs = /* GraphQL */ `
     config: String!
   }
 
-  type DashboardStats {
-    totalEmployees: Int!
-    activeBenefits: Int!
-    pendingOverrides: Int!
-    activeExceptions: Int!
-  }
-
   type Query {
     health: Health!
     me: Employee!
     myBenefits: [BenefitEligibility!]!
+    myNotifications(limit: Int, unreadOnly: Boolean): [EmployeeNotification!]!
     benefits(category: String): [Benefit!]!
     employee(id: ID!): Employee
     employees(department: String, employmentStatus: String): [Employee!]!
     auditLog(filters: AuditFilters!): [AuditEntry!]!
     benefitRequests(status: RequestStatus): [BenefitRequest!]!
     benefitRequestContractTemplate(requestId: ID!): ContractTemplate!
-    dashboardStats: DashboardStats!
+    benefitContractPreview(benefitId: ID!): ContractPreview!
     getEligibilityRuleConfig: EligibilityRuleConfig!
     getAvailableRuleAttributes: [String!]!
+    userOptions: [SwitchUserOption!]!
+    adminContracts(tab: String!): [AdminContract!]!
   }
 
   type Mutation {
@@ -187,10 +267,14 @@ export const typeDefs = /* GraphQL */ `
     signBenefitContract(requestId: ID!): BenefitRequest!
     confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!, rejectReason: String): BenefitRequest!
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
+    markNotificationRead(id: ID!): EmployeeNotification!
+    markAllNotificationsRead: Boolean!
     overrideEligibility(input: OverrideInput!): BenefitEligibility!
     updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!
     createBenefit(input: CreateBenefitInput!): Benefit!
     updateBenefit(input: UpdateBenefitInput!): Benefit!
     deleteBenefit(id: ID!): Boolean!
+    uploadAdminContract(input: UploadAdminContractInput!): UploadAdminContractPayload!
+    archiveBenefitContractPdf(requestId: ID!, html: String): ArchiveBenefitContractPdfPayload!
   }
 `;

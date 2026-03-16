@@ -1,11 +1,17 @@
 'use client';
 
 import { GraphQLClient, gql } from 'graphql-request';
+import { getActiveUserHeaders } from '@/app/_lib/activeUser';
 
 function getBaseUrl(): string {
   const env = process.env.NEXT_PUBLIC_API_URL || '';
   const base = env.replace(/\/graphql\/?$/, '').trim();
   return base || 'http://localhost:8787';
+}
+
+/** Base URL for REST endpoints (e.g. /admin/contracts/upload). */
+export function getApiBaseUrl(): string {
+  return getBaseUrl();
 }
 
 export function getAdminClient(): GraphQLClient {
@@ -14,8 +20,7 @@ export function getAdminClient(): GraphQLClient {
   return new GraphQLClient(url, {
     headers: {
       'Content-Type': 'application/json',
-      'x-employee-id': 'admin',
-      'x-role': 'admin',
+      ...getActiveUserHeaders('admin'),
     },
   });
 }

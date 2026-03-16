@@ -33,6 +33,7 @@ import {
 } from "./_lib/api";
 import { mapMyBenefitsToCardProps } from "./_lib/mapBenefits";
 import { IoClose } from "react-icons/io5";
+import { ensureValidActiveUserProfile } from "@/app/_lib/activeUser";
 
 const FILTER_PILL_STYLES = {
 	ACTIVE: {

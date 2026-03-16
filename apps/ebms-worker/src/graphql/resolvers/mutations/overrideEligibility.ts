@@ -11,6 +11,7 @@ import {
 } from '../../../db/schema';
 import { and, eq } from 'drizzle-orm';
 import { getBenefitEligibilityForEmployee } from '../getBenefitEligibility';
+import { dispatchEmployeeNotification } from '../../../notifications/dispatcher';
 
 export const overrideEligibility: NonNullable<
   MutationResolvers<Ctx>['overrideEligibility']
@@ -44,6 +45,7 @@ export const overrideEligibility: NonNullable<
       )
     )
     .limit(1);
+  const prevStatus = (existing[0]?.status ?? '').toLowerCase();
 
   if (existing.length > 0) {
     await db
@@ -87,6 +89,18 @@ export const overrideEligibility: NonNullable<
     computedAt: now,
     createdAt: now,
   });
+
+  if (statusLower === 'eligible' && prevStatus !== 'eligible') {
+    await dispatchEmployeeNotification(ctx.env, {
+      employeeId,
+      type: 'ELIGIBILITY_CHANGE',
+      tone: 'info',
+      dedupeKey: `eligibility:${benefitId}:override:unlocked`,
+      title: 'Benefit Unlocked',
+      body: `Your ${benefitRows[0]?.name ?? 'benefit'} benefit is now ELIGIBLE. You can request this benefit from your dashboard.`,
+      metadata: { benefitId, reason: reason ?? null },
+    });
+  }
 
   const list = await getBenefitEligibilityForEmployee(ctx.env, employeeId);
   const entry = list.find((e) => e.benefit.id === benefitId);

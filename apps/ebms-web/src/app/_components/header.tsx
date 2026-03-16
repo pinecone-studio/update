@@ -20,6 +20,16 @@ import { HrDashboardIcon } from "@/app/icons/hrDashboard";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import type { ReactNode } from "react";
+import {
+  fetchSwitchUserOptions,
+  getInitialUserProfile,
+  getActiveUserProfile,
+  setActiveUserProfile,
+  type ActiveUserProfile,
+  type SwitchUserOption,
+} from "@/app/_lib/activeUser";
+import { ProfileIcon } from "../icons/profile";
+import { HrEmployeeIcon } from "../icons/hrEmployee";
 
 type NavItem = {
   label: string;
@@ -29,6 +39,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: <HrDashboardIcon /> },
+  { label: "Employees", href: "/admin/employee-eligibility", icon: <HrEmployeeIcon /> },
   {
     label: "Contracts",
     href: "/admin/vendor-contracts",
@@ -74,8 +85,6 @@ const DEFAULT_NOTIFICATIONS = [
 type AdminNotification = (typeof DEFAULT_NOTIFICATIONS)[number];
 
 export function Header() {
-  const adminName = "Admin User";
-  const adminId = "admin-1";
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -86,6 +95,17 @@ export function Header() {
   const [notifications, setNotifications] = useState<AdminNotification[]>(
     DEFAULT_NOTIFICATIONS,
   );
+  const [selectedUser, setSelectedUser] = useState<ActiveUserProfile>(
+    getInitialUserProfile(),
+  );
+  const initialProfile = getInitialUserProfile();
+  const [userOptions, setUserOptions] = useState<SwitchUserOption[]>([
+    {
+      id: initialProfile.id,
+      name: initialProfile.name || initialProfile.id,
+      role: (initialProfile.role || "employee").toLowerCase(),
+    },
+  ]);
 
   const normalizedPath =
     pathname.endsWith("/") && pathname.length > 1
@@ -132,22 +152,57 @@ export function Header() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
   }, [notifications]);
 
+  useEffect(() => {
+    const current = getActiveUserProfile();
+    setSelectedUser(current);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const mapped = await fetchSwitchUserOptions();
+        if (!cancelled && mapped.length > 0) {
+          setUserOptions(mapped);
+          if (!mapped.some((u) => u.id === selectedUser.id)) {
+            const first = mapped[0];
+            const next = { id: first.id, name: first.name, role: first.role };
+            setSelectedUser(next);
+            setActiveUserProfile(next);
+          }
+        }
+      } catch {
+        // Keep fallback list when employees query fails.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedUser.id]);
+
+  const handleUserChange = (value: string) => {
+    const nextUser = userOptions.find((u) => u.id === value);
+    if (!nextUser) return;
+    const profile = { id: nextUser.id, name: nextUser.name, role: nextUser.role };
+    setSelectedUser(profile);
+    setActiveUserProfile(profile);
+  };
+
   return (
-    <header className="sticky top-0 z-40 h-16 border-b border-slate-200 bg-white px-4 dark:border-[#24395C] dark:bg-[#1E293B]">
-      <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1500px] items-center justify-between gap-4">
         <Link
           href="/admin"
           className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity"
         >
-          <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto sm:h-14" />
-          <div className="leading-tight min-w-0">
-            <p className="text-5 font-semibold text-slate-900 dark:text-white truncate">
-              UPDATE
-            </p>
-            <p className="text-xs text-slate-600 dark:text-[#A7B6D3] truncate">
-              Admin Panel
-            </p>
-          </div>
+          <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
+              <div className="leading-[24px] ">
+                <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
+                  UPDATE
+                </p>
+              </div>
+            </div>
         </Link>
 
         <nav className="hidden items-center gap-2 md:flex">
@@ -176,14 +231,24 @@ export function Header() {
           >
             <HiBars3 className="h-5 w-5" />
           </button>
-          <Link
-            href="/employee"
-            className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:text-[#A7B6D3] dark:hover:bg-[#24364F] dark:hover:text-white"
-          >
-            <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
-            Employee
-          </Link>
+          <label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+            <span>User</span>
+            <select
+              value={selectedUser.id}
+              onChange={(e) => handleUserChange(e.target.value)}
+              className="bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+              aria-label="Select active test user"
+            >
+              {userOptions.map((opt) => (
+                <option key={opt.id} value={opt.id} className="text-slate-900">
+                  {opt.name} ({opt.id})
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
           <ThemeToggle />
+          </div>
           <div className="relative hidden md:block" ref={notificationRef}>
             <button
               type="button"
@@ -191,12 +256,12 @@ export function Header() {
                 setNotificationOpen((prev) => !prev);
                 setProfileOpen(false);
               }}
-              className="relative inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
+              className="relative inline-flex h-10 w-10 items-center justify-center border border-slate-200 rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
               aria-label="Notifications"
             >
               <HiOutlineBell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
+                <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-red-500" />
               )}
             </button>
             {notificationOpen && (
@@ -302,29 +367,36 @@ export function Header() {
                 setProfileOpen((prev) => !prev);
                 setNotificationOpen(false);
               }}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white dark:bg-[#2F66E8]"
+              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white "
               aria-label="Profile"
             >
-              AD
+              <ProfileIcon/>
             </button>
             {profileOpen && (
               <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
                 <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white dark:bg-[#2F66E8]">
-                      AD
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white ">
+                      <ProfileIcon/>
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                        {adminName}
+                        {selectedUser.name || selectedUser.id}
                       </p>
                       <p className="mt-1 text-4 text-slate-500 dark:text-[#A7B6D3]">
-                        {adminId}
+                        {selectedUser.id}
                       </p>
                     </div>
                   </div>
                 </div>
                 <div className="p-2">
+            <Link
+            href="/employee"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+             >
+            <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+            Employee
+             </Link>
                   <Link
                     href="/admin/profile"
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
@@ -346,7 +418,7 @@ export function Header() {
           </div>
         </div>
       </div>
-
+      <div className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full bg-[linear-gradient(90deg,rgba(118,55,255,0.0)_0%,rgba(118,55,255,0.65)_50%,rgba(118,55,255,0.0)_100%)]" />
       <div
         className={`md:hidden absolute left-0 top-16 w-full bg-white border-t border-slate-200 dark:bg-[#1E293B] dark:border-[#24395C] ${
           menuOpen ? "block" : "hidden"
@@ -377,6 +449,22 @@ export function Header() {
             <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
             Employee руу шилжих
           </Link>
+          <div className="h-px bg-slate-200 dark:bg-[#24395C] my-2" />
+          <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+            <span>User</span>
+            <select
+              value={selectedUser.id}
+              onChange={(e) => handleUserChange(e.target.value)}
+              className="ml-3 bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+              aria-label="Select active test user"
+            >
+              {userOptions.map((opt) => (
+                <option key={opt.id} value={opt.id} className="text-slate-900">
+                  {opt.name} ({opt.id})
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="h-px bg-slate-200 dark:bg-[#24395C] my-2" />
           <div className="flex flex-col gap-2" ref={mobileNotificationRef}>
             <div className="flex items-center gap-2">
