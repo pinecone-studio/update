@@ -75,10 +75,10 @@ const STATUS_CARD_STYLES: Record<
 };
 
 const BUTTON_TEXT_BY_STATUS: Record<BenefitStatus, string> = {
-	ELIGIBLE: "Request benefit",
-	ACTIVE: "Manage benefit",
-	PENDING: "View request",
-	LOCKED: "View requirements",
+	ELIGIBLE: "Request benefit \u2192",
+	ACTIVE: "Manage benefit \u2192",
+	PENDING: "View request \u2192",
+	LOCKED: "View requirements \u2192",
 	REJECTED: "Request benefit",
 };
 
