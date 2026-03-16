@@ -9,6 +9,11 @@ function getBaseUrl(): string {
   return base || 'http://localhost:8787';
 }
 
+/** Base URL for REST endpoints (e.g. /admin/contracts/upload). */
+export function getApiBaseUrl(): string {
+  return getBaseUrl();
+}
+
 export function getAdminClient(): GraphQLClient {
   const base = getBaseUrl();
   const url = base.endsWith('/graphql') ? base : `${base}/graphql`;
