@@ -45,6 +45,15 @@ const BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY = gql`
   }
 `;
 
+const ARCHIVE_BENEFIT_CONTRACT_PDF_MUTATION = gql`
+  mutation ArchiveBenefitContractPdf($requestId: ID!, $html: String) {
+    archiveBenefitContractPdf(requestId: $requestId, html: $html) {
+      ok
+      requestId
+    }
+  }
+`;
+
 export async function confirmBenefitRequest(
   client: GraphQLClient,
   requestId: string,
@@ -69,6 +78,26 @@ export async function fetchBenefitRequestContractHtml(
     benefitRequestContractTemplate: { html: string };
   }>(BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY, { requestId });
   return res.benefitRequestContractTemplate.html;
+}
+
+export async function uploadSignedContractForRequest(
+  client: GraphQLClient,
+  requestId: string,
+  file: File
+): Promise<void> {
+  const asDataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ''));
+    reader.onerror = () => reject(new Error('Failed to read selected PDF file.'));
+    reader.readAsDataURL(file);
+  });
+  if (!asDataUrl.startsWith('data:application/pdf;base64,')) {
+    throw new Error('Only PDF files are supported.');
+  }
+  await client.request(ARCHIVE_BENEFIT_CONTRACT_PDF_MUTATION, {
+    requestId,
+    html: asDataUrl,
+  });
 }
 
 export function getApiErrorMessage(e: unknown): string {

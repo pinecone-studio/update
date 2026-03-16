@@ -8,7 +8,7 @@ import {
   employeeContracts as employeeContractsTable,
   employees as employeesTable,
 } from "../db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 
 const adminContracts = new Hono<{ Bindings: Env }>();
 
@@ -22,7 +22,7 @@ adminContracts.get("/", async (c) => {
   const db = getDb(c.env);
 
   if (tab === "employee") {
-    const rows = await db
+    const manualRows = await db
       .select({
         id: employeeContractsTable.id,
         employeeId: employeeContractsTable.employeeId,
@@ -42,10 +42,44 @@ adminContracts.get("/", async (c) => {
       .leftJoin(employeesTable, eq(employeeContractsTable.employeeId, employeesTable.id))
       .orderBy(desc(employeeContractsTable.createdAt));
 
+    const uploadedByRequestRows = await db
+      .select({
+        id: benefitRequestsTable.id,
+        employeeId: benefitRequestsTable.employeeId,
+        benefitId: benefitRequestsTable.benefitId,
+        benefitName: benefitsTable.name,
+        vendorName: benefitsTable.vendorName,
+        version: benefitRequestsTable.contractVersionAccepted,
+        effectiveDate: contractsTable.effectiveDate,
+        expiryDate: contractsTable.expiryDate,
+        r2ObjectKey: benefitRequestsTable.employeeContractR2Key,
+        createdAt: benefitRequestsTable.employeeContractUploadedAt,
+        updatedAt: benefitRequestsTable.updatedAt,
+        employeeName: employeesTable.name,
+      })
+      .from(benefitRequestsTable)
+      .leftJoin(benefitsTable, eq(benefitRequestsTable.benefitId, benefitsTable.id))
+      .leftJoin(contractsTable, eq(benefitsTable.activeContractId, contractsTable.id))
+      .leftJoin(employeesTable, eq(benefitRequestsTable.employeeId, employeesTable.id))
+      .where(isNotNull(benefitRequestsTable.employeeContractR2Key))
+      .orderBy(desc(benefitRequestsTable.employeeContractUploadedAt));
+
+    const rows = [
+      ...manualRows.map((r) => ({
+        ...r,
+        isActive: 1,
+        downloadUrl: `/admin/contracts/employee/${encodeURIComponent(r.id)}/file`,
+      })),
+      ...uploadedByRequestRows.map((r) => ({
+        ...r,
+        isActive: 1,
+        downloadUrl: `/admin/contracts/employee-requests/${encodeURIComponent(r.id)}/file`,
+      })),
+    ].sort((a, b) => String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")));
+
     return c.json({
       contracts: rows.map((r) => ({
         ...r,
-        downloadUrl: `/admin/contracts/employee/${encodeURIComponent(r.id)}/file`,
       })),
     });
   }

@@ -5,8 +5,19 @@ import type { MutationResolvers } from "../../generated/graphql";
 import type { Ctx } from "../context";
 import { requireEmployeeId } from "../context";
 import { getDb } from "../../../db/drizzle";
-import { benefitRequests, benefits, contracts, employees } from "../../../db/schema";
+import { benefitEligibility, benefitRequests, benefits, contracts, employees } from "../../../db/schema";
 import { renderPinefitContractHtml, toBool01 } from "../../../contracts/renderPinefit";
+import { dispatchEmployeeNotification } from "../../../notifications/dispatcher";
+import { and } from "drizzle-orm";
+import { requireHR } from "../context";
+
+function decodeBase64Pdf(input: string): Uint8Array {
+  const b64 = input.trim();
+  const bytes = atob(b64);
+  const out = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i += 1) out[i] = bytes.charCodeAt(i);
+  return out;
+}
 
 function htmlToText(html: string): string {
   const withBreaks = html
@@ -84,12 +95,19 @@ export const archiveBenefitContractPdf: NonNullable<
   MutationResolvers<Ctx>["archiveBenefitContractPdf"]
 > = async (_, args, ctx) => {
   const actorEmployeeId = requireEmployeeId(ctx);
+  const role = (ctx.role ?? "").toLowerCase();
+  const isHrOrAdmin = role === "hr" || role === "admin";
+  if (isHrOrAdmin) {
+    requireHR(ctx);
+  }
   const db = getDb(ctx.env);
 
   const rows = await db
     .select({
       requestId: benefitRequests.id,
       requestEmployeeId: benefitRequests.employeeId,
+      benefitId: benefitRequests.benefitId,
+      requestStatus: benefitRequests.status,
       contractAcceptedAt: benefitRequests.contractAcceptedAt,
       requestCreatedAt: benefitRequests.createdAt,
       benefitName: benefits.name,
@@ -112,9 +130,14 @@ export const archiveBenefitContractPdf: NonNullable<
 
   const row = rows[0];
   if (!row) throw new GraphQLError("Benefit request not found", { extensions: { code: "NOT_FOUND" } });
-  if (row.requestEmployeeId !== actorEmployeeId) {
+  if (!isHrOrAdmin && row.requestEmployeeId !== actorEmployeeId) {
     throw new GraphQLError("Forbidden: request does not belong to employee", {
       extensions: { code: "FORBIDDEN" },
+    });
+  }
+  if ((row.requestStatus ?? "").toLowerCase() !== "approved") {
+    throw new GraphQLError("Signed contract upload is allowed only for approved requests", {
+      extensions: { code: "BAD_USER_INPUT" },
     });
   }
   if (!toBool01(row.benefitRequiresContract)) {
@@ -122,9 +145,20 @@ export const archiveBenefitContractPdf: NonNullable<
       extensions: { code: "BAD_USER_INPUT" },
     });
   }
-
-  const html = args.html?.trim() ? args.html : renderPinefitContractHtml(row);
-  const pdfBytes = await renderPdfFromHtml(html);
+  const payload = args.html?.trim() ?? "";
+  let pdfBytes: Uint8Array;
+  if (payload.startsWith("data:application/pdf;base64,")) {
+    const encoded = payload.slice("data:application/pdf;base64,".length);
+    if (!encoded) {
+      throw new GraphQLError("Signed contract PDF payload is empty", {
+        extensions: { code: "BAD_USER_INPUT" },
+      });
+    }
+    pdfBytes = decodeBase64Pdf(encoded);
+  } else {
+    const html = payload || renderPinefitContractHtml(row);
+    pdfBytes = await renderPdfFromHtml(html);
+  }
   const uploadedAt = new Date().toISOString();
   const objectKey = `contracts/requests/${args.requestId}/employee-${Date.now()}.pdf`;
 
@@ -140,6 +174,59 @@ export const archiveBenefitContractPdf: NonNullable<
       updatedAt: uploadedAt,
     })
     .where(eq(benefitRequests.id, args.requestId));
+
+  const existingEligibility = await db
+    .select({ employeeId: benefitEligibility.employeeId })
+    .from(benefitEligibility)
+    .where(
+      and(
+        eq(benefitEligibility.employeeId, row.requestEmployeeId),
+        eq(benefitEligibility.benefitId, row.benefitId)
+      )
+    )
+    .limit(1);
+  if (existingEligibility[0]) {
+    await db
+      .update(benefitEligibility)
+      .set({
+        status: "active",
+        computedAt: uploadedAt,
+        overrideBy: actorEmployeeId,
+        overrideReason: "Signed contract uploaded",
+      })
+      .where(
+        and(
+          eq(benefitEligibility.employeeId, row.requestEmployeeId),
+          eq(benefitEligibility.benefitId, row.benefitId)
+        )
+      );
+  } else {
+    await db.insert(benefitEligibility).values({
+      employeeId: row.requestEmployeeId,
+      benefitId: row.benefitId,
+      status: "active",
+      ruleEvaluationJson: "[]",
+      computedAt: uploadedAt,
+      overrideBy: actorEmployeeId,
+      overrideReason: "Signed contract uploaded",
+      overrideExpiresAt: null,
+    });
+  }
+
+  await dispatchEmployeeNotification(ctx.env, {
+    employeeId: row.requestEmployeeId,
+    type: "REQUEST_STATUS",
+    tone: "success",
+    dedupeKey: `request:${args.requestId}:contract-uploaded`,
+    title: "Signed Contract Uploaded",
+    body: `Your signed contract for ${row.benefitName ?? "benefit"} has been uploaded. Your benefit is now ACTIVE.`,
+    metadata: {
+      requestId: args.requestId,
+      benefitId: row.benefitId,
+      status: "ACTIVE",
+      uploadedBy: actorEmployeeId,
+    },
+  });
 
   return {
     ok: true,

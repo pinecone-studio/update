@@ -71,6 +71,21 @@ const MY_BENEFITS_QUERY = gql`
 	}
 `;
 
+const BENEFIT_REQUESTS_QUERY = gql`
+	query BenefitRequests($status: RequestStatus) {
+		benefitRequests(status: $status) {
+			id
+			employeeId
+			benefitId
+			status
+			createdAt
+			benefitName
+			requiresContract
+			contractTemplateUrl
+		}
+	}
+`;
+
 const REQUEST_BENEFIT_MUTATION = gql`
 	mutation RequestBenefit($input: BenefitRequestInput!) {
 		requestBenefit(input: $input) {
@@ -79,33 +94,6 @@ const REQUEST_BENEFIT_MUTATION = gql`
 			benefitId
 			status
 			createdAt
-			requiresContract
-			contractId
-			contractTemplateUrl
-		}
-	}
-`;
-
-const BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY = gql`
-	query BenefitRequestContractTemplate($requestId: ID!) {
-		benefitRequestContractTemplate(requestId: $requestId) {
-			requestId
-			benefitId
-			contractId
-			contractVersion
-			requiresContract
-			html
-		}
-	}
-`;
-
-const SIGN_BENEFIT_CONTRACT_MUTATION = gql`
-	mutation SignBenefitContract($requestId: ID!) {
-		signBenefitContract(requestId: $requestId) {
-			id
-			status
-			contractAcceptedAt
-			contractVersionAccepted
 			requiresContract
 			contractId
 			contractTemplateUrl
@@ -130,10 +118,18 @@ const ARCHIVE_BENEFIT_CONTRACT_PDF_MUTATION = gql`
 	}
 `;
 
+
 function getBaseUrl(): string {
 	const env = process.env.NEXT_PUBLIC_API_URL || "";
 	const base = env.replace(/\/graphql\/?$/, "").trim();
 	return base || "http://localhost:8787";
+}
+
+function toAbsoluteApiUrl(url: string | null | undefined): string | null {
+	if (!url) return null;
+	if (/^https?:\/\//i.test(url)) return url;
+	const base = getBaseUrl().replace(/\/$/, "");
+	return `${base}${url.startsWith("/") ? url : `/${url}`}`;
 }
 
 /** Нэвтрэлтгүй үед default emp-1 ашиглана — хэрэглэгч логин хийгээгүй ч app ажиллана. */
@@ -152,13 +148,6 @@ export function getEmployeeClient(): GraphQLClient {
 	});
 }
 
-async function archiveContractPdfToR2(requestId: string, html: string): Promise<void> {
-	await getEmployeeClient().request(ARCHIVE_BENEFIT_CONTRACT_PDF_MUTATION, {
-		requestId,
-		html,
-	});
-}
-
 export async function fetchMe(): Promise<Me> {
 	const res = await getEmployeeClient().request<{ me: Me }>(ME_QUERY);
 	return res.me;
@@ -171,13 +160,31 @@ export async function fetchMyBenefits(): Promise<MyBenefitEligibility[]> {
 	return res.myBenefits ?? [];
 }
 
+export type MyBenefitRequest = {
+	id: string;
+	employeeId: string;
+	benefitId: string;
+	status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+	createdAt: string;
+	benefitName?: string | null;
+	requiresContract: boolean;
+	contractTemplateUrl?: string | null;
+};
+
+export async function fetchMyBenefitRequests(
+	status?: MyBenefitRequest["status"],
+): Promise<MyBenefitRequest[]> {
+	const res = await getEmployeeClient().request<{
+		benefitRequests: MyBenefitRequest[];
+	}>(BENEFIT_REQUESTS_QUERY, { status: status ?? null });
+	return (res.benefitRequests ?? []).map((r) => ({
+		...r,
+		contractTemplateUrl: toAbsoluteApiUrl(r.contractTemplateUrl),
+	}));
+}
+
 export async function requestBenefit(
 	benefitId: string,
-	_options?: {
-		benefitName?: string;
-		employeeName?: string;
-		contractPopup?: Window | null;
-	},
 ): Promise<{
 	id: string;
 	status: string;
@@ -194,32 +201,6 @@ export async function requestBenefit(
 		};
 	}>(REQUEST_BENEFIT_MUTATION, { input: { benefitId } });
 	const request = res.requestBenefit;
-
-	// Contract-required benefits: fetch dynamic HTML template and record employee signature.
-	if (request.requiresContract) {
-		const popup =
-			_options?.contractPopup ??
-			window.open("", "_blank", "noopener,noreferrer");
-		if (!popup) {
-			throw new Error("Popup blocked. Please allow popups and try again.");
-		}
-
-		const templateRes = await getEmployeeClient().request<{
-			benefitRequestContractTemplate: { html: string };
-		}>(BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY, { requestId: request.id });
-
-		const contractHtml = templateRes.benefitRequestContractTemplate?.html;
-		if (contractHtml) {
-			popup.document.open();
-			popup.document.write(contractHtml);
-			popup.document.close();
-			await archiveContractPdfToR2(request.id, contractHtml);
-		}
-
-		await getEmployeeClient().request(SIGN_BENEFIT_CONTRACT_MUTATION, {
-			requestId: request.id,
-		});
-	}
 
 	return {
 		id: request.id,
@@ -241,6 +222,25 @@ export async function openBenefitContractPreview(
 	target.document.open();
 	target.document.write(res.benefitContractPreview.html);
 	target.document.close();
+}
+
+export async function uploadSignedContractPdf(
+	requestId: string,
+	file: File,
+): Promise<void> {
+	const asDataUrl = await new Promise<string>((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => resolve(String(reader.result ?? ""));
+		reader.onerror = () => reject(new Error("Failed to read selected PDF file."));
+		reader.readAsDataURL(file);
+	});
+	if (!asDataUrl.startsWith("data:application/pdf;base64,")) {
+		throw new Error("Only PDF files are supported.");
+	}
+	await getEmployeeClient().request(ARCHIVE_BENEFIT_CONTRACT_PDF_MUTATION, {
+		requestId,
+		html: asDataUrl,
+	});
 }
 
 export function getApiErrorMessage(e: unknown): string {

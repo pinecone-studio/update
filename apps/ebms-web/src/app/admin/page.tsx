@@ -10,12 +10,10 @@ import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
 import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import {
   getAdminClient,
+  getApiBaseUrl,
   confirmBenefitRequest,
-  fetchBenefitRequestContractHtml,
   getApiErrorMessage,
-  fetchUnclosedFeedback,
-  closeFeedback,
-  type EscalatedFeedbackItem,
+  uploadSignedContractForRequest,
 } from "./_lib/api";
 
 const BENEFIT_REQUESTS_QUERY = gql`
@@ -123,8 +121,10 @@ export default function HrDashboardPage() {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [eligibilitySearch, setEligibilitySearch] = useState("");
   const [employeesForSearch, setEmployeesForSearch] = useState<EmployeeSearchItem[]>([]);
-  const [unclosedFeedback, setUnclosedFeedback] = useState<EscalatedFeedbackItem[]>([]);
-  const [feedbackClosingId, setFeedbackClosingId] = useState<string | null>(null);
+  const [selectedContractFileByRequestId, setSelectedContractFileByRequestId] =
+    useState<Record<string, File | null>>({});
+  const [uploadingContractByRequestId, setUploadingContractByRequestId] =
+    useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -245,6 +245,7 @@ export default function HrDashboardPage() {
   ];
 
   const normalizedSearch = eligibilitySearch.trim().toLowerCase();
+  const apiBaseUrl = getApiBaseUrl().replace(/\/$/, "");
   const employeeSuggestions = useMemo(() => {
     if (!normalizedSearch) return [];
     return employeesForSearch
@@ -293,17 +294,26 @@ export default function HrDashboardPage() {
     }
   };
 
-  const handleViewTemplate = async (requestId: string) => {
+  const handleUploadSignedContract = async (requestId: string) => {
+    const file = selectedContractFileByRequestId[requestId];
+    if (!file) {
+      setError("Please select signed contract PDF first.");
+      return;
+    }
+    setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: true }));
+    setError(null);
     try {
-      const html = await fetchBenefitRequestContractHtml(getAdminClient(), requestId);
-      const popup = window.open("", "_blank", "noopener,noreferrer");
-      if (popup) {
-        popup.document.open();
-        popup.document.write(html);
-        popup.document.close();
-      }
+      await uploadSignedContractForRequest(getAdminClient(), requestId, file);
+      const client = getAdminClient();
+      const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
+        BENEFIT_REQUESTS_QUERY,
+        { status: statusFilter ?? undefined }
+      );
+      setRequests((res.benefitRequests ?? []).map((r) => ({ ...r, status: (r.status || "PENDING").toUpperCase() })));
     } catch (e) {
       setError(getApiErrorMessage(e));
+    } finally {
+      setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: false }));
     }
   };
 
@@ -445,7 +455,16 @@ export default function HrDashboardPage() {
                 {displayRequests.map((req) => {
                   const status = (req.status || "PENDING").toUpperCase();
                   const isLoading = actionLoadingId === req.id;
-                  const needsSignature = req.requiresContract && !req.contractAcceptedAt;
+                  const hasUploadedSignedContract = Boolean(req.contractTemplateUrl);
+                  const canUploadSignedContract =
+                    req.requiresContract && status === "APPROVED" && !hasUploadedSignedContract;
+                  const isUploadingSignedContract =
+                    uploadingContractByRequestId[req.id] ?? false;
+                  const signedContractUrl = req.contractTemplateUrl
+                    ? req.contractTemplateUrl.startsWith("http")
+                      ? req.contractTemplateUrl
+                      : `${apiBaseUrl}${req.contractTemplateUrl.startsWith("/") ? "" : "/"}${req.contractTemplateUrl}`
+                    : null;
 
                   return (
                     <tr key={req.id} className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]">
@@ -454,20 +473,20 @@ export default function HrDashboardPage() {
                       <td className="px-3 py-3 sm:px-4 sm:py-4">{statusBadge(status)}</td>
                       <td className="px-3 py-3 sm:px-4 sm:py-4">
                         {req.requiresContract ? (
-                          <div className="flex flex-col gap-1">
-                            <span className={`text-xs font-medium ${needsSignature ? "text-amber-500" : "text-emerald-500"}`}>
-                              {needsSignature ? "Not signed" : "Signed"}
+                          hasUploadedSignedContract ? (
+                            <a
+                              href={signedContractUrl ?? "#"}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs font-medium text-emerald-500 underline"
+                            >
+                              Signed contract
+                            </a>
+                          ) : (
+                            <span className="text-xs font-medium text-amber-500">
+                              Await upload
                             </span>
-                            {req.contractTemplateUrl ? (
-                              <button
-                                type="button"
-                                onClick={() => handleViewTemplate(req.id)}
-                                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-300"
-                              >
-                                View template
-                              </button>
-                            ) : null}
-                          </div>
+                          )
                         ) : (
                           <span className="text-xs text-slate-400 dark:text-slate-500">N/A</span>
                         )}
@@ -479,10 +498,10 @@ export default function HrDashboardPage() {
                             <button
                               type="button"
                               onClick={() => handleApprove(req.id)}
-                              disabled={isLoading || needsSignature}
+                              disabled={isLoading}
                               className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              {needsSignature ? "Await sign" : isLoading ? "..." : "Approve"}
+                              {isLoading ? "..." : "Approve"}
                             </button>
                             <button
                               type="button"
@@ -494,7 +513,36 @@ export default function HrDashboardPage() {
                             </button>
                           </div>
                         ) : (
-                          <span className="text-slate-400 dark:text-slate-500">—</span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {canUploadSignedContract ? (
+                              <>
+                                <input
+                                  type="file"
+                                  accept="application/pdf"
+                                  onChange={(e) =>
+                                    setSelectedContractFileByRequestId((prev) => ({
+                                      ...prev,
+                                      [req.id]: e.target.files?.[0] ?? null,
+                                    }))
+                                  }
+                                  className="text-xs text-slate-600 dark:text-slate-300 file:mr-2 file:rounded-md file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:text-xs file:text-slate-700 dark:file:bg-[#24364F] dark:file:text-[#D1DBEF]"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={
+                                    !selectedContractFileByRequestId[req.id] ||
+                                    isUploadingSignedContract
+                                  }
+                                  onClick={() => void handleUploadSignedContract(req.id)}
+                                  className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  {isUploadingSignedContract ? "Uploading..." : "Upload signed"}
+                                </button>
+                              </>
+                            ) : (
+                              <span className="text-slate-400 dark:text-slate-500">—</span>
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>

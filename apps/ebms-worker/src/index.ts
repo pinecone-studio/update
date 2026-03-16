@@ -10,11 +10,8 @@ import { eq } from "drizzle-orm";
 import type { Env } from "./types";
 import { getDb } from "./db/drizzle";
 import { employees } from "./db/schema";
-import { typeDefs, resolvers } from "./graphql";
 import adminContracts from "./routes/adminContracts";
-import adminFeedback from "./routes/adminFeedback";
 import contractsRoute from "./routes/contracts";
-import feedbackRoute from "./routes/feedback";
 
 type YogaContext = {
   env: Env;
@@ -55,8 +52,6 @@ app.get("/health", (c) =>
 );
 
 app.route("/admin/contracts", adminContracts);
-app.route("/admin/feedback", adminFeedback);
-app.route("/feedback", feedbackRoute);
 app.route("/contracts", contractsRoute);
 
 app.all("/graphql", async (c) => {
