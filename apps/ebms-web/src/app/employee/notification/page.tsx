@@ -10,6 +10,8 @@ import {
   HiOutlineClock,
   HiOutlineInformationCircle,
   HiOutlineArrowUpRight,
+  HiOutlineExclamationTriangle,
+  HiOutlineXCircle,
 } from "react-icons/hi2";
 import { NotificationSkeleton } from "../components/NotificationSkeleton";
 
@@ -24,6 +26,9 @@ export default function NotificationPage() {
       tone: "success",
       unread: true,
       type: "eligibility",
+      group: "Today",
+      benefit: "Education Allowance",
+      actionLabel: "Request Benefit",
     },
     {
       id: "n2",
@@ -33,15 +38,21 @@ export default function NotificationPage() {
       tone: "info",
       unread: true,
       type: "eligibility",
+      group: "Today",
+      benefit: "Performance",
+      actionLabel: "View Details",
     },
     {
       id: "n3",
       title: "Transit Pass Request Approved",
       body: "Your Transit Pass benefit request has been approved. You’ll receive further details via email.",
       time: "1 day ago",
-      tone: "success",
+      tone: "info",
       unread: false,
-      type: "request",
+      type: "request_approved",
+      group: "Yesterday",
+      benefit: "Transit Pass",
+      actionLabel: "View Details",
     },
     {
       id: "n4",
@@ -51,25 +62,91 @@ export default function NotificationPage() {
       tone: "warning",
       unread: false,
       type: "warning",
+      group: "Yesterday",
+      benefit: "Health Insurance",
+      actionLabel: "View Details",
     },
     {
       id: "n5",
       title: "Upcoming Eligibility: Gym Membership",
       body: "You’ll become eligible for Gym Membership in approximately 15 days when your OKR score reaches 75%.",
       time: "3 days ago",
-      tone: "info",
+      tone: "success",
       unread: false,
       type: "eligibility",
+      group: "Earlier",
+      benefit: "Gym Benefit",
+      actionLabel: "View Details",
+    },
+    {
+      id: "n6",
+      title: "Gym Benefit Request Approved",
+      body: "Your PineFit gym benefit request has been approved.",
+      time: "4 days ago",
+      tone: "info",
+      unread: false,
+      type: "request_approved",
+      group: "Earlier",
+      benefit: "Gym Benefit",
+      actionLabel: "View Details",
+    },
+    {
+      id: "n7",
+      title: "Benefit Request Rejected",
+      body: "Your Meal Allowance request was rejected. Reason: Attendance threshold exceeded.",
+      time: "1 week ago",
+      tone: "danger",
+      unread: false,
+      type: "request_rejected",
+      group: "Earlier",
+      benefit: "Meal Allowance",
+      actionLabel: "View Details",
+    },
+    {
+      id: "n8",
+      title: "Attendance Warning",
+      body: "You have 2 late arrivals this month. Reaching 3 may lock some benefits.",
+      time: "1 week ago",
+      tone: "warning",
+      unread: false,
+      type: "warning",
+      group: "Earlier",
+      benefit: "Attendance",
+      actionLabel: "View Details",
     },
   ];
   const [activeType, setActiveType] = useState<
     "all" | "eligibility" | "request" | "warning"
   >("all");
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const [search, setSearch] = useState("");
 
-  const filteredNotifications =
+  const filteredByType =
     activeType === "all"
       ? notifications
-      : notifications.filter((n) => n.type === activeType);
+      : notifications.filter((n) => {
+          if (activeType === "eligibility") return n.type === "eligibility";
+          if (activeType === "request")
+            return n.type === "request_approved" || n.type === "request_rejected";
+          return n.type === "warning";
+        });
+  const filteredByUnread = unreadOnly
+    ? filteredByType.filter((n) => n.unread)
+    : filteredByType;
+  const filteredNotifications = filteredByUnread.filter((n) => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      n.title.toLowerCase().includes(term) ||
+      n.body.toLowerCase().includes(term) ||
+      n.benefit.toLowerCase().includes(term)
+    );
+  });
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
+  const todayCount = notifications.filter((n) => n.group === "Today").length;
+  const totalCount = notifications.length;
+  const groups = ["Today", "Yesterday", "Earlier"] as const;
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 400);
@@ -113,7 +190,7 @@ export default function NotificationPage() {
                   Unread
                 </p>
                 <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                  2
+                  {unreadCount}
                 </p>
               </div>
               <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-blue-600 dark:bg-[#122033] dark:text-blue-500">
@@ -126,7 +203,7 @@ export default function NotificationPage() {
                   Today
                 </p>
                 <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                  2
+                  {todayCount}
                 </p>
               </div>
               <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-orange-500 dark:bg-[#122033] dark:text-orange-400">
@@ -139,7 +216,7 @@ export default function NotificationPage() {
                   Total
                 </p>
                 <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                  5
+                  {totalCount}
                 </p>
               </div>
               <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-green-600 dark:bg-[#122033] dark:text-green-400">
@@ -189,11 +266,23 @@ export default function NotificationPage() {
             >
               Warnings
             </button>
+            <button
+              onClick={() => setUnreadOnly((prev) => !prev)}
+              className={`px-3 py-1.5 rounded-full border transition ${
+                unreadOnly
+                  ? "bg-slate-800 text-white border-slate-800 dark:bg-[#1A2333] dark:border-[#243041]"
+                  : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-[#111A2A] dark:border-[#243041] dark:text-slate-200 dark:hover:bg-[#1A2333]"
+              }`}
+            >
+              Unread only
+            </button>
           </div>
 
           <div className="mt-4 bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 dark:bg-[#1A2333] dark:border-[#243041]">
             <HiOutlineMagnifyingGlass className="text-slate-500 dark:text-slate-400" />
             <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none dark:text-slate-200 dark:placeholder:text-slate-500"
               placeholder="Search notifications..."
             />
@@ -202,60 +291,86 @@ export default function NotificationPage() {
             </button>
           </div>
 
-          <div className="mt-5 space-y-3">
-            {filteredNotifications.map((item) => {
-              const toneClasses =
-                item.tone === "success"
-                  ? "text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10"
-                  : item.tone === "warning"
-                    ? "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10"
-                    : item.tone === "info"
-                      ? "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-500/10"
-                      : "text-slate-500 bg-slate-100 dark:text-slate-300 dark:bg-slate-500/10";
-
-              const unreadClasses = item.unread
-                ? "bg-white/90 border-slate-200 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.45)] dark:bg-[#1F2A3D] dark:border-[#2A3A52]"
-                : "bg-white border-slate-100 shadow-sm dark:bg-[#161F2F] dark:border-[#223044]";
-
+          <div className="mt-5 space-y-6">
+            {groups.map((group) => {
+              const items = filteredNotifications.filter((n) => n.group === group);
+              if (items.length === 0) return null;
               return (
-                <div
-                  key={item.id}
-                  className={`rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md ${unreadClasses}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`h-9 w-9 rounded-full grid place-items-center ${toneClasses}`}
-                      >
-                        <HiOutlineInformationCircle className="text-lg" />
-                      </div>
-                      <div>
-                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-[#2A3A52] dark:bg-[#121A28] dark:text-slate-300">
-                          {item.type === "eligibility"
-                            ? "Eligibility"
-                            : item.type === "request"
-                              ? "Request"
-                              : "Warning"}
-                        </span>
-                        <p className="text-slate-900 text-sm font-semibold dark:text-white">
-                          {item.title}
-                        </p>
-                        <p className="text-slate-600 text-xs mt-1 dark:text-slate-300">
-                          {item.body}
-                        </p>
-                      </div>
-                    </div>
+                <div key={group} className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                    {group}
+                  </p>
+                  {items.map((item) => {
+                    const toneClasses =
+                      item.type === "eligibility"
+                        ? "text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10"
+                        : item.type === "request_approved"
+                          ? "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-500/10"
+                          : item.type === "request_rejected"
+                            ? "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-500/10"
+                            : "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10";
 
-                    <div className="flex flex-col items-end gap-2">
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                        {item.time}
-                      </p>
-                      <button className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300">
-                        View Details
-                        <HiOutlineArrowUpRight className="text-sm" />
-                      </button>
-                    </div>
-                  </div>
+                    const unreadClasses = item.unread
+                      ? "bg-white/90 border-slate-200 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.45)] dark:bg-[#1F2A3D] dark:border-[#2A3A52]"
+                      : "bg-white border-slate-100 shadow-sm dark:bg-[#161F2F] dark:border-[#223044]";
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={`rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md ${unreadClasses}`}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`h-9 w-9 rounded-full grid place-items-center ${toneClasses}`}
+                            >
+                              {item.type === "eligibility" ? (
+                                <HiOutlineInformationCircle className="text-lg" />
+                              ) : item.type === "request_approved" ? (
+                                <HiOutlineCheckCircle className="text-lg" />
+                              ) : item.type === "request_rejected" ? (
+                                <HiOutlineXCircle className="text-lg" />
+                              ) : (
+                                <HiOutlineExclamationTriangle className="text-lg" />
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-[#2A3A52] dark:bg-[#121A28] dark:text-slate-300">
+                                  {item.benefit}
+                                </span>
+                                {item.unread && (
+                                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                                )}
+                              </div>
+                              <p
+                                className={`text-sm ${
+                                  item.unread
+                                    ? "font-semibold text-slate-900 dark:text-white"
+                                    : "font-medium text-slate-800 dark:text-slate-100"
+                                }`}
+                              >
+                                {item.title}
+                              </p>
+                              <p className="text-slate-600 text-xs mt-1 dark:text-slate-300">
+                                {item.body}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col items-end gap-2">
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              {item.time}
+                            </p>
+                            <button className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300">
+                              {item.actionLabel}
+                              <HiOutlineArrowUpRight className="text-sm" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
