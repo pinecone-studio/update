@@ -90,6 +90,19 @@ export const contracts = sqliteTable('contracts', {
   updatedAt: text('updated_at').default(''),
 });
 
+/** Admin-uploaded employee contracts (separate from benefit_requests.employee_contract_r2_key) */
+export const employeeContracts = sqliteTable('employee_contracts', {
+  id: text('id').primaryKey(),
+  employeeId: text('employee_id'),
+  benefitId: text('benefit_id').notNull(),
+  version: text('version').notNull(),
+  r2ObjectKey: text('r2_object_key').notNull(),
+  effectiveDate: text('effective_date'),
+  expiryDate: text('expiry_date'),
+  createdAt: text('created_at').default(''),
+  updatedAt: text('updated_at').default(''),
+});
+
 /** Versioned eligibility-rules.json — HR can update without code deploy */
 export const eligibilityConfig = sqliteTable('eligibility_config', {
   id: text('id').primaryKey(),
