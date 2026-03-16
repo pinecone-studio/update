@@ -155,6 +155,7 @@ export function FinanceHeader() {
               </div>
             </div>
         </Link>
+        </div>
 
         <nav className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
