@@ -19,6 +19,7 @@ import {
   fetchMe,
   fetchMyBenefits,
   requestBenefit,
+  openBenefitContractPreview,
   getApiErrorMessage,
 } from "./_lib/api";
 import { mapMyBenefitsToCardProps } from "./_lib/mapBenefits";
@@ -183,6 +184,16 @@ export default function EmployeeDashboardPage() {
     },
     [load, me?.name],
   );
+
+  const handleViewContract = useCallback(async (benefit: BenefitCardProps) => {
+    if (!benefit.benefitId) return;
+    try {
+      const popup = window.open("", "_blank", "noopener,noreferrer");
+      await openBenefitContractPreview(benefit.benefitId, popup);
+    } catch (e) {
+      alert(getApiErrorMessage(e));
+    }
+  }, []);
 
   const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
   const eligibleCount = benefits.filter((b) => b.status === "ELIGIBLE").length;
@@ -372,6 +383,7 @@ export default function EmployeeDashboardPage() {
                   <BenefitPortfolio
                     benefits={orderedBenefits}
                     onRequestBenefit={handleRequestBenefit}
+                    onViewContract={handleViewContract}
                   />
                 </div>
               </section>

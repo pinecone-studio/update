@@ -11,6 +11,7 @@ interface BenefitPortfolioProps {
 	benefits: BenefitCardProps[];
 	/** When provided, called when user clicks "Request benefit" on an ELIGIBLE benefit (e.g. to call requestBenefit API) */
 	onRequestBenefit?: (benefit: BenefitCardProps) => void;
+	onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
 	/** Use single column layout (e.g. for sidebar) */
 	compact?: boolean;
 }
@@ -18,6 +19,7 @@ interface BenefitPortfolioProps {
 export function BenefitPortfolio({
 	benefits,
 	onRequestBenefit,
+	onViewContract,
 	compact,
 }: BenefitPortfolioProps) {
 	const [selectedBenefit, setSelectedBenefit] =
@@ -94,6 +96,7 @@ export function BenefitPortfolio({
 					setOpenWithContractStep(false);
 				}}
 				onRequestBenefit={onRequestBenefit ? handleRequestBenefit : undefined}
+				onViewContract={onViewContract}
 				initialOpenContractStep={openWithContractStep}
 			/>
 		</>

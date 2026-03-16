@@ -20,6 +20,7 @@ interface BenefitEligibilityModalProps {
 	benefit: BenefitCardProps | null;
 	onClose: () => void;
 	onRequestBenefit?: (benefit: BenefitCardProps) => void;
+	onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
 	/** When true, open with contract acceptance step visible (e.g. when clicking Request benefit from card) */
 	initialOpenContractStep?: boolean;
 }
@@ -28,6 +29,7 @@ export function BenefitEligibilityModal({
 	benefit,
 	onClose,
 	onRequestBenefit,
+	onViewContract,
 	initialOpenContractStep = false,
 }: BenefitEligibilityModalProps) {
 	const [showContractStep, setShowContractStep] = useState(
@@ -147,7 +149,7 @@ export function BenefitEligibilityModal({
 								You must read and accept the vendor contract before your request
 								can be submitted.
 							</p>
-							{benefit.contractLink && (
+							{benefit.contractLink ? (
 								<a
 									href={benefit.contractLink}
 									target="_blank"
@@ -157,7 +159,16 @@ export function BenefitEligibilityModal({
 									View vendor contract
 									<FiExternalLink size={14} />
 								</a>
-							)}
+							) : benefit.requiresContract && benefit.benefitId && onViewContract ? (
+								<button
+									type="button"
+									onClick={() => onViewContract(benefit)}
+									className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium mb-4 dark:text-blue-400"
+								>
+									View vendor contract
+									<FiExternalLink size={14} />
+								</button>
+							) : null}
 							<label className="flex items-start gap-3 cursor-pointer">
 								<input
 									type="checkbox"
@@ -247,6 +258,20 @@ export function BenefitEligibilityModal({
 										View vendor contract
 										<FiExternalLink size={14} />
 									</a>
+								</div>
+							) : benefit.requiresContract && benefit.benefitId && onViewContract ? (
+								<div>
+									<h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+										Vendor contract
+									</h3>
+									<button
+										type="button"
+										onClick={() => onViewContract(benefit)}
+										className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400 dark:hover:text-blue-300"
+									>
+										View vendor contract
+										<FiExternalLink size={14} />
+									</button>
 								</div>
 							) : null}
 

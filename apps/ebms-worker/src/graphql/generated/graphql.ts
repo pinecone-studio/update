@@ -17,6 +17,31 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type AdminContract = {
+  __typename?: 'AdminContract';
+  benefitId: Scalars['ID']['output'];
+  benefitName?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  downloadUrl: Scalars['String']['output'];
+  effectiveDate?: Maybe<Scalars['String']['output']>;
+  employeeName?: Maybe<Scalars['String']['output']>;
+  expiryDate?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  r2ObjectKey?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  vendorName?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type ArchiveBenefitContractPdfPayload = {
+  __typename?: 'ArchiveBenefitContractPdfPayload';
+  objectKey: Scalars['String']['output'];
+  ok: Scalars['Boolean']['output'];
+  requestId: Scalars['ID']['output'];
+  uploadedAt: Scalars['String']['output'];
+};
+
 export type AuditEntry = {
   __typename?: 'AuditEntry';
   benefitId: Scalars['ID']['output'];
@@ -94,6 +119,15 @@ export type Contract = {
   version: Scalars['String']['output'];
 };
 
+export type ContractPreview = {
+  __typename?: 'ContractPreview';
+  benefitId: Scalars['ID']['output'];
+  contractId?: Maybe<Scalars['ID']['output']>;
+  contractVersion?: Maybe<Scalars['String']['output']>;
+  html: Scalars['String']['output'];
+  requiresContract: Scalars['Boolean']['output'];
+};
+
 export type ContractTemplate = {
   __typename?: 'ContractTemplate';
   benefitId: Scalars['ID']['output'];
@@ -151,6 +185,7 @@ export type Health = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  archiveBenefitContractPdf: ArchiveBenefitContractPdfPayload;
   cancelBenefitRequest: BenefitRequest;
   confirmBenefitRequest: BenefitRequest;
   createBenefit: Benefit;
@@ -160,6 +195,13 @@ export type Mutation = {
   signBenefitContract: BenefitRequest;
   updateBenefit: Benefit;
   updateEligibilityRuleConfig: EligibilityRuleConfig;
+  uploadAdminContract: UploadAdminContractPayload;
+};
+
+
+export type MutationArchiveBenefitContractPdfArgs = {
+  html?: InputMaybe<Scalars['String']['input']>;
+  requestId: Scalars['ID']['input'];
 };
 
 
@@ -209,6 +251,11 @@ export type MutationUpdateEligibilityRuleConfigArgs = {
   config: Scalars['String']['input'];
 };
 
+
+export type MutationUploadAdminContractArgs = {
+  input: UploadAdminContractInput;
+};
+
 export type OverrideInput = {
   benefitId: Scalars['ID']['input'];
   employeeId: Scalars['ID']['input'];
@@ -219,7 +266,9 @@ export type OverrideInput = {
 
 export type Query = {
   __typename?: 'Query';
+  adminContracts: Array<AdminContract>;
   auditLog: Array<AuditEntry>;
+  benefitContractPreview: ContractPreview;
   benefitRequestContractTemplate: ContractTemplate;
   benefitRequests: Array<BenefitRequest>;
   benefits: Array<Benefit>;
@@ -230,11 +279,22 @@ export type Query = {
   health: Health;
   me: Employee;
   myBenefits: Array<BenefitEligibility>;
+  userOptions: Array<SwitchUserOption>;
+};
+
+
+export type QueryAdminContractsArgs = {
+  tab: Scalars['String']['input'];
 };
 
 
 export type QueryAuditLogArgs = {
   filters: AuditFilters;
+};
+
+
+export type QueryBenefitContractPreviewArgs = {
+  benefitId: Scalars['ID']['input'];
 };
 
 
@@ -276,6 +336,13 @@ export type RuleEvaluation = {
   ruleType: Scalars['String']['output'];
 };
 
+export type SwitchUserOption = {
+  __typename?: 'SwitchUserOption';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  role: Scalars['String']['output'];
+};
+
 export type UpdateBenefitInput = {
   category: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
@@ -283,6 +350,23 @@ export type UpdateBenefitInput = {
   name: Scalars['String']['input'];
   requiresContract: Scalars['Boolean']['input'];
   subsidyPercent: Scalars['Int']['input'];
+};
+
+export type UploadAdminContractInput = {
+  benefitId: Scalars['ID']['input'];
+  contentType?: InputMaybe<Scalars['String']['input']>;
+  effectiveDate?: InputMaybe<Scalars['String']['input']>;
+  expiryDate?: InputMaybe<Scalars['String']['input']>;
+  fileBase64: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+  vendorName?: InputMaybe<Scalars['String']['input']>;
+  version: Scalars['String']['input'];
+};
+
+export type UploadAdminContractPayload = {
+  __typename?: 'UploadAdminContractPayload';
+  contract: AdminContract;
+  ok: Scalars['Boolean']['output'];
 };
 
 
@@ -358,6 +442,8 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AdminContract: ResolverTypeWrapper<AdminContract>;
+  ArchiveBenefitContractPdfPayload: ResolverTypeWrapper<ArchiveBenefitContractPdfPayload>;
   AuditEntry: ResolverTypeWrapper<AuditEntry>;
   AuditFilters: AuditFilters;
   Benefit: ResolverTypeWrapper<Benefit>;
@@ -367,6 +453,7 @@ export type ResolversTypes = {
   BenefitStatus: BenefitStatus;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Contract: ResolverTypeWrapper<Contract>;
+  ContractPreview: ResolverTypeWrapper<ContractPreview>;
   ContractTemplate: ResolverTypeWrapper<ContractTemplate>;
   CreateBenefitInput: CreateBenefitInput;
   EligibilityRuleConfig: ResolverTypeWrapper<EligibilityRuleConfig>;
@@ -382,11 +469,16 @@ export type ResolversTypes = {
   RequestStatus: RequestStatus;
   RuleEvaluation: ResolverTypeWrapper<RuleEvaluation>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  SwitchUserOption: ResolverTypeWrapper<SwitchUserOption>;
   UpdateBenefitInput: UpdateBenefitInput;
+  UploadAdminContractInput: UploadAdminContractInput;
+  UploadAdminContractPayload: ResolverTypeWrapper<UploadAdminContractPayload>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AdminContract: AdminContract;
+  ArchiveBenefitContractPdfPayload: ArchiveBenefitContractPdfPayload;
   AuditEntry: AuditEntry;
   AuditFilters: AuditFilters;
   Benefit: Benefit;
@@ -395,6 +487,7 @@ export type ResolversParentTypes = {
   BenefitRequestInput: BenefitRequestInput;
   Boolean: Scalars['Boolean']['output'];
   Contract: Contract;
+  ContractPreview: ContractPreview;
   ContractTemplate: ContractTemplate;
   CreateBenefitInput: CreateBenefitInput;
   EligibilityRuleConfig: EligibilityRuleConfig;
@@ -408,7 +501,33 @@ export type ResolversParentTypes = {
   Query: Record<PropertyKey, never>;
   RuleEvaluation: RuleEvaluation;
   String: Scalars['String']['output'];
+  SwitchUserOption: SwitchUserOption;
   UpdateBenefitInput: UpdateBenefitInput;
+  UploadAdminContractInput: UploadAdminContractInput;
+  UploadAdminContractPayload: UploadAdminContractPayload;
+};
+
+export type AdminContractResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['AdminContract'] = ResolversParentTypes['AdminContract']> = {
+  benefitId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  benefitName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  downloadUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  effectiveDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  employeeName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  expiryDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  r2ObjectKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  vendorName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  version?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type ArchiveBenefitContractPdfPayloadResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['ArchiveBenefitContractPdfPayload'] = ResolversParentTypes['ArchiveBenefitContractPdfPayload']> = {
+  objectKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  requestId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  uploadedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
 export type AuditEntryResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['AuditEntry'] = ResolversParentTypes['AuditEntry']> = {
@@ -465,6 +584,14 @@ export type ContractResolvers<ContextType = Ctx, ParentType extends ResolversPar
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type ContractPreviewResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['ContractPreview'] = ResolversParentTypes['ContractPreview']> = {
+  benefitId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  contractId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  contractVersion?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  html?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requiresContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+};
+
 export type ContractTemplateResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['ContractTemplate'] = ResolversParentTypes['ContractTemplate']> = {
   benefitId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   contractId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
@@ -495,6 +622,7 @@ export type HealthResolvers<ContextType = Ctx, ParentType extends ResolversParen
 };
 
 export type MutationResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  archiveBenefitContractPdf?: Resolver<ResolversTypes['ArchiveBenefitContractPdfPayload'], ParentType, ContextType, RequireFields<MutationArchiveBenefitContractPdfArgs, 'requestId'>>;
   cancelBenefitRequest?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationCancelBenefitRequestArgs, 'requestId'>>;
   confirmBenefitRequest?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationConfirmBenefitRequestArgs, 'contractAccepted' | 'requestId'>>;
   createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
@@ -504,10 +632,13 @@ export type MutationResolvers<ContextType = Ctx, ParentType extends ResolversPar
   signBenefitContract?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationSignBenefitContractArgs, 'requestId'>>;
   updateBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationUpdateBenefitArgs, 'input'>>;
   updateEligibilityRuleConfig?: Resolver<ResolversTypes['EligibilityRuleConfig'], ParentType, ContextType, RequireFields<MutationUpdateEligibilityRuleConfigArgs, 'config'>>;
+  uploadAdminContract?: Resolver<ResolversTypes['UploadAdminContractPayload'], ParentType, ContextType, RequireFields<MutationUploadAdminContractArgs, 'input'>>;
 };
 
 export type QueryResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  adminContracts?: Resolver<Array<ResolversTypes['AdminContract']>, ParentType, ContextType, RequireFields<QueryAdminContractsArgs, 'tab'>>;
   auditLog?: Resolver<Array<ResolversTypes['AuditEntry']>, ParentType, ContextType, RequireFields<QueryAuditLogArgs, 'filters'>>;
+  benefitContractPreview?: Resolver<ResolversTypes['ContractPreview'], ParentType, ContextType, RequireFields<QueryBenefitContractPreviewArgs, 'benefitId'>>;
   benefitRequestContractTemplate?: Resolver<ResolversTypes['ContractTemplate'], ParentType, ContextType, RequireFields<QueryBenefitRequestContractTemplateArgs, 'requestId'>>;
   benefitRequests?: Resolver<Array<ResolversTypes['BenefitRequest']>, ParentType, ContextType, Partial<QueryBenefitRequestsArgs>>;
   benefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType, Partial<QueryBenefitsArgs>>;
@@ -518,6 +649,7 @@ export type QueryResolvers<ContextType = Ctx, ParentType extends ResolversParent
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
   me?: Resolver<ResolversTypes['Employee'], ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['BenefitEligibility']>, ParentType, ContextType>;
+  userOptions?: Resolver<Array<ResolversTypes['SwitchUserOption']>, ParentType, ContextType>;
 };
 
 export type RuleEvaluationResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['RuleEvaluation'] = ResolversParentTypes['RuleEvaluation']> = {
@@ -526,12 +658,26 @@ export type RuleEvaluationResolvers<ContextType = Ctx, ParentType extends Resolv
   ruleType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type SwitchUserOptionResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['SwitchUserOption'] = ResolversParentTypes['SwitchUserOption']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
+export type UploadAdminContractPayloadResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['UploadAdminContractPayload'] = ResolversParentTypes['UploadAdminContractPayload']> = {
+  contract?: Resolver<ResolversTypes['AdminContract'], ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = Ctx> = {
+  AdminContract?: AdminContractResolvers<ContextType>;
+  ArchiveBenefitContractPdfPayload?: ArchiveBenefitContractPdfPayloadResolvers<ContextType>;
   AuditEntry?: AuditEntryResolvers<ContextType>;
   Benefit?: BenefitResolvers<ContextType>;
   BenefitEligibility?: BenefitEligibilityResolvers<ContextType>;
   BenefitRequest?: BenefitRequestResolvers<ContextType>;
   Contract?: ContractResolvers<ContextType>;
+  ContractPreview?: ContractPreviewResolvers<ContextType>;
   ContractTemplate?: ContractTemplateResolvers<ContextType>;
   EligibilityRuleConfig?: EligibilityRuleConfigResolvers<ContextType>;
   Employee?: EmployeeResolvers<ContextType>;
@@ -539,5 +685,7 @@ export type Resolvers<ContextType = Ctx> = {
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   RuleEvaluation?: RuleEvaluationResolvers<ContextType>;
+  SwitchUserOption?: SwitchUserOptionResolvers<ContextType>;
+  UploadAdminContractPayload?: UploadAdminContractPayloadResolvers<ContextType>;
 };
 

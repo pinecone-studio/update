@@ -104,6 +104,59 @@ export const typeDefs = /* GraphQL */ `
     html: String!
   }
 
+  type ContractPreview {
+    benefitId: ID!
+    contractId: ID
+    contractVersion: String
+    requiresContract: Boolean!
+    html: String!
+  }
+
+  type SwitchUserOption {
+    id: ID!
+    name: String!
+    role: String!
+  }
+
+  type AdminContract {
+    id: ID!
+    benefitId: ID!
+    benefitName: String
+    vendorName: String
+    version: String
+    effectiveDate: String
+    expiryDate: String
+    isActive: Boolean!
+    r2ObjectKey: String
+    createdAt: String
+    updatedAt: String
+    employeeName: String
+    downloadUrl: String!
+  }
+
+  input UploadAdminContractInput {
+    benefitId: ID!
+    version: String!
+    vendorName: String
+    effectiveDate: String
+    expiryDate: String
+    fileName: String!
+    fileBase64: String!
+    contentType: String
+  }
+
+  type UploadAdminContractPayload {
+    ok: Boolean!
+    contract: AdminContract!
+  }
+
+  type ArchiveBenefitContractPdfPayload {
+    ok: Boolean!
+    requestId: ID!
+    objectKey: String!
+    uploadedAt: String!
+  }
+
   input AuditFilters {
     employeeId: ID
     benefitId: ID
@@ -159,13 +212,6 @@ export const typeDefs = /* GraphQL */ `
     config: String!
   }
 
-  type DashboardStats {
-    totalEmployees: Int!
-    activeBenefits: Int!
-    pendingOverrides: Int!
-    activeExceptions: Int!
-  }
-
   type Query {
     health: Health!
     me: Employee!
@@ -176,9 +222,11 @@ export const typeDefs = /* GraphQL */ `
     auditLog(filters: AuditFilters!): [AuditEntry!]!
     benefitRequests(status: RequestStatus): [BenefitRequest!]!
     benefitRequestContractTemplate(requestId: ID!): ContractTemplate!
-    dashboardStats: DashboardStats!
+    benefitContractPreview(benefitId: ID!): ContractPreview!
     getEligibilityRuleConfig: EligibilityRuleConfig!
     getAvailableRuleAttributes: [String!]!
+    userOptions: [SwitchUserOption!]!
+    adminContracts(tab: String!): [AdminContract!]!
   }
 
   type Mutation {
@@ -192,5 +240,7 @@ export const typeDefs = /* GraphQL */ `
     createBenefit(input: CreateBenefitInput!): Benefit!
     updateBenefit(input: UpdateBenefitInput!): Benefit!
     deleteBenefit(id: ID!): Boolean!
+    uploadAdminContract(input: UploadAdminContractInput!): UploadAdminContractPayload!
+    archiveBenefitContractPdf(requestId: ID!, html: String): ArchiveBenefitContractPdfPayload!
   }
 `;

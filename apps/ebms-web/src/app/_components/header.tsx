@@ -20,6 +20,14 @@ import { HrDashboardIcon } from "@/app/icons/hrDashboard";
 import { HrVendorIcon } from "@/app/icons/hrVendor";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import type { ReactNode } from "react";
+import {
+  FALLBACK_USER_OPTIONS,
+  fetchSwitchUserOptions,
+  getActiveUserProfile,
+  setActiveUserProfile,
+  type ActiveUserProfile,
+  type SwitchUserOption,
+} from "@/app/_lib/activeUser";
 
 type NavItem = {
   label: string;
@@ -74,8 +82,6 @@ const DEFAULT_NOTIFICATIONS = [
 type AdminNotification = (typeof DEFAULT_NOTIFICATIONS)[number];
 
 export function Header() {
-  const adminName = "Admin User";
-  const adminId = "admin-1";
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -86,6 +92,11 @@ export function Header() {
   const [notifications, setNotifications] = useState<AdminNotification[]>(
     DEFAULT_NOTIFICATIONS,
   );
+  const [selectedUser, setSelectedUser] = useState<ActiveUserProfile>(
+    getActiveUserProfile(),
+  );
+  const [userOptions, setUserOptions] =
+    useState<SwitchUserOption[]>(FALLBACK_USER_OPTIONS);
 
   const normalizedPath =
     pathname.endsWith("/") && pathname.length > 1
@@ -131,6 +142,42 @@ export function Header() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
   }, [notifications]);
+
+  useEffect(() => {
+    const current = getActiveUserProfile();
+    setSelectedUser(current);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const mapped = await fetchSwitchUserOptions();
+        if (!cancelled && mapped.length > 0) {
+          setUserOptions(mapped);
+          if (!mapped.some((u) => u.id === selectedUser.id)) {
+            const first = mapped[0];
+            const next = { id: first.id, name: first.name, role: first.role };
+            setSelectedUser(next);
+            setActiveUserProfile(next);
+          }
+        }
+      } catch {
+        // Keep fallback list when employees query fails.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedUser.id]);
+
+  const handleUserChange = (value: string) => {
+    const nextUser = userOptions.find((u) => u.id === value);
+    if (!nextUser) return;
+    const profile = { id: nextUser.id, name: nextUser.name, role: nextUser.role };
+    setSelectedUser(profile);
+    setActiveUserProfile(profile);
+  };
 
   return (
     <header className="sticky top-0 z-40 h-16 border-b border-slate-200 bg-white px-4 dark:border-[#24395C] dark:bg-[#1E293B]">
@@ -183,6 +230,21 @@ export function Header() {
             <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
             Employee
           </Link>
+          <label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+            <span>User</span>
+            <select
+              value={selectedUser.id}
+              onChange={(e) => handleUserChange(e.target.value)}
+              className="bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+              aria-label="Select active test user"
+            >
+              {userOptions.map((opt) => (
+                <option key={opt.id} value={opt.id} className="text-slate-900">
+                  {opt.name} ({opt.id})
+                </option>
+              ))}
+            </select>
+          </label>
           <ThemeToggle />
           <div className="relative hidden md:block" ref={notificationRef}>
             <button
@@ -316,10 +378,10 @@ export function Header() {
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                        {adminName}
+                        {selectedUser.name || selectedUser.id}
                       </p>
                       <p className="mt-1 text-4 text-slate-500 dark:text-[#A7B6D3]">
-                        {adminId}
+                        {selectedUser.id}
                       </p>
                     </div>
                   </div>
@@ -377,6 +439,22 @@ export function Header() {
             <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
             Employee руу шилжих
           </Link>
+          <div className="h-px bg-slate-200 dark:bg-[#24395C] my-2" />
+          <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+            <span>User</span>
+            <select
+              value={selectedUser.id}
+              onChange={(e) => handleUserChange(e.target.value)}
+              className="ml-3 bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+              aria-label="Select active test user"
+            >
+              {userOptions.map((opt) => (
+                <option key={opt.id} value={opt.id} className="text-slate-900">
+                  {opt.name} ({opt.id})
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="h-px bg-slate-200 dark:bg-[#24395C] my-2" />
           <div className="flex flex-col gap-2" ref={mobileNotificationRef}>
             <div className="flex items-center gap-2">

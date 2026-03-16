@@ -27,16 +27,6 @@ const CATEGORY_ICONS: Record<string, ReactNode> = {
 
 const DEFAULT_ICON = <MdFitnessCenter size={24} />;
 
-function getContractPreviewBaseUrl(): string {
-	const env = process.env.NEXT_PUBLIC_API_URL || "";
-	const base = env.replace(/\/graphql\/?$/, "").trim();
-	return base || "http://localhost:8787";
-}
-
-function getEmployeeId(): string {
-	return process.env.NEXT_PUBLIC_EMPLOYEE_ID || "emp-1";
-}
-
 /** Map GraphQL myBenefits to BenefitCardProps (UI-д хэрэгтэй хэлбэр) */
 export function mapMyBenefitsToCardProps(
 	items: MyBenefitEligibility[],
@@ -61,10 +51,6 @@ export function mapMyBenefitsToCardProps(
 				detail: r.reason,
 			})) ?? [];
 
-		const contractLink =
-			b.requiresContract && b.id
-				? `${getContractPreviewBaseUrl()}/contracts/benefits/${encodeURIComponent(b.id)}/template-preview?employeeId=${encodeURIComponent(getEmployeeId())}`
-				: undefined;
 		const benefitEndDate = b.activeContract?.expiryDate ?? "2026-12-31";
 		const benefitStartDate =
 			b.activeContract?.effectiveDate ??
@@ -85,7 +71,7 @@ export function mapMyBenefitsToCardProps(
 			eligibilityCriteria: eligibilityRules.length
 				? eligibilityRules.map((r) => r.rule).join(", ")
 				: "See eligibility details.",
-			contractLink,
+			contractLink: undefined,
 			benefitEndDate,
 			benefitStartDate,
 			requiresContract: b.requiresContract ?? false,
