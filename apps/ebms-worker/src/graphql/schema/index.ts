@@ -26,6 +26,24 @@ export const typeDefs = /* GraphQL */ `
     TERMINATED
   }
 
+  enum NotificationType {
+    ELIGIBILITY_CHANGE
+    REQUEST_STATUS
+    WARNING
+  }
+
+  enum NotificationChannel {
+    IN_APP
+    EMAIL
+  }
+
+  enum NotificationTone {
+    SUCCESS
+    INFO
+    WARNING
+    NEUTRAL
+  }
+
   type Health {
     ok: Boolean!
     timestamp: String!
@@ -175,6 +193,19 @@ export const typeDefs = /* GraphQL */ `
     createdAt: String!
   }
 
+  type EmployeeNotification {
+    id: ID!
+    employeeId: ID!
+    title: String!
+    body: String!
+    type: NotificationType!
+    tone: NotificationTone!
+    channel: NotificationChannel!
+    isRead: Boolean!
+    createdAt: String!
+    metadata: String
+  }
+
   input OverrideInput {
     employeeId: ID!
     benefitId: ID!
@@ -216,6 +247,7 @@ export const typeDefs = /* GraphQL */ `
     health: Health!
     me: Employee!
     myBenefits: [BenefitEligibility!]!
+    myNotifications(limit: Int, unreadOnly: Boolean): [EmployeeNotification!]!
     benefits(category: String): [Benefit!]!
     employee(id: ID!): Employee
     employees(department: String, employmentStatus: String): [Employee!]!
@@ -235,6 +267,8 @@ export const typeDefs = /* GraphQL */ `
     signBenefitContract(requestId: ID!): BenefitRequest!
     confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!, rejectReason: String): BenefitRequest!
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
+    markNotificationRead(id: ID!): EmployeeNotification!
+    markAllNotificationsRead: Boolean!
     overrideEligibility(input: OverrideInput!): BenefitEligibility!
     updateEligibilityRuleConfig(config: String!): EligibilityRuleConfig!
     createBenefit(input: CreateBenefitInput!): Benefit!

@@ -6,6 +6,7 @@ import type { MutationResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
 import { benefitEligibility, benefitRequests, benefits, contracts } from '../../../db/schema';
 import { and, eq } from 'drizzle-orm';
+import { dispatchEmployeeNotification } from '../../../notifications/dispatcher';
 
 export const confirmBenefitRequest: NonNullable<
   MutationResolvers<Ctx>['confirmBenefitRequest']
@@ -24,6 +25,7 @@ export const confirmBenefitRequest: NonNullable<
       id: benefitRequests.id,
       employeeId: benefitRequests.employeeId,
       benefitId: benefitRequests.benefitId,
+      benefitName: benefits.name,
       status: benefitRequests.status,
       createdAt: benefitRequests.createdAt,
       rejectReason: benefitRequests.rejectReason,
@@ -123,6 +125,28 @@ export const confirmBenefitRequest: NonNullable<
         overrideExpiresAt: null,
       });
     }
+  }
+
+  if (contractAccepted) {
+    await dispatchEmployeeNotification(ctx.env, {
+      employeeId: row.employeeId,
+      type: 'REQUEST_STATUS',
+      tone: 'success',
+      dedupeKey: `request:${row.id}:approved`,
+      title: 'Benefit Request Approved',
+      body: `Your ${row.benefitName ?? 'benefit'} request has been APPROVED. Your benefit is now ACTIVE.`,
+      metadata: { benefitId: row.benefitId, requestId: row.id, status: 'APPROVED' },
+    });
+  } else {
+    await dispatchEmployeeNotification(ctx.env, {
+      employeeId: row.employeeId,
+      type: 'REQUEST_STATUS',
+      tone: 'warning',
+      dedupeKey: `request:${row.id}:rejected`,
+      title: 'Benefit Request Rejected',
+      body: `Your ${row.benefitName ?? 'benefit'} request has been REJECTED.${rejectReason ? ` Reason: ${rejectReason}` : ''}`,
+      metadata: { benefitId: row.benefitId, requestId: row.id, status: 'REJECTED' },
+    });
   }
 
   return {

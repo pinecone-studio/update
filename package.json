@@ -11,6 +11,8 @@
     "dev:web": "npm run dev --workspace=ebms-web",
     "login": "npm run login --workspace=ebms-worker",
     "db:migrate": "npm run db:migrate --workspace=ebms-worker",
+    "db:local:employee-contracts": "npm run db:local:employee-contracts --workspace=ebms-worker",
+    "db:local:employee-contracts-employee-id": "npm run db:local:employee-contracts-employee-id --workspace=ebms-worker",
     "db:generate": "npm run db:generate --workspace=ebms-worker",
     "build": "npm run build --workspace=ebms-worker && NEXT_IGNORE_INCORRECT_LOCKFILE=1 npm run build --workspace=ebms-web",
     "deploy": "npm run deploy --workspace=ebms-worker"

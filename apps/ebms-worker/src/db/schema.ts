@@ -90,6 +90,19 @@ export const contracts = sqliteTable('contracts', {
   updatedAt: text('updated_at').default(''),
 });
 
+/** Admin-uploaded employee contracts (separate from benefit_requests.employee_contract_r2_key) */
+export const employeeContracts = sqliteTable('employee_contracts', {
+  id: text('id').primaryKey(),
+  employeeId: text('employee_id'),
+  benefitId: text('benefit_id').notNull(),
+  version: text('version').notNull(),
+  r2ObjectKey: text('r2_object_key').notNull(),
+  effectiveDate: text('effective_date'),
+  expiryDate: text('expiry_date'),
+  createdAt: text('created_at').default(''),
+  updatedAt: text('updated_at').default(''),
+});
+
 /** Versioned eligibility-rules.json — HR can update without code deploy */
 export const eligibilityConfig = sqliteTable('eligibility_config', {
   id: text('id').primaryKey(),
@@ -109,4 +122,19 @@ export const eligibilityAudit = sqliteTable('eligibility_audit', {
   triggeredBy: text('triggered_by'),
   computedAt: text('computed_at').notNull(),
   createdAt: text('created_at').default(''),
+});
+
+export const employeeNotifications = sqliteTable('employee_notifications', {
+  id: text('id').primaryKey(),
+  employeeId: text('employee_id').notNull(),
+  title: text('title').notNull(),
+  body: text('body').notNull(),
+  type: text('type').notNull(),
+  tone: text('tone').notNull().default('info'),
+  channel: text('channel').notNull(),
+  deliveryStatus: text('delivery_status').notNull().default('delivered'),
+  isRead: integer('is_read').notNull().default(0),
+  dedupeKey: text('dedupe_key'),
+  metadataJson: text('metadata_json'),
+  createdAt: text('created_at').notNull(),
 });
