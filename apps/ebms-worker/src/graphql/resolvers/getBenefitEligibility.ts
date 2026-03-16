@@ -14,6 +14,10 @@ import {
   getEmployeeForEligibility,
   evaluateBenefitRules,
 } from '../../eligibility/engine';
+import {
+  dispatchEmployeeNotification,
+  dispatchEmployeeWarningsIfNeeded,
+} from '../../notifications/dispatcher';
 
 export type BenefitEligibilityRow = {
   benefit: {
@@ -66,6 +70,17 @@ export async function getBenefitEligibilityForEmployee(
       .orderBy(desc(benefitRequests.createdAt)),
   ]);
 
+  if (employee) {
+    await dispatchEmployeeWarningsIfNeeded(env, employeeId, {
+      employmentStatus: typeof employee.employmentStatus === 'string' ? employee.employmentStatus : '',
+      okrSubmitted: Boolean(employee.okrSubmitted),
+      lateArrivalCount:
+        typeof employee.lateArrivalCount === 'number'
+          ? employee.lateArrivalCount
+          : Number(employee.lateArrivalCount ?? 0),
+    });
+  }
+
   const pendingBenefitIds = new Set(pendingRequestRows.map((r) => r.benefitId));
   const rejectedByBenefit = new Map<string, string>();
   for (const r of rejectedRequestRows) {
@@ -99,7 +114,8 @@ export async function getBenefitEligibilityForEmployee(
     .where(eq(benefitsTable.isActive, 1))
     .orderBy(benefitsTable.category, benefitsTable.name);
 
-  return rows.map((row) => {
+  const results: BenefitEligibilityRow[] = [];
+  for (const row of rows) {
     const benefitConfig = config?.[row.benefitId];
     const rules = benefitConfig?.rules;
 
@@ -117,7 +133,28 @@ export async function getBenefitEligibilityForEmployee(
       ) {
         finalStatus = 'REJECTED';
       }
-      return {
+
+      if (finalStatus === 'ELIGIBLE') {
+        const cacheKey = `eligibility:${employeeId}:${row.benefitId}`;
+        const prev = await env.ELIGIBILITY_CACHE.get(cacheKey);
+        if (prev === 'LOCKED') {
+          await dispatchEmployeeNotification(env, {
+            employeeId,
+            type: 'ELIGIBILITY_CHANGE',
+            tone: 'info',
+            dedupeKey: `eligibility:${row.benefitId}:unlocked`,
+            title: 'Benefit Unlocked',
+            body: `Your ${row.benefitName} benefit is now ELIGIBLE. You can request this benefit from your dashboard.`,
+            metadata: { benefitId: row.benefitId, benefitName: row.benefitName },
+          });
+        }
+        await env.ELIGIBILITY_CACHE.put(cacheKey, finalStatus, { expirationTtl: 60 * 60 * 24 * 30 });
+      } else if (finalStatus === 'LOCKED') {
+        const cacheKey = `eligibility:${employeeId}:${row.benefitId}`;
+        await env.ELIGIBILITY_CACHE.put(cacheKey, finalStatus, { expirationTtl: 60 * 60 * 24 * 30 });
+      }
+
+      results.push({
         benefit: {
           id: row.benefitId,
           name: row.benefitName,
@@ -133,7 +170,8 @@ export async function getBenefitEligibilityForEmployee(
         computedAt: now,
         rejectedReason:
           finalStatus === 'REJECTED' ? rejectedByBenefit.get(row.benefitId) ?? null : null,
-      };
+      });
+      continue;
     }
 
     const ruleEvaluationsRaw = row.ruleEvaluationJson
@@ -159,7 +197,7 @@ export async function getBenefitEligibilityForEmployee(
     ) {
       status = 'REJECTED';
     }
-    return {
+    results.push({
       benefit: {
         id: row.benefitId,
         name: row.benefitName,
@@ -174,6 +212,8 @@ export async function getBenefitEligibilityForEmployee(
       ruleEvaluations,
       computedAt: row.computedAt ?? now,
       rejectedReason: status === 'REJECTED' ? rejectedByBenefit.get(row.benefitId) ?? null : null,
-    };
-  });
+    });
+  }
+
+  return results;
 }

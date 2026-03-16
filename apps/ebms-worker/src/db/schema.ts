@@ -110,3 +110,18 @@ export const eligibilityAudit = sqliteTable('eligibility_audit', {
   computedAt: text('computed_at').notNull(),
   createdAt: text('created_at').default(''),
 });
+
+export const employeeNotifications = sqliteTable('employee_notifications', {
+  id: text('id').primaryKey(),
+  employeeId: text('employee_id').notNull(),
+  title: text('title').notNull(),
+  body: text('body').notNull(),
+  type: text('type').notNull(),
+  tone: text('tone').notNull().default('info'),
+  channel: text('channel').notNull(),
+  deliveryStatus: text('delivery_status').notNull().default('delivered'),
+  isRead: integer('is_read').notNull().default(0),
+  dedupeKey: text('dedupe_key'),
+  metadataJson: text('metadata_json'),
+  createdAt: text('created_at').notNull(),
+});
