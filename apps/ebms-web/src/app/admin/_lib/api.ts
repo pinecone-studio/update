@@ -109,3 +109,71 @@ export function getApiErrorMessage(e: unknown): string {
   if (e instanceof Error) return e.message;
   return String(e);
 }
+
+// --- Escalated feedback (from employee voting) ---
+
+export type EscalatedFeedbackItem = {
+  id: string;
+  text: string;
+  benefitId: string | null;
+  isAnonymous: boolean;
+  status: string;
+  createdAt: string;
+  votingEndsAt: string;
+  closedAt: string | null;
+  voteCount: number;
+};
+
+export async function fetchEscalatedFeedback(): Promise<EscalatedFeedbackItem[]> {
+  const base = getBaseUrl();
+  const res = await fetch(`${base}/admin/feedback`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-employee-id': 'admin',
+      'x-role': 'admin',
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? 'Failed to fetch feedback');
+  }
+  const json = await res.json();
+  return json.items ?? [];
+}
+
+export async function fetchUnclosedFeedback(): Promise<EscalatedFeedbackItem[]> {
+  const base = getBaseUrl();
+  const res = await fetch(`${base}/admin/feedback?unclosed=true`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-employee-id': 'admin',
+      'x-role': 'admin',
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? 'Failed to fetch feedback');
+  }
+  const json = await res.json();
+  return json.items ?? [];
+}
+
+export async function closeFeedback(feedbackId: string): Promise<{
+  closed: boolean;
+  closedAt: string;
+}> {
+  const base = getBaseUrl();
+  const res = await fetch(`${base}/admin/feedback/${feedbackId}/close`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-employee-id': 'admin',
+      'x-role': 'admin',
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? 'Failed to close feedback');
+  }
+  return res.json();
+}

@@ -11,6 +11,8 @@ import {
   HiOutlineClock,
   HiOutlineInformationCircle,
   HiOutlineArrowUpRight,
+  HiOutlineExclamationTriangle,
+  HiOutlineXCircle,
 } from "react-icons/hi2";
 import Link from "next/link";
 import { NotificationSkeleton } from "../components/NotificationSkeleton";
@@ -63,6 +65,8 @@ export default function NotificationPage() {
   const [activeType, setActiveType] = useState<
     "all" | "eligibility" | "request" | "warning"
   >("all");
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const [search, setSearch] = useState("");
 
   const filteredNotifications = (
     activeType === "all"
@@ -231,6 +235,16 @@ export default function NotificationPage() {
             >
               Warnings
             </button>
+            <button
+              onClick={() => setUnreadOnly((prev) => !prev)}
+              className={`px-3 py-1.5 rounded-full border transition ${
+                unreadOnly
+                  ? "bg-slate-800 text-white border-slate-800 dark:bg-[#1A2333] dark:border-[#243041]"
+                  : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-[#111A2A] dark:border-[#243041] dark:text-slate-200 dark:hover:bg-[#1A2333]"
+              }`}
+            >
+              Unread only
+            </button>
           </div>
 
           <div className="mt-4 bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 dark:bg-[#1A2333] dark:border-[#243041]">
@@ -279,7 +293,8 @@ export default function NotificationPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3">
                       <div
-                        className={`h-9 w-9 rounded-full grid place-items-center ${toneClasses}`}
+                        key={item.id}
+                        className={`rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md ${unreadClasses}`}
                       >
                         <HiOutlineInformationCircle className="text-lg" />
                       </div>
