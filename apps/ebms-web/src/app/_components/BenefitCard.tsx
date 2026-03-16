@@ -2,7 +2,7 @@
 
 "use client";
 
-import { FiExternalLink, FiInfo } from "react-icons/fi";
+import { FiInfo } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -38,7 +38,7 @@ const STATUS_CARD_STYLES: Record<
 	}
 > = {
 	ACTIVE: {
-		card: "border-[#0CB39B]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(87,165,255,0.20),transparent_28%),linear-gradient(135deg,rgba(14,64,73,0.96),rgba(25,39,65,0.96))]",
+		card: "border-[#0FD0B7]/45 bg-[radial-gradient(circle_at_82%_14%,rgba(103,168,255,0.34),transparent_34%),radial-gradient(circle_at_24%_22%,rgba(44,199,187,0.22),transparent_42%),linear-gradient(135deg,rgba(15,97,113,0.95)_0%,rgba(20,62,95,0.96)_52%,rgba(26,44,96,0.98)_100%)] shadow-[0_10px_30px_rgba(28,106,175,0.32),0_0_0_1px_rgba(40,214,199,0.18)]",
 		button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
 		iconWrap: "border border-white/10 bg-white/5",
 		iconColor: "text-white/70",
@@ -153,7 +153,7 @@ export const BenefitCard = ({
 	subsidyPercentage,
 	vendorDetails,
 	eligibilityCriteria: _eligibilityCriteria,
-	contractLink,
+	contractLink: _contractLink,
 	benefitEndDate: _benefitEndDate,
 	status,
 	lockReason,
@@ -173,11 +173,14 @@ export const BenefitCard = ({
 	const categoryLabel = category
 		? `${category.charAt(0).toUpperCase()}${category.slice(1)} benefit`
 		: description;
+	const normalizedLockReason = (lockReason ?? "").trim();
+	const normalizedRejectReason = (rejectReason ?? "").trim();
+	const vendorDisplayName = (vendorDetails ?? "").trim() || "Pinecone";
 	const supportText =
 		status === "LOCKED"
-			? lockReason ?? STATUS_MESSAGE[status]
+			? normalizedLockReason || STATUS_MESSAGE[status]
 				: status === "REJECTED"
-					? rejectReason ?? STATUS_MESSAGE[status]
+					? normalizedRejectReason || STATUS_MESSAGE[status]
 					: STATUS_MESSAGE[status];
 	const [shouldAnimate, setShouldAnimate] = useState(false);
 
@@ -238,7 +241,7 @@ export const BenefitCard = ({
 				) : null}
 				<div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-				<div className="relative">
+				<div className="relative flex h-full flex-col">
 					<div className="mb-4 flex items-start justify-between">
 						<div className="flex items-start gap-4">
 							<div
@@ -281,44 +284,53 @@ export const BenefitCard = ({
 						<StatusBadge status={status} />
 					</div>
 
-					{!compact && (subsidyPercentage || vendorDetails) ? (
-						<div className="mb-4 space-y-2 pl-16">
-							{subsidyPercentage ? (
-								<div className="flex items-center gap-2 text-sm">
-									<span className="text-white/40">Coverage:</span>
-									<span className="font-medium text-white/70">
-										{subsidyPercentage} subsidy
+					{!compact && status === "ACTIVE" ? (
+						<div className="mb-2">
+							<div className="h-px bg-gradient-to-r from-white/18 via-white/12 to-white/6" />
+							<div className="mt-3 space-y-0.5">
+								{subsidyPercentage ? (
+									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+										<span className="text-sm text-white/55">Coverage</span>
+										<span className="text-sm font-semibold text-white/90">
+											{subsidyPercentage} subsidy
+										</span>
+									</div>
+								) : null}
+								<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+									<span className="text-sm text-white/55">Vendor</span>
+									<span className="text-sm font-semibold text-white/90">
+										{vendorDisplayName}
 									</span>
 								</div>
-							) : null}
-							{vendorDetails ? (
-								<div className="flex items-center gap-2 text-sm">
-									<span className="text-white/40">Vendor:</span>
-									<span className="font-medium text-white/70">{vendorDetails}</span>
+								<p className="pt-4 text-base text-white/85">{STATUS_MESSAGE.ACTIVE}</p>
+							</div>
+						</div>
+					) : null}
+
+					{!compact && status !== "ACTIVE" ? (
+						<div className="mb-2">
+							<div className="h-px bg-gradient-to-r from-white/18 via-white/12 to-white/6" />
+							<div className="mt-3 space-y-0.5">
+								{subsidyPercentage ? (
+									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+										<span className="text-sm text-white/55">Coverage</span>
+										<span className="text-sm font-semibold text-white/90">
+											{subsidyPercentage} subsidy
+										</span>
+									</div>
+								) : null}
+								<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+									<span className="text-sm text-white/55">Vendor</span>
+									<span className="text-sm font-semibold text-white/90">
+										{vendorDisplayName}
+									</span>
 								</div>
-							) : null}
+								<p className="pt-5 text-base text-white/85">{supportText}</p>
+							</div>
 						</div>
 					) : null}
 
-					{!compact ? (
-						<div className="mb-4 pl-16">
-							<p className="text-sm text-white/50">{supportText}</p>
-							{contractLink != null ? (
-								<a
-									href={contractLink}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="mt-2 inline-flex items-center gap-1.5 text-xs text-white/65 transition-colors hover:text-white"
-									onClick={(e) => e.stopPropagation()}
-								>
-									View active contract
-									<FiExternalLink size={12} />
-								</a>
-							) : null}
-						</div>
-					) : null}
-
-					<div className="mb-4 h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+					<div className="mb-4 mt-auto h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
 
 					{footerActions ? (
 						<div className="w-full">{footerActions}</div>
