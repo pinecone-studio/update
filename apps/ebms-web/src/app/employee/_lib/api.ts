@@ -234,3 +234,119 @@ export function getApiErrorMessage(e: unknown): string {
 	if (e instanceof Error) return e.message;
 	return String(e);
 }
+
+// --- Benefit feedback (voting) ---
+
+export type FeedbackItem = {
+	id: string;
+	text: string;
+	benefitId: string | null;
+	isAnonymous: boolean;
+	status: "OPEN" | "EXPIRED" | "ESCALATED";
+	createdAt: string;
+	votingEndsAt: string;
+	voteCount: number;
+	hasVoted: boolean;
+	isCreator?: boolean;
+};
+
+function getFeedbackBaseUrl(): string {
+	const env = process.env.NEXT_PUBLIC_API_URL || "";
+	const base = env.replace(/\/graphql\/?$/, "").trim();
+	return base || "http://localhost:8787";
+}
+
+function getFeedbackHeaders(): Record<string, string> {
+	return {
+		"Content-Type": "application/json",
+		"x-employee-id": getEmployeeId(),
+		"x-role": "employee",
+	};
+}
+
+export async function fetchFeedbackList(): Promise<FeedbackItem[]> {
+	const res = await fetch(`${getFeedbackBaseUrl()}/feedback`, {
+		headers: getFeedbackHeaders(),
+	});
+	if (!res.ok) {
+		const data = await res.json().catch(() => null);
+		throw new Error(data?.error ?? "Failed to fetch feedback");
+	}
+	const json = await res.json();
+	return json.items ?? [];
+}
+
+export async function fetchOpenFeedbackCount(): Promise<number> {
+	const res = await fetch(`${getFeedbackBaseUrl()}/feedback/open-count`, {
+		headers: getFeedbackHeaders(),
+	});
+	if (!res.ok) return 0;
+	const json = await res.json();
+	return Number(json.count ?? 0);
+}
+
+export async function createFeedback(params: {
+	text: string;
+	benefitId?: string;
+	isAnonymous?: boolean;
+}): Promise<FeedbackItem> {
+	const res = await fetch(`${getFeedbackBaseUrl()}/feedback`, {
+		method: "POST",
+		headers: getFeedbackHeaders(),
+		body: JSON.stringify(params),
+	});
+	if (!res.ok) {
+		const data = await res.json().catch(() => null);
+		throw new Error(data?.error ?? "Failed to create feedback");
+	}
+	return res.json();
+}
+
+export async function voteFeedback(feedbackId: string): Promise<{
+	voteCount: number;
+	status: string;
+}> {
+	const res = await fetch(
+		`${getFeedbackBaseUrl()}/feedback/${feedbackId}/vote`,
+		{
+			method: "POST",
+			headers: getFeedbackHeaders(),
+		},
+	);
+	if (!res.ok) {
+		const data = await res.json().catch(() => null);
+		throw new Error(data?.error ?? "Failed to vote");
+	}
+	return res.json();
+}
+
+export async function unvoteFeedback(feedbackId: string): Promise<{
+	voteCount: number;
+}> {
+	const res = await fetch(
+		`${getFeedbackBaseUrl()}/feedback/${feedbackId}/vote`,
+		{
+			method: "DELETE",
+			headers: getFeedbackHeaders(),
+		},
+	);
+	if (!res.ok) {
+		const data = await res.json().catch(() => null);
+		throw new Error(data?.error ?? "Failed to remove vote");
+	}
+	return res.json();
+}
+
+export async function deleteFeedback(feedbackId: string): Promise<{
+	deleted: boolean;
+}> {
+	const res = await fetch(`${getFeedbackBaseUrl()}/feedback/${feedbackId}`, {
+		method: "DELETE",
+		headers: getFeedbackHeaders(),
+	});
+	if (!res.ok) {
+		const data = await res.json().catch(() => null);
+		throw new Error(data?.error ?? "Failed to delete feedback");
+	}
+	return res.json();
+}

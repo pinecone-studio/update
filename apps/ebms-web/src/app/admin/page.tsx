@@ -1,7 +1,7 @@
 /** @format */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { gql } from "graphql-request";
@@ -13,6 +13,9 @@ import {
   confirmBenefitRequest,
   fetchBenefitRequestContractHtml,
   getApiErrorMessage,
+  fetchUnclosedFeedback,
+  closeFeedback,
+  type EscalatedFeedbackItem,
 } from "./_lib/api";
 
 const BENEFIT_REQUESTS_QUERY = gql`
@@ -120,6 +123,8 @@ export default function HrDashboardPage() {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [eligibilitySearch, setEligibilitySearch] = useState("");
   const [employeesForSearch, setEmployeesForSearch] = useState<EmployeeSearchItem[]>([]);
+  const [unclosedFeedback, setUnclosedFeedback] = useState<EscalatedFeedbackItem[]>([]);
+  const [feedbackClosingId, setFeedbackClosingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -191,6 +196,36 @@ export default function HrDashboardPage() {
       cancelled = true;
     };
   }, []);
+
+  const loadUnclosedFeedback = useCallback(() => {
+    fetchUnclosedFeedback()
+      .then(setUnclosedFeedback)
+      .catch(() => setUnclosedFeedback([]));
+  }, []);
+
+  useEffect(() => {
+    loadUnclosedFeedback();
+  }, [loadUnclosedFeedback]);
+
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") loadUnclosedFeedback();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [loadUnclosedFeedback]);
+
+  const handleCloseFeedback = async (id: string) => {
+    setFeedbackClosingId(id);
+    try {
+      await closeFeedback(id);
+      setUnclosedFeedback((prev) => prev.filter((f) => f.id !== id));
+    } catch (e) {
+      setError(getApiErrorMessage(e));
+    } finally {
+      setFeedbackClosingId(null);
+    }
+  };
 
   const statCards: StatCard[] = [
     {
@@ -349,6 +384,62 @@ export default function HrDashboardPage() {
           </div>
         </section>
       </section>
+
+      {unclosedFeedback.length > 0 && (
+        <article className="mt-6 sm:mt-8 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
+          <div className="mb-4 sm:mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <h2 className="text-11 font-semibold text-slate-900 dark:text-white">
+              New Benefit Feedback ({unclosedFeedback.length})
+            </h2>
+            <a
+              href="/admin/feedback"
+              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+            >
+              View all →
+            </a>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-5">
+              <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
+                <tr>
+                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Feedback</th>
+                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Votes</th>
+                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Date</th>
+                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unclosedFeedback.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]"
+                  >
+                    <td className="px-3 py-3 font-medium text-slate-900 dark:text-white sm:px-4 sm:py-4">
+                      {item.text}
+                    </td>
+                    <td className="px-3 py-3 text-slate-600 dark:text-[#A7B6D3] sm:px-4 sm:py-4">
+                      {item.voteCount}
+                    </td>
+                    <td className="px-3 py-3 text-slate-500 dark:text-[#8FA3C5] sm:px-4 sm:py-4">
+                      {formatDate(item.createdAt)}
+                    </td>
+                    <td className="px-3 py-3 sm:px-4 sm:py-4">
+                      <button
+                        type="button"
+                        onClick={() => handleCloseFeedback(item.id)}
+                        disabled={feedbackClosingId === item.id}
+                        className="rounded-lg bg-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#24364F] dark:text-slate-200 dark:hover:bg-[#2C4264]"
+                      >
+                        {feedbackClosingId === item.id ? "..." : "Close"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      )}
 
       <article className="mt-6 sm:mt-8 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
         <div className="mb-4 sm:mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">

@@ -9,7 +9,9 @@ import { createYoga, createSchema } from "graphql-yoga";
 import type { Env } from "./types";
 import { typeDefs, resolvers } from "./graphql";
 import adminContracts from "./routes/adminContracts";
+import adminFeedback from "./routes/adminFeedback";
 import contractsRoute from "./routes/contracts";
+import feedbackRoute from "./routes/feedback";
 
 type YogaContext = {
   env: Env;
@@ -50,6 +52,8 @@ app.get("/health", (c) =>
 );
 
 app.route("/admin/contracts", adminContracts);
+app.route("/admin/feedback", adminFeedback);
+app.route("/feedback", feedbackRoute);
 app.route("/contracts", contractsRoute);
 
 app.all("/graphql", (c) => {
