@@ -119,6 +119,10 @@ export interface BenefitCardProps {
 	lockReason?: string;
 	/** Rejection reason when status is REJECTED (admin's feedback) */
 	rejectReason?: string;
+	/** True when status is currently controlled by an HR/Admin override */
+	overrideApplied?: boolean;
+	/** Optional reason attached to the active override */
+	overrideReason?: string;
 	/** Rules evaluated for eligibility breakdown (shown in detail view) */
 	eligibilityRules?: EligibilityRule[];
 	icon: ReactNode;
@@ -158,6 +162,8 @@ export const BenefitCard = ({
 	status,
 	lockReason,
 	rejectReason,
+	overrideApplied = false,
+	overrideReason,
 	eligibilityRules,
 	icon,
 	iconBgColor: _iconBgColor = "bg-[#4CAF50]/20",
@@ -182,6 +188,7 @@ export const BenefitCard = ({
 				: status === "REJECTED"
 					? normalizedRejectReason || STATUS_MESSAGE[status]
 					: STATUS_MESSAGE[status];
+	const normalizedOverrideReason = (overrideReason ?? "").trim();
 	const [shouldAnimate, setShouldAnimate] = useState(false);
 
 	useEffect(() => {
@@ -281,7 +288,14 @@ export const BenefitCard = ({
 							</div>
 						</div>
 
-						<StatusBadge status={status} />
+						<div className="flex flex-col items-end gap-2">
+							<StatusBadge status={status} />
+							{overrideApplied ? (
+								<span className="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-amber-200">
+									MANUAL OVERRIDE
+								</span>
+							) : null}
+						</div>
 					</div>
 
 					{!compact && status === "ACTIVE" ? (
@@ -303,6 +317,11 @@ export const BenefitCard = ({
 									</span>
 								</div>
 								<p className="pt-4 text-base text-white/85">{STATUS_MESSAGE.ACTIVE}</p>
+								{overrideApplied ? (
+									<p className="pt-2 text-xs text-amber-200/90">
+										Override: {normalizedOverrideReason || "Status manually updated by HR/Admin."}
+									</p>
+								) : null}
 							</div>
 						</div>
 					) : null}
@@ -326,6 +345,11 @@ export const BenefitCard = ({
 									</span>
 								</div>
 								<p className="pt-5 text-base text-white/85">{supportText}</p>
+								{overrideApplied ? (
+									<p className="pt-2 text-xs text-amber-200/90">
+										Override: {normalizedOverrideReason || "Status manually updated by HR/Admin."}
+									</p>
+								) : null}
 							</div>
 						</div>
 					) : null}

@@ -43,6 +43,8 @@ export type BenefitEligibilityRow = {
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
   computedAt: string;
   rejectedReason?: string | null;
+  overrideApplied: boolean;
+  overrideReason?: string | null;
 };
 
 export async function getBenefitEligibilityForEmployee(
@@ -215,6 +217,8 @@ export async function getBenefitEligibilityForEmployee(
         computedAt: now,
         rejectedReason:
           finalStatus === 'REJECTED' ? rejectedByBenefit.get(row.benefitId) ?? null : null,
+        overrideApplied: overrideActive,
+        overrideReason: overrideActive ? row.overrideReason ?? 'HR override' : null,
       });
       continue;
     }
@@ -257,6 +261,8 @@ export async function getBenefitEligibilityForEmployee(
       ruleEvaluations,
       computedAt: row.computedAt ?? now,
       rejectedReason: status === 'REJECTED' ? rejectedByBenefit.get(row.benefitId) ?? null : null,
+      overrideApplied: overrideActive,
+      overrideReason: overrideActive ? row.overrideReason ?? 'HR override' : null,
     });
   }
 

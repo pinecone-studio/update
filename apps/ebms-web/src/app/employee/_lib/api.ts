@@ -37,6 +37,9 @@ const ME_QUERY = gql`
 					reason
 				}
 				computedAt
+				rejectedReason
+				overrideApplied
+				overrideReason
 			}
 		}
 	}
@@ -67,6 +70,8 @@ const MY_BENEFITS_QUERY = gql`
 			}
 			computedAt
 			rejectedReason
+			overrideApplied
+			overrideReason
 		}
 	}
 `;
