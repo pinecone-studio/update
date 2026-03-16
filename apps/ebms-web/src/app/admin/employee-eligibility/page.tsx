@@ -7,6 +7,10 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { EmployeeEligibilitySkeleton } from "../components/EmployeeEligibilitySkeleton";
 import { GraphQLClient, gql } from "graphql-request";
+import {
+    ensureValidActiveUserProfile,
+    getActiveUserHeaders,
+} from "@/app/_lib/activeUser";
 
 type EmployeeListItem = {
     id: string;
@@ -41,8 +45,7 @@ function getClient(): GraphQLClient {
     const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
     return new GraphQLClient(url, {
         headers: {
-            "x-employee-id": "admin",
-            "x-role": "admin",
+            ...getActiveUserHeaders("admin"),
         },
     });
 }
@@ -75,21 +78,33 @@ function EmployeeEligibilityPageContent() {
             .toUpperCase();
 
     useEffect(() => {
-        const client = getClient();
-        client
-            .request<{ employees: EmployeeListItem[] }>(EMPLOYEES_QUERY)
-            .then((data) => {
+        let cancelled = false;
+        (async () => {
+            try {
+                await ensureValidActiveUserProfile();
+                const client = getClient();
+                const data =
+                    await client.request<{ employees: EmployeeListItem[] }>(
+                        EMPLOYEES_QUERY,
+                    );
+                if (cancelled) return;
                 const rows: EmployeeRow[] = (data.employees ?? []).map((e) => ({
                     id: e.id ?? "",
                     name: e.name ?? "Unknown",
                     department: e.role ?? e.employmentStatus ?? "—",
                 }));
                 setEmployeeList(rows);
-            })
-            .catch(() => {
-                setEmployeeList([]);
-            })
-            .finally(() => setLoading(false));
+            } catch {
+                if (!cancelled) {
+                    setEmployeeList([]);
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     useEffect(() => {

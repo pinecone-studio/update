@@ -1,5 +1,5 @@
 import type { Ctx } from '../context';
-import { requireHR } from '../context';
+import { requireEmployeeId } from '../context';
 import type { QueryResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
 import { asBool01 } from '../utils';
@@ -21,7 +21,9 @@ const statusMap: Record<string, string> = {
 export const benefitRequests: NonNullable<
   QueryResolvers<Ctx>['benefitRequests']
 > = async (_, args, ctx) => {
-  requireHR(ctx);
+  const actorId = requireEmployeeId(ctx);
+  const role = (ctx.role ?? '').toLowerCase();
+  const isHrOrAdmin = role === 'hr' || role === 'admin';
   const db = getDb(ctx.env);
 
   const statusFilter = args.status
@@ -38,6 +40,7 @@ export const benefitRequests: NonNullable<
       contractVersionAccepted: benefitRequestsTable.contractVersionAccepted,
       contractAcceptedAt: benefitRequestsTable.contractAcceptedAt,
       rejectReason: benefitRequestsTable.rejectReason,
+      employeeContractR2Key: benefitRequestsTable.employeeContractR2Key,
       employeeName: employees.name,
       benefitName: benefits.name,
       requiresContract: benefits.requiresContract,
@@ -47,14 +50,20 @@ export const benefitRequests: NonNullable<
     .leftJoin(employees, eq(benefitRequestsTable.employeeId, employees.id))
     .leftJoin(benefits, eq(benefitRequestsTable.benefitId, benefits.id))
     .leftJoin(contracts, eq(benefits.activeContractId, contracts.id))
-    .where(
-      statusFilter
-        ? eq(benefitRequestsTable.status, statusFilter)
-        : sql`1=1`
-    )
+    .where(sql`1=1`)
     .orderBy(sql`${benefitRequestsTable.createdAt} DESC`);
 
-  return rows.map((r) => ({
+  return rows
+    .filter((r) => {
+      if (isHrOrAdmin) {
+        if (!statusFilter) return true;
+        return (r.status ?? '').toLowerCase() === statusFilter;
+      }
+      if (r.employeeId !== actorId) return false;
+      if (!statusFilter) return true;
+      return (r.status ?? '').toLowerCase() === statusFilter;
+    })
+    .map((r) => ({
     id: r.id,
     employeeId: r.employeeId,
     benefitId: r.benefitId,
@@ -71,6 +80,9 @@ export const benefitRequests: NonNullable<
     contractAcceptedAt: r.contractAcceptedAt ?? null,
     requiresContract: asBool01(r.requiresContract),
     contractId: r.contractId ?? null,
-    contractTemplateUrl: asBool01(r.requiresContract) ? `/contracts/requests/${r.id}/template` : null,
+    // Reused as downloadable employee-signed contract URL when uploaded.
+    contractTemplateUrl: r.employeeContractR2Key
+      ? `/admin/contracts/employee-requests/${encodeURIComponent(r.id)}/file`
+      : null,
   }));
 };

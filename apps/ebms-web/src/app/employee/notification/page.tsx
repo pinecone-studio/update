@@ -3,6 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { gql } from "graphql-request";
 import {
   HiOutlineBell,
   HiOutlineMagnifyingGlass,
@@ -11,69 +12,110 @@ import {
   HiOutlineInformationCircle,
   HiOutlineArrowUpRight,
 } from "react-icons/hi2";
+import Link from "next/link";
 import { NotificationSkeleton } from "../components/NotificationSkeleton";
+import { getEmployeeClient, getApiErrorMessage } from "../_lib/api";
+
+type EmployeeNotification = {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: string;
+  tone: "SUCCESS" | "INFO" | "WARNING" | "NEUTRAL";
+  type: "ELIGIBILITY_CHANGE" | "REQUEST_STATUS" | "WARNING";
+  isRead: boolean;
+  metadata?: string | null;
+};
+
+const MY_NOTIFICATIONS_QUERY = gql`
+  query MyNotifications {
+    myNotifications(limit: 100) {
+      id
+      title
+      body
+      createdAt
+      tone
+      type
+      isRead
+      metadata
+    }
+  }
+`;
+
+function formatRelativeTime(iso: string): string {
+  const ts = new Date(iso).getTime();
+  if (Number.isNaN(ts)) return iso;
+  const diffMs = Date.now() - ts;
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin} min ago`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour} hour ago`;
+  const diffDay = Math.floor(diffHour / 24);
+  return `${diffDay} day ago`;
+}
 
 export default function NotificationPage() {
   const [loading, setLoading] = useState(true);
-  const notifications = [
-    {
-      id: "n1",
-      title: "You’re Now Eligible for Education Allowance!",
-      body: "Congratulations! You’ve reached 1 year tenure with an OKR score of 82%. You can now request Education Allowance.",
-      time: "2 hours ago",
-      tone: "success",
-      unread: true,
-      type: "eligibility",
-    },
-    {
-      id: "n2",
-      title: "OKR Score Updated",
-      body: "Your Q1 2026 OKR score has been updated to 82%. This may affect your benefit eligibility.",
-      time: "5 hours ago",
-      tone: "info",
-      unread: true,
-      type: "eligibility",
-    },
-    {
-      id: "n3",
-      title: "Transit Pass Request Approved",
-      body: "Your Transit Pass benefit request has been approved. You’ll receive further details via email.",
-      time: "1 day ago",
-      tone: "success",
-      unread: false,
-      type: "request",
-    },
-    {
-      id: "n4",
-      title: "Health Insurance Renewal Due Soon",
-      body: "Your Health Insurance benefit expires in 30 days. Please review and renew if needed.",
-      time: "2 days ago",
-      tone: "warning",
-      unread: false,
-      type: "warning",
-    },
-    {
-      id: "n5",
-      title: "Upcoming Eligibility: Gym Membership",
-      body: "You’ll become eligible for Gym Membership in approximately 15 days when your OKR score reaches 75%.",
-      time: "3 days ago",
-      tone: "info",
-      unread: false,
-      type: "eligibility",
-    },
-  ];
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [notifications, setNotifications] = useState<EmployeeNotification[]>([]);
   const [activeType, setActiveType] = useState<
     "all" | "eligibility" | "request" | "warning"
   >("all");
 
-  const filteredNotifications =
+  const filteredNotifications = (
     activeType === "all"
       ? notifications
-      : notifications.filter((n) => n.type === activeType);
+      : notifications.filter((n) =>
+          activeType === "eligibility"
+            ? n.type === "ELIGIBILITY_CHANGE"
+            : activeType === "request"
+              ? n.type === "REQUEST_STATUS"
+              : n.type === "WARNING",
+        )
+  ).filter((n) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      n.title.toLowerCase().includes(q) ||
+      n.body.toLowerCase().includes(q)
+    );
+  });
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const todayCount = notifications.filter((n) => {
+    const d = new Date(n.createdAt);
+    const now = new Date();
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    );
+  }).length;
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await getEmployeeClient().request<{
+          myNotifications: EmployeeNotification[];
+        }>(MY_NOTIFICATIONS_QUERY);
+        if (!cancelled) setNotifications(res.myNotifications ?? []);
+      } catch (e) {
+        if (!cancelled) {
+          setNotifications([]);
+          setError(getApiErrorMessage(e));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -113,7 +155,7 @@ export default function NotificationPage() {
                   Unread
                 </p>
                 <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                  2
+                  {unreadCount}
                 </p>
               </div>
               <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-blue-600 dark:bg-[#122033] dark:text-blue-500">
@@ -126,7 +168,7 @@ export default function NotificationPage() {
                   Today
                 </p>
                 <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                  2
+                  {todayCount}
                 </p>
               </div>
               <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-orange-500 dark:bg-[#122033] dark:text-orange-400">
@@ -139,7 +181,7 @@ export default function NotificationPage() {
                   Total
                 </p>
                 <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                  5
+                  {notifications.length}
                 </p>
               </div>
               <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-green-600 dark:bg-[#122033] dark:text-green-400">
@@ -194,28 +236,40 @@ export default function NotificationPage() {
           <div className="mt-4 bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 dark:bg-[#1A2333] dark:border-[#243041]">
             <HiOutlineMagnifyingGlass className="text-slate-500 dark:text-slate-400" />
             <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none dark:text-slate-200 dark:placeholder:text-slate-500"
               placeholder="Search notifications..."
             />
-            <button className="px-3 py-1.5 text-xs rounded-full bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-[#111A2A] dark:border-[#243041] dark:text-slate-200 dark:hover:bg-[#1A2333]">
-              Mark All as Read
-            </button>
           </div>
+          {error ? (
+            <p className="mt-2 text-sm text-red-400">{error}</p>
+          ) : null}
 
           <div className="mt-5 space-y-3">
             {filteredNotifications.map((item) => {
               const toneClasses =
-                item.tone === "success"
+                item.tone === "SUCCESS"
                   ? "text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10"
-                  : item.tone === "warning"
+                  : item.tone === "WARNING"
                     ? "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10"
-                    : item.tone === "info"
+                    : item.tone === "INFO"
                       ? "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-500/10"
                       : "text-slate-500 bg-slate-100 dark:text-slate-300 dark:bg-slate-500/10";
 
-              const unreadClasses = item.unread
+              const unreadClasses = !item.isRead
                 ? "bg-white/90 border-slate-200 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.45)] dark:bg-[#1F2A3D] dark:border-[#2A3A52]"
                 : "bg-white border-slate-100 shadow-sm dark:bg-[#161F2F] dark:border-[#223044]";
+
+              let actionHref: string | null = null;
+              try {
+                const parsed = item.metadata ? JSON.parse(item.metadata) : null;
+                if (parsed?.action === "UPLOAD_SIGNED_CONTRACT") {
+                  actionHref = "/employee";
+                }
+              } catch {
+                // ignore malformed metadata
+              }
 
               return (
                 <div
@@ -231,9 +285,9 @@ export default function NotificationPage() {
                       </div>
                       <div>
                         <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-[#2A3A52] dark:bg-[#121A28] dark:text-slate-300">
-                          {item.type === "eligibility"
+                          {item.type === "ELIGIBILITY_CHANGE"
                             ? "Eligibility"
-                            : item.type === "request"
+                            : item.type === "REQUEST_STATUS"
                               ? "Request"
                               : "Warning"}
                         </span>
@@ -248,17 +302,32 @@ export default function NotificationPage() {
 
                     <div className="flex flex-col items-end gap-2">
                       <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                        {item.time}
+                        {formatRelativeTime(item.createdAt)}
                       </p>
-                      <button className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300">
-                        View Details
-                        <HiOutlineArrowUpRight className="text-sm" />
-                      </button>
+                      {actionHref ? (
+                        <Link
+                          href={actionHref}
+                          className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          Open
+                          <HiOutlineArrowUpRight className="text-sm" />
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-blue-600 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400">
+                          View Details
+                          <HiOutlineArrowUpRight className="text-sm" />
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
               );
             })}
+            {!loading && filteredNotifications.length === 0 ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Notifications олдсонгүй.
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

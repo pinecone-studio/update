@@ -11,8 +11,8 @@ import type { Env } from "./types";
 import { typeDefs, resolvers } from "./graphql";
 import { getDb } from "./db/drizzle";
 import { employees } from "./db/schema";
-// import adminContracts from "./routes/adminContracts";
-// import contractsRoute from "./routes/contracts";
+import adminContracts from "./routes/adminContracts";
+import contractsRoute from "./routes/contracts";
 
 type YogaContext = {
   env: Env;
@@ -52,8 +52,8 @@ app.get("/health", (c) =>
   c.json({ ok: true, timestamp: new Date().toISOString() }),
 );
 
-// app.route("/admin/contracts", adminContracts);
-// app.route("/contracts", contractsRoute);
+app.route("/admin/contracts", adminContracts);
+app.route("/contracts", contractsRoute);
 
 app.all("/graphql", async (c) => {
   const employeeId = c.req.header("x-employee-id") ?? null;

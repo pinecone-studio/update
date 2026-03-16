@@ -24,7 +24,6 @@ export function BenefitPortfolio({
 }: BenefitPortfolioProps) {
 	const [selectedBenefit, setSelectedBenefit] =
 		useState<BenefitCardProps | null>(null);
-	const [openWithContractStep, setOpenWithContractStep] = useState(false);
 
 	const handleRequestBenefit = async (benefit: BenefitCardProps) => {
 		if (onRequestBenefit) {
@@ -63,26 +62,17 @@ export function BenefitPortfolio({
 				{benefits.map((benefit) => {
 					const canRequest =
 						benefit.status === "ELIGIBLE" || benefit.status === "REJECTED";
-					const needsContract =
-						canRequest && (benefit.requiresContract || benefit.contractLink);
-					// If contract required: button opens modal with contract; else direct request
 					return (
 						<BenefitCard
 							key={benefit.benefitId ?? benefit.name}
 							{...benefit}
 							compact={compact}
 							onClick={() => {
-								setOpenWithContractStep(false);
 								setSelectedBenefit(benefit);
 							}}
 							onRequestBenefit={
 								canRequest
-									? needsContract
-										? () => {
-												setOpenWithContractStep(true);
-												setSelectedBenefit(benefit);
-											}
-										: () => handleRequestBenefit(benefit)
+									? () => handleRequestBenefit(benefit)
 									: undefined
 							}
 						/>
@@ -93,11 +83,9 @@ export function BenefitPortfolio({
 				benefit={selectedBenefit}
 				onClose={() => {
 					setSelectedBenefit(null);
-					setOpenWithContractStep(false);
 				}}
 				onRequestBenefit={onRequestBenefit ? handleRequestBenefit : undefined}
 				onViewContract={onViewContract}
-				initialOpenContractStep={openWithContractStep}
 			/>
 		</>
 	);

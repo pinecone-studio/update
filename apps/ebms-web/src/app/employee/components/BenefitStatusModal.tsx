@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   FiCalendar,
   FiCheck,
@@ -104,7 +104,6 @@ interface BenefitStatusModalProps {
   onClose: () => void;
   onRequestBenefit?: (benefit: BenefitCardProps) => void;
   onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
-  initialOpenContractStep?: boolean;
 }
 
 function getRules(benefit: BenefitCardProps): EligibilityRule[] {
@@ -154,16 +153,7 @@ export function BenefitStatusModal({
   onClose,
   onRequestBenefit,
   onViewContract,
-  initialOpenContractStep = false,
 }: BenefitStatusModalProps) {
-  const [showContractStep, setShowContractStep] = useState(initialOpenContractStep);
-  const [contractAccepted, setContractAccepted] = useState(false);
-
-  useEffect(() => {
-    setShowContractStep(initialOpenContractStep);
-    setContractAccepted(false);
-  }, [benefit?.benefitId, initialOpenContractStep]);
-
   useEffect(() => {
     if (!benefit) return;
     const onEsc = (e: KeyboardEvent) => {
@@ -187,20 +177,8 @@ export function BenefitStatusModal({
   const canRequest =
     (benefit.status === "ELIGIBLE" || benefit.status === "REJECTED") &&
     !!onRequestBenefit;
-  const needsContract =
-    canRequest && (benefit.requiresContract || !!benefit.contractLink);
 
   const onRequestClick = () => {
-    if (needsContract) {
-      setShowContractStep(true);
-      return;
-    }
-    onRequestBenefit?.(benefit);
-    onClose();
-  };
-
-  const submitWithContract = () => {
-    if (!contractAccepted) return;
     onRequestBenefit?.(benefit);
     onClose();
   };
@@ -262,57 +240,7 @@ export function BenefitStatusModal({
 
           <div className={`px-4 pb-4 pt-3 sm:px-5 sm:pb-5 ${theme.body}`}>
             <div className="max-h-[430px] space-y-3 overflow-y-auto pr-1">
-              {showContractStep && needsContract ? (
-                <div className={`rounded-3xl border p-6 ${theme.section}`}>
-                  <h3 className="text-lg font-semibold uppercase tracking-[0.06em] text-white/70">
-                    Vendor Contract
-                  </h3>
-                  <p className="mt-3 text-white/90">
-                    You must accept the vendor contract before submitting request.
-                  </p>
-                  {benefit.contractLink ? (
-                    <a
-                      href={benefit.contractLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={handleViewContract}
-                      className="mt-4 inline-flex items-center gap-2 text-xl text-[#5cb2ff] hover:text-[#78c1ff]"
-                    >
-                      View vendor contract <FiExternalLink size={20} />
-                    </a>
-                  ) : null}
-                  <label className="mt-5 flex items-start gap-3 text-white/85">
-                    <input
-                      type="checkbox"
-                      checked={contractAccepted}
-                      onChange={(e) => setContractAccepted(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-white/30 bg-transparent"
-                    />
-                    I have read and accept contract terms.
-                  </label>
-                  <div className="mt-6 flex gap-3">
-                    <button
-                      type="button"
-                      onClick={submitWithContract}
-                      disabled={!contractAccepted}
-                      className="rounded-xl bg-[#3d78ff] px-5 py-2.5 font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      Submit request
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowContractStep(false);
-                        setContractAccepted(false);
-                      }}
-                      className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 font-medium text-white/85 hover:bg-white/10"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
+              <>
                   <SectionCard
                     theme={theme.section}
                     icon={<FiFileText size={22} />}
@@ -397,14 +325,13 @@ export function BenefitStatusModal({
                       ))}
                     </div>
                   </div>
-                </>
-              )}
+              </>
             </div>
           </div>
 
           <div className="border-t border-white/10 bg-[#101a34]/85 px-4 py-4 sm:px-5">
             <div className="flex gap-3">
-              {canRequest && !showContractStep ? (
+              {canRequest ? (
                 <button
                   type="button"
                   onClick={onRequestClick}

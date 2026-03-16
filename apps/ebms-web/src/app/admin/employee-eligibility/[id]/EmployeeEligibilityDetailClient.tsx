@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { GraphQLClient, gql } from "graphql-request";
-import { getActiveUserHeaders } from "@/app/_lib/activeUser";
+import { ensureValidActiveUserProfile, getActiveUserHeaders } from "@/app/_lib/activeUser";
 
 type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
@@ -143,15 +143,33 @@ export default function EmployeeEligibilityDetailClient() {
     setSavingByKey((prev) => ({ ...prev, [key]: true }));
     setErrorByKey((prev) => ({ ...prev, [key]: "" }));
     try {
+      await ensureValidActiveUserProfile();
       const client = getClient();
-      await client.request(OVERRIDE_ELIGIBILITY_MUTATION, {
-        input: {
-          employeeId: id,
-          benefitId,
-          status: nextStatus,
-          reason,
-        },
-      });
+      try {
+        await client.request(OVERRIDE_ELIGIBILITY_MUTATION, {
+          input: {
+            employeeId: id,
+            benefitId,
+            status: nextStatus,
+            reason,
+          },
+        });
+      } catch (firstError) {
+        const msg = getErrorMessage(firstError).toLowerCase();
+        if (!msg.includes("employee not found")) {
+          throw firstError;
+        }
+        await ensureValidActiveUserProfile();
+        const retryClient = getClient();
+        await retryClient.request(OVERRIDE_ELIGIBILITY_MUTATION, {
+          input: {
+            employeeId: id,
+            benefitId,
+            status: nextStatus,
+            reason,
+          },
+        });
+      }
       const changedAt = new Date().toLocaleString();
       setEmployee((prev) =>
         prev
@@ -192,10 +210,24 @@ export default function EmployeeEligibilityDetailClient() {
       setLoading(false);
       return;
     }
-    const client = getClient();
-    client
-      .request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, { id })
-      .then((data) => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureValidActiveUserProfile();
+        const client = getClient();
+        let data: { employee: EmployeeDetail | null };
+        try {
+          data = await client.request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, { id });
+        } catch (firstError) {
+          const msg = getErrorMessage(firstError).toLowerCase();
+          if (!msg.includes("employee not found")) {
+            throw firstError;
+          }
+          await ensureValidActiveUserProfile();
+          const retryClient = getClient();
+          data = await retryClient.request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, { id });
+        }
+        if (cancelled) return;
         const emp = data.employee;
         if (!emp) {
           setEmployee(null);
@@ -212,9 +244,15 @@ export default function EmployeeEligibilityDetailClient() {
             history: [],
           })),
         });
-      })
-      .catch(() => setEmployee(null))
-      .finally(() => setLoading(false));
+      } catch {
+        if (!cancelled) setEmployee(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (!id) {

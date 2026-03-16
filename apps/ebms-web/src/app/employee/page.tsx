@@ -18,6 +18,8 @@ import { EmployeeDashboardSkeleton } from "./components/EmployeeDashboardSkeleto
 import {
   fetchMe,
   fetchMyBenefits,
+  fetchMyBenefitRequests,
+  uploadSignedContractPdf,
   requestBenefit,
   openBenefitContractPreview,
   getApiErrorMessage,
@@ -107,6 +109,15 @@ export default function EmployeeDashboardPage() {
   const [statusFilter, setStatusFilter] = useState<
     "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED" | "ALL"
   >("ALL");
+  const [contractTasks, setContractTasks] = useState<
+    Array<{ requestId: string; benefitName: string; uploadedUrl?: string | null }>
+  >([]);
+  const [selectedContractFileByRequestId, setSelectedContractFileByRequestId] =
+    useState<Record<string, File | null>>({});
+  const [uploadingContractByRequestId, setUploadingContractByRequestId] =
+    useState<Record<string, boolean>>({});
+  const [contractUploadErrorByRequestId, setContractUploadErrorByRequestId] =
+    useState<Record<string, string>>({});
 
   const load = useCallback(async (opts?: { silent?: boolean; retried?: boolean }) => {
     if (!opts?.silent) {
@@ -131,6 +142,19 @@ export default function EmployeeDashboardPage() {
           return fresh;
         });
       });
+      try {
+        const requests = await fetchMyBenefitRequests("APPROVED");
+        const tasks = requests
+          .filter((r) => r.requiresContract)
+          .map((r) => ({
+            requestId: r.id,
+            benefitName: r.benefitName ?? r.benefitId,
+            uploadedUrl: r.contractTemplateUrl ?? null,
+          }));
+        setContractTasks(tasks);
+      } catch {
+        setContractTasks([]);
+      }
     } catch (e) {
       const message = getApiErrorMessage(e);
       if (!opts?.retried && message.toLowerCase().includes("employee not found")) {
@@ -174,14 +198,7 @@ export default function EmployeeDashboardPage() {
       );
       if (!confirmed) return;
       try {
-        const popup = benefit.requiresContract
-          ? window.open("", "_blank", "noopener,noreferrer")
-          : null;
-        await requestBenefit(benefit.benefitId, {
-          benefitName: benefit.name,
-          employeeName: me?.name ?? undefined,
-          contractPopup: popup,
-        });
+        await requestBenefit(benefit.benefitId);
         // Optimistically update and switch to PENDING so user sees their request
         setBenefits((prev) =>
           prev.map((b) =>
@@ -209,6 +226,40 @@ export default function EmployeeDashboardPage() {
       alert(getApiErrorMessage(e));
     }
   }, []);
+
+  const handleUploadSignedContract = useCallback(
+    async (requestId: string) => {
+      const selected = selectedContractFileByRequestId[requestId];
+      if (!selected) {
+        setContractUploadErrorByRequestId((prev) => ({
+          ...prev,
+          [requestId]: "PDF файл сонгоно уу.",
+        }));
+        return;
+      }
+      if (selected.type && selected.type !== "application/pdf") {
+        setContractUploadErrorByRequestId((prev) => ({
+          ...prev,
+          [requestId]: "Зөвхөн PDF файл upload хийнэ.",
+        }));
+        return;
+      }
+      setContractUploadErrorByRequestId((prev) => ({ ...prev, [requestId]: "" }));
+      setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: true }));
+      try {
+        await uploadSignedContractPdf(requestId, selected);
+        await load({ silent: true });
+      } catch (e) {
+        setContractUploadErrorByRequestId((prev) => ({
+          ...prev,
+          [requestId]: getApiErrorMessage(e),
+        }));
+      } finally {
+        setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: false }));
+      }
+    },
+    [load, selectedContractFileByRequestId],
+  );
 
   const activeCount = benefits.filter((b) => b.status === "ACTIVE").length;
   const eligibleCount = benefits.filter((b) => b.status === "ELIGIBLE").length;
@@ -327,12 +378,10 @@ export default function EmployeeDashboardPage() {
                       </p>
                     )}
                   </div>
-
                   <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
                     {filterItems.map((item) => {
                       const styles = FILTER_PILL_STYLES[item.key];
                       const isActive = statusFilter === item.key;
-
                       return (
                         <button
                           key={item.key}
@@ -377,6 +426,75 @@ export default function EmployeeDashboardPage() {
               </section>
 
               <section className="mt-12 w-full sm:mt-16">
+                {contractTasks.length > 0 && (
+                  <div className="mb-8 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4">
+                    <h3 className="text-sm font-semibold text-amber-200">
+                      Signed Contract Required
+                    </h3>
+                    <p className="mt-1 text-xs text-amber-100/80">
+                      Admin approved these requests. Please upload your manually signed contract PDF.
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      {contractTasks.map((task) => {
+                        const isUploading = uploadingContractByRequestId[task.requestId] ?? false;
+                        const selected = selectedContractFileByRequestId[task.requestId];
+                        const errorText = contractUploadErrorByRequestId[task.requestId];
+                        const needsUpload = !task.uploadedUrl;
+                        return (
+                          <div
+                            key={task.requestId}
+                            className="rounded-xl border border-amber-300/30 bg-black/20 p-3"
+                          >
+                            <p className="text-sm font-medium text-white">
+                              {task.benefitName}
+                            </p>
+                            <p className="mt-1 text-xs text-white/65">Request ID: {task.requestId}</p>
+                            {!needsUpload ? (
+                              <div className="mt-2 flex items-center gap-3">
+                                <span className="text-xs text-emerald-300">
+                                  Signed contract uploaded
+                                </span>
+                                <a
+                                  href={task.uploadedUrl ?? "#"}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs font-medium text-blue-300 hover:text-blue-200"
+                                >
+                                  View uploaded file
+                                </a>
+                              </div>
+                            ) : (
+                              <div className="mt-3 flex flex-wrap items-center gap-2">
+                                <input
+                                  type="file"
+                                  accept="application/pdf"
+                                  onChange={(e) =>
+                                    setSelectedContractFileByRequestId((prev) => ({
+                                      ...prev,
+                                      [task.requestId]: e.target.files?.[0] ?? null,
+                                    }))
+                                  }
+                                  className="text-xs text-white/80 file:mr-2 file:rounded-md file:border-0 file:bg-white/20 file:px-3 file:py-1.5 file:text-xs file:text-white hover:file:bg-white/30"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={!selected || isUploading}
+                                  onClick={() => void handleUploadSignedContract(task.requestId)}
+                                  className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  {isUploading ? "Uploading..." : "Upload signed PDF"}
+                                </button>
+                              </div>
+                            )}
+                            {errorText ? (
+                              <p className="mt-2 text-xs text-red-300">{errorText}</p>
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <div>
                   <div className="mb-6">
                     <div>
