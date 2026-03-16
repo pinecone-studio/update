@@ -246,7 +246,7 @@ export function Header() {
               ))}
             </select>
           </label>
-          <div className="h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+          <div className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
           <ThemeToggle />
           </div>
           <div className="relative hidden md:block" ref={notificationRef}>
@@ -367,7 +367,7 @@ export function Header() {
                 setProfileOpen((prev) => !prev);
                 setNotificationOpen(false);
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white "
+              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200"
               aria-label="Profile"
             >
               <ProfileIcon/>
@@ -376,7 +376,7 @@ export function Header() {
               <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
                 <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white ">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white border border-slate-200">
                       <ProfileIcon/>
                     </div>
                     <div>

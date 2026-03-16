@@ -233,12 +233,12 @@ export default function FinancePage() {
 
 	return (
 		<div className="space-y-6">
-			<header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-				<div>
-					<h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
+			<header className="relative overflow-hidden  px-6 py-8 sm:px-8 sm:py-10">
+				<div className="relative z-10">
+					<h1 className="text-2xl font-semibold text-white sm:text-3xl">
 						Finance Manager Panel
 					</h1>
-					<p className="mt-2 text-5 text-slate-600 dark:text-[#A7B6D3]">
+					<p className="mt-2 text-slate-300 sm:text-base">
 						Review and approve employee benefits with financial impact
 					</p>
 				</div>

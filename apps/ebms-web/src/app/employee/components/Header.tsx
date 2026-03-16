@@ -298,15 +298,6 @@ export const Header = () => {
         </div>
 
         <div className="flex min-w-[180px] items-center justify-end gap-2">
-          <Link
-            href="/admin"
-            onClick={handleAdminNavigate}
-            aria-disabled={!isAdminUser}
-            className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:text-[#A7B6D3] dark:hover:bg-[#24364F] dark:hover:text-white"
-          >
-            <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
-            Admin
-          </Link>
           <label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
             <span>User</span>
             <select
@@ -323,7 +314,7 @@ export const Header = () => {
             </select>
           </label>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+            <div className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
           <ThemeToggle />
           </div>
           <button
@@ -424,21 +415,22 @@ export const Header = () => {
             </div>
             </div>
             <div className="relative" ref={profileRef}>
-              <button
-                onClick={() => {
-                  setProfileOpen(!profileOpen);
-                  setNotificationOpen(false);
-                }}
-                className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white "
-                aria-label="Profile"
-              >
-           <ProfileIcon/>
-              </button>
+            <button
+              type="button"
+              onClick={() => {
+                setProfileOpen((prev) => !prev);
+                setNotificationOpen(false);
+              }}
+              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200"
+              aria-label="Profile"
+            >
+              <ProfileIcon/>
+            </button>
               {profileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
                   <div className="p-4 border-b border-slate-200 dark:border-[#243041]">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white ">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white border border-slate-200">
                        <ProfileIcon/>
                       </div>
                       <div>
