@@ -21,8 +21,8 @@ import { HrVendorIcon } from "@/app/icons/hrVendor";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import type { ReactNode } from "react";
 import {
-  FALLBACK_USER_OPTIONS,
   fetchSwitchUserOptions,
+  getInitialUserProfile,
   getActiveUserProfile,
   setActiveUserProfile,
   type ActiveUserProfile,
@@ -93,10 +93,16 @@ export function Header() {
     DEFAULT_NOTIFICATIONS,
   );
   const [selectedUser, setSelectedUser] = useState<ActiveUserProfile>(
-    getActiveUserProfile(),
+    getInitialUserProfile(),
   );
-  const [userOptions, setUserOptions] =
-    useState<SwitchUserOption[]>(FALLBACK_USER_OPTIONS);
+  const initialProfile = getInitialUserProfile();
+  const [userOptions, setUserOptions] = useState<SwitchUserOption[]>([
+    {
+      id: initialProfile.id,
+      name: initialProfile.name || initialProfile.id,
+      role: (initialProfile.role || "employee").toLowerCase(),
+    },
+  ]);
 
   const normalizedPath =
     pathname.endsWith("/") && pathname.length > 1

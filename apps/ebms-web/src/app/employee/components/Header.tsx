@@ -6,8 +6,8 @@ import { useState, useRef, useEffect } from "react";
 import { fetchMe } from "../_lib/api";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import {
-  FALLBACK_USER_OPTIONS,
   fetchSwitchUserOptions,
+  getInitialUserProfile,
   getActiveUserProfile,
   setActiveUserProfile,
   type ActiveUserProfile,
@@ -91,10 +91,16 @@ export const Header = () => {
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
   const [me, setMe] = useState<{ name: string; id: string } | null>(null);
   const [selectedUser, setSelectedUser] = useState<ActiveUserProfile>(
-    getActiveUserProfile(),
+    getInitialUserProfile(),
   );
-  const [userOptions, setUserOptions] =
-    useState<SwitchUserOption[]>(FALLBACK_USER_OPTIONS);
+  const initialProfile = getInitialUserProfile();
+  const [userOptions, setUserOptions] = useState<SwitchUserOption[]>([
+    {
+      id: initialProfile.id,
+      name: initialProfile.name || initialProfile.id,
+      role: (initialProfile.role || "employee").toLowerCase(),
+    },
+  ]);
   const [notifications, setNotifications] = useState<EmployeeNotification[]>(
     DEFAULT_NOTIFICATIONS,
   );
@@ -244,6 +250,14 @@ export const Header = () => {
     setActiveUserProfile(profile);
   };
 
+  const isAdminUser = (selectedUser.role ?? "").toLowerCase() === "admin";
+
+  const handleAdminNavigate = (e: { preventDefault: () => void }) => {
+    if (isAdminUser) return;
+    e.preventDefault();
+    alert("Зөвхөн admin role-тэй хэрэглэгч Admin хэсэг рүү орж чадна.");
+  };
+
   return (
     <header className="sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md">
       <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
@@ -283,6 +297,8 @@ export const Header = () => {
         <div className="flex min-w-[180px] items-center justify-end gap-2">
           <Link
             href="/admin"
+            onClick={handleAdminNavigate}
+            aria-disabled={!isAdminUser}
             className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:text-[#A7B6D3] dark:hover:bg-[#24364F] dark:hover:text-white"
           >
             <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
@@ -473,7 +489,11 @@ export const Header = () => {
         <nav className="flex flex-col gap-1 p-3 text-slate-600 dark:text-slate-300 text-sm">
           <Link
             href="/admin"
-            onClick={() => setMenuOpen(false)}
+            onClick={(e) => {
+              handleAdminNavigate(e);
+              if (isAdminUser) setMenuOpen(false);
+            }}
+            aria-disabled={!isAdminUser}
             className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-slate-600 ring-1 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 transition dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
           >
             <HiOutlineArrowTopRightOnSquare className="text-base" />

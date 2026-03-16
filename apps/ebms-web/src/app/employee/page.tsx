@@ -24,6 +24,7 @@ import {
 } from "./_lib/api";
 import { mapMyBenefitsToCardProps } from "./_lib/mapBenefits";
 import { IoClose } from "react-icons/io5";
+import { ensureValidActiveUserProfile } from "@/app/_lib/activeUser";
 
 const FILTER_PILL_STYLES = {
   ACTIVE: {
@@ -103,7 +104,7 @@ export default function EmployeeDashboardPage() {
     "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED" | "ALL"
   >("ALL");
 
-  const load = useCallback(async (opts?: { silent?: boolean }) => {
+  const load = useCallback(async (opts?: { silent?: boolean; retried?: boolean }) => {
     if (!opts?.silent) {
       setLoading(true);
       setError(null);
@@ -127,8 +128,18 @@ export default function EmployeeDashboardPage() {
         });
       });
     } catch (e) {
+      const message = getApiErrorMessage(e);
+      if (!opts?.retried && message.toLowerCase().includes("employee not found")) {
+        try {
+          await ensureValidActiveUserProfile();
+          await load({ ...opts, retried: true });
+          return;
+        } catch {
+          // fall through to regular error handling
+        }
+      }
       if (!opts?.silent) {
-        setError(getApiErrorMessage(e));
+        setError(message);
         setBenefits([]);
       }
     } finally {
