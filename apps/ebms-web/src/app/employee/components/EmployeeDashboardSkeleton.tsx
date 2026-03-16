@@ -10,62 +10,74 @@ interface EmployeeDashboardSkeletonProps {
 }
 
 export function EmployeeDashboardSkeleton({
-	benefitCount = 4,
+	benefitCount = 6,
 }: EmployeeDashboardSkeletonProps) {
 	return (
-		<div className="grid grid-cols-1 gap-4 lg:grid-cols-12 w-full min-h-0">
-			{/* Stats cards skeleton - matches lg:col-span-7 layout */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:col-span-7 min-h-0">
-				{[1, 2, 3, 4].map((i) => (
-					<div
-						key={i}
-						className="min-w-0 rounded-[10px] bg-white border border-slate-200 p-6 flex flex-col min-h-[134px] dark:bg-[#334155] dark:border-transparent"
-					>
-						<div className="flex justify-between items-start">
-							<div className="flex-1">
-								<Skeleton className="h-4 w-24" />
-								<Skeleton className="h-12 w-16 mt-3" />
-								<Skeleton className="h-4 w-28 mt-3" />
-							</div>
-							<Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
-						</div>
+		<div className="flex w-full flex-col">
+			{/* Header section - matches lg:grid-cols-[minmax(0,1fr)_356px] */}
+			<section className="grid w-full min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_356px] lg:items-start lg:gap-8">
+				<div className="min-w-0 max-w-[780px]">
+					<div className="mb-8 flex flex-col sm:mb-10">
+						<Skeleton className="h-9 w-64 rounded-md bg-white/10 sm:h-10 sm:w-80" />
+						<Skeleton className="mt-3 h-6 w-80 max-w-[640px] rounded-md bg-white/10 sm:h-7 sm:w-96" />
 					</div>
-				))}
-			</div>
-
-			{/* Benefit Portfolio section skeleton - matches lg:col-span-5 layout */}
-			<div className="rounded-2xl bg-white border border-slate-200/80 p-5 dark:bg-slate-800/50 dark:border-slate-700/80 lg:col-span-5 h-[480px] flex flex-col overflow-hidden">
-				<div className="flex-shrink-0 mb-4 flex flex-wrap items-center justify-between gap-3">
-					<Skeleton className="h-6 w-40" />
-					<Skeleton className="h-9 w-14 rounded-xl" />
+					{/* Filter pills skeleton */}
+					<div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
+						{[1, 2, 3, 4].map((i) => (
+							<div
+								key={i}
+								className="h-[38px] w-[160px] shrink-0 rounded-[13px] border border-white/10 bg-white/5"
+							>
+								<div className="flex h-full items-center gap-[10px] px-[8px] py-[6px]">
+									<Skeleton className="h-[26px] w-[26px] shrink-0 rounded-[8px] bg-white/10" />
+									<Skeleton className="h-4 w-16 rounded-md bg-white/10" />
+								</div>
+							</div>
+						))}
+					</div>
 				</div>
-				<div className="flex-1 min-h-0 overflow-hidden space-y-4">
+
+				{/* Hero image placeholder */}
+				<div className="w-full lg:justify-self-end">
+					<div className="flex h-[180px] w-full items-center justify-center overflow-hidden rounded-[32px] border border-white/10 bg-white/5 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:h-[260px] lg:h-[242px] lg:w-[356px]">
+						<Skeleton className="h-[140px] w-40 rounded-lg bg-white/10 sm:h-[200px] sm:w-48 lg:h-[190px]" />
+					</div>
+				</div>
+			</section>
+
+			{/* Benefits section - matches BenefitPortfolio grid */}
+			<section className="mt-12 w-full sm:mt-16">
+				<div className="mb-6">
+					<Skeleton className="h-6 w-32 rounded-md bg-white/10 sm:h-7 sm:w-40" />
+					<Skeleton className="mt-1 h-5 w-48 rounded-md bg-white/10" />
+				</div>
+				<div className="grid w-full min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 					{Array.from({ length: benefitCount }, (_, i) => i + 1).map((i) => (
 						<div
 							key={i}
-							className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4"
+							className="rounded-xl border border-white/10 bg-white/5 p-4"
 						>
-							<div className="flex items-start gap-4 mb-3">
-								<Skeleton className="w-10 h-10 rounded-lg flex-shrink-0" />
-								<div className="flex-1 min-w-0 space-y-2">
-									<Skeleton className="h-4 w-[75%]" />
-									<Skeleton className="h-3 w-full" />
+							<div className="flex items-start gap-4">
+								<Skeleton className="h-12 w-12 shrink-0 rounded-lg bg-white/10" />
+								<div className="min-w-0 flex-1 space-y-2">
+									<Skeleton className="h-4 w-[75%] rounded-md bg-white/10" />
+									<Skeleton className="h-3 w-full rounded-md bg-white/10" />
 								</div>
-								<Skeleton className="w-14 h-5 rounded-full flex-shrink-0" />
+								<Skeleton className="h-6 w-20 shrink-0 rounded-full bg-white/10" />
 							</div>
-							<div className="space-y-2">
+							<div className="mt-4 space-y-2">
 								{[1, 2, 3].map((j) => (
 									<div key={j} className="flex justify-between gap-2">
-										<Skeleton className="h-3 w-16" />
-										<Skeleton className="h-3 w-20" />
+										<Skeleton className="h-3 w-16 rounded-md bg-white/10" />
+										<Skeleton className="h-3 w-20 rounded-md bg-white/10" />
 									</div>
 								))}
 							</div>
-							<Skeleton className="h-9 w-full rounded-lg mt-3" />
+							<Skeleton className="mt-4 h-10 w-full rounded-lg bg-white/10" />
 						</div>
 					))}
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }
