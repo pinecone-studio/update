@@ -4,6 +4,7 @@
 
 import { GraphQLClient, gql } from "graphql-request";
 import type { Me, MyBenefitEligibility } from "./types";
+import { getActiveUserHeaders, getActiveUserProfile } from "@/app/_lib/activeUser";
 const ME_QUERY = gql`
 	query Me {
 		me {
@@ -112,6 +113,23 @@ const SIGN_BENEFIT_CONTRACT_MUTATION = gql`
 	}
 `;
 
+const BENEFIT_CONTRACT_PREVIEW_QUERY = gql`
+	query BenefitContractPreview($benefitId: ID!) {
+		benefitContractPreview(benefitId: $benefitId) {
+			html
+		}
+	}
+`;
+
+const ARCHIVE_BENEFIT_CONTRACT_PDF_MUTATION = gql`
+	mutation ArchiveBenefitContractPdf($requestId: ID!, $html: String) {
+		archiveBenefitContractPdf(requestId: $requestId, html: $html) {
+			ok
+			requestId
+		}
+	}
+`;
+
 function getBaseUrl(): string {
 	const env = process.env.NEXT_PUBLIC_API_URL || "";
 	const base = env.replace(/\/graphql\/?$/, "").trim();
@@ -120,7 +138,7 @@ function getBaseUrl(): string {
 
 /** Нэвтрэлтгүй үед default emp-1 ашиглана — хэрэглэгч логин хийгээгүй ч app ажиллана. */
 export function getEmployeeId(): string {
-	return process.env.NEXT_PUBLIC_EMPLOYEE_ID || "emp-1";
+	return getActiveUserProfile().id;
 }
 
 export function getEmployeeClient(): GraphQLClient {
@@ -128,30 +146,17 @@ export function getEmployeeClient(): GraphQLClient {
 	const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
 	return new GraphQLClient(url, {
 		headers: {
-			"x-employee-id": getEmployeeId(),
+			...getActiveUserHeaders("employee"),
 			"Content-Type": "application/json",
 		},
 	});
 }
 
 async function archiveContractPdfToR2(requestId: string, html: string): Promise<void> {
-	const base = getBaseUrl();
-	const res = await fetch(`${base}/contracts/requests/${requestId}/archive-pdf`, {
-		method: "POST",
-		headers: {
-			"x-employee-id": getEmployeeId(),
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({ html }),
+	await getEmployeeClient().request(ARCHIVE_BENEFIT_CONTRACT_PDF_MUTATION, {
+		requestId,
+		html,
 	});
-	if (!res.ok) {
-		const data = await res.json().catch(() => null);
-		const message =
-			data && typeof data === "object" && "error" in data
-				? String((data as { error?: unknown }).error ?? "Failed to archive contract PDF")
-				: "Failed to archive contract PDF";
-		throw new Error(message);
-	}
 }
 
 export async function fetchMe(): Promise<Me> {
@@ -222,6 +227,20 @@ export async function requestBenefit(
 		createdAt: request.createdAt,
 		requiresContract: request.requiresContract,
 	};
+}
+
+export async function openBenefitContractPreview(
+	benefitId: string,
+	popup?: Window | null,
+): Promise<void> {
+	const target = popup ?? window.open("", "_blank", "noopener,noreferrer");
+	if (!target) throw new Error("Popup blocked. Please allow popups and try again.");
+	const res = await getEmployeeClient().request<{
+		benefitContractPreview: { html: string };
+	}>(BENEFIT_CONTRACT_PREVIEW_QUERY, { benefitId });
+	target.document.open();
+	target.document.write(res.benefitContractPreview.html);
+	target.document.close();
 }
 
 export function getApiErrorMessage(e: unknown): string {

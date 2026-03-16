@@ -1,0 +1,150 @@
+import { GraphQLError } from "graphql";
+import { eq } from "drizzle-orm";
+import { PDFDocument, type PDFFont, StandardFonts } from "pdf-lib";
+import type { MutationResolvers } from "../../generated/graphql";
+import type { Ctx } from "../context";
+import { requireEmployeeId } from "../context";
+import { getDb } from "../../../db/drizzle";
+import { benefitRequests, benefits, contracts, employees } from "../../../db/schema";
+import { renderPinefitContractHtml, toBool01 } from "../../../contracts/renderPinefit";
+
+function htmlToText(html: string): string {
+  const withBreaks = html
+    .replace(/<\/(p|div|h1|h2|h3|h4|h5|h6|li|tr|section|article)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n");
+  const noTags = withBreaks.replace(/<[^>]*>/g, "");
+  return noTags
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+function sanitizeForWinAnsi(value: string): string {
+  return value.replace(/[^\x20-\x7E\xA0-\xFF]/g, "?");
+}
+
+function wrapLine(line: string, maxWidth: number, size: number, font: PDFFont): string[] {
+  const safeLine = sanitizeForWinAnsi(line);
+  const words = safeLine.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [""];
+  const rows: string[] = [];
+  let current = words[0];
+  for (let i = 1; i < words.length; i += 1) {
+    const next = `${current} ${words[i]}`;
+    if (font.widthOfTextAtSize(next, size) <= maxWidth) {
+      current = next;
+    } else {
+      rows.push(current);
+      current = words[i];
+    }
+  }
+  rows.push(current);
+  return rows;
+}
+
+async function renderPdfFromHtml(html: string): Promise<Uint8Array> {
+  const text = htmlToText(html);
+  const pdfDoc = await PDFDocument.create();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const pageSize: [number, number] = [595.28, 841.89];
+  const margin = 40;
+  const fontSize = 10;
+  const lineHeight = 14;
+  const maxWidth = pageSize[0] - margin * 2;
+
+  let page = pdfDoc.addPage(pageSize);
+  let y = page.getHeight() - margin;
+  const sourceLines = text ? text.split("\n") : ["Contract content unavailable."];
+
+  for (const rawLine of sourceLines) {
+    const rows = wrapLine(rawLine, maxWidth, fontSize, font);
+    for (const row of rows) {
+      if (y <= margin) {
+        page = pdfDoc.addPage(pageSize);
+        y = page.getHeight() - margin;
+      }
+      page.drawText(row, { x: margin, y, size: fontSize, font });
+      y -= lineHeight;
+    }
+    y -= 2;
+  }
+
+  return await pdfDoc.save();
+}
+
+export const archiveBenefitContractPdf: NonNullable<
+  MutationResolvers<Ctx>["archiveBenefitContractPdf"]
+> = async (_, args, ctx) => {
+  const actorEmployeeId = requireEmployeeId(ctx);
+  const db = getDb(ctx.env);
+
+  const rows = await db
+    .select({
+      requestId: benefitRequests.id,
+      requestEmployeeId: benefitRequests.employeeId,
+      contractAcceptedAt: benefitRequests.contractAcceptedAt,
+      requestCreatedAt: benefitRequests.createdAt,
+      benefitName: benefits.name,
+      benefitVendorName: benefits.vendorName,
+      benefitRequiresContract: benefits.requiresContract,
+      contractId: contracts.id,
+      contractVersion: contracts.version,
+      contractEffectiveDate: contracts.effectiveDate,
+      contractExpiryDate: contracts.expiryDate,
+      contractCreatedAt: contracts.createdAt,
+      employeeName: employees.name,
+      employeeCode: employees.employeeCode,
+    })
+    .from(benefitRequests)
+    .leftJoin(benefits, eq(benefitRequests.benefitId, benefits.id))
+    .leftJoin(contracts, eq(benefits.activeContractId, contracts.id))
+    .leftJoin(employees, eq(benefitRequests.employeeId, employees.id))
+    .where(eq(benefitRequests.id, args.requestId))
+    .limit(1);
+
+  const row = rows[0];
+  if (!row) throw new GraphQLError("Benefit request not found", { extensions: { code: "NOT_FOUND" } });
+  if (row.requestEmployeeId !== actorEmployeeId) {
+    throw new GraphQLError("Forbidden: request does not belong to employee", {
+      extensions: { code: "FORBIDDEN" },
+    });
+  }
+  if (!toBool01(row.benefitRequiresContract)) {
+    throw new GraphQLError("This benefit does not require contract archive", {
+      extensions: { code: "BAD_USER_INPUT" },
+    });
+  }
+
+  const html = args.html?.trim() ? args.html : renderPinefitContractHtml(row);
+  const pdfBytes = await renderPdfFromHtml(html);
+  const uploadedAt = new Date().toISOString();
+  const objectKey = `contracts/requests/${args.requestId}/employee-${Date.now()}.pdf`;
+
+  await ctx.env.CONTRACTS.put(objectKey, pdfBytes, {
+    httpMetadata: { contentType: "application/pdf" },
+  });
+
+  await db
+    .update(benefitRequests)
+    .set({
+      employeeContractR2Key: objectKey,
+      employeeContractUploadedAt: uploadedAt,
+      updatedAt: uploadedAt,
+    })
+    .where(eq(benefitRequests.id, args.requestId));
+
+  return {
+    ok: true,
+    requestId: args.requestId,
+    objectKey,
+    uploadedAt,
+  };
+};

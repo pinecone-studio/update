@@ -5,6 +5,14 @@ import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { fetchMe } from "../_lib/api";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
+import {
+  FALLBACK_USER_OPTIONS,
+  fetchSwitchUserOptions,
+  getActiveUserProfile,
+  setActiveUserProfile,
+  type ActiveUserProfile,
+  type SwitchUserOption,
+} from "@/app/_lib/activeUser";
 
 import {
   HiOutlineBell,
@@ -82,6 +90,11 @@ export const Header = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
   const [me, setMe] = useState<{ name: string; id: string } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<ActiveUserProfile>(
+    getActiveUserProfile(),
+  );
+  const [userOptions, setUserOptions] =
+    useState<SwitchUserOption[]>(FALLBACK_USER_OPTIONS);
   const [notifications, setNotifications] = useState<EmployeeNotification[]>(
     DEFAULT_NOTIFICATIONS,
   );
@@ -100,7 +113,35 @@ export const Header = () => {
     return () => {
       cancelled = true;
     };
+  }, [selectedUser.id]);
+
+  useEffect(() => {
+    const current = getActiveUserProfile();
+    setSelectedUser(current);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const mapped = await fetchSwitchUserOptions();
+        if (!cancelled && mapped.length > 0) {
+          setUserOptions(mapped);
+          if (!mapped.some((u) => u.id === selectedUser.id)) {
+            const first = mapped[0];
+            const next = { id: first.id, name: first.name, role: first.role };
+            setSelectedUser(next);
+            setActiveUserProfile(next);
+          }
+        }
+      } catch {
+        // Keep fallback list when employees query fails.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedUser.id]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -195,6 +236,14 @@ export const Header = () => {
     ? 0
     : notifications.filter((n) => n.unread).length;
 
+  const handleUserChange = (value: string) => {
+    const nextUser = userOptions.find((u) => u.id === value);
+    if (!nextUser) return;
+    const profile = { id: nextUser.id, name: nextUser.name, role: nextUser.role };
+    setSelectedUser(profile);
+    setActiveUserProfile(profile);
+  };
+
   return (
     <header className="sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md">
       <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
@@ -239,6 +288,21 @@ export const Header = () => {
             <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
             Admin
           </Link>
+          <label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+            <span>User</span>
+            <select
+              value={selectedUser.id}
+              onChange={(e) => handleUserChange(e.target.value)}
+              className="bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+              aria-label="Select active user"
+            >
+              {userOptions.map((opt) => (
+                <option key={opt.id} value={opt.id} className="text-slate-900">
+                  {opt.name} ({opt.id})
+                </option>
+              ))}
+            </select>
+          </label>
           <ThemeToggle />
           <button
             className="md:hidden h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
@@ -434,6 +498,22 @@ export const Header = () => {
             <HiOutlineArrowTopRightOnSquare className="text-base" />
             Admin руу шилжих
           </Link>
+          <div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
+          <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+            <span>User</span>
+            <select
+              value={selectedUser.id}
+              onChange={(e) => handleUserChange(e.target.value)}
+              className="ml-3 bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+              aria-label="Select active user"
+            >
+              {userOptions.map((opt) => (
+                <option key={opt.id} value={opt.id} className="text-slate-900">
+                  {opt.name} ({opt.id})
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
           <div className="flex items-center gap-2">
             <Link

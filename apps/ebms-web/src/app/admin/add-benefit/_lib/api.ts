@@ -1,5 +1,6 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import type { BenefitFromCatalog, BenefitConfig } from './types';
+import { getActiveUserHeaders } from '@/app/_lib/activeUser';
 
 /** Worker-ийн суурь URL (localhost = local D1, workers.dev = Cloudflare remote D1) */
 function getBaseUrl(): string {
@@ -79,7 +80,7 @@ export function getClient(): GraphQLClient {
   const base = getBaseUrl();
   const url = base.endsWith('/graphql') ? base : `${base}/graphql`;
   return new GraphQLClient(url, {
-    headers: { 'x-employee-id': 'admin', 'x-role': 'admin' },
+    headers: getActiveUserHeaders('admin'),
   });
 }
 

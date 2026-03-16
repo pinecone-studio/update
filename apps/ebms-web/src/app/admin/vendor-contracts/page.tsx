@@ -4,6 +4,7 @@ import { gql } from "graphql-request";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getAdminClient, getApiErrorMessage } from "../_lib/api";
 import { VendorContractsSkeleton } from "../components/VendorContractsSkeleton";
+import { getApiBaseUrl } from "@/app/_lib/activeUser";
 
 type Contract = {
   id: string;
@@ -47,10 +48,39 @@ type ContractApiRow = {
   employeeName?: string | null;
 };
 
-function getApiBaseUrl(): string {
-  const env = process.env.NEXT_PUBLIC_API_URL || "";
-  const base = env.replace(/\/graphql\/?$/, "").trim();
-  return base || "http://localhost:8787";
+const ADMIN_CONTRACTS_QUERY = gql`
+  query AdminContracts($tab: String!) {
+    adminContracts(tab: $tab) {
+      id
+      benefitId
+      benefitName
+      vendorName
+      version
+      effectiveDate
+      expiryDate
+      downloadUrl
+      employeeName
+    }
+  }
+`;
+
+const UPLOAD_ADMIN_CONTRACT_MUTATION = gql`
+  mutation UploadAdminContract($input: UploadAdminContractInput!) {
+    uploadAdminContract(input: $input) {
+      ok
+      contract {
+        id
+      }
+    }
+  }
+`;
+
+async function fileToBase64(file: File): Promise<string> {
+  const buf = await file.arrayBuffer();
+  let binary = "";
+  const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
 }
 
 export default function VendorContractsPage() {
@@ -91,24 +121,11 @@ export default function VendorContractsPage() {
 
   const loadContracts = useCallback(async () => {
     try {
-      const base = getApiBaseUrl();
-      const res = await fetch(`${base}/admin/contracts?tab=${activeTab}`);
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        const msg =
-          data &&
-          typeof data === "object" &&
-          "error" in data &&
-          (data as { error?: unknown }).error
-            ? String((data as { error?: unknown }).error)
-            : "Failed to fetch contracts";
-        throw new Error(msg);
-      }
-      const items =
-        data && typeof data === "object" && "contracts" in data
-          ? ((data as { contracts?: ContractApiRow[] }).contracts ?? [])
-          : [];
-      setContractRows(mapContracts(items));
+      const client = getAdminClient();
+      const res = await client.request<{ adminContracts: ContractApiRow[] }>(ADMIN_CONTRACTS_QUERY, {
+        tab: activeTab,
+      });
+      setContractRows(mapContracts(res.adminContracts ?? []));
     } catch (e) {
       setUploadError(getApiErrorMessage(e));
       setContractRows([]);
@@ -167,31 +184,32 @@ export default function VendorContractsPage() {
 
     const formEl = e.currentTarget;
     const formData = new FormData(formEl);
-    const contractNumber = String(formData.get("contractNumber") ?? "").trim();
-    const vendorName = String(formData.get("vendorName") ?? "").trim();
+    const version = String(formData.get("version") ?? "").trim();
+    const vendorName = String(formData.get("vendorName") ?? "").trim() || null;
     const benefitIdInput = String(formData.get("benefitId") ?? "").trim();
-    if (activeTab === "employee") {
-      formData.set("benefitId", benefitIdInput);
-    }
+    const effectiveDate = String(formData.get("effectiveDate") ?? "").trim() || null;
+    const expiryDate = String(formData.get("expiryDate") ?? "").trim() || null;
+    const fileValue = formData.get("file");
 
     try {
-      const base = getApiBaseUrl();
-      const res = await fetch(`${base}/admin/contracts/upload`, {
-        method: "POST",
-        body: formData,
+      if (!benefitIdInput) throw new Error("Benefit ID is required");
+      if (!version) throw new Error("Version is required");
+      if (!(fileValue instanceof File)) throw new Error("PDF file is required");
+
+      const fileBase64 = await fileToBase64(fileValue);
+      const client = getAdminClient();
+      await client.request(UPLOAD_ADMIN_CONTRACT_MUTATION, {
+        input: {
+          benefitId: benefitIdInput,
+          version,
+          vendorName,
+          effectiveDate,
+          expiryDate,
+          fileName: fileValue.name || "contract.pdf",
+          fileBase64,
+          contentType: fileValue.type || "application/pdf",
+        },
       });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        const msg =
-          (data &&
-            typeof data === "object" &&
-            "error" in data &&
-            (data as any).error) ||
-          res.statusText ||
-          "Upload failed";
-        setUploadError(String(msg));
-        return;
-      }
       setUploadMessage("Contract uploaded successfully.");
       await loadContracts();
       formEl.reset();

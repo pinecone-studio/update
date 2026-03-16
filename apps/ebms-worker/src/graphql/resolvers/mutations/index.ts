@@ -7,4 +7,6 @@ export * from './updateEligibilityRuleConfig';
 export * from './createBenefit';
 export * from './updateBenefit';
 export * from './deleteBenefit';
+export * from './uploadAdminContract';
+export * from './archiveBenefitContractPdf';
 
