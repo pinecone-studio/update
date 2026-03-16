@@ -303,75 +303,66 @@ export const Header = () => {
 					</div>
 				</div>
 
-				<div className="flex min-w-[180px] items-center justify-end gap-2">
-					<Link
-						href="/admin"
-						onClick={handleAdminNavigate}
-						aria-disabled={!isAdminUser}
-						className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:text-[#A7B6D3] dark:hover:bg-[#24364F] dark:hover:text-white"
-					>
-						<HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
-						Admin
-					</Link>
-					<label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
-						<span>User</span>
-						<select
-							value={selectedUser.id}
-							onChange={(e) => handleUserChange(e.target.value)}
-							className="bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
-							aria-label="Select active user"
-						>
-							{userOptions.map((opt) => (
-								<option key={opt.id} value={opt.id} className="text-slate-900">
-									{opt.name} ({opt.id})
-								</option>
-							))}
-						</select>
-					</label>
-					<div className="flex items-center gap-3">
-						<div className="h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
-							<ThemeToggle />
-						</div>
-						<button
-							className="md:hidden h-10 w-10 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-							onClick={() => setMenuOpen(!menuOpen)}
-							aria-label="Toggle navigation"
-						>
-							<HiBars3 className="text-sm" />
-						</button>
-						<div className="hidden md:flex items-center gap-2">
-							<div className="relative" ref={notificationRef}>
-								<button
-									onClick={() => {
-										setNotificationOpen(!notificationOpen);
-										setProfileOpen(false);
-									}}
-									className="relative h-10 w-10 rounded-full border border-slate-200  grid place-items-center ring-1 ring-transparent  hover:bg-slate-200 transition  "
-									aria-label="Notifications"
-								>
-									<HiOutlineBell className="text-sm w-5 h-5" />
-									{unreadCount > 0 && (
-										<span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-500" />
-									)}
-								</button>
-								{notificationOpen && (
-									<div className="absolute right-0 top-full z-50 mt-3 w-[360px] overflow-hidden rounded-2xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]">
-										<div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-											<div>
-												<p className="text-sm font-semibold text-white">
-													Notifications
-												</p>
-												<p className="text-xs text-white/60">
-													{unreadCount} unread
-												</p>
-											</div>
-											<button
-												onClick={() => setNotificationOpen(false)}
-												className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/60 transition hover:border-white/20 hover:text-white"
-											>
-												<HiXMark className="text-base" />
-											</button>
-										</div>
+        <div className="flex min-w-[180px] items-center justify-end gap-2">
+          <label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+            <span>User</span>
+            <select
+              value={selectedUser.id}
+              onChange={(e) => handleUserChange(e.target.value)}
+              className="bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+              aria-label="Select active user"
+            >
+              {userOptions.map((opt) => (
+                <option key={opt.id} value={opt.id} className="text-slate-900">
+                  {opt.name} ({opt.id})
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+          <ThemeToggle />
+          </div>
+          <button
+            className="md:hidden h-10 w-10 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle navigation"
+          >
+            <HiBars3 className="text-sm" />
+          </button>
+          <div className="hidden md:flex items-center gap-2">
+            <div className="relative" ref={notificationRef}>
+              <button
+                onClick={() => {
+                  setNotificationOpen(!notificationOpen);
+                  setProfileOpen(false);
+                }}
+                className="relative h-10 w-10 rounded-full border border-slate-200  grid place-items-center ring-1 ring-transparent  hover:bg-slate-200 transition  "
+                aria-label="Notifications"
+              >
+                <HiOutlineBell className="text-sm w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                )}
+              </button>
+              {notificationOpen && (
+                <div className="absolute right-0 top-full z-50 mt-3 w-[360px] overflow-hidden rounded-2xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]">
+                  <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-semibold text-white">
+                        Notifications
+                      </p>
+                      <p className="text-xs text-white/60">
+                        {unreadCount} unread
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setNotificationOpen(false)}
+                      className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/60 transition hover:border-white/20 hover:text-white"
+                    >
+                      <HiXMark className="text-base" />
+                    </button>
+                  </div>
 
 										<div className="max-h-[280px] space-y-2 overflow-y-auto px-3 py-3">
 											{notifications.slice(0, 5).map((n) => {
