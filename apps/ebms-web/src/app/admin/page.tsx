@@ -1,7 +1,7 @@
 /** @format */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { gql } from "graphql-request";
@@ -10,9 +10,13 @@ import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
 import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import {
   getAdminClient,
+  getApiBaseUrl,
   confirmBenefitRequest,
-  fetchBenefitRequestContractHtml,
   getApiErrorMessage,
+  uploadSignedContractForRequest,
+  fetchUnclosedFeedback,
+  closeFeedback,
+  type EscalatedFeedbackItem,
 } from "./_lib/api";
 
 const BENEFIT_REQUESTS_QUERY = gql`
@@ -146,6 +150,12 @@ export default function HrDashboardPage() {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [eligibilitySearch, setEligibilitySearch] = useState("");
   const [employeesForSearch, setEmployeesForSearch] = useState<EmployeeSearchItem[]>([]);
+  const [selectedContractFileByRequestId, setSelectedContractFileByRequestId] =
+    useState<Record<string, File | null>>({});
+  const [uploadingContractByRequestId, setUploadingContractByRequestId] =
+    useState<Record<string, boolean>>({});
+  const [unclosedFeedback, setUnclosedFeedback] = useState<EscalatedFeedbackItem[]>([]);
+  const [feedbackClosingId, setFeedbackClosingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -236,6 +246,7 @@ export default function HrDashboardPage() {
   ];
 
   const normalizedSearch = eligibilitySearch.trim().toLowerCase();
+  const apiBaseUrl = getApiBaseUrl().replace(/\/$/, "");
   const employeeSuggestions = useMemo(() => {
     if (!normalizedSearch) return [];
     return employeesForSearch
@@ -284,17 +295,26 @@ export default function HrDashboardPage() {
     }
   };
 
-  const handleViewTemplate = async (requestId: string) => {
+  const handleUploadSignedContract = async (requestId: string) => {
+    const file = selectedContractFileByRequestId[requestId];
+    if (!file) {
+      setError("Please select signed contract PDF first.");
+      return;
+    }
+    setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: true }));
+    setError(null);
     try {
-      const html = await fetchBenefitRequestContractHtml(getAdminClient(), requestId);
-      const popup = window.open("", "_blank", "noopener,noreferrer");
-      if (popup) {
-        popup.document.open();
-        popup.document.write(html);
-        popup.document.close();
-      }
+      await uploadSignedContractForRequest(getAdminClient(), requestId, file);
+      const client = getAdminClient();
+      const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
+        BENEFIT_REQUESTS_QUERY,
+        { status: statusFilter ?? undefined }
+      );
+      setRequests((res.benefitRequests ?? []).map((r) => ({ ...r, status: (r.status || "PENDING").toUpperCase() })));
     } catch (e) {
       setError(getApiErrorMessage(e));
+    } finally {
+      setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: false }));
     }
   };
 

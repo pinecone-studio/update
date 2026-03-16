@@ -36,11 +36,6 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
     throw new GraphQLError('Benefit not found', { extensions: { code: 'NOT_FOUND' } });
   }
   const requiresContract = asBool01(benefit.requiresContract);
-  if (requiresContract && !benefit.activeContractId) {
-    throw new GraphQLError('Benefit requires an active contract before requests can be submitted', {
-      extensions: { code: 'CONFLICT' },
-    });
-  }
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -64,7 +59,7 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
     contractAcceptedAt: null,
     requiresContract,
     contractId: benefit.activeContractId ?? null,
-    contractTemplateUrl: requiresContract ? `/contracts/requests/${id}/template` : null,
+    contractTemplateUrl: null,
   };
 };
 

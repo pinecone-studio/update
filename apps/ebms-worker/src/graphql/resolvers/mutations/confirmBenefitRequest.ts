@@ -52,23 +52,6 @@ export const confirmBenefitRequest: NonNullable<
   }
 
   const requiresContract = row.requiresContract === 1;
-  if (contractAccepted && requiresContract) {
-    if (!row.contractAcceptedAt || !row.contractVersionAccepted) {
-      throw new GraphQLError('Employee must sign the contract before approval', {
-        extensions: { code: 'BAD_USER_INPUT' },
-      });
-    }
-    if (row.activeContractVersion && row.contractVersionAccepted !== row.activeContractVersion) {
-      throw new GraphQLError('Signed contract version is outdated. Please sign active contract again.', {
-        extensions: { code: 'CONFLICT' },
-      });
-    }
-    if (!row.activeContractId) {
-      throw new GraphQLError('Active contract is not configured for this benefit', {
-        extensions: { code: 'CONFLICT' },
-      });
-    }
-  }
 
   const now = new Date().toISOString();
   const newStatus = contractAccepted ? 'approved' : 'rejected';
@@ -76,7 +59,7 @@ export const confirmBenefitRequest: NonNullable<
     .update(benefitRequests)
     .set({
       status: newStatus,
-      contractAcceptedAt: contractAccepted ? row.contractAcceptedAt ?? now : null,
+      contractAcceptedAt: contractAccepted ? row.contractAcceptedAt ?? null : null,
       reviewedBy: actorId,
       rejectReason: !contractAccepted && rejectReason ? rejectReason : null,
       updatedAt: now,
@@ -98,14 +81,19 @@ export const confirmBenefitRequest: NonNullable<
       )
       .limit(1);
 
+    const nextEligibilityStatus = requiresContract ? 'pending' : 'active';
+    const nextOverrideReason = requiresContract
+      ? 'Approved by admin/hr - awaiting signed contract upload'
+      : 'Approved by admin/hr';
+
     if (existingEligibility[0]) {
       await db
         .update(benefitEligibility)
         .set({
-          status: 'active',
+          status: nextEligibilityStatus,
           computedAt: now,
           overrideBy: actorId,
-          overrideReason: 'Approved by admin/hr',
+          overrideReason: nextOverrideReason,
         })
         .where(
           and(
@@ -117,25 +105,36 @@ export const confirmBenefitRequest: NonNullable<
       await db.insert(benefitEligibility).values({
         employeeId: row.employeeId,
         benefitId: row.benefitId,
-        status: 'active',
+        status: nextEligibilityStatus,
         ruleEvaluationJson: '[]',
         computedAt: now,
         overrideBy: actorId,
-        overrideReason: 'Approved by admin/hr',
+        overrideReason: nextOverrideReason,
         overrideExpiresAt: null,
       });
     }
   }
 
   if (contractAccepted) {
+    const contractFollowUpRequired = requiresContract;
     await dispatchEmployeeNotification(ctx.env, {
       employeeId: row.employeeId,
       type: 'REQUEST_STATUS',
-      tone: 'success',
+      tone: contractFollowUpRequired ? 'warning' : 'success',
       dedupeKey: `request:${row.id}:approved`,
-      title: 'Benefit Request Approved',
-      body: `Your ${row.benefitName ?? 'benefit'} request has been APPROVED. Your benefit is now ACTIVE.`,
-      metadata: { benefitId: row.benefitId, requestId: row.id, status: 'APPROVED' },
+      title: contractFollowUpRequired
+        ? 'Benefit Approved: Upload Signed Contract'
+        : 'Benefit Request Approved',
+      body: contractFollowUpRequired
+        ? `Your ${row.benefitName ?? 'benefit'} request is APPROVED. Please sign manually and upload the signed contract PDF. Benefit will become ACTIVE after upload.`
+        : `Your ${row.benefitName ?? 'benefit'} request has been APPROVED. Your benefit is now ACTIVE.`,
+      metadata: {
+        benefitId: row.benefitId,
+        requestId: row.id,
+        status: 'APPROVED',
+        requiresContract: contractFollowUpRequired,
+        action: contractFollowUpRequired ? 'UPLOAD_SIGNED_CONTRACT' : 'NONE',
+      },
     });
   } else {
     await dispatchEmployeeNotification(ctx.env, {
@@ -157,9 +156,9 @@ export const confirmBenefitRequest: NonNullable<
     createdAt: row.createdAt ?? now,
     rejectReason: !contractAccepted && rejectReason ? rejectReason : null,
     contractVersionAccepted: row.contractVersionAccepted ?? null,
-    contractAcceptedAt: contractAccepted ? row.contractAcceptedAt ?? now : null,
+    contractAcceptedAt: contractAccepted ? row.contractAcceptedAt ?? null : null,
     requiresContract,
     contractId: row.activeContractId ?? null,
-    contractTemplateUrl: requiresContract ? `/contracts/requests/${row.id}/template` : null,
+    contractTemplateUrl: null,
   };
 };

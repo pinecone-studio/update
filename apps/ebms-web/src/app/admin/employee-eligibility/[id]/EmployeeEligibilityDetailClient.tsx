@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { GraphQLClient, gql } from "graphql-request";
-import { getActiveUserHeaders } from "@/app/_lib/activeUser";
+import { ensureValidActiveUserProfile, getActiveUserHeaders } from "@/app/_lib/activeUser";
 
 type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
@@ -78,6 +78,24 @@ const statusClass: Record<BenefitStatus, string> = {
 
 const statusOptions: BenefitStatus[] = ["ACTIVE", "PENDING", "ELIGIBLE", "LOCKED"];
 
+const statusTabActiveClass: Record<BenefitStatus, string> = {
+  ACTIVE:
+    "bg-emerald-600 text-white shadow-sm dark:bg-emerald-500 dark:text-[#06261F]",
+  PENDING:
+    "bg-amber-500 text-[#1F1300] shadow-sm dark:bg-amber-400 dark:text-[#1F1300]",
+  ELIGIBLE:
+    "bg-blue-600 text-white shadow-sm dark:bg-blue-500 dark:text-[#071629]",
+  LOCKED:
+    "bg-rose-600 text-white shadow-sm dark:bg-rose-500 dark:text-[#2A0B17]",
+};
+
+function getStatusTabClass(option: BenefitStatus, selected: boolean): string {
+  const base =
+    "inline-flex h-7 items-center justify-center rounded-md px-2 text-[11px] font-semibold tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:focus-visible:ring-blue-300/60";
+  if (selected) return `${base} ${statusTabActiveClass[option]}`;
+  return `${base} text-slate-600 hover:text-slate-900 dark:text-[#A7B6D3] dark:hover:text-white`;
+}
+
 function getClient(): GraphQLClient {
   const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
   const base = raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
@@ -143,15 +161,33 @@ export default function EmployeeEligibilityDetailClient() {
     setSavingByKey((prev) => ({ ...prev, [key]: true }));
     setErrorByKey((prev) => ({ ...prev, [key]: "" }));
     try {
+      await ensureValidActiveUserProfile();
       const client = getClient();
-      await client.request(OVERRIDE_ELIGIBILITY_MUTATION, {
-        input: {
-          employeeId: id,
-          benefitId,
-          status: nextStatus,
-          reason,
-        },
-      });
+      try {
+        await client.request(OVERRIDE_ELIGIBILITY_MUTATION, {
+          input: {
+            employeeId: id,
+            benefitId,
+            status: nextStatus,
+            reason,
+          },
+        });
+      } catch (firstError) {
+        const msg = getErrorMessage(firstError).toLowerCase();
+        if (!msg.includes("employee not found")) {
+          throw firstError;
+        }
+        await ensureValidActiveUserProfile();
+        const retryClient = getClient();
+        await retryClient.request(OVERRIDE_ELIGIBILITY_MUTATION, {
+          input: {
+            employeeId: id,
+            benefitId,
+            status: nextStatus,
+            reason,
+          },
+        });
+      }
       const changedAt = new Date().toLocaleString();
       setEmployee((prev) =>
         prev
@@ -192,10 +228,24 @@ export default function EmployeeEligibilityDetailClient() {
       setLoading(false);
       return;
     }
-    const client = getClient();
-    client
-      .request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, { id })
-      .then((data) => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureValidActiveUserProfile();
+        const client = getClient();
+        let data: { employee: EmployeeDetail | null };
+        try {
+          data = await client.request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, { id });
+        } catch (firstError) {
+          const msg = getErrorMessage(firstError).toLowerCase();
+          if (!msg.includes("employee not found")) {
+            throw firstError;
+          }
+          await ensureValidActiveUserProfile();
+          const retryClient = getClient();
+          data = await retryClient.request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, { id });
+        }
+        if (cancelled) return;
         const emp = data.employee;
         if (!emp) {
           setEmployee(null);
@@ -212,9 +262,15 @@ export default function EmployeeEligibilityDetailClient() {
             history: [],
           })),
         });
-      })
-      .catch(() => setEmployee(null))
-      .finally(() => setLoading(false));
+      } catch {
+        if (!cancelled) setEmployee(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (!id) {
@@ -331,31 +387,30 @@ export default function EmployeeEligibilityDetailClient() {
                     </span>
                   </button>
                 </div>
-                  <div className="mt-5 rounded-lg border border-slate-300 bg-white p-5 dark:border-[#324A70] dark:bg-[#0F172A]">
-                    <p className="text-sm font-medium text-slate-600 dark:text-[#C9D5EA]">
-                      Status сонголт
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {statusOptions.map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() =>
-                            setDraftStatusByKey((prev) => ({
-                              ...prev,
-                              [key]: option,
-                            }))
-                          }
-                          className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition ${
-                            draftStatus === option
-                              ? statusClass[option]
-                              : "border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:border-[#4B6FA8] dark:hover:text-white"
-                          }`}
-                        >
-                          {option}
-                        </button>
-                      ))}
+                <div className="mt-5 rounded-lg border border-slate-300 bg-white p-5 dark:border-[#324A70] dark:bg-[#0F172A]">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-[#243B61] dark:bg-[#0B1220]">
+                    <div className="grid grid-cols-4 gap-2">
+                      {statusOptions.map((option) => {
+                        const selected = draftStatus === option;
+                        return (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() =>
+                              setDraftStatusByKey((prev) => ({
+                                ...prev,
+                                [key]: option,
+                              }))
+                            }
+                            className={getStatusTabClass(option, selected)}
+                            aria-pressed={selected}
+                          >
+                            {option.toLowerCase()}
+                          </button>
+                        );
+                      })}
                     </div>
+                  </div>
                     <label className="mt-4 block text-sm font-medium text-slate-600 dark:text-[#C9D5EA]">
                       Яагаад өөрчилснөө бичнэ үү
                     </label>
