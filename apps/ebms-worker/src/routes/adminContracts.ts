@@ -36,6 +36,31 @@ adminContracts.get("/employee-requests/:requestId/file", async (c) => {
   });
 });
 
+/** Download employee contract PDF by employee_contracts.id */
+adminContracts.get("/employee/:contractId/file", async (c) => {
+  const contractId = c.req.param("contractId");
+  const db = getDb(c.env);
+  const rows = await db
+    .select({
+      id: employeeContractsTable.id,
+      r2ObjectKey: employeeContractsTable.r2ObjectKey,
+    })
+    .from(employeeContractsTable)
+    .where(eq(employeeContractsTable.id, contractId))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return c.json({ error: "Employee contract not found" }, 404);
+
+  const object = await c.env.CONTRACTS.get(row.r2ObjectKey);
+  if (!object) return c.json({ error: "Employee contract file not found in R2" }, 404);
+  const bytes = await object.arrayBuffer();
+  const filename = row.r2ObjectKey.split("/").pop() || `${contractId}.pdf`;
+  return c.body(bytes, 200, {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `inline; filename="${filename}"`,
+  });
+});
+
 adminContracts.get("/:contractId/file", async (c) => {
   const contractId = c.req.param("contractId");
   const db = getDb(c.env);
