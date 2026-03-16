@@ -340,11 +340,11 @@ export default function EmployeeDashboardPage() {
                 </div>
 
                 <div className="w-full lg:justify-self-end">
-                  <div className="overflow-hidden rounded-[32px] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.28)]">
+                  <div className="flex h-[180px] w-full items-center justify-center overflow-hidden rounded-[32px] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:h-[260px] lg:h-[242px] lg:w-[356px]">
                     <img
-                      src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=80"
+                      src="/employee.png"
                       alt="Office workspace"
-                      className="h-[220px] w-full object-cover sm:h-[260px] lg:h-[242px] lg:w-[356px]"
+                      className="h-[140px] w-auto object-contain sm:h-[200px] lg:h-[190px]"
                     />
                   </div>
                 </div>
