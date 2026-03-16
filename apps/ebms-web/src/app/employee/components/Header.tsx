@@ -26,6 +26,7 @@ import {
   HiOutlineArrowTopRightOnSquare,
 } from "react-icons/hi2";
 import { IoDiceOutline } from "react-icons/io5";
+import { ProfileIcon } from "@/app/icons/profile";
 
 const STORAGE_KEY = "ebms_employee_notifications";
 const TAGLINE_INDEX_KEY = "ebms_employee_tagline_index";
@@ -260,7 +261,7 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md">
-      <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-4">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1500px] items-center justify-between gap-4">
         <div className="flex min-w-[180px] items-center gap-8 md:gap-6 ">
           <Link
             href="/employee"
@@ -277,11 +278,13 @@ export const Header = () => {
           </Link>
         </div>
 
-        <div className="hidden flex-1 items-center justify-center px-2 md:flex">
-          <div className="relative w-full max-w-[720px]">
-            <p className="truncate px-16 text-center text-[18px] font-medium tracking-[-0.2px] text-white/70">
+        <div className="hidden flex-1 items-center justify-center px-2 md:flex ">
+          <div className="relative w-full max-w-[650px] flex gap-3 items-center"> 
+           <div className="w-[600px] h-10 border border-white/10 rounded-xl flex items-center justify-center">
+            <p className="truncate px-16 text-center text-[18px] font-medium tracking-[-0.2px] text-[#CFD6D8] letter-spacing-[0.2px] line-height-[20px]">
               {TAGLINES[currentTaglineIndex]}
             </p>
+            </div>
             <button
               ref={diceButtonRef}
               onClick={handleRandomTagline}
@@ -319,9 +322,12 @@ export const Header = () => {
               ))}
             </select>
           </label>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
           <ThemeToggle />
+          </div>
           <button
-            className="md:hidden h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            className="md:hidden h-10 w-10 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle navigation"
           >
@@ -334,14 +340,12 @@ export const Header = () => {
                   setNotificationOpen(!notificationOpen);
                   setProfileOpen(false);
                 }}
-                className="relative grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] text-white/80 shadow-[0_16px_30px_-26px_rgba(0,0,0,0.6)] transition hover:border-white/20 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] hover:text-white"
+                className="relative h-10 w-10 rounded-full border border-slate-200  grid place-items-center ring-1 ring-transparent  hover:bg-slate-200 transition  "
                 aria-label="Notifications"
               >
-                <HiOutlineBell className="text-[18px]" />
+                <HiOutlineBell className="text-sm w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white shadow-sm">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
+                  <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-500" />
                 )}
               </button>
               {notificationOpen && (
@@ -418,33 +422,24 @@ export const Header = () => {
                 </div>
               )}
             </div>
+            </div>
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => {
                   setProfileOpen(!profileOpen);
                   setNotificationOpen(false);
                 }}
-                className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center ml-1 ring-1 ring-transparent hover:ring-blue-300 hover:bg-blue-500 transition dark:ring-blue-500"
+                className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white "
                 aria-label="Profile"
               >
-                {me?.name
-                  ?.split(" ")
-                  .map((s) => s[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase() ?? "JD"}
+           <ProfileIcon/>
               </button>
               {profileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
                   <div className="p-4 border-b border-slate-200 dark:border-[#243041]">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-blue-600 text-white text-xs font-semibold grid place-items-center">
-                        {me?.name
-                          ?.split(" ")
-                          .map((s) => s[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase() ?? "JD"}
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white ">
+                       <ProfileIcon/>
                       </div>
                       <div>
                         <p className="text-slate-900 font-semibold dark:text-white">
@@ -457,6 +452,13 @@ export const Header = () => {
                     </div>
                   </div>
                   <div className="p-2">
+                  <Link
+                  href="/admin"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
+                 >
+                 <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+                  Admin
+               </Link>
                     <Link
                       href="/employee/myprofile"
                       onClick={() => setProfileOpen(false)}

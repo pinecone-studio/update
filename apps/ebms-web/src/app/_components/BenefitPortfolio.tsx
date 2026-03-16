@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import { BenefitCard } from "@/app/_components/BenefitCard";
-import { BenefitEligibilityModal } from "@/app/_components/BenefitEligibilityModal";
+import { BenefitStatusModal } from "@/app/employee/components/BenefitStatusModal";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 
 interface BenefitPortfolioProps {
@@ -89,7 +89,7 @@ export function BenefitPortfolio({
 					);
 				})}
 			</div>
-			<BenefitEligibilityModal
+			<BenefitStatusModal
 				benefit={selectedBenefit}
 				onClose={() => {
 					setSelectedBenefit(null);

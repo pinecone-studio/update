@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback } from "react";
 import {
   FiCheck,
   FiStar,
-  FiActivity,
+  FiClock,
   FiLock,
   FiMessageCircle,
   FiHelpCircle,
@@ -29,39 +29,43 @@ import { ensureValidActiveUserProfile } from "@/app/_lib/activeUser";
 const FILTER_PILL_STYLES = {
   ACTIVE: {
     label: "Active",
-    tone: "text-[#d6dfeb]",
-    countTone: "text-white",
-    iconWrap: "bg-[#083a45] text-[#11d1b2]",
-    idle: "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]",
+    tone: "text-[#EAF1FF]",
+    countTone: "text-[#AAB4D7]",
+    iconWrap:
+      "bg-[linear-gradient(180deg,rgba(63,175,143,0.72),rgba(39,122,104,0.72))] text-[#A5FFE7] border border-[#66d9bf66]",
+    idle: "border-[0.6px] border-[#AAB4D766] bg-[linear-gradient(90deg,#2C2647_0%,#0F1421_100%)]",
     active:
-      "border-[#2e5657] bg-[#2a2544] shadow-[0_12px_28px_rgba(0,0,0,0.18)]",
+      "border border-[#5FE7C780] bg-[linear-gradient(90deg,#2C2647_0%,#0F1421_100%)] shadow-[0_0_0_1px_rgba(95,231,199,0.25),0_0_24px_rgba(31,183,145,0.35)]",
   },
   ELIGIBLE: {
     label: "Eligible",
-    tone: "text-[#d6dfeb]",
-    countTone: "text-white",
-    iconWrap: "bg-[#243766] text-[#69a2ff]",
-    idle: "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]",
+    tone: "text-[#EAF1FF]",
+    countTone: "text-[#AAB4D7]",
+    iconWrap:
+      "bg-[linear-gradient(180deg,rgba(83,140,214,0.72),rgba(44,90,157,0.72))] text-[#A9CCFF] border border-[#79AAFF66]",
+    idle: "border-[0.6px] border-[#AAB4D766] bg-[linear-gradient(90deg,#0F1421_0%,#2C2647_100%)]",
     active:
-      "border-[#405fa3] bg-[#342d63] shadow-[0_12px_28px_rgba(0,0,0,0.18)]",
+      "border border-[#7AB6FF80] bg-[linear-gradient(90deg,#0F1421_0%,#2C2647_100%)] shadow-[0_0_0_1px_rgba(122,182,255,0.25),0_0_24px_rgba(81,141,230,0.35)]",
   },
   PENDING: {
     label: "Pending",
-    tone: "text-[#d6dfeb]",
-    countTone: "text-white",
-    iconWrap: "bg-[#5f2f26] text-[#ff9a1f]",
-    idle: "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]",
+    tone: "text-[#EAF1FF]",
+    countTone: "text-[#AAB4D7]",
+    iconWrap:
+      "bg-[linear-gradient(180deg,rgba(167,107,49,0.72),rgba(119,74,33,0.72))] text-[#FF9D33] border border-[#FFB16B66]",
+    idle: "border-[0.6px] border-[#AAB4D766] bg-[linear-gradient(90deg,#2C2647_0%,#0F1421_100%)]",
     active:
-      "border-[#b15a31] bg-[#633347] shadow-[0_12px_28px_rgba(0,0,0,0.18)]",
+      "border border-[#FFBF6B80] bg-[linear-gradient(90deg,#2C2647_0%,#0F1421_100%)] shadow-[0_0_0_1px_rgba(255,191,107,0.25),0_0_24px_rgba(255,157,51,0.32)]",
   },
   LOCKED: {
     label: "Locked",
-    tone: "text-[#d6dfeb]",
-    countTone: "text-white",
-    iconWrap: "bg-[#4e244e] text-[#ff699c]",
-    idle: "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]",
+    tone: "text-[#EAF1FF]",
+    countTone: "text-[#AAB4D7]",
+    iconWrap:
+      "bg-[linear-gradient(180deg,rgba(177,89,108,0.72),rgba(122,56,72,0.72))] text-[#FF6D88] border border-[#FF96A866]",
+    idle: "border-[0.6px] border-[#AAB4D766] bg-[linear-gradient(90deg,#0F1421_0%,#2C2647_100%)]",
     active:
-      "border-[#7a3e7e] bg-[#372d62] shadow-[0_12px_28px_rgba(0,0,0,0.18)]",
+      "border border-[#FF9AB180] bg-[linear-gradient(90deg,#0F1421_0%,#2C2647_100%)] shadow-[0_0_0_1px_rgba(255,154,177,0.22),0_0_24px_rgba(255,109,136,0.3)]",
   },
 } as const;
 
@@ -240,7 +244,7 @@ export default function EmployeeDashboardPage() {
     {
       key: "PENDING" as const,
       count: pendingCount,
-      icon: <FiActivity size={16} />,
+      icon: <FiClock size={16} />,
     },
     { key: "LOCKED" as const, count: lockedCount, icon: <FiLock size={16} /> },
   ];
@@ -324,7 +328,7 @@ export default function EmployeeDashboardPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-3 sm:gap-4">
+                  <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
                     {filterItems.map((item) => {
                       const styles = FILTER_PILL_STYLES[item.key];
                       const isActive = statusFilter === item.key;
@@ -338,21 +342,21 @@ export default function EmployeeDashboardPage() {
                               prev === item.key ? "ALL" : item.key,
                             )
                           }
-                          className={`inline-flex min-w-[138px] items-center gap-3 rounded-[18px] border px-4 py-3 text-left transition-all duration-200 sm:min-w-0 sm:px-5 ${
+                          className={`inline-flex h-[38px] w-[160px] shrink-0 cursor-pointer items-center gap-[10px] rounded-[13px] border px-[8px] py-[6px] text-left transition-all duration-200 ${
                             isActive ? styles.active : styles.idle
                           }`}
                         >
                           <span
-                            className={`grid h-10 w-10 place-items-center rounded-[14px] sm:h-11 sm:w-11 ${styles.iconWrap}`}
+                            className={`grid h-[26px] w-[26px] place-items-center rounded-[8px] ${styles.iconWrap}`}
                           >
                             {item.icon}
                           </span>
                           <span
-                            className={`text-[14px] font-medium sm:text-[15px] ${styles.tone}`}
+                            className={`text-[14px] leading-none font-medium tracking-[-0.2px] ${styles.tone}`}
                           >
-                            {styles.label}{" "}
-                            <span className={styles.countTone}>
-                              — {item.count}
+                            {styles.label}
+                            <span className={`${styles.countTone} ml-2`}>
+                              {item.count}
                             </span>
                           </span>
                         </button>

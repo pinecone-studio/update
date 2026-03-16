@@ -281,7 +281,7 @@ export default function HrDashboardPage() {
         <p className="mt-2 sm:mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">Overview of your HR benefits management system</p>
       </div>
 
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="grid grid-cols-2 gap-2 lg:col-span-1">
           {statCards.map((card) => (
             <article key={card.title} className="min-w-0 h-[128px] rounded-xl border border-slate-200 bg-white p-3 text-left dark:border-[#2C4264] dark:bg-[#1E293B]">
@@ -305,49 +305,6 @@ export default function HrDashboardPage() {
             </article>
           ))}
         </div>
-
-        <section className="self-start rounded-xl border border-slate-200 bg-white p-5 dark:border-[#2C4264] dark:bg-[#1E293B] lg:col-span-2">
-          <div className="mb-4">
-            <h2 className="text-11 font-semibold text-slate-900 dark:text-white">Employee Eligibility Overview</h2>
-          </div>
-          <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8">
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-4-4" />
-              </svg>
-            </span>
-            <input
-              type="text"
-              value={eligibilitySearch}
-              onChange={(e) => setEligibilitySearch(e.target.value)}
-              placeholder="Ажилтны нэр, ID, албаар хайх..."
-              className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8FA3C5] dark:focus:border-[#4B6FA8]"
-            />
-            {normalizedSearch.length > 0 && (
-              <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-64 overflow-auto rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#324A70] dark:bg-[#0F172A]">
-                {employeeSuggestions.length > 0 ? (
-                  employeeSuggestions.map((emp) => (
-                    <button
-                      key={emp.id}
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        router.push(`/admin/employee-eligibility/${emp.id}`);
-                      }}
-                      className="flex w-full items-center justify-between px-4 py-3 text-left text-5 text-slate-900 transition hover:bg-slate-100 dark:text-white dark:hover:bg-[#142544]"
-                    >
-                      <span className="truncate">{emp.name}</span>
-                      <span className="ml-3 text-xs text-[#8FA3C5]">{emp.id}</span>
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-4 py-3 text-5 text-slate-500 dark:text-[#9FB0CF]">Хайлтад тохирох ажилтан олдсонгүй.</div>
-                )}
-              </div>
-            )}
-          </div>
-        </section>
       </section>
 
       <article className="mt-6 sm:mt-8 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
