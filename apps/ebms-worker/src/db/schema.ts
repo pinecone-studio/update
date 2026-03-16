@@ -3,7 +3,7 @@
  * SQLite-compatible for Cloudflare D1
  */
 
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, primaryKey } from 'drizzle-orm/sqlite-core';
 
 export const employees = sqliteTable('employees', {
   id: text('id').primaryKey(),
@@ -124,17 +124,25 @@ export const eligibilityAudit = sqliteTable('eligibility_audit', {
   createdAt: text('created_at').default(''),
 });
 
-export const employeeNotifications = sqliteTable('employee_notifications', {
+/** Benefit feedback — employees create, vote; 3 votes before deadline → admin */
+export const feedback = sqliteTable('feedback', {
   id: text('id').primaryKey(),
-  employeeId: text('employee_id').notNull(),
-  title: text('title').notNull(),
-  body: text('body').notNull(),
-  type: text('type').notNull(),
-  tone: text('tone').notNull().default('info'),
-  channel: text('channel').notNull(),
-  deliveryStatus: text('delivery_status').notNull().default('delivered'),
-  isRead: integer('is_read').notNull().default(0),
-  dedupeKey: text('dedupe_key'),
-  metadataJson: text('metadata_json'),
+  text: text('text').notNull(),
+  employeeId: text('employee_id'),
+  benefitId: text('benefit_id'),
+  isAnonymous: integer('is_anonymous').notNull().default(1),
+  status: text('status').notNull().default('OPEN'),
   createdAt: text('created_at').notNull(),
+  votingEndsAt: text('voting_ends_at').notNull(),
+  closedAt: text('closed_at'),
 });
+
+export const feedbackVotes = sqliteTable(
+  'feedback_votes',
+  {
+    feedbackId: text('feedback_id').notNull(),
+    employeeId: text('employee_id').notNull(),
+    createdAt: text('created_at').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.feedbackId, t.employeeId] })],
+);

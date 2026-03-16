@@ -9,10 +9,10 @@ import { createYoga, createSchema } from "graphql-yoga";
 import { eq } from "drizzle-orm";
 import type { Env } from "./types";
 import { typeDefs, resolvers } from "./graphql";
-import { getDb } from "./db/drizzle";
-import { employees } from "./db/schema";
-// import adminContracts from "./routes/adminContracts";
-// import contractsRoute from "./routes/contracts";
+import adminContracts from "./routes/adminContracts";
+import adminFeedback from "./routes/adminFeedback";
+import contractsRoute from "./routes/contracts";
+import feedbackRoute from "./routes/feedback";
 
 type YogaContext = {
   env: Env;
@@ -52,8 +52,10 @@ app.get("/health", (c) =>
   c.json({ ok: true, timestamp: new Date().toISOString() }),
 );
 
-// app.route("/admin/contracts", adminContracts);
-// app.route("/contracts", contractsRoute);
+app.route("/admin/contracts", adminContracts);
+app.route("/admin/feedback", adminFeedback);
+app.route("/feedback", feedbackRoute);
+app.route("/contracts", contractsRoute);
 
 app.all("/graphql", async (c) => {
   const employeeId = c.req.header("x-employee-id") ?? null;
