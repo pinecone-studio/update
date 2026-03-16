@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { gql } from "graphql-request";
 import { AuditLogSkeleton } from "../components/AuditLogSkeleton";
+import { getAdminClient, getApiErrorMessage } from "../_lib/api";
 
 type AuditEntry = {
   id: string;
   timestamp: string;
   action: string;
-  status: "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED";
+  status: "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED" | "REJECTED" | "CANCELLED";
   employee: string;
   employeeId: string;
   benefit: string;
@@ -18,50 +20,121 @@ type AuditEntry = {
   contractEndDate: string;
 };
 
-const entries: AuditEntry[] = [
-  {
-    id: "LOG-1001",
-    timestamp: "March 10, 2026 14:23:15",
-    action: "Override Granted",
-    status: "ACTIVE",
-    employee: "Sarah Johnson",
-    employeeId: "EMP-2847",
-    benefit: "Stock Options",
-    performedBy: "Admin User",
-    details: "Manual eligibility override granted",
-    reason: "Exceptional performance review and promotion to L4 effective immediately. VP approval obtained.",
-    contractStartDate: "2026-01-01",
-    contractEndDate: "2026-12-31",
-  },
-  {
-    id: "LOG-1002",
-    timestamp: "March 9, 2026 09:11:03",
-    action: "Temporary Exception",
-    status: "PENDING",
-    employee: "Mike Chen",
-    employeeId: "EMP-2914",
-    benefit: "Medical Leave Coverage",
-    performedBy: "Admin User",
-    details: "Temporary exception created",
-    reason: "Extended medical leave approved for 60 days based on submitted documentation.",
-    contractStartDate: "2026-03-01",
-    contractEndDate: "2026-09-30",
-  },
-];
+const AUDIT_LOG_QUERY = gql`
+  query AuditLogForAdmin {
+    auditLog(filters: {}) {
+      id
+      employeeId
+      benefitId
+      oldStatus
+      newStatus
+      computedAt
+      triggeredBy
+      createdAt
+    }
+  }
+`;
+
+const EMPLOYEES_QUERY = gql`
+  query AuditEmployees {
+    employees {
+      id
+      name
+    }
+  }
+`;
+
+const BENEFITS_QUERY = gql`
+  query AuditBenefits {
+    benefits {
+      id
+      name
+    }
+  }
+`;
 
 export default function AuditLogPage() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [logIdFilter, setLogIdFilter] = useState("");
   const [benefitFilter, setBenefitFilter] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED">("ALL");
-  const [actionFilter, setActionFilter] = useState<"ALL" | "Override Granted" | "Temporary Exception" | "Rule Updated">("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | AuditEntry["status"]>("ALL");
+  const [actionFilter, setActionFilter] = useState<string>("ALL");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const client = getAdminClient();
+        const [auditRes, employeesRes, benefitsRes] = await Promise.all([
+          client.request<{
+            auditLog: Array<{
+              id: string;
+              employeeId: string;
+              benefitId: string;
+              oldStatus?: string | null;
+              newStatus: string;
+              computedAt: string;
+              triggeredBy?: string | null;
+              createdAt?: string | null;
+            }>;
+          }>(AUDIT_LOG_QUERY),
+          client.request<{ employees: Array<{ id: string; name?: string | null }> }>(EMPLOYEES_QUERY),
+          client.request<{ benefits: Array<{ id: string; name: string }> }>(BENEFITS_QUERY),
+        ]);
+
+        if (cancelled) return;
+
+        const employeeNameById = new Map(
+          (employeesRes.employees ?? []).map((e) => [e.id, e.name?.trim() || e.id]),
+        );
+        const benefitNameById = new Map(
+          (benefitsRes.benefits ?? []).map((b) => [b.id, b.name]),
+        );
+
+        const mapped: AuditEntry[] = (auditRes.auditLog ?? []).map((item) => {
+          const nextStatus = (item.newStatus ?? "LOCKED").toUpperCase() as AuditEntry["status"];
+          const prev = (item.oldStatus ?? "").toUpperCase().trim();
+          const action = prev
+            ? `Status ${prev} -> ${nextStatus}`
+            : "Override Granted";
+          return {
+            id: item.id,
+            timestamp: item.computedAt || item.createdAt || "",
+            action,
+            status: nextStatus,
+            employee: employeeNameById.get(item.employeeId) ?? item.employeeId,
+            employeeId: item.employeeId,
+            benefit: benefitNameById.get(item.benefitId) ?? item.benefitId,
+            performedBy: item.triggeredBy ?? "system",
+            details: prev
+              ? "Eligibility status updated."
+              : "Manual eligibility override recorded.",
+            reason: "",
+            contractStartDate: "—",
+            contractEndDate: "—",
+          };
+        });
+
+        setEntries(mapped);
+      } catch (e) {
+        if (!cancelled) {
+          setEntries([]);
+          setError(getApiErrorMessage(e));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -69,22 +142,28 @@ export default function AuditLogPage() {
   }
 
   const benefitOptions = Array.from(new Set(entries.map((entry) => entry.benefit)));
+  const actionOptions = Array.from(new Set(entries.map((entry) => entry.action)));
 
   const filteredEntries = entries.filter((entry) => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
+    const normalizedLogId = logIdFilter.trim().toLowerCase();
     if (
       normalizedSearch &&
       !(
         entry.employee.toLowerCase().includes(normalizedSearch) ||
         entry.employeeId.toLowerCase().includes(normalizedSearch) ||
-        entry.benefit.toLowerCase().includes(normalizedSearch)
+        entry.benefit.toLowerCase().includes(normalizedSearch) ||
+        entry.action.toLowerCase().includes(normalizedSearch) ||
+        entry.status.toLowerCase().includes(normalizedSearch) ||
+        entry.id.toLowerCase().includes(normalizedSearch) ||
+        entry.performedBy.toLowerCase().includes(normalizedSearch)
       )
     ) {
       return false;
     }
 
     if (benefitFilter !== "ALL" && entry.benefit !== benefitFilter) return false;
-    if (logIdFilter.trim() && !entry.id.toLowerCase().includes(logIdFilter.trim().toLowerCase())) return false;
+    if (normalizedLogId && !entry.id.toLowerCase().includes(normalizedLogId)) return false;
     if (actionFilter !== "ALL" && entry.action !== actionFilter) return false;
     if (statusFilter !== "ALL" && entry.status !== statusFilter) return false;
 
@@ -177,7 +256,7 @@ export default function AuditLogPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Employee name, ID, benefit..."
+                placeholder="User, ID, benefit, action, status..."
                 className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 pl-14 pr-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
               />
             </div>
@@ -240,17 +319,15 @@ export default function AuditLogPage() {
             <div className="relative">
               <select
                 value={actionFilter}
-                onChange={(e) =>
-                  setActionFilter(
-                    e.target.value as "ALL" | "Override Granted" | "Temporary Exception" | "Rule Updated"
-                  )
-                }
+                onChange={(e) => setActionFilter(e.target.value)}
                 className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
               >
                 <option value="ALL">All Actions</option>
-                <option value="Override Granted">Override Granted</option>
-                <option value="Temporary Exception">Temporary Exception</option>
-                <option value="Rule Updated">Rule Updated</option>
+                {actionOptions.map((action) => (
+                  <option key={action} value={action}>
+                    {action}
+                  </option>
+                ))}
               </select>
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8595B6]">
                 <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
@@ -267,7 +344,7 @@ export default function AuditLogPage() {
                 value={statusFilter}
                 onChange={(e) =>
                   setStatusFilter(
-                    e.target.value as "ALL" | "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED"
+                    e.target.value as "ALL" | AuditEntry["status"]
                   )
                 }
                 className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
@@ -277,6 +354,8 @@ export default function AuditLogPage() {
                 <option value="ELIGIBLE">ELIGIBLE</option>
                 <option value="PENDING">PENDING</option>
                 <option value="LOCKED">LOCKED</option>
+                <option value="REJECTED">REJECTED</option>
+                <option value="CANCELLED">CANCELLED</option>
               </select>
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8595B6]">
                 <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
@@ -291,6 +370,12 @@ export default function AuditLogPage() {
       <p className="text-5 text-slate-600 dark:text-[#A7B6D3]">
         Showing {filteredEntries.length} of {entries.length} entries
       </p>
+
+      {error && (
+        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </p>
+      )}
 
       {activeFilters.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -352,7 +437,7 @@ export default function AuditLogPage() {
         </div>
         {filteredEntries.length === 0 && (
           <p className="border-t border-slate-200 px-4 py-3 text-5 text-slate-500 dark:border-[#22395A] dark:text-[#A7B6D3] sm:px-6">
-            Сонгосон status-д тохирох audit log олдсонгүй.
+            Таны сонгосон хайлт/шүүлтүүрт тохирох audit log олдсонгүй.
           </p>
         )}
       </section>

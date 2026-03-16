@@ -26,6 +26,23 @@ export const FALLBACK_USER_OPTIONS: SwitchUserOption[] = [
   { id: "ganaa-1", name: "Gantushig", role: "finance-manager" },
 ];
 
+export function getInitialUserProfile(): ActiveUserProfile {
+  return {
+    id: process.env.NEXT_PUBLIC_EMPLOYEE_ID || "emp-1",
+    role: (process.env.NEXT_PUBLIC_ROLE || "employee").toLowerCase(),
+  };
+}
+
+export function getCurrentUserOptionFallback(): SwitchUserOption {
+  // Keep initial render deterministic between SSR and hydration.
+  const current = typeof window === "undefined" ? getInitialUserProfile() : getActiveUserProfile();
+  return {
+    id: current.id,
+    name: current.name || current.id,
+    role: (current.role || "employee").toLowerCase(),
+  };
+}
+
 function readStoredProfile(): ActiveUserProfile | null {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(ACTIVE_USER_STORAGE_KEY);
@@ -50,10 +67,7 @@ export function getActiveUserProfile(): ActiveUserProfile {
   if (stored) return stored;
   const legacyId = readLegacyId();
   if (legacyId) return { id: legacyId, role: "employee" };
-  return {
-    id: process.env.NEXT_PUBLIC_EMPLOYEE_ID || "emp-1",
-    role: (process.env.NEXT_PUBLIC_ROLE || "employee").toLowerCase(),
-  };
+  return getInitialUserProfile();
 }
 
 export function setActiveUserProfile(profile: ActiveUserProfile): void {
@@ -64,9 +78,11 @@ export function setActiveUserProfile(profile: ActiveUserProfile): void {
 
 export function getActiveUserHeaders(defaultRole = "employee"): Record<string, string> {
   const profile = getActiveUserProfile();
+  const role = defaultRole.toLowerCase().trim() || "employee";
   return {
     "x-employee-id": profile.id,
-    "x-role": (profile.role || defaultRole).toLowerCase(),
+    // Use section role consistently (admin/finance/employee) so user switch only changes actor id.
+    "x-role": role,
   };
 }
 
@@ -87,20 +103,41 @@ const USER_OPTIONS_QUERY = gql`
 `;
 
 export async function fetchSwitchUserOptions(): Promise<SwitchUserOption[]> {
-  const base = getApiBaseUrl();
-  const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
-  const client = new GraphQLClient(url, {
-    headers: { "Content-Type": "application/json" },
-  });
-  const data = await client.request<{
-    userOptions?: Array<{ id: string; name?: string | null; role?: string | null }>;
-  }>(USER_OPTIONS_QUERY);
-  const users = (data.userOptions ?? [])
-    .filter((u) => !!u.id)
-    .map((u) => ({
-      id: u.id,
-      name: u.name || u.id,
-      role: (u.role || "employee").toLowerCase(),
-    }));
-  return users.length > 0 ? users : FALLBACK_USER_OPTIONS;
+  try {
+    const base = getApiBaseUrl();
+    const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
+    const client = new GraphQLClient(url, {
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await client.request<{
+      userOptions?: Array<{ id: string; name?: string | null; role?: string | null }>;
+    }>(USER_OPTIONS_QUERY);
+    const users = (data.userOptions ?? [])
+      .filter((u) => !!u.id)
+      .map((u) => ({
+        id: u.id,
+        name: u.name || u.id,
+        role: (u.role || "employee").toLowerCase(),
+      }));
+    return users.length > 0 ? users : [getCurrentUserOptionFallback()];
+  } catch {
+    return [getCurrentUserOptionFallback()];
+  }
+}
+
+export async function ensureValidActiveUserProfile(): Promise<ActiveUserProfile> {
+  const current = getActiveUserProfile();
+  const options = await fetchSwitchUserOptions();
+  if (options.some((u) => u.id === current.id)) {
+    return current;
+  }
+  const first = options[0];
+  if (!first) return current;
+  const next: ActiveUserProfile = {
+    id: first.id,
+    name: first.name,
+    role: first.role,
+  };
+  setActiveUserProfile(next);
+  return next;
 }
