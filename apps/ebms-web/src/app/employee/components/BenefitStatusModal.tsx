@@ -103,6 +103,7 @@ interface BenefitStatusModalProps {
   benefit: BenefitCardProps | null;
   onClose: () => void;
   onRequestBenefit?: (benefit: BenefitCardProps) => void;
+  onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
   initialOpenContractStep?: boolean;
 }
 
@@ -152,6 +153,7 @@ export function BenefitStatusModal({
   benefit,
   onClose,
   onRequestBenefit,
+  onViewContract,
   initialOpenContractStep = false,
 }: BenefitStatusModalProps) {
   const [showContractStep, setShowContractStep] = useState(initialOpenContractStep);
@@ -201,6 +203,12 @@ export function BenefitStatusModal({
     if (!contractAccepted) return;
     onRequestBenefit?.(benefit);
     onClose();
+  };
+
+  const handleViewContract = () => {
+    if (onViewContract) {
+      void onViewContract(benefit);
+    }
   };
 
   return (
@@ -267,6 +275,7 @@ export function BenefitStatusModal({
                       href={benefit.contractLink}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={handleViewContract}
                       className="mt-4 inline-flex items-center gap-2 text-xl text-[#5cb2ff] hover:text-[#78c1ff]"
                     >
                       View vendor contract <FiExternalLink size={20} />
@@ -332,6 +341,7 @@ export function BenefitStatusModal({
                         href={benefit.contractLink}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={handleViewContract}
                         className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-[#4EA1FF] hover:text-[#7ABEFF]"
                       >
                         View vendor contract <FiExternalLink size={20} />
