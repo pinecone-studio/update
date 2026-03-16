@@ -5,6 +5,7 @@ import {
   benefits as benefitsTable,
   benefitRequests as benefitRequestsTable,
   contracts as contractsTable,
+  employeeContracts as employeeContractsTable,
   employees as employeesTable,
 } from "../db/schema";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
@@ -23,30 +24,27 @@ adminContracts.get("/", async (c) => {
   if (tab === "employee") {
     const rows = await db
       .select({
-        id: benefitRequestsTable.id,
-        benefitId: benefitRequestsTable.benefitId,
+        id: employeeContractsTable.id,
+        benefitId: employeeContractsTable.benefitId,
         benefitName: benefitsTable.name,
         vendorName: benefitsTable.vendorName,
-        version: benefitRequestsTable.contractVersionAccepted,
-        effectiveDate: contractsTable.effectiveDate,
-        expiryDate: contractsTable.expiryDate,
-        isActive: contractsTable.isActive,
-        r2ObjectKey: benefitRequestsTable.employeeContractR2Key,
-        createdAt: benefitRequestsTable.employeeContractUploadedAt,
-        updatedAt: benefitRequestsTable.updatedAt,
+        version: employeeContractsTable.version,
+        effectiveDate: employeeContractsTable.effectiveDate,
+        expiryDate: employeeContractsTable.expiryDate,
+        r2ObjectKey: employeeContractsTable.r2ObjectKey,
+        createdAt: employeeContractsTable.createdAt,
+        updatedAt: employeeContractsTable.updatedAt,
         employeeName: employeesTable.name,
       })
-      .from(benefitRequestsTable)
-      .leftJoin(benefitsTable, eq(benefitRequestsTable.benefitId, benefitsTable.id))
-      .leftJoin(contractsTable, eq(benefitsTable.activeContractId, contractsTable.id))
-      .leftJoin(employeesTable, eq(benefitRequestsTable.employeeId, employeesTable.id))
-      .where(isNotNull(benefitRequestsTable.employeeContractR2Key))
-      .orderBy(desc(benefitRequestsTable.employeeContractUploadedAt));
+      .from(employeeContractsTable)
+      .leftJoin(benefitsTable, eq(employeeContractsTable.benefitId, benefitsTable.id))
+      .leftJoin(employeesTable, eq(employeeContractsTable.employeeId, employeesTable.id))
+      .orderBy(desc(employeeContractsTable.createdAt));
 
     return c.json({
       contracts: rows.map((r) => ({
         ...r,
-        downloadUrl: `/admin/contracts/employee-requests/${encodeURIComponent(r.id)}/file`,
+        downloadUrl: `/admin/contracts/employee/${encodeURIComponent(r.id)}/file`,
       })),
     });
   }
@@ -105,6 +103,31 @@ adminContracts.get("/employee-requests/:requestId/file", async (c) => {
   });
 });
 
+/** Download employee contract PDF by employee_contracts.id */
+adminContracts.get("/employee/:contractId/file", async (c) => {
+  const contractId = c.req.param("contractId");
+  const db = getDb(c.env);
+  const rows = await db
+    .select({
+      id: employeeContractsTable.id,
+      r2ObjectKey: employeeContractsTable.r2ObjectKey,
+    })
+    .from(employeeContractsTable)
+    .where(eq(employeeContractsTable.id, contractId))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return c.json({ error: "Employee contract not found" }, 404);
+
+  const object = await c.env.CONTRACTS.get(row.r2ObjectKey);
+  if (!object) return c.json({ error: "Employee contract file not found in R2" }, 404);
+  const bytes = await object.arrayBuffer();
+  const filename = row.r2ObjectKey.split("/").pop() || `${contractId}.pdf`;
+  return c.body(bytes, 200, {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `inline; filename="${filename}"`,
+  });
+});
+
 adminContracts.get("/:contractId/file", async (c) => {
   const contractId = c.req.param("contractId");
   const db = getDb(c.env);
@@ -134,9 +157,11 @@ adminContracts.get("/:contractId/file", async (c) => {
  * POST /admin/contracts/upload
  *
  * multipart/form-data:
+ * - tab (optional): "employee" | "vendor" — defaults to "vendor"
+ * - employeeId (optional; for employee only; which employee this contract belongs to)
  * - benefitId (required)
  * - version (required)
- * - vendorName (optional; falls back to benefits.vendor_name)
+ * - vendorName (optional; for vendor only; falls back to benefits.vendor_name)
  * - effectiveDate (optional)
  * - expiryDate (optional)
  * - file (required PDF)
@@ -148,11 +173,13 @@ adminContracts.post("/upload", async (c) => {
   }
 
   const body = await c.req.parseBody();
+  const tab = String(body["tab"] ?? "vendor").trim().toLowerCase();
   const benefitId = String(body["benefitId"] ?? "").trim();
   const version = String(body["version"] ?? "").trim();
   const effectiveDate = String(body["effectiveDate"] ?? "").trim() || null;
   const expiryDate = String(body["expiryDate"] ?? "").trim() || null;
   const vendorNameFromBody = String(body["vendorName"] ?? "").trim() || null;
+  const employeeId = String(body["employeeId"] ?? "").trim() || null;
   const file = body["file"];
 
   if (!benefitId) return c.json({ error: "benefitId is required" }, 400);
@@ -163,16 +190,59 @@ adminContracts.post("/upload", async (c) => {
 
   const pdf = file as File;
   const pdfBytes = await pdf.arrayBuffer();
+  const now = new Date().toISOString();
+  const db = getDb(c.env);
+
+  // ——— Employee contract (employee_contracts table) ———
+  if (tab === "employee") {
+    const benefitRows = await db
+      .select({ id: benefitsTable.id })
+      .from(benefitsTable)
+      .where(eq(benefitsTable.id, benefitId))
+      .limit(1);
+    if (!benefitRows[0]) return c.json({ error: "Benefit not found" }, 404);
+
+    const contractId = crypto.randomUUID();
+    const safeName = (pdf.name || "contract.pdf").replace(/[^a-zA-Z0-9._-]+/g, "_");
+    const r2ObjectKey = `contracts/employee-contracts/${benefitId}/${version}/${contractId}-${safeName}`;
+
+    await c.env.CONTRACTS.put(r2ObjectKey, pdfBytes, {
+      httpMetadata: { contentType: "application/pdf" },
+    });
+
+    await db.insert(employeeContractsTable).values({
+      id: contractId,
+      employeeId: employeeId || null,
+      benefitId,
+      version,
+      r2ObjectKey,
+      effectiveDate,
+      expiryDate,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return c.json({
+      ok: true,
+      contract: {
+        id: contractId,
+        benefitId,
+        version,
+        r2ObjectKey,
+        effectiveDate,
+        expiryDate,
+        createdAt: now,
+      },
+    });
+  }
+
+  // ——— Vendor contract (contracts table) ———
   const sha256 = await crypto.subtle.digest("SHA-256", pdfBytes);
   const sha256Hex = toHex(sha256);
-
-  const now = new Date().toISOString();
   const contractId = crypto.randomUUID();
   const safeName = (pdf.name || "contract.pdf").replace(/[^a-zA-Z0-9._-]+/g, "_");
   const r2ObjectKey = `contracts/${benefitId}/${version}/${contractId}-${safeName}`;
 
-  // Ensure benefit exists and (optionally) infer vendor name.
-  const db = getDb(c.env);
   const benefitRows = await db
     .select({
       id: benefitsTable.id,
@@ -193,18 +263,15 @@ adminContracts.post("/upload", async (c) => {
     );
   }
 
-  // Store PDF in R2 first.
   await c.env.CONTRACTS.put(r2ObjectKey, pdfBytes, {
     httpMetadata: { contentType: "application/pdf" },
   });
 
-  // Ensure only one active contract per benefit.
   await db
     .update(contractsTable)
     .set({ isActive: 0, updatedAt: now })
     .where(and(eq(contractsTable.benefitId, benefitId), eq(contractsTable.isActive, 1)));
 
-  // Write contract metadata to D1 and set it as active.
   await db.insert(contractsTable).values({
     id: contractId,
     benefitId,
