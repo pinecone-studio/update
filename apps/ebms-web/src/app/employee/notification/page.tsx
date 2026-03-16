@@ -60,13 +60,11 @@ function formatRelativeTime(iso: string): string {
 export default function NotificationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [notifications, setNotifications] = useState<EmployeeNotification[]>([]);
   const [activeType, setActiveType] = useState<
     "all" | "eligibility" | "request" | "warning"
   >("all");
-  const [unreadOnly, setUnreadOnly] = useState(false);
-  const [search, setSearch] = useState("");
 
   const filteredNotifications = (
     activeType === "all"
@@ -79,7 +77,7 @@ export default function NotificationPage() {
               : n.type === "WARNING",
         )
   ).filter((n) => {
-    const q = search.trim().toLowerCase();
+    const q = searchTerm.trim().toLowerCase();
     if (!q) return true;
     return (
       n.title.toLowerCase().includes(q) ||
@@ -235,23 +233,13 @@ export default function NotificationPage() {
             >
               Warnings
             </button>
-            <button
-              onClick={() => setUnreadOnly((prev) => !prev)}
-              className={`px-3 py-1.5 rounded-full border transition ${
-                unreadOnly
-                  ? "bg-slate-800 text-white border-slate-800 dark:bg-[#1A2333] dark:border-[#243041]"
-                  : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-[#111A2A] dark:border-[#243041] dark:text-slate-200 dark:hover:bg-[#1A2333]"
-              }`}
-            >
-              Unread only
-            </button>
           </div>
 
           <div className="mt-4 bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 dark:bg-[#1A2333] dark:border-[#243041]">
             <HiOutlineMagnifyingGlass className="text-slate-500 dark:text-slate-400" />
             <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none dark:text-slate-200 dark:placeholder:text-slate-500"
               placeholder="Search notifications..."
             />
