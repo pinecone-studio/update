@@ -1,6 +1,7 @@
 'use client';
 
 import { GraphQLClient, gql } from 'graphql-request';
+import { getActiveUserHeaders } from '@/app/_lib/activeUser';
 
 function getBaseUrl(): string {
   const env = process.env.NEXT_PUBLIC_API_URL || '';
@@ -14,8 +15,7 @@ export function getAdminClient(): GraphQLClient {
   return new GraphQLClient(url, {
     headers: {
       'Content-Type': 'application/json',
-      'x-employee-id': 'admin',
-      'x-role': 'admin',
+      ...getActiveUserHeaders('admin'),
     },
   });
 }

@@ -1,4 +1,5 @@
 import { GraphQLClient, gql } from "graphql-request";
+import { getActiveUserHeaders } from "@/app/_lib/activeUser";
 
 function getBaseUrl(): string {
   const env = process.env.NEXT_PUBLIC_API_URL || "";
@@ -10,10 +11,7 @@ export function getFinanceClient(): GraphQLClient {
   const base = getBaseUrl();
   const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
   return new GraphQLClient(url, {
-    headers: {
-      "x-employee-id": process.env.NEXT_PUBLIC_EMPLOYEE_ID || "admin",
-      "x-role": "admin",
-    },
+    headers: getActiveUserHeaders("admin"),
   });
 }
 

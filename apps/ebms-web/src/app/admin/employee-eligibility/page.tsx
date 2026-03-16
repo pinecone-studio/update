@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { EmployeeEligibilitySkeleton } from "../components/EmployeeEligibilitySkeleton";
 import { GraphQLClient, gql } from "graphql-request";
+import { getActiveUserHeaders } from "@/app/_lib/activeUser";
 
 type EmployeeListItem = {
 	id: string;
@@ -41,8 +42,7 @@ function getClient(): GraphQLClient {
 	const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
 	return new GraphQLClient(url, {
 		headers: {
-			"x-employee-id": "admin",
-			"x-role": "admin",
+			...getActiveUserHeaders("admin"),
 		},
 	});
 }
