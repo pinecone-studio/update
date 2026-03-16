@@ -46,6 +46,6 @@
 		"drizzle-kit": "^0.28.0",
 		"sentence-case": "^3.0.4",
 		"typescript": "^5.6.0",
-		"wrangler": "^3.94.0"
+		"wrangler": "^4"
 	}
 }

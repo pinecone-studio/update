@@ -8,6 +8,8 @@ import { cors } from "hono/cors";
 import { createYoga, createSchema } from "graphql-yoga";
 import { eq } from "drizzle-orm";
 import type { Env } from "./types";
+import { getDb } from "./db/drizzle";
+import { employees } from "./db/schema";
 import { typeDefs, resolvers } from "./graphql";
 import adminContracts from "./routes/adminContracts";
 import adminFeedback from "./routes/adminFeedback";

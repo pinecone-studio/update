@@ -1,8 +1,10 @@
 /** @format */
 
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 import { ThemeProvider } from "./_components/ThemeProvider";
 
 export const metadata: Metadata = {
@@ -16,7 +18,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en" className={GeistSans.variable} suppressHydrationWarning>
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<script
 					dangerouslySetInnerHTML={{
@@ -24,7 +26,7 @@ export default function RootLayout({
 					}}
 				/>
 			</head>
-			<body className="font-sans bg-slate-50 text-slate-900 dark:bg-[#0F172A] dark:text-white">
+			<body className={`${inter.className} font-sans bg-slate-50 text-slate-900 dark:bg-[#0F172A] dark:text-white`}>
 				<ThemeProvider>{children}</ThemeProvider>
 			</body>
 		</html>
