@@ -15,10 +15,10 @@ concurrency:
 
 env:
   OWNER: pinecone-studio
-  REPO: team-7
+  REPO: update
   START_DATE: '2026-01-01T00:00:00Z'
   END_DATE: '2026-12-31T23:59:59Z'
-  KV_KEY: 'pinequest:team-7'
+  KV_KEY: 'pinequest:update'
 
 jobs:
   metrics:
