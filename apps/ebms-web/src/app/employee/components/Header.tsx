@@ -318,62 +318,50 @@ export const Header = () => {
                   setNotificationOpen(!notificationOpen);
                   setProfileOpen(false);
                 }}
-                className="relative h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className="relative grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] text-white/80 shadow-[0_16px_30px_-26px_rgba(0,0,0,0.6)] transition hover:border-white/20 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] hover:text-white"
                 aria-label="Notifications"
               >
-                <HiOutlineBell className="text-sm" />
+                <HiOutlineBell className="text-[18px]" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                  <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white shadow-sm">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
                 )}
               </button>
               {notificationOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[380px] max-h-[420px] flex flex-col bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
-                  <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-[#243041]">
-                    <div className="flex items-center gap-2">
-                      <HiOutlineBell className="text-base text-slate-600 dark:text-slate-300" />
-                      <span className="text-slate-900 font-semibold dark:text-white">
+                <div className="absolute right-0 top-full z-50 mt-3 w-[360px] overflow-hidden rounded-2xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]">
+                  <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-semibold text-white">
                         Notifications
-                      </span>
-                      {unreadCount > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-red-500/80 text-white text-xs font-medium">
-                          {unreadCount} new
-                        </span>
-                      )}
+                      </p>
+                      <p className="text-xs text-white/60">
+                        {unreadCount} unread
+                      </p>
                     </div>
                     <button
                       onClick={() => setNotificationOpen(false)}
-                      className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/60 transition hover:border-white/20 hover:text-white"
                     >
-                      <HiXMark className="text-lg" />
+                      <HiXMark className="text-base" />
                     </button>
                   </div>
-                  <Link
-                    href="/employee/notification"
-                    className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                    onClick={() => {
-                      setNotifications((prev) =>
-                        prev.map((n) => ({ ...n, unread: false })),
-                      );
-                      setNotificationOpen(false);
-                    }}
-                  >
-                    Mark all as read
-                  </Link>
-                  <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                    {notifications.map((n) => {
+
+                  <div className="max-h-[280px] space-y-2 overflow-y-auto px-3 py-3">
+                    {notifications.slice(0, 5).map((n) => {
                       const iconClass =
                         n.tone === "success"
-                          ? "text-green-400 bg-green-500/20"
+                          ? "text-emerald-300 bg-emerald-500/15"
                           : n.tone === "info"
-                            ? "text-blue-400 bg-blue-500/20"
-                            : "text-slate-400 bg-slate-500/20";
+                            ? "text-blue-300 bg-blue-500/15"
+                            : "text-slate-300 bg-slate-500/15";
                       return (
-                        <div
+                        <button
                           key={n.id}
-                          className="flex gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-slate-300 transition dark:bg-[#1f2a40] dark:border-[#243041] dark:hover:border-slate-600"
+                          className="flex w-full gap-3 rounded-xl border border-transparent bg-white/5 p-3 text-left transition hover:border-white/10 hover:bg-white/10"
                         >
                           <div
-                            className={`flex-shrink-0 h-8 w-8 rounded-lg grid place-items-center ${iconClass}`}
+                            className={`flex-shrink-0 h-9 w-9 rounded-lg grid place-items-center ${iconClass}`}
                           >
                             {n.tone === "success" ? (
                               <HiOutlineCheckCircle className="text-lg" />
@@ -384,38 +372,31 @@ export const Header = () => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-slate-900 text-sm font-semibold dark:text-white">
+                            <p className="text-sm font-semibold text-white">
                               {n.title}
                             </p>
-                            <p className="text-slate-600 text-xs mt-0.5 line-clamp-2 dark:text-slate-400">
+                            <p className="mt-1 line-clamp-2 text-xs text-white/60">
                               {n.body}
                             </p>
-                            <Link
-                              href="/employee/notification"
-                              className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 mt-2 dark:text-blue-400 dark:hover:text-blue-300"
-                              onClick={() => setNotificationOpen(false)}
-                            >
-                              View Details
-                              <HiOutlineArrowTopRightOnSquare className="text-xs" />
-                            </Link>
-                            <p className="text-slate-400 text-[10px] mt-1 dark:text-slate-500">
+                            <p className="mt-2 text-[11px] text-white/40">
                               {n.time}
                             </p>
                           </div>
                           {n.unread && (
-                            <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 mt-2" />
+                            <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
                           )}
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
-                  <div className="p-3 border-t border-slate-200 dark:border-[#243041]">
+
+                  <div className="border-t border-white/10 px-3 py-3">
                     <Link
                       href="/employee/notification"
                       onClick={() => setNotificationOpen(false)}
-                      className="block w-full py-2.5 text-center text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition dark:bg-slate-700 dark:hover:bg-slate-600"
+                      className="block w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-center text-xs font-semibold text-white/80 transition hover:border-white/20 hover:text-white"
                     >
-                      View All Notifications
+                      View all notifications
                     </Link>
                   </div>
                 </div>

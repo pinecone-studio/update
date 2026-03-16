@@ -171,6 +171,20 @@ export type Employee = {
   role: Scalars['String']['output'];
 };
 
+export type EmployeeNotification = {
+  __typename?: 'EmployeeNotification';
+  body: Scalars['String']['output'];
+  channel: NotificationChannel;
+  createdAt: Scalars['String']['output'];
+  employeeId: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  isRead: Scalars['Boolean']['output'];
+  metadata?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  tone: NotificationTone;
+  type: NotificationType;
+};
+
 export type EmploymentStatus =
   | 'ACTIVE'
   | 'LEAVE'
@@ -190,6 +204,8 @@ export type Mutation = {
   confirmBenefitRequest: BenefitRequest;
   createBenefit: Benefit;
   deleteBenefit: Scalars['Boolean']['output'];
+  markAllNotificationsRead: Scalars['Boolean']['output'];
+  markNotificationRead: EmployeeNotification;
   overrideEligibility: BenefitEligibility;
   requestBenefit: BenefitRequest;
   signBenefitContract: BenefitRequest;
@@ -227,6 +243,11 @@ export type MutationDeleteBenefitArgs = {
 };
 
 
+export type MutationMarkNotificationReadArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationOverrideEligibilityArgs = {
   input: OverrideInput;
 };
@@ -256,6 +277,21 @@ export type MutationUploadAdminContractArgs = {
   input: UploadAdminContractInput;
 };
 
+export type NotificationChannel =
+  | 'EMAIL'
+  | 'IN_APP';
+
+export type NotificationTone =
+  | 'INFO'
+  | 'NEUTRAL'
+  | 'SUCCESS'
+  | 'WARNING';
+
+export type NotificationType =
+  | 'ELIGIBILITY_CHANGE'
+  | 'REQUEST_STATUS'
+  | 'WARNING';
+
 export type OverrideInput = {
   benefitId: Scalars['ID']['input'];
   employeeId: Scalars['ID']['input'];
@@ -279,6 +315,7 @@ export type Query = {
   health: Health;
   me: Employee;
   myBenefits: Array<BenefitEligibility>;
+  myNotifications: Array<EmployeeNotification>;
   userOptions: Array<SwitchUserOption>;
 };
 
@@ -321,6 +358,12 @@ export type QueryEmployeeArgs = {
 export type QueryEmployeesArgs = {
   department?: InputMaybe<Scalars['String']['input']>;
   employmentStatus?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMyNotificationsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  unreadOnly?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type RequestStatus =
@@ -459,11 +502,15 @@ export type ResolversTypes = {
   EligibilityRuleConfig: ResolverTypeWrapper<EligibilityRuleConfig>;
   EligibilityRuleInput: EligibilityRuleInput;
   Employee: ResolverTypeWrapper<Employee>;
+  EmployeeNotification: ResolverTypeWrapper<EmployeeNotification>;
   EmploymentStatus: EmploymentStatus;
   Health: ResolverTypeWrapper<Health>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  NotificationChannel: NotificationChannel;
+  NotificationTone: NotificationTone;
+  NotificationType: NotificationType;
   OverrideInput: OverrideInput;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   RequestStatus: RequestStatus;
@@ -493,6 +540,7 @@ export type ResolversParentTypes = {
   EligibilityRuleConfig: EligibilityRuleConfig;
   EligibilityRuleInput: EligibilityRuleInput;
   Employee: Employee;
+  EmployeeNotification: EmployeeNotification;
   Health: Health;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
@@ -616,6 +664,19 @@ export type EmployeeResolvers<ContextType = Ctx, ParentType extends ResolversPar
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type EmployeeNotificationResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['EmployeeNotification'] = ResolversParentTypes['EmployeeNotification']> = {
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  channel?: Resolver<ResolversTypes['NotificationChannel'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  metadata?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tone?: Resolver<ResolversTypes['NotificationTone'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['NotificationType'], ParentType, ContextType>;
+};
+
 export type HealthResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Health'] = ResolversParentTypes['Health']> = {
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -627,6 +688,8 @@ export type MutationResolvers<ContextType = Ctx, ParentType extends ResolversPar
   confirmBenefitRequest?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationConfirmBenefitRequestArgs, 'contractAccepted' | 'requestId'>>;
   createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
   deleteBenefit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBenefitArgs, 'id'>>;
+  markAllNotificationsRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  markNotificationRead?: Resolver<ResolversTypes['EmployeeNotification'], ParentType, ContextType, RequireFields<MutationMarkNotificationReadArgs, 'id'>>;
   overrideEligibility?: Resolver<ResolversTypes['BenefitEligibility'], ParentType, ContextType, RequireFields<MutationOverrideEligibilityArgs, 'input'>>;
   requestBenefit?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationRequestBenefitArgs, 'input'>>;
   signBenefitContract?: Resolver<ResolversTypes['BenefitRequest'], ParentType, ContextType, RequireFields<MutationSignBenefitContractArgs, 'requestId'>>;
@@ -649,6 +712,7 @@ export type QueryResolvers<ContextType = Ctx, ParentType extends ResolversParent
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
   me?: Resolver<ResolversTypes['Employee'], ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['BenefitEligibility']>, ParentType, ContextType>;
+  myNotifications?: Resolver<Array<ResolversTypes['EmployeeNotification']>, ParentType, ContextType, Partial<QueryMyNotificationsArgs>>;
   userOptions?: Resolver<Array<ResolversTypes['SwitchUserOption']>, ParentType, ContextType>;
 };
 
@@ -681,6 +745,7 @@ export type Resolvers<ContextType = Ctx> = {
   ContractTemplate?: ContractTemplateResolvers<ContextType>;
   EligibilityRuleConfig?: EligibilityRuleConfigResolvers<ContextType>;
   Employee?: EmployeeResolvers<ContextType>;
+  EmployeeNotification?: EmployeeNotificationResolvers<ContextType>;
   Health?: HealthResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
