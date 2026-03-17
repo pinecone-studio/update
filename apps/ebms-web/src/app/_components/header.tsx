@@ -30,6 +30,7 @@ import {
 } from "@/app/_lib/activeUser";
 import { ProfileIcon } from "../icons/profile";
 import { HrEmployeeIcon } from "../icons/hrEmployee";
+import { GeistSans } from "geist/font/sans";
 
 type NavItem = {
   label: string;
@@ -189,7 +190,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md">
+    <header className={`sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md ${GeistSans.className}`}>
       <div className="mx-auto flex h-[72px] w-full max-w-[1500px] items-center justify-between gap-4">
         <Link
           href="/admin"

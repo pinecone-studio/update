@@ -6,6 +6,7 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 import { ThemeProvider } from "./_components/ThemeProvider";
+import { GeistSans } from "geist/font/sans";
 
 export const metadata: Metadata = {
 	title: "EBMS — Employee Benefits Management",
@@ -26,7 +27,7 @@ export default function RootLayout({
 					}}
 				/>
 			</head>
-			<body className={`${inter.className} font-sans bg-slate-50 text-slate-900 dark:bg-[#0F172A] dark:text-white`}>
+			<body className={`${GeistSans.className} font-sans bg-slate-50 text-slate-900 dark:bg-[#0F172A] dark:text-white`}>
 				<ThemeProvider>{children}</ThemeProvider>
 			</body>
 		</html>

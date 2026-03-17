@@ -234,8 +234,12 @@ export async function getBenefitEligibilityForEmployee(
         }))
       : [];
 
-    let status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED' =
-      mapBenefitStatus(row.eligibilityStatus ?? 'locked');
+    // If no rule config and no stored eligibility row, default to ELIGIBLE
+    // so "rule-not-configured" benefits are requestable instead of LOCKED.
+    const baseStatus = row.eligibilityStatus
+      ? mapBenefitStatus(row.eligibilityStatus)
+      : 'ELIGIBLE';
+    let status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED' = baseStatus;
     if (status === 'ELIGIBLE' && pendingBenefitIds.has(row.benefitId)) {
       status = 'PENDING';
     }

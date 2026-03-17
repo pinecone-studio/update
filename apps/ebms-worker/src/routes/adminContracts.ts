@@ -12,6 +12,17 @@ import { and, desc, eq, isNotNull } from "drizzle-orm";
 
 const adminContracts = new Hono<{ Bindings: Env }>();
 
+function getErrorText(error: unknown): string {
+  if (error instanceof Error) {
+    const causeText =
+      error.cause && typeof error.cause === "object" && "message" in error.cause
+        ? String((error.cause as { message?: unknown }).message ?? "")
+        : "";
+    return `${error.message} ${causeText}`.trim().toLowerCase();
+  }
+  return String(error ?? "").toLowerCase();
+}
+
 function toHex(bytes: ArrayBuffer): string {
   const arr = new Uint8Array(bytes);
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
@@ -58,10 +69,13 @@ adminContracts.get("/", async (c) => {
         .leftJoin(employeesTable, eq(employeeContractsTable.employeeId, employeesTable.id))
         .orderBy(desc(employeeContractsTable.createdAt));
     } catch (error) {
-      const message = String(error ?? "").toLowerCase();
+      const message = getErrorText(error);
       // Backward compatibility: if local/remote DB does not yet have employee_contracts,
       // still return request-based uploaded contracts instead of failing the whole endpoint.
-      if (!message.includes("no such table") || !message.includes("employee_contracts")) {
+      const missingEmployeeContractsSchema =
+        message.includes("employee_contracts") &&
+        (message.includes("no such table") || message.includes("no such column"));
+      if (!missingEmployeeContractsSchema) {
         throw error;
       }
     }

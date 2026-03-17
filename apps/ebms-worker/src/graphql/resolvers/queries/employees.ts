@@ -1,5 +1,5 @@
 import type { Ctx } from '../context';
-import { requireHR } from '../context';
+import { GraphQLError } from 'graphql';
 import { asBool01, mapEmploymentStatus } from '../utils';
 import type { QueryResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
@@ -11,7 +11,14 @@ export const employees: NonNullable<QueryResolvers<Ctx>['employees']> = async (
   args,
   ctx
 ) => {
-  requireHR(ctx);
+  const role = (ctx.role ?? '').toLowerCase();
+  const isHrOrAdmin = role === 'hr' || role === 'admin';
+  const isFinance = role.includes('finance');
+  if (!isHrOrAdmin && !isFinance) {
+    throw new GraphQLError('Forbidden: HR/admin or finance role required', {
+      extensions: { code: 'FORBIDDEN' },
+    });
+  }
   const db = getDb(ctx.env);
 
   const conditions = [];

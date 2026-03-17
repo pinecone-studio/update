@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { Header } from "@/app/_components/header";
 import { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
+
 
 export const metadata: Metadata = {
 	title: 'EBMS — Admin Dashboard',
@@ -18,7 +20,7 @@ export default function HrAdminLayout({ children }: { children: ReactNode }) {
         <div className="absolute bottom-[-10%] left-[36%] h-[720px] w-[720px] rounded-full bg-[linear-gradient(135deg,rgba(79,70,229,0.18),rgba(147,51,234,0.18))] blur-3xl" />
       </div>
       <Header />
-      <section className="relative z-10 mx-auto flex min-h-0 flex-1 flex-col w-full max-w-[1500px] p-4 sm:p-6 xl:p-8">
+      <section className={`relative z-10 mx-auto flex min-h-0 flex-1 flex-col w-full max-w-[1500px] p-4 sm:p-6 xl:p-8 ${GeistSans.className}`}>
         {children}
       </section>
     </main>

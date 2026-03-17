@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'export', // Static export for Cloudflare Pages
+  transpilePackages: ["geist"],
 };
 
 module.exports = nextConfig;
