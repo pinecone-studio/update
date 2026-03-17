@@ -1,33 +1,9 @@
 export const HrAuditIcon = () => {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 16 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <g clip-path="url(#clip0_858_1133)">
-        <path
-          d="M8.00065 14.6654C11.6825 14.6654 14.6673 11.6806 14.6673 7.9987C14.6673 4.3168 11.6825 1.33203 8.00065 1.33203C4.31875 1.33203 1.33398 4.3168 1.33398 7.9987C1.33398 11.6806 4.31875 14.6654 8.00065 14.6654Z"
-          stroke="#E5E5E5"
-          stroke-width="1.33333"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M8 4V8L10.6667 9.33333"
-          stroke="#E5E5E5"
-          stroke-width="1.33333"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </g>
-      <defs>
-        <clipPath id="clip0_858_1133">
-          <rect width="16" height="16" fill="white" />
-        </clipPath>
-      </defs>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#E5E5E5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 6V12L16 14" stroke="#E5E5E5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
+    
   );
 };
