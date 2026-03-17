@@ -25,6 +25,7 @@ import {
   type SwitchUserOption,
 } from "@/app/_lib/activeUser";
 import { ProfileIcon } from "../icons/profile";
+import { GeistSans } from "geist/font/sans";
 
 type NavItem = {
   label: string;
@@ -44,22 +45,22 @@ const navItems: NavItem[] = [
   {
     label: "Dashboard",
     href: "/finance",
-    icon: <HiOutlineArrowPath className="h-4 w-4" />,
+    icon: <HiOutlineArrowPath className="h-5 w-5" />,
   },
   {
     label: "Budget Overview",
     href: "/finance/budget-overview",
-    icon: <HiOutlineCurrencyDollar className="h-4 w-4" />,
+    icon: <HiOutlineCurrencyDollar className="h-5 w-5" />,
   },
   {
     label: "Vendor Payments",
     href: "/finance/vendor-payments",
-    icon: <HiOutlineDocumentText className="h-4 w-4" />,
+    icon: <HiOutlineDocumentText className="h-5 w-5" />,
   },
   {
     label: "Audit Trail",
     href: "/finance/audit-trail",
-    icon: <HiOutlineClock className="h-4 w-4" />,
+    icon: <HiOutlineClock className="h-5 w-5" />,
   },
 ];
 
@@ -187,7 +188,9 @@ export function FinanceHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md">
+    <header
+      className={`sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md ${GeistSans.className}`}
+    >
       <div className="mx-auto flex h-[72px] w-full max-w-[1500px] items-center justify-between gap-4">
         <Link
           href="/finance"
@@ -202,19 +205,19 @@ export function FinanceHeader() {
             </div>
           </div>
         </Link>
-        <nav className="hidden items-center gap-2 md:flex">
+        <nav className="hidden items-center md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
+              className={`inline-flex items-center h-[46px] rounded-lg gap-2 px-5 py-4 font-medium transition ${
                 isActive(item.href)
-                  ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
+                  ? "bg-[#151b1d] text-white hover:bg-[#151b1d] dark:bg-[#ffffff]/10 dark:hover:bg-[#ffffff]/10"
+                  : "text-slate-400 hover:bg-[#ffffff]/10 hover:text-white dark:text-[#D1DBEF] dark:hover:bg-[#ffffff]/10 dark:hover:text-white"
               }`}
             >
-              {item.icon}
-              <span>{item.label}</span>
+              <span className="scale-90">{item.icon}</span>
+              <span className="text-[20px] font-medium text-[#E5E5E5]">{item.label}</span>
             </Link>
           ))}
         </nav>
@@ -229,7 +232,6 @@ export function FinanceHeader() {
             <HiBars3 className="h-5 w-5" />
           </button>
           <label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
-            <HiOutlineUserCircle className="h-4 w-4 shrink-0" />
             <span>User</span>
             <select
               value={selectedUser.id}
@@ -244,7 +246,7 @@ export function FinanceHeader() {
               ))}
             </select>
           </label>
-          <div className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+          <div className="h-10 w-10 flex  items-center justify-center rounded-full border border-white/10 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
             <ThemeToggle />
           </div>
           <div className="relative hidden md:block" ref={notificationRef}>
@@ -254,18 +256,16 @@ export function FinanceHeader() {
                 setNotificationOpen((prev) => !prev);
                 setProfileOpen(false);
               }}
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white border border-slate-200"
+              className="relative inline-flex h-10 w-10 items-center justify-center border border-white/10 rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
               aria-label="Notifications"
             >
               <HiOutlineBell className="h-5 w-5" />
-              {unreadCount > 0 ? (
-                <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white shadow-sm">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              ) : null}
+              {unreadCount > 0 && (
+                <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-red-500" />
+              )}
             </button>
             {notificationOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[320px] rounded-2xl border border-slate-200 bg-white p-3 shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
+              <div className="absolute right-0 top-full mt-2 flex max-h-[420px] w-[380px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-50 dark:border-[#24395C] dark:bg-[#1A2333] p-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">
                     Notifications
@@ -320,7 +320,7 @@ export function FinanceHeader() {
                 setProfileOpen((prev) => !prev);
                 setNotificationOpen(false);
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200"
+              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-white/10"
               aria-label="Profile"
             >
               <ProfileIcon />
@@ -329,7 +329,7 @@ export function FinanceHeader() {
               <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
                 <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-white/10">
                       <ProfileIcon />
                     </div>
                     <div>

@@ -86,25 +86,27 @@ export function EmployeeNotificationItem({
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
             {relativeTime}
           </p>
-          {actionHref ? (
-            <Link
-              href={actionHref}
-              onClick={onMarkRead}
-              className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              Open
-              <HiOutlineArrowUpRight className="text-sm" />
-            </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={onMarkRead}
-              className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              View Details
-              <HiOutlineArrowUpRight className="text-sm" />
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {actionHref && (
+              <Link
+                href={actionHref}
+                onClick={onMarkRead}
+                className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Open
+                <HiOutlineArrowUpRight className="text-sm" />
+              </Link>
+            )}
+            {onMarkRead && (
+              <button
+                type="button"
+                onClick={onMarkRead}
+                className="text-xs text-slate-500 hover:text-slate-700 inline-flex items-center dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                Mark as read
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
