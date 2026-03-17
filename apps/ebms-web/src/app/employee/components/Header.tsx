@@ -503,64 +503,10 @@ export const Header = () => {
                       Sign out
                     </button>
                   </div>
-
-										<div className="max-h-[280px] space-y-2 overflow-y-auto px-3 py-3">
-											{notifications.slice(0, 5).map((n) => {
-												const iconClass =
-													n.tone === "success"
-														? "text-emerald-300 bg-emerald-500/15"
-														: n.tone === "info"
-															? "text-blue-300 bg-blue-500/15"
-															: "text-slate-300 bg-slate-500/15";
-												return (
-													<button
-														key={n.id}
-														className="flex w-full gap-3 rounded-xl border border-transparent bg-white/5 p-3 text-left transition hover:border-white/10 hover:bg-white/10"
-													>
-														<div
-															className={`flex-shrink-0 h-9 w-9 rounded-lg grid place-items-center ${iconClass}`}
-														>
-															{n.tone === "success" ? (
-																<HiOutlineCheckCircle className="text-lg" />
-															) : n.tone === "info" ? (
-																<HiOutlineChartBar className="text-lg" />
-															) : (
-																<HiOutlineInformationCircle className="text-lg" />
-															)}
-														</div>
-														<div className="flex-1 min-w-0">
-															<p className="text-sm font-semibold text-white">
-																{n.title}
-															</p>
-															<p className="mt-1 line-clamp-2 text-xs text-white/60">
-																{n.body}
-															</p>
-															<p className="mt-2 text-[11px] text-white/40">
-																{n.time}
-															</p>
-														</div>
-														{n.unread && (
-															<span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
-														)}
-													</button>
-												);
-											})}
-										</div>
-
-										<div className="border-t border-white/10 px-3 py-3">
-											<Link
-												href="/employee/notification"
-												onClick={() => setNotificationOpen(false)}
-												className="block w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-center text-xs font-semibold text-white/80 transition hover:border-white/20 hover:text-white"
-											>
-												View all notifications
-											</Link>
-										</div>
-									</div>
-								)}
-							</div>
-						</div>
-						<div className="relative" ref={profileRef}>
+                </div>
+              )}
+            </div>
+            <div className="relative" ref={profileRef}>
 							<button
 								onClick={() => {
 									setProfileOpen(!profileOpen);
