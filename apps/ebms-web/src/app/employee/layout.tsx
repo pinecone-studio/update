@@ -19,7 +19,7 @@ export default function EmployeeLayout({ children }: { children: ReactNode }) {
         <div className="absolute bottom-[-10%] left-[36%] h-[720px] w-[720px] rounded-full bg-[linear-gradient(135deg,rgba(79,70,229,0.18),rgba(147,51,234,0.18))] blur-3xl" />
       </div>
       <Header />
-      <section className="relative z-10 mx-auto w-full max-w-[1512px] p-6 xl:p-8">
+      <section className="relative z-10 mx-auto w-full max-w-[1512px] px-3 py-4 sm:px-5 sm:py-6 lg:px-6 xl:px-8">
         {children}
       </section>
     </main>

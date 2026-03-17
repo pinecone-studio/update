@@ -5,12 +5,15 @@
 import { useState } from "react";
 import { BenefitCard } from "@/app/_components/BenefitCard";
 import { BenefitStatusModal } from "@/app/employee/components/BenefitStatusModal";
+import { BenefitRequestSuccessModal } from "@/app/employee/components/BenefitRequestSuccessModal";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 
 interface BenefitPortfolioProps {
   benefits: BenefitCardProps[];
   /** When provided, called when user clicks "Request benefit" on an ELIGIBLE benefit (e.g. to call requestBenefit API) */
-  onRequestBenefit?: (benefit: BenefitCardProps) => void;
+  onRequestBenefit?: (
+    benefit: BenefitCardProps,
+  ) => boolean | void | Promise<boolean | void>;
   onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
   /** Use single column layout (e.g. for sidebar) */
   compact?: boolean;
@@ -24,11 +27,17 @@ export function BenefitPortfolio({
 }: BenefitPortfolioProps) {
   const [selectedBenefit, setSelectedBenefit] =
     useState<BenefitCardProps | null>(null);
+  const [successBenefit, setSuccessBenefit] = useState<BenefitCardProps | null>(
+    null,
+  );
 
   const handleRequestBenefit = async (benefit: BenefitCardProps) => {
     if (onRequestBenefit) {
-      await onRequestBenefit(benefit);
+      const submitted = await onRequestBenefit(benefit);
       setSelectedBenefit(null);
+      if (submitted !== false) {
+        setSuccessBenefit(benefit);
+      }
     } else {
       alert(
         `Request submitted for ${benefit.name}. You'll be notified when it's reviewed.`,
@@ -56,7 +65,7 @@ export function BenefitPortfolio({
         className={`grid w-full min-w-0 ${
           compact
             ? "grid-cols-1 gap-4 items-start"
-            : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 items-stretch"
+            : "grid-cols-1 gap-4 items-stretch sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 xl:gap-6"
         }`}
       >
         {benefits.map((benefit) => {
@@ -85,6 +94,12 @@ export function BenefitPortfolio({
         onRequestBenefit={onRequestBenefit ? handleRequestBenefit : undefined}
         onViewContract={onViewContract}
       />
+      {successBenefit ? (
+        <BenefitRequestSuccessModal
+          benefitName={successBenefit.name}
+          onClose={() => setSuccessBenefit(null)}
+        />
+      ) : null}
     </>
   );
 }

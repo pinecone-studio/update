@@ -80,13 +80,13 @@ export function EmployeeDashboardOverview({
   onToggleStatus,
 }: EmployeeDashboardOverviewProps) {
   return (
-    <section className="grid w-full min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_356px] lg:items-start lg:gap-8">
+    <section className="grid w-full min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-6 xl:grid-cols-[minmax(0,1fr)_356px] xl:gap-8">
       <div className="min-w-0 max-w-[780px]">
-        <div className="mb-8 flex flex-col sm:mb-10">
-          <h1 className="text-[20px] font-semibold leading-[1.02] tracking-[-1.8px] text-white sm:text-[35px] sm:tracking-[-2.6px] letter-spacing-[-1px]">
+        <div className="mb-6 flex flex-col sm:mb-8">
+          <h1 className="text-[28px] font-semibold leading-[1.02] tracking-[-1.4px] text-white sm:text-[35px] sm:tracking-[-2.6px]">
             Welcome back, {meName ?? "..."}
           </h1>
-          <p className="mt-3 max-w-[640px] text-[17px] font-normal leading-7 tracking-[-0.3px] text-white/62 sm:text-[20px] sm:tracking-[-0.45px]">
+          <p className="mt-2 max-w-[640px] text-[15px] font-normal leading-6 tracking-[-0.2px] text-white/62 sm:mt-3 sm:text-[20px] sm:leading-7 sm:tracking-[-0.45px]">
             You have {activeCount} active benefits and {pendingCount} pending
             requests
           </p>
@@ -95,7 +95,7 @@ export function EmployeeDashboardOverview({
           ) : null}
         </div>
 
-        <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
+        <div className="grid grid-cols-2 gap-2 pb-1 sm:flex sm:flex-nowrap sm:gap-2 sm:overflow-x-auto sm:px-1 lg:overflow-visible lg:px-0">
           {filterItems.map((item) => {
             const styles = FILTER_PILL_STYLES[item.key];
             const isActive = statusFilter === item.key;
@@ -104,7 +104,7 @@ export function EmployeeDashboardOverview({
                 key={item.key}
                 type="button"
                 onClick={() => onToggleStatus(item.key)}
-                className={`inline-flex h-[38px] w-[160px] shrink-0 cursor-pointer items-center gap-[10px] rounded-[13px] border px-[8px] py-[6px] text-left transition-all duration-200 ${
+                className={`inline-flex h-[42px] w-full min-w-0 cursor-pointer items-center gap-[10px] rounded-[13px] border px-[8px] py-[6px] text-left transition-all duration-200 sm:h-[38px] sm:w-[150px] sm:shrink-0 lg:w-[138px] xl:w-[160px] ${
                   isActive ? styles.active : styles.idle
                 }`}
               >
@@ -127,8 +127,8 @@ export function EmployeeDashboardOverview({
         </div>
       </div>
 
-      <div className="mr-[100px] mt-[24px] w-full">
-        <div className="relative flex h-[220px] w-full overflow-hidden rounded-[24px] border border-white/30 p-6 shadow-[0_25px_50px_rgba(0,0,0,0.28)] sm:h-[260px] lg:h-[242px] lg:w-[356px]">
+      <div className="mt-1 w-full lg:mt-6">
+        <div className="relative flex h-[208px] w-full overflow-hidden rounded-[22px] border border-white/30 p-5 shadow-[0_25px_50px_rgba(0,0,0,0.28)] sm:h-[236px] sm:p-6 lg:h-[242px] lg:w-full">
           <div className="z-10 flex flex-1 flex-col items-start justify-center text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-1.5 text-white/80">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
@@ -138,29 +138,29 @@ export function EmployeeDashboardOverview({
             </div>
 
             <div className="mt-4">
-              <h3 className="text-[32px] font-semibold leading-[0.95] tracking-[-1.2px] text-white/95">
+              <h3 className="text-[28px] font-semibold leading-[0.95] tracking-[-1.1px] text-white/95 sm:text-[32px]">
                 PineQuest
               </h3>
-              <p className="mt-2 text-[15px] font-semibold text-white/65">
+              <p className="mt-2 text-[14px] font-semibold text-white/65 sm:text-[15px]">
                 The dream chapter: Eternity
               </p>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-5 sm:mt-6">
               <button
                 type="button"
-                className="inline-flex items-center justify-start rounded-[15px] bg-white/6 pl-2 pr-6 py-2.5 text-left text-[18px] font-semibold text-white/95 transition hover:bg-white/12"
+                className="inline-flex items-center justify-start rounded-[15px] bg-white/6 px-4 py-2.5 text-left text-[16px] font-semibold text-white/95 transition hover:bg-white/12 sm:pl-2 sm:pr-6 sm:text-[18px]"
               >
                 Update team
               </button>
             </div>
           </div>
 
-          <div className="pointer-events-none absolute right-[-15px] bottom-[-14px] opacity-70">
+          <div className="pointer-events-none absolute right-[-10px] bottom-[-10px] opacity-60 sm:right-[-15px] sm:bottom-[-14px] sm:opacity-70">
             <img
               src="/Pinecone.png"
               alt="Pinecone shape"
-              className="h-[150px] w-auto object-contain sm:h-[185px] lg:h-[172px]"
+              className="h-[118px] w-auto object-contain sm:h-[165px] lg:h-[172px]"
             />
           </div>
         </div>

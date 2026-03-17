@@ -31,9 +31,9 @@ function SectionCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border px-[20px] pb-[14px] pt-[18px] ${theme} ${className ?? ""}`}
+      className={`rounded-2xl border px-[16px] pb-[10px] pt-[14px] ${theme} ${className ?? ""}`}
     >
-      <div className="mb-2 flex items-center gap-2.5 text-white/55">
+      <div className="mb-1.5 flex items-center gap-2.5 text-white/55">
         <span className="shrink-0">{icon}</span>
         <h3 className="text-[14px] font-semibold uppercase tracking-[0.09em]">
           {title}
@@ -65,6 +65,7 @@ export function BenefitModalDetails({
   const subsidy = benefit.subsidyPercentage
     ? `${benefit.subsidyPercentage} subsidy`
     : "-";
+  const shouldScrollRules = rules.length > 2;
 
   const handleViewContract = () => {
     if (onViewContract) {
@@ -78,29 +79,29 @@ export function BenefitModalDetails({
         theme={theme.section}
         icon={<FiFileText size={22} />}
         title="DESCRIPTION"
-        className="min-h-[88px]"
+        className="min-h-[74px]"
       >
         <p className="text-[14px] leading-5 tracking-[-0.15px] text-white/95">
           {benefit.description || benefit.eligibilityCriteria}
         </p>
       </SectionCard>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <SectionCard
           theme={theme.section}
           icon={<FiShield size={18} />}
           title="SUBSIDY"
-          className="min-h-[93px]"
+          className="min-h-[78px]"
         >
-          <p className="text-[18px] font-semibold text-white">{subsidy}</p>
+          <p className="text-[16px] font-semibold text-white">{subsidy}</p>
         </SectionCard>
         <SectionCard
           theme={theme.section}
           icon={<FiFileText size={18} />}
           title="VENDOR"
-          className="min-h-[93px]"
+          className="min-h-[78px]"
         >
-          <p className="text-[18px] font-medium text-white">{vendor}</p>
+          <p className="text-[16px] font-medium text-white">{vendor}</p>
         </SectionCard>
       </div>
 
@@ -108,7 +109,7 @@ export function BenefitModalDetails({
         theme={theme.section}
         icon={<FiFileText size={18} />}
         title="ELIGIBILITY CRITERIA"
-        className="min-h-[93px]"
+        className="min-h-[78px]"
       >
         <p className="text-[14px] leading-5 tracking-[-0.15px] text-white/95">
           {benefit.eligibilityCriteria || "All active employees"}
@@ -119,7 +120,7 @@ export function BenefitModalDetails({
         theme={theme.section}
         icon={<FiFileText size={18} />}
         title="VENDOR CONTRACT"
-        className="min-h-[93px]"
+        className="min-h-[78px]"
       >
         {benefit.contractLink ? (
           <a
@@ -145,9 +146,9 @@ export function BenefitModalDetails({
               theme={theme.section}
               icon={<FiCalendar size={18} />}
               title="BENEFIT STARTED"
-              className="min-h-[93px]"
+              className="min-h-[78px]"
             >
-              <p className="text-[16px] font-semibold leading-8 tracking-[0.2px] text-white">
+              <p className="text-[15px] font-semibold leading-7 tracking-[0.2px] text-white">
                 {benefit.benefitStartDate || "-"}
               </p>
             </SectionCard>
@@ -155,9 +156,9 @@ export function BenefitModalDetails({
               theme={theme.section}
               icon={<FiClock size={18} />}
               title="BENEFIT ENDS"
-              className="min-h-[93px]"
+              className="min-h-[78px]"
             >
-              <p className="text-[16px] font-semibold leading-8 tracking-[0.2px] text-white">
+              <p className="text-[15px] font-semibold leading-7 tracking-[0.2px] text-white">
                 {benefit.benefitEndDate || "-"}
               </p>
             </SectionCard>
@@ -172,31 +173,43 @@ export function BenefitModalDetails({
           </h3>
         </div>
 
-        <div className="space-y-3">
+        <div
+          className={`w-full space-y-2 ${
+            shouldScrollRules
+              ? "max-h-[236px] overflow-y-auto pr-1"
+              : ""
+          }`}
+        >
           {rules.map((rule, index) => (
             <div
               key={`${rule.rule}-${index}`}
-              className={`min-h-[121px] rounded-2xl border px-[20px] pb-[16px] pt-[20px] ${
+              className={`min-h-[70px] rounded-2xl border px-[14px] pb-[6px] pt-[12px] ${
                 rule.passed ? theme.rulePass : theme.ruleFail
               }`}
             >
-              <div className="flex items-start gap-4">
-                <div className="grid h-[56px] w-[56px] shrink-0 place-items-center rounded-[16px] bg-black/20 text-white/90">
-                  {rule.passed ? <FiCheck size={22} /> : <FiX size={22} />}
+              <div className="flex items-center gap-3">
+                <div className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-[10px] bg-black/20 text-white/90">
+                  {rule.passed ? <FiCheck size={16} /> : <FiX size={16} />}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-[16px] font-semibold leading-6 tracking-[0.1px] text-white">
                     {rule.rule}
                   </p>
                   {rule.detail ? (
-                    <p className="mt-1 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white/65">
+                    <p className="mt-0 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white/65">
                       {rule.detail}
                     </p>
                   ) : null}
-                  <span className="mt-2 inline-flex h-[20px] min-w-[59px] items-center justify-center rounded-[10px] bg-[#00BC7D]/20 px-3 text-[12px] font-semibold leading-5 tracking-[-0.05px] text-[#00E0A6]">
-                    {rule.passed ? "PASS" : "FAIL"}
-                  </span>
                 </div>
+                <span
+                  className={`inline-flex h-[30px] min-w-[59px] shrink-0 items-center justify-center self-center rounded-[10px] px-3 text-[12px] font-semibold leading-5 tracking-[-0.05px] ${
+                    rule.passed
+                      ? "bg-[#00BC7D]/20 text-[#00E0A6]"
+                      : "bg-[#ff637e]/18 text-[#ff8ea1]"
+                  }`}
+                >
+                  {rule.passed ? "PASS" : "FAIL"}
+                </span>
               </div>
             </div>
           ))}

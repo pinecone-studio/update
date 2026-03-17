@@ -271,7 +271,7 @@ export const BenefitCard = ({
       tabIndex={onClick ? 0 : undefined}
     >
       <div
-        className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-5 backdrop-blur-sm shadow-lg transition-all duration-300 ${
+        className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-4 backdrop-blur-sm shadow-lg transition-all duration-300 sm:p-5 ${
           cardClass
         } ${compact ? "flex-none" : "flex-1 min-h-0"}`}
       >
@@ -287,17 +287,17 @@ export const BenefitCard = ({
         <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
         <div className="relative flex h-full flex-col">
-          <div className="mb-4 flex items-start justify-between">
-            <div className="flex items-start gap-4">
+          <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
+            <div className="flex min-w-0 items-start gap-3 sm:gap-4">
               <div
-                className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${iconWrapClass}`}
+                className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${iconWrapClass}`}
               >
-                <div className="h-6 w-6">{icon}</div>
+                <div className="h-5 w-5 sm:h-6 sm:w-6">{icon}</div>
               </div>
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className={`text-base font-semibold ${titleClass}`}>
+                  <h3 className={`text-[15px] font-semibold sm:text-base ${titleClass}`}>
                     {name}
                   </h3>
                   {status === "ACTIVE" &&
@@ -326,11 +326,11 @@ export const BenefitCard = ({
                     </span>
                   ) : null}
                 </div>
-                <p className={`mt-1 text-sm ${metaClass}`}>{categoryLabel}</p>
+                <p className={`mt-1 text-[13px] sm:text-sm ${metaClass}`}>{categoryLabel}</p>
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex shrink-0 flex-col items-end gap-2">
               {hideStatusBadge ? null : (
                 <div className="flex flex-col items-end gap-1">
                   <StatusBadge status={status} />
@@ -408,20 +408,20 @@ export const BenefitCard = ({
           {!isAdminVariant && !compact && status !== "ACTIVE" ? (
             <div className="mb-2">
               <div className={`h-px ${dividerClass}`} />
-              <div className="mt-3 space-y-0.5">
+              <div className="mt-2.5 space-y-0.5">
                 {subsidyPercentage ? (
-                  <div className="flex items-center justify-between border-b border-white/10 py-2.5">
+                  <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2">
                     <span className={labelClass}>Coverage</span>
                     <span className={valueClass}>
                       {subsidyPercentage} subsidy
                     </span>
                   </div>
                 ) : null}
-                <div className="flex items-center justify-between border-b border-white/10 py-2.5">
+                <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2">
                   <span className={labelClass}>Vendor</span>
                   <span className={valueClass}>{vendorDisplayName}</span>
                 </div>
-                <p className={`pt-5 ${bodyClass}`}>{supportText}</p>
+                <p className={`pt-4 ${bodyClass}`}>{supportText}</p>
                 {overrideApplied ? (
                   <p className="pt-2 text-xs text-amber-200/90">
                     Override:{" "}
@@ -434,7 +434,7 @@ export const BenefitCard = ({
           ) : null}
 
           {!isAdminVariant ? (
-            <div className="mb-4 mt-auto h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+            <div className="mb-3 mt-auto h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent sm:mb-4" />
           ) : null}
 
           {footerActions ? (
@@ -443,7 +443,7 @@ export const BenefitCard = ({
             <button
               type="button"
               disabled={!isButtonClickable}
-              className={`flex h-11 w-full items-center justify-center gap-2 rounded-xl text-[14px] font-medium transition-all duration-200 ${
+              className={`flex h-10 w-full items-center justify-center gap-2 rounded-xl text-[13px] font-medium transition-all duration-200 sm:h-11 sm:text-[14px] ${
                 isButtonClickable
                   ? `${theme.button} group-hover:bg-white/[0.08]`
                   : "cursor-not-allowed border border-white/10 bg-white/5 text-white/35"
