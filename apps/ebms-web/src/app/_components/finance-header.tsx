@@ -285,7 +285,6 @@ export function FinanceHeader() {
           </div>
         </div>
       </div>
-      <div className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full bg-[linear-gradient(90deg,rgba(118,55,255,0.0)_0%,rgba(118,55,255,0.65)_50%,rgba(118,55,255,0.0)_100%)]" />
       <div
         className={`md:hidden absolute left-0 top-16 w-full bg-white border-t border-slate-200 dark:bg-[#1E293B] dark:border-[#24395C] ${
           menuOpen ? "block" : "hidden"

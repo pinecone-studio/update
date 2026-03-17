@@ -436,7 +436,7 @@ export const Header = () => {
 									setProfileOpen(!profileOpen);
 									setNotificationOpen(false);
 								}}
-								className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white "
+								className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200  text-sm font-semibold text-white "
 								aria-label="Profile"
 							>
 								<ProfileIcon />
@@ -445,7 +445,7 @@ export const Header = () => {
 								<div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
 									<div className="p-4 border-b border-slate-200 dark:border-[#243041]">
 										<div className="flex items-center gap-3">
-											<div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white ">
+											<div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200  text-sm font-semibold text-white ">
 												<ProfileIcon />
 											</div>
 											<div>
@@ -502,7 +502,6 @@ export const Header = () => {
 					</div>
 				</div>
 			</div>
-			<div className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full bg-[linear-gradient(90deg,rgba(118,55,255,0.0)_0%,rgba(118,55,255,0.65)_50%,rgba(118,55,255,0.0)_100%)]" />
 			<div
 				className={`md:hidden absolute left-0 top-[72px] w-full bg-white border-t border-slate-200 dark:bg-slate-900 dark:border-slate-800 ${
 					menuOpen ? "block" : "hidden"
