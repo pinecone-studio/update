@@ -79,10 +79,6 @@ export const benefitRequests: NonNullable<
         if (!statusFilter) return true;
         return (r.status ?? "").toLowerCase() === statusFilter;
       }
-      if (isHrOrAdminOrFinance) {
-        if (!statusFilter) return true;
-        return (r.status ?? "").toLowerCase() === statusFilter;
-      }
       if (r.employeeId !== actorId) return false;
       if (!statusFilter) return true;
       return (r.status ?? "").toLowerCase() === statusFilter;
