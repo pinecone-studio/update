@@ -266,16 +266,16 @@ export const Header = () => {
 	};
 
 	return (
-		<header className="sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md">
-			<div className="mx-auto flex h-[72px] w-full max-w-[1500px] items-center justify-between gap-4">
-				<div className="flex min-w-[180px] items-center gap-8 md:gap-6 ">
+		<header className="sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-3 sm:px-4 backdrop-blur-md">
+			<div className="mx-auto flex h-[72px] w-full max-w-[1512px] items-center justify-between gap-3 sm:gap-4">
+				<div className="flex min-w-0 shrink-0 items-center gap-3 sm:gap-6 md:gap-6">
 					<Link
 						href="/employee"
-						className="flex items-center gap-2 text-slate-900 dark:text-white hover:opacity-90 transition-opacity"
+						className="flex min-w-0 items-center gap-2 text-slate-900 transition-opacity hover:opacity-90 dark:text-white"
 					>
-						<div className="flex items-center gap-2">
-							<img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
-							<div className="leading-[24px] ">
+						<div className="flex min-w-0 items-center gap-2">
+							<img src="/logo.png" alt="EBMS Logo" className="h-9 w-auto sm:h-10" />
+							<div className="leading-[24px]">
 								<p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
 									UPDATE
 								</p>
@@ -284,10 +284,10 @@ export const Header = () => {
 					</Link>
 				</div>
 
-				<div className="hidden flex-1 items-center justify-center px-2 md:flex ">
-					<div className="relative w-full max-w-[650px] flex gap-3 items-center">
-						<div className="w-[600px] h-10 border border-white/10 rounded-xl flex items-center justify-center">
-							<p className="truncate px-16 text-center text-[18px] font-medium tracking-[-0.2px] text-[#CFD6D8] letter-spacing-[0.2px] line-height-[20px]">
+				<div className="hidden min-w-0 flex-1 items-center justify-center px-2 md:flex">
+					<div className="relative flex w-full min-w-0 max-w-[650px] items-center gap-3">
+						<div className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-white/10">
+							<p className="truncate px-12 text-center text-[16px] font-medium tracking-[-0.2px] text-[#CFD6D8] lg:px-16 lg:text-[18px]">
 								{TAGLINES[currentTaglineIndex]}
 							</p>
 						</div>

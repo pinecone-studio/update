@@ -46,4 +46,8 @@
     --accent: #2a8bff;
     --accent-hover: #1d7ae8;
   }
+
+  html {
+    letter-spacing: -1px;
+  }
 }
