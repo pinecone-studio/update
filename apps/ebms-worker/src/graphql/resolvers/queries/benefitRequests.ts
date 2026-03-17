@@ -14,6 +14,7 @@ import { eq, sql } from "drizzle-orm";
 
 const statusMap: Record<string, string> = {
   PENDING: "pending",
+  ADMIN_APPROVED: "admin_approved",
   APPROVED: "approved",
   REJECTED: "rejected",
   CANCELLED: "cancelled",
@@ -63,32 +64,42 @@ export const benefitRequests: NonNullable<
 
   return rows
     .filter((r) => {
+      const rowStatus = (r.status ?? "").toLowerCase();
       if (isHrOrAdmin) {
         const needsFinanceApproval = Boolean(
           config?.[r.benefitId]?.financeCheck,
         );
-        if (needsFinanceApproval) return false;
+        if (needsFinanceApproval) {
+          if (rowStatus === "admin_approved") return false;
+          if (rowStatus === "pending") return !statusFilter || statusFilter === "pending";
+          return false;
+        }
         if (!statusFilter) return true;
-        return (r.status ?? "").toLowerCase() === statusFilter;
+        return rowStatus === statusFilter;
       }
       if (isFinance) {
         const needsFinanceApproval = Boolean(
           config?.[r.benefitId]?.financeCheck,
         );
         if (!needsFinanceApproval) return false;
-        if (!statusFilter) return true;
-        return (r.status ?? "").toLowerCase() === statusFilter;
+        if (rowStatus === "admin_approved") return true;
+        if (rowStatus === "pending") return false;
+        if (!statusFilter) return false;
+        return rowStatus === statusFilter;
       }
       if (r.employeeId !== actorId) return false;
       if (!statusFilter) return true;
-      return (r.status ?? "").toLowerCase() === statusFilter;
+      return rowStatus === statusFilter;
     })
     .map((r) => ({
       id: r.id,
       employeeId: r.employeeId,
       benefitId: r.benefitId,
-      status: (r.status?.toUpperCase() ?? "PENDING") as
+      status: (r.status === "admin_approved"
+        ? "ADMIN_APPROVED"
+        : r.status?.toUpperCase() ?? "PENDING") as
         | "PENDING"
+        | "ADMIN_APPROVED"
         | "APPROVED"
         | "REJECTED"
         | "CANCELLED",

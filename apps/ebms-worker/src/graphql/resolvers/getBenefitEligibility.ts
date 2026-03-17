@@ -11,7 +11,7 @@ import {
   benefitEligibility,
   benefitRequests,
 } from "../../db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { asBool01, mapBenefitStatus, safeJsonParse } from "./utils";
 import {
   getActiveEligibilityConfig,
@@ -49,6 +49,8 @@ export type BenefitEligibilityRow = {
   rejectedReason?: string | null;
   overrideApplied: boolean;
   overrideReason?: string | null;
+  /** When status is PENDING: "admin" or "finance" — who must approve next */
+  pendingApprovalBy?: string | null;
 };
 
 export async function getBenefitEligibilityForEmployee(
@@ -63,12 +65,15 @@ export async function getBenefitEligibilityForEmployee(
       getActiveEligibilityConfig(env),
       getEmployeeForEligibility(env, employeeId),
       db
-        .select({ benefitId: benefitRequests.benefitId })
+        .select({
+          benefitId: benefitRequests.benefitId,
+          requestStatus: benefitRequests.status,
+        })
         .from(benefitRequests)
         .where(
           and(
             eq(benefitRequests.employeeId, employeeId),
-            eq(benefitRequests.status, "pending"),
+            inArray(benefitRequests.status, ["pending", "admin_approved"]),
           ),
         ),
       db
@@ -103,6 +108,10 @@ export async function getBenefitEligibilityForEmployee(
   }
 
   const pendingBenefitIds = new Set(pendingRequestRows.map((r) => r.benefitId));
+  const pendingRequestStatusByBenefit = new Map<string, string>();
+  for (const r of pendingRequestRows) {
+    pendingRequestStatusByBenefit.set(r.benefitId, r.requestStatus ?? "pending");
+  }
   const rejectedByBenefit = new Map<string, string>();
   for (const r of rejectedRequestRows) {
     if (!rejectedByBenefit.has(r.benefitId)) {
@@ -221,6 +230,14 @@ export async function getBenefitEligibilityForEmployee(
         });
       }
 
+      const reqStatus = pendingRequestStatusByBenefit.get(row.benefitId) ?? "pending";
+      const pendingApprovalBy =
+        finalStatus === "PENDING"
+          ? (reqStatus === "admin_approved" && benefitConfig?.financeCheck
+              ? "finance"
+              : "admin")
+          : null;
+
       results.push({
         benefit: {
           id: row.benefitId,
@@ -252,6 +269,7 @@ export async function getBenefitEligibilityForEmployee(
         overrideReason: overrideActive
           ? (row.overrideReason ?? "HR override")
           : null,
+        pendingApprovalBy,
       });
       continue;
     }
@@ -291,6 +309,15 @@ export async function getBenefitEligibilityForEmployee(
     ) {
       status = "REJECTED";
     }
+    const benefitConfigNoRules = config?.[row.benefitId];
+    const reqStatusNoRules = pendingRequestStatusByBenefit.get(row.benefitId) ?? "pending";
+    const pendingApprovalBy =
+      status === "PENDING"
+        ? (reqStatusNoRules === "admin_approved" && benefitConfigNoRules?.financeCheck
+            ? "finance"
+            : "admin")
+        : null;
+
     results.push({
       benefit: {
         id: row.benefitId,
@@ -313,6 +340,7 @@ export async function getBenefitEligibilityForEmployee(
       overrideReason: overrideActive
         ? (row.overrideReason ?? "HR override")
         : null,
+      pendingApprovalBy,
     });
   }
 

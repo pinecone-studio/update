@@ -119,6 +119,8 @@ export interface BenefitCardProps {
   lockReason?: string;
   /** Rejection reason when status is REJECTED (admin's feedback) */
   rejectReason?: string;
+  /** When status is PENDING: "admin" or "finance" — who must approve next */
+  pendingApprovalBy?: string;
   /** True when status is currently controlled by an HR/Admin override */
   overrideApplied?: boolean;
   /** Optional reason attached to the active override */
@@ -168,6 +170,7 @@ export const BenefitCard = ({
   rejectReason,
   overrideApplied = false,
   overrideReason,
+  pendingApprovalBy,
   eligibilityRules,
   icon,
   iconBgColor: _iconBgColor = "bg-[#4CAF50]/20",
@@ -189,12 +192,18 @@ export const BenefitCard = ({
   const normalizedLockReason = (lockReason ?? "").trim();
   const normalizedRejectReason = (rejectReason ?? "").trim();
   const vendorDisplayName = (vendorDetails ?? "").trim() || "Pinecone";
+  const pendingStepText =
+    status === "PENDING" && pendingApprovalBy === "finance"
+      ? "Finance approval pending"
+      : status === "PENDING" && pendingApprovalBy === "admin"
+        ? "Admin approval pending"
+        : null;
   const supportText =
     status === "LOCKED"
       ? normalizedLockReason || STATUS_MESSAGE[status]
       : status === "REJECTED"
         ? normalizedRejectReason || STATUS_MESSAGE[status]
-        : STATUS_MESSAGE[status];
+        : pendingStepText ?? STATUS_MESSAGE[status];
   const normalizedOverrideReason = (overrideReason ?? "").trim();
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
@@ -322,7 +331,20 @@ export const BenefitCard = ({
             </div>
 
             <div className="flex flex-col items-end gap-2">
-              {hideStatusBadge ? null : <StatusBadge status={status} />}
+              {hideStatusBadge ? null : (
+                <div className="flex flex-col items-end gap-1">
+                  <StatusBadge status={status} />
+                  {status === "PENDING" && pendingApprovalBy ? (
+                    <span
+                      className={`text-[10px] font-medium tracking-wide ${isAdminVariant ? "text-amber-700 dark:text-amber-300" : "text-amber-200/90"}`}
+                    >
+                      {pendingApprovalBy === "finance"
+                        ? "Finance approval"
+                        : "Admin approval"}
+                    </span>
+                  ) : null}
+                </div>
+              )}
               {overrideApplied ? (
                 <span className="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-amber-200">
                   MANUAL OVERRIDE

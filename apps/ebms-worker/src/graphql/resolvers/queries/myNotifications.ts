@@ -2,6 +2,7 @@ import type { Ctx } from "../context";
 import { requireEmployeeId } from "../context";
 import type { QueryResolvers } from "../../generated/graphql";
 import { getDb } from "../../../db/drizzle";
+import { isEmployeeNotificationsTableMissing } from "../../../db/errors";
 import { employeeNotifications } from "../../../db/schema";
 import { and, desc, eq } from "drizzle-orm";
 
@@ -40,34 +41,39 @@ export const myNotifications: NonNullable<
     conditions.push(eq(employeeNotifications.isRead, 0));
   }
 
-  const rows = await db
-    .select({
-      id: employeeNotifications.id,
-      employeeId: employeeNotifications.employeeId,
-      title: employeeNotifications.title,
-      body: employeeNotifications.body,
-      type: employeeNotifications.type,
-      tone: employeeNotifications.tone,
-      channel: employeeNotifications.channel,
-      isRead: employeeNotifications.isRead,
-      createdAt: employeeNotifications.createdAt,
-      metadataJson: employeeNotifications.metadataJson,
-    })
-    .from(employeeNotifications)
-    .where(and(...conditions))
-    .orderBy(desc(employeeNotifications.createdAt))
-    .limit(limit);
+  try {
+    const rows = await db
+      .select({
+        id: employeeNotifications.id,
+        employeeId: employeeNotifications.employeeId,
+        title: employeeNotifications.title,
+        body: employeeNotifications.body,
+        type: employeeNotifications.type,
+        tone: employeeNotifications.tone,
+        channel: employeeNotifications.channel,
+        isRead: employeeNotifications.isRead,
+        createdAt: employeeNotifications.createdAt,
+        metadataJson: employeeNotifications.metadataJson,
+      })
+      .from(employeeNotifications)
+      .where(and(...conditions))
+      .orderBy(desc(employeeNotifications.createdAt))
+      .limit(limit);
 
-  return rows.map((row) => ({
-    id: row.id,
-    employeeId: row.employeeId,
-    title: row.title,
-    body: row.body,
-    type: mapType(row.type),
-    tone: mapTone(row.tone),
-    channel: mapChannel(row.channel),
-    isRead: row.isRead === 1,
-    createdAt: row.createdAt,
-    metadata: row.metadataJson ?? null,
-  }));
+    return rows.map((row) => ({
+      id: row.id,
+      employeeId: row.employeeId,
+      title: row.title,
+      body: row.body,
+      type: mapType(row.type),
+      tone: mapTone(row.tone),
+      channel: mapChannel(row.channel),
+      isRead: row.isRead === 1,
+      createdAt: row.createdAt,
+      metadata: row.metadataJson ?? null,
+    }));
+  } catch (err) {
+    if (isEmployeeNotificationsTableMissing(err)) return [];
+    throw err;
+  }
 };

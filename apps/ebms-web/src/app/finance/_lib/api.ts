@@ -28,6 +28,7 @@ export function getApiErrorMessage(e: unknown): string {
 
 export type BenefitRequestStatus =
   | "PENDING"
+  | "ADMIN_APPROVED"
   | "APPROVED"
   | "REJECTED"
   | "CANCELLED";

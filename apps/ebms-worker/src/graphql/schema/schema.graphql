@@ -9,6 +9,7 @@ enum BenefitStatus {
 
 enum RequestStatus {
   PENDING
+  ADMIN_APPROVED
   APPROVED
   REJECTED
   CANCELLED
@@ -65,6 +66,8 @@ type BenefitEligibility {
   rejectedReason: String
   overrideApplied: Boolean!
   overrideReason: String
+  """When status is PENDING: 'admin' or 'finance' — who must approve next"""
+  pendingApprovalBy: String
 }
 
 type RuleEvaluation {

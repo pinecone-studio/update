@@ -24,9 +24,10 @@ export function mapBenefitStatus(
 
 export function mapRequestStatus(
   status: string,
-): "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" {
+): "PENDING" | "ADMIN_APPROVED" | "APPROVED" | "REJECTED" | "CANCELLED" {
   const s = (status ?? "").toLowerCase();
   if (s === "approved") return "APPROVED";
+  if (s === "admin_approved") return "ADMIN_APPROVED";
   if (s === "rejected") return "REJECTED";
   if (s === "cancelled") return "CANCELLED";
   return "PENDING";

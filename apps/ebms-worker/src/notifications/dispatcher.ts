@@ -1,5 +1,6 @@
 import type { Env } from "../types";
 import { getDb } from "../db/drizzle";
+import { isEmployeeNotificationsTableMissing } from "../db/errors";
 import { employeeNotifications } from "../db/schema";
 import { and, eq, gte } from "drizzle-orm";
 
@@ -29,20 +30,25 @@ async function hasRecentDuplicate(
   employeeId: string,
   dedupeKey: string,
 ): Promise<boolean> {
-  const db = getDb(env);
-  const since = new Date(Date.now() - DEDUPE_WINDOW_MS).toISOString();
-  const rows = await db
-    .select({ id: employeeNotifications.id })
-    .from(employeeNotifications)
-    .where(
-      and(
-        eq(employeeNotifications.employeeId, employeeId),
-        eq(employeeNotifications.dedupeKey, dedupeKey),
-        gte(employeeNotifications.createdAt, since),
-      ),
-    )
-    .limit(1);
-  return Boolean(rows[0]);
+  try {
+    const db = getDb(env);
+    const since = new Date(Date.now() - DEDUPE_WINDOW_MS).toISOString();
+    const rows = await db
+      .select({ id: employeeNotifications.id })
+      .from(employeeNotifications)
+      .where(
+        and(
+          eq(employeeNotifications.employeeId, employeeId),
+          eq(employeeNotifications.dedupeKey, dedupeKey),
+          gte(employeeNotifications.createdAt, since),
+        ),
+      )
+      .limit(1);
+    return Boolean(rows[0]);
+  } catch (err) {
+    if (isEmployeeNotificationsTableMissing(err)) return false;
+    throw err;
+  }
 }
 
 async function insertNotification(
@@ -74,22 +80,29 @@ export async function dispatchEmployeeNotification(
   env: Env,
   input: DispatchInput,
 ): Promise<void> {
-  if (input.dedupeKey) {
-    const skip = await hasRecentDuplicate(
-      env,
-      input.employeeId,
-      input.dedupeKey,
+  try {
+    if (input.dedupeKey) {
+      const skip = await hasRecentDuplicate(
+        env,
+        input.employeeId,
+        input.dedupeKey,
+      );
+      if (skip) return;
+    }
+
+    await insertNotification(env, input, "in_app", "delivered", 0);
+    await insertNotification(env, input, "email", "queued", 1);
+
+    // Placeholder for mail channel integration.
+    console.log(
+      `[notification] queued email for ${input.employeeId}: ${input.title}`,
     );
-    if (skip) return;
+  } catch (err) {
+    if (isEmployeeNotificationsTableMissing(err)) {
+      return; // Graceful fallback when local/remote DB lacks employee_notifications
+    }
+    throw err;
   }
-
-  await insertNotification(env, input, "in_app", "delivered", 0);
-  await insertNotification(env, input, "email", "queued", 1);
-
-  // Placeholder for mail channel integration.
-  console.log(
-    `[notification] queued email for ${input.employeeId}: ${input.title}`,
-  );
 }
 
 export async function dispatchEmployeeWarningsIfNeeded(

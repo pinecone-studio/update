@@ -14,6 +14,7 @@ export const typeDefs = /* GraphQL */ `
 
   enum RequestStatus {
     PENDING
+    ADMIN_APPROVED
     APPROVED
     REJECTED
     CANCELLED
@@ -68,6 +69,7 @@ export const typeDefs = /* GraphQL */ `
     rejectedReason: String
     overrideApplied: Boolean!
     overrideReason: String
+    pendingApprovalBy: String
   }
 
   type RuleEvaluation {

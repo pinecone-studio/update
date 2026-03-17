@@ -36,8 +36,8 @@ export default function FinancePage() {
   >({});
   const [selectedCardKey, setSelectedCardKey] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<
-    "PENDING" | "APPROVED" | "REJECTED" | undefined
-  >("PENDING");
+    "PENDING" | "ADMIN_APPROVED" | "APPROVED" | "REJECTED" | undefined
+  >("ADMIN_APPROVED");
   const [rejectingRequestId, setRejectingRequestId] = useState<string | null>(
     null,
   );
@@ -47,7 +47,12 @@ export default function FinancePage() {
   const [rejectionReason, setRejectionReason] = useState("");
 
   const pendingRequests = useMemo(
-    () => requests.filter((r) => r.status === "PENDING"),
+    () =>
+      requests.filter(
+        (r) =>
+          (r.status ?? "").toUpperCase() === "PENDING" ||
+          (r.status ?? "").toUpperCase() === "ADMIN_APPROVED",
+      ),
     [requests],
   );
   const approvedThisMonth = useMemo(() => {
@@ -138,6 +143,8 @@ export default function FinancePage() {
     const s = (status || "PENDING").toUpperCase();
     const styles: Record<string, string> = {
       PENDING: "border-[#FFAD0F]/40 bg-[#FFAD0F]/20 text-[#FFAD0F]",
+      ADMIN_APPROVED:
+        "border-[#2A8BFF]/40 bg-[#2A8BFF]/20 text-[#2A8BFF]",
       APPROVED: "border-[#00C95F]/40 bg-[#00C95F]/20 text-[#00C95F]",
       REJECTED: "border-red-500/40 bg-red-500/20 text-red-400",
       CANCELLED: "border-[#64748B]/40 bg-[#64748B]/20 text-[#94A3B8]",
@@ -307,7 +314,7 @@ export default function FinancePage() {
           <div className="flex flex-wrap items-center gap-2">
             {(
               [
-                { value: "PENDING" as const, label: "Pending" },
+                { value: "ADMIN_APPROVED" as const, label: "Awaiting Finance" },
                 { value: "APPROVED" as const, label: "Approved" },
                 { value: "REJECTED" as const, label: "Rejected" },
                 { value: undefined, label: "All" },
@@ -348,7 +355,8 @@ export default function FinancePage() {
             <tbody>
               {visibleRequests.map((request, index) => {
                 const isPending =
-                  (request.status || "PENDING").toUpperCase() === "PENDING";
+                  (request.status || "PENDING").toUpperCase() === "PENDING" ||
+                  (request.status || "").toUpperCase() === "ADMIN_APPROVED";
                 const needsSignature =
                   (request.status || "PENDING").toUpperCase() === "APPROVED" &&
                   request.requiresContract &&
