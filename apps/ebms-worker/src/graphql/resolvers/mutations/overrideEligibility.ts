@@ -118,5 +118,8 @@ export const overrideEligibility: NonNullable<
     status: mapBenefitStatus(entry.status),
     ruleEvaluations: entry.ruleEvaluations,
     computedAt: entry.computedAt,
+    rejectedReason: entry.rejectedReason ?? null,
+    overrideApplied: entry.overrideApplied,
+    overrideReason: entry.overrideReason ?? null,
   };
 };

@@ -22,25 +22,49 @@ adminContracts.get("/", async (c) => {
   const db = getDb(c.env);
 
   if (tab === "employee") {
-    const manualRows = await db
-      .select({
-        id: employeeContractsTable.id,
-        employeeId: employeeContractsTable.employeeId,
-        benefitId: employeeContractsTable.benefitId,
-        benefitName: benefitsTable.name,
-        vendorName: benefitsTable.vendorName,
-        version: employeeContractsTable.version,
-        effectiveDate: employeeContractsTable.effectiveDate,
-        expiryDate: employeeContractsTable.expiryDate,
-        r2ObjectKey: employeeContractsTable.r2ObjectKey,
-        createdAt: employeeContractsTable.createdAt,
-        updatedAt: employeeContractsTable.updatedAt,
-        employeeName: employeesTable.name,
-      })
-      .from(employeeContractsTable)
-      .leftJoin(benefitsTable, eq(employeeContractsTable.benefitId, benefitsTable.id))
-      .leftJoin(employeesTable, eq(employeeContractsTable.employeeId, employeesTable.id))
-      .orderBy(desc(employeeContractsTable.createdAt));
+    let manualRows: Array<{
+      id: string;
+      employeeId: string | null;
+      benefitId: string;
+      benefitName: string | null;
+      vendorName: string | null;
+      version: string;
+      effectiveDate: string | null;
+      expiryDate: string | null;
+      r2ObjectKey: string;
+      createdAt: string | null;
+      updatedAt: string | null;
+      employeeName: string | null;
+    }> = [];
+
+    try {
+      manualRows = await db
+        .select({
+          id: employeeContractsTable.id,
+          employeeId: employeeContractsTable.employeeId,
+          benefitId: employeeContractsTable.benefitId,
+          benefitName: benefitsTable.name,
+          vendorName: benefitsTable.vendorName,
+          version: employeeContractsTable.version,
+          effectiveDate: employeeContractsTable.effectiveDate,
+          expiryDate: employeeContractsTable.expiryDate,
+          r2ObjectKey: employeeContractsTable.r2ObjectKey,
+          createdAt: employeeContractsTable.createdAt,
+          updatedAt: employeeContractsTable.updatedAt,
+          employeeName: employeesTable.name,
+        })
+        .from(employeeContractsTable)
+        .leftJoin(benefitsTable, eq(employeeContractsTable.benefitId, benefitsTable.id))
+        .leftJoin(employeesTable, eq(employeeContractsTable.employeeId, employeesTable.id))
+        .orderBy(desc(employeeContractsTable.createdAt));
+    } catch (error) {
+      const message = String(error ?? "").toLowerCase();
+      // Backward compatibility: if local/remote DB does not yet have employee_contracts,
+      // still return request-based uploaded contracts instead of failing the whole endpoint.
+      if (!message.includes("no such table") || !message.includes("employee_contracts")) {
+        throw error;
+      }
+    }
 
     const uploadedByRequestRows = await db
       .select({
