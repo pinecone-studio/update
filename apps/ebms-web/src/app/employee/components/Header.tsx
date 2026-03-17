@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
-import { fetchMe } from "../_lib/api";
+import { fetchMe, fetchMyNotifications, formatRelativeTime } from "../_lib/api";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import {
 	fetchSwitchUserOptions,
@@ -26,11 +26,11 @@ import {
 	HiOutlineChartBar,
 	HiOutlineInformationCircle,
 	HiOutlineArrowTopRightOnSquare,
+	HiOutlineExclamationTriangle,
 } from "react-icons/hi2";
 import { IoDiceOutline } from "react-icons/io5";
 import { ProfileIcon } from "@/app/icons/profile";
 
-const STORAGE_KEY = "ebms_employee_notifications";
 const TAGLINE_INDEX_KEY = "ebms_employee_tagline_index";
 const TAGLINE_LAST_CHANGE_KEY = "ebms_employee_tagline_last_change";
 const TAGLINE_CHANGE_MS = 24 * 60 * 60 * 1000;
@@ -58,34 +58,14 @@ const TAGLINES = [
 	"🔮 Хамтдаа ирээдүйг тодорхойлье",
 ] as const;
 
-const DEFAULT_NOTIFICATIONS = [
-	{
-		id: "1",
-		title: "You're Now Eligible for Education Allowance!",
-		body: "Congratulations! You've reached 1 year tenure with an OKR score of 82%. You can now request Education Allowance.",
-		time: "2 hours ago",
-		tone: "success" as const,
-		unread: true,
-	},
-	{
-		id: "2",
-		title: "OKR Score Updated",
-		body: "Your Q1 2026 OKR score has been updated to 82%. This may affect your benefit eligibility.",
-		time: "5 hours ago",
-		tone: "info" as const,
-		unread: true,
-	},
-	{
-		id: "3",
-		title: "Transit Pass Request Approved",
-		body: "Your Transit Pass benefit request has been approved. You'll receive further details via email.",
-		time: "1 day ago",
-		tone: "success" as const,
-		unread: false,
-	},
-];
-
-type EmployeeNotification = (typeof DEFAULT_NOTIFICATIONS)[number];
+type HeaderNotification = {
+	id: string;
+	title: string;
+	body: string;
+	time: string;
+	tone: "success" | "info" | "warning";
+	unread: boolean;
+};
 
 export const Header = () => {
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -104,9 +84,7 @@ export const Header = () => {
 			role: (initialProfile.role || "employee").toLowerCase(),
 		},
 	]);
-	const [notifications, setNotifications] = useState<EmployeeNotification[]>(
-		DEFAULT_NOTIFICATIONS,
-	);
+	const [notifications, setNotifications] = useState<HeaderNotification[]>([]);
 	const notificationRef = useRef<HTMLDivElement>(null);
 	const profileRef = useRef<HTMLDivElement>(null);
 	const diceButtonRef = useRef<HTMLButtonElement>(null);
@@ -172,22 +150,32 @@ export const Header = () => {
 	}, []);
 
 	useEffect(() => {
-		const raw = localStorage.getItem(STORAGE_KEY);
-		if (raw) {
-			try {
-				const parsed = JSON.parse(raw) as EmployeeNotification[];
-				if (Array.isArray(parsed) && parsed.length > 0) {
-					setNotifications(parsed);
-				}
-			} catch {
-				// Ignore malformed storage.
-			}
-		}
-	}, []);
-
-	useEffect(() => {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-	}, [notifications]);
+		let cancelled = false;
+		fetchMyNotifications(5)
+			.then((list) => {
+				if (cancelled) return;
+				const mapped: HeaderNotification[] = list.map((n) => ({
+					id: n.id,
+					title: n.title,
+					body: n.body,
+					time: formatRelativeTime(n.createdAt),
+					tone:
+						n.tone === "SUCCESS"
+							? "success"
+							: n.tone === "WARNING"
+								? "warning"
+								: "info",
+					unread: !n.isRead,
+				}));
+				setNotifications(mapped);
+			})
+			.catch(() => {
+				if (!cancelled) setNotifications([]);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [selectedUser.id]);
 
 	useEffect(() => {
 		const savedIndex = Number(localStorage.getItem(TAGLINE_INDEX_KEY) ?? "0");
@@ -376,16 +364,25 @@ export const Header = () => {
                   </div>
 
 										<div className="max-h-[280px] space-y-2 overflow-y-auto px-3 py-3">
-											{notifications.slice(0, 5).map((n) => {
+											{notifications.length === 0 ? (
+												<p className="text-xs text-white/50 py-4 text-center">
+													No notifications
+												</p>
+											) : (
+											notifications.slice(0, 5).map((n) => {
 												const iconClass =
 													n.tone === "success"
 														? "text-emerald-300 bg-emerald-500/15"
-														: n.tone === "info"
-															? "text-blue-300 bg-blue-500/15"
-															: "text-slate-300 bg-slate-500/15";
+														: n.tone === "warning"
+															? "text-amber-300 bg-amber-500/15"
+															: n.tone === "info"
+																? "text-blue-300 bg-blue-500/15"
+																: "text-slate-300 bg-slate-500/15";
 												return (
-													<button
+													<Link
 														key={n.id}
+														href="/employee/notification"
+														onClick={() => setNotificationOpen(false)}
 														className="flex w-full gap-3 rounded-xl border border-transparent bg-white/5 p-3 text-left transition hover:border-white/10 hover:bg-white/10"
 													>
 														<div
@@ -393,6 +390,8 @@ export const Header = () => {
 														>
 															{n.tone === "success" ? (
 																<HiOutlineCheckCircle className="text-lg" />
+															) : n.tone === "warning" ? (
+																<HiOutlineExclamationTriangle className="text-lg" />
 															) : n.tone === "info" ? (
 																<HiOutlineChartBar className="text-lg" />
 															) : (
@@ -413,9 +412,10 @@ export const Header = () => {
 														{n.unread && (
 															<span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
 														)}
-													</button>
+													</Link>
 												);
-											})}
+											})
+											)}
 										</div>
 
 										<div className="border-t border-white/10 px-3 py-3">

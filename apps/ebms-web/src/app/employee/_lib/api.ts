@@ -123,6 +123,36 @@ const ARCHIVE_BENEFIT_CONTRACT_PDF_MUTATION = gql`
 	}
 `;
 
+const MY_NOTIFICATIONS_QUERY = gql`
+	query MyNotifications($limit: Int, $unreadOnly: Boolean) {
+		myNotifications(limit: $limit, unreadOnly: $unreadOnly) {
+			id
+			title
+			body
+			createdAt
+			tone
+			type
+			isRead
+			metadata
+		}
+	}
+`;
+
+const MARK_NOTIFICATION_READ_MUTATION = gql`
+	mutation MarkNotificationRead($id: ID!) {
+		markNotificationRead(id: $id) {
+			id
+			isRead
+		}
+	}
+`;
+
+const MARK_ALL_NOTIFICATIONS_READ_MUTATION = gql`
+	mutation MarkAllNotificationsRead {
+		markAllNotificationsRead
+	}
+`;
+
 
 function getBaseUrl(): string {
 	const env = process.env.NEXT_PUBLIC_API_URL || "";
@@ -257,6 +287,50 @@ export function getApiErrorMessage(e: unknown): string {
 	}
 	if (e instanceof Error) return e.message;
 	return String(e);
+}
+
+// --- Notifications ---
+
+export type EmployeeNotification = {
+	id: string;
+	title: string;
+	body: string;
+	createdAt: string;
+	tone: "SUCCESS" | "INFO" | "WARNING" | "NEUTRAL";
+	type: "ELIGIBILITY_CHANGE" | "REQUEST_STATUS" | "WARNING";
+	isRead: boolean;
+	metadata?: string | null;
+};
+
+export function formatRelativeTime(iso: string): string {
+	const ts = new Date(iso).getTime();
+	if (Number.isNaN(ts)) return iso;
+	const diffMs = Date.now() - ts;
+	const diffMin = Math.floor(diffMs / 60000);
+	if (diffMin < 1) return "just now";
+	if (diffMin < 60) return `${diffMin} min ago`;
+	const diffHour = Math.floor(diffMin / 60);
+	if (diffHour < 24) return `${diffHour} hour ago`;
+	const diffDay = Math.floor(diffHour / 24);
+	return `${diffDay} day ago`;
+}
+
+export async function fetchMyNotifications(
+	limit = 100,
+	unreadOnly?: boolean,
+): Promise<EmployeeNotification[]> {
+	const res = await getEmployeeClient().request<{
+		myNotifications: EmployeeNotification[];
+	}>(MY_NOTIFICATIONS_QUERY, { limit, unreadOnly: unreadOnly ?? null });
+	return res.myNotifications ?? [];
+}
+
+export async function markNotificationRead(id: string): Promise<void> {
+	await getEmployeeClient().request(MARK_NOTIFICATION_READ_MUTATION, { id });
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+	await getEmployeeClient().request(MARK_ALL_NOTIFICATIONS_READ_MUTATION);
 }
 
 // --- Benefit feedback (voting) ---

@@ -2,8 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
-import { gql } from "graphql-request";
+import { useEffect, useState, useCallback } from "react";
 import {
   HiOutlineBell,
   HiOutlineMagnifyingGlass,
@@ -11,51 +10,17 @@ import {
   HiOutlineClock,
   HiOutlineInformationCircle,
   HiOutlineArrowUpRight,
-  HiOutlineExclamationTriangle,
-  HiOutlineXCircle,
 } from "react-icons/hi2";
 import Link from "next/link";
 import { NotificationSkeleton } from "../components/NotificationSkeleton";
-import { getEmployeeClient, getApiErrorMessage } from "../_lib/api";
-
-type EmployeeNotification = {
-  id: string;
-  title: string;
-  body: string;
-  createdAt: string;
-  tone: "SUCCESS" | "INFO" | "WARNING" | "NEUTRAL";
-  type: "ELIGIBILITY_CHANGE" | "REQUEST_STATUS" | "WARNING";
-  isRead: boolean;
-  metadata?: string | null;
-};
-
-const MY_NOTIFICATIONS_QUERY = gql`
-  query MyNotifications {
-    myNotifications(limit: 100) {
-      id
-      title
-      body
-      createdAt
-      tone
-      type
-      isRead
-      metadata
-    }
-  }
-`;
-
-function formatRelativeTime(iso: string): string {
-  const ts = new Date(iso).getTime();
-  if (Number.isNaN(ts)) return iso;
-  const diffMs = Date.now() - ts;
-  const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin} min ago`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour} hour ago`;
-  const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay} day ago`;
-}
+import {
+  fetchMyNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  formatRelativeTime,
+  getApiErrorMessage,
+  type EmployeeNotification,
+} from "../_lib/api";
 
 export default function NotificationPage() {
   const [loading, setLoading] = useState(true);
@@ -96,29 +61,23 @@ export default function NotificationPage() {
     );
   }).length;
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await getEmployeeClient().request<{
-          myNotifications: EmployeeNotification[];
-        }>(MY_NOTIFICATIONS_QUERY);
-        if (!cancelled) setNotifications(res.myNotifications ?? []);
-      } catch (e) {
-        if (!cancelled) {
-          setNotifications([]);
-          setError(getApiErrorMessage(e));
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+  const loadNotifications = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const list = await fetchMyNotifications(100);
+      setNotifications(list);
+    } catch (e) {
+      setNotifications([]);
+      setError(getApiErrorMessage(e));
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
 
   if (loading) {
     return (
@@ -136,18 +95,35 @@ export default function NotificationPage() {
     <div>
       <div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 w-full min-h-screen dark:bg-[#0f172A] dark:text-white">
         <div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
-          <div className="flex items-center gap-4">
-            <div className="w-[56px] h-[56px] bg-white rounded-2xl flex items-center justify-center">
-              <HiOutlineBell className="text-3xl text-blue-700" />
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-[56px] h-[56px] bg-white rounded-2xl flex items-center justify-center dark:bg-[#1A2333]">
+                <HiOutlineBell className="text-3xl text-blue-700 dark:text-blue-500" />
+              </div>
+              <div className="flex flex-col">
+                <p className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  Notifications
+                </p>
+                <p className="text-slate-600 text-sm dark:text-slate-300">
+                  Stay updated on your benefits and eligibility
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <p className="text-2xl font-semibold text-slate-900 dark:text-white">
-                Notifications
-              </p>
-              <p className="text-slate-600 text-sm dark:text-slate-300">
-                Stay updated on your benefits and eligibility
-              </p>
-            </div>
+            {unreadCount > 0 && (
+              <button
+                onClick={async () => {
+                  try {
+                    await markAllNotificationsRead();
+                    await loadNotifications();
+                  } catch {
+                    // ignore
+                  }
+                }}
+                className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Mark all as read
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -281,8 +257,7 @@ export default function NotificationPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3">
                       <div
-                        key={item.id}
-                        className={`rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md ${unreadClasses}`}
+                        className={`flex-shrink-0 h-10 w-10 rounded-xl grid place-items-center ${toneClasses}`}
                       >
                         <HiOutlineInformationCircle className="text-lg" />
                       </div>
@@ -310,16 +285,47 @@ export default function NotificationPage() {
                       {actionHref ? (
                         <Link
                           href={actionHref}
+                          onClick={async () => {
+                            if (!item.isRead) {
+                              try {
+                                await markNotificationRead(item.id);
+                                setNotifications((prev) =>
+                                  prev.map((n) =>
+                                    n.id === item.id ? { ...n, isRead: true } : n,
+                                  ),
+                                );
+                              } catch {
+                                // ignore
+                              }
+                            }
+                          }}
                           className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           Open
                           <HiOutlineArrowUpRight className="text-sm" />
                         </Link>
                       ) : (
-                        <span className="text-xs text-blue-600 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!item.isRead) {
+                              try {
+                                await markNotificationRead(item.id);
+                                setNotifications((prev) =>
+                                  prev.map((n) =>
+                                    n.id === item.id ? { ...n, isRead: true } : n,
+                                  ),
+                                );
+                              } catch {
+                                // ignore
+                              }
+                            }
+                          }}
+                          className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
+                        >
                           View Details
                           <HiOutlineArrowUpRight className="text-sm" />
-                        </span>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -328,7 +334,7 @@ export default function NotificationPage() {
             })}
             {!loading && filteredNotifications.length === 0 ? (
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Notifications олдсонгүй.
+                No notifications found.
               </p>
             ) : null}
           </div>
