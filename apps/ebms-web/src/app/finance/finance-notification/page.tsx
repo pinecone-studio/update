@@ -261,7 +261,9 @@ export default function FinanceNotificationPage() {
 
         <section className="space-y-6">
           {groups.map((group) => {
-            const items = filteredNotifications.filter((n) => n.group === group);
+            const items = filteredNotifications.filter(
+              (n) => n.group === group,
+            );
             if (items.length === 0) return null;
             return (
               <div key={group} className="space-y-3">

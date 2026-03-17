@@ -5,7 +5,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { GraphQLClient, gql } from "graphql-request";
-import { ensureValidActiveUserProfile, getActiveUserHeaders } from "@/app/_lib/activeUser";
+import {
+  ensureValidActiveUserProfile,
+  getActiveUserHeaders,
+} from "@/app/_lib/activeUser";
 
 type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
@@ -76,7 +79,12 @@ const statusClass: Record<BenefitStatus, string> = {
   PENDING: "border-[#B45309] dark:bg-[#3B2A12] text-[#FBBF24]",
 };
 
-const statusOptions: BenefitStatus[] = ["ACTIVE", "PENDING", "ELIGIBLE", "LOCKED"];
+const statusOptions: BenefitStatus[] = [
+  "ACTIVE",
+  "PENDING",
+  "ELIGIBLE",
+  "LOCKED",
+];
 
 const statusTabActiveClass: Record<BenefitStatus, string> = {
   ACTIVE:
@@ -98,7 +106,8 @@ function getStatusTabClass(option: BenefitStatus, selected: boolean): string {
 
 function getClient(): GraphQLClient {
   const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
-  const base = raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
+  const base =
+    raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
   const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
   return new GraphQLClient(url, {
     headers: {
@@ -109,7 +118,8 @@ function getClient(): GraphQLClient {
 
 function getErrorMessage(e: unknown): string {
   if (e && typeof e === "object" && "response" in e) {
-    const res = (e as { response?: { errors?: Array<{ message?: string }> } }).response;
+    const res = (e as { response?: { errors?: Array<{ message?: string }> } })
+      .response;
     const msg = res?.errors?.[0]?.message;
     if (msg) return msg;
   }
@@ -129,10 +139,18 @@ export default function EmployeeEligibilityDetailClient() {
     department: string;
     benefits: BenefitRow[];
   } | null>(null);
-  const [expandedBenefitKey, setExpandedBenefitKey] = useState<string | null>(null);
-  const [draftStatusByKey, setDraftStatusByKey] = useState<Record<string, BenefitStatus>>({});
-  const [draftReasonByKey, setDraftReasonByKey] = useState<Record<string, string>>({});
-  const [savedReasonByKey, setSavedReasonByKey] = useState<Record<string, string>>({});
+  const [expandedBenefitKey, setExpandedBenefitKey] = useState<string | null>(
+    null,
+  );
+  const [draftStatusByKey, setDraftStatusByKey] = useState<
+    Record<string, BenefitStatus>
+  >({});
+  const [draftReasonByKey, setDraftReasonByKey] = useState<
+    Record<string, string>
+  >({});
+  const [savedReasonByKey, setSavedReasonByKey] = useState<
+    Record<string, string>
+  >({});
   const [savingByKey, setSavingByKey] = useState<Record<string, boolean>>({});
   const [errorByKey, setErrorByKey] = useState<Record<string, string>>({});
   const currentAdmin = "HR Admin";
@@ -144,14 +162,14 @@ export default function EmployeeEligibilityDetailClient() {
   const handleShowToggle = (key: string, currentStatus: BenefitStatus) => {
     setExpandedBenefitKey((prev) => (prev === key ? null : key));
     setDraftStatusByKey((prev) =>
-      prev[key] ? prev : { ...prev, [key]: currentStatus }
+      prev[key] ? prev : { ...prev, [key]: currentStatus },
     );
   };
 
   const handleSaveStatus = async (
     benefitId: string,
     benefitName: string,
-    key: string
+    key: string,
   ) => {
     if (!id) return;
     const reason = (draftReasonByKey[key] ?? "").trim();
@@ -208,10 +226,10 @@ export default function EmployeeEligibilityDetailClient() {
                         ...benefit.history,
                       ],
                     }
-                  : benefit
+                  : benefit,
               ),
             }
-          : null
+          : null,
       );
       setSavedReasonByKey((prev) => ({ ...prev, [key]: reason }));
       setDraftReasonByKey((prev) => ({ ...prev, [key]: "" }));
@@ -235,7 +253,10 @@ export default function EmployeeEligibilityDetailClient() {
         const client = getClient();
         let data: { employee: EmployeeDetail | null };
         try {
-          data = await client.request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, { id });
+          data = await client.request<{ employee: EmployeeDetail | null }>(
+            EMPLOYEE_QUERY,
+            { id },
+          );
         } catch (firstError) {
           const msg = getErrorMessage(firstError).toLowerCase();
           if (!msg.includes("employee not found")) {
@@ -243,7 +264,10 @@ export default function EmployeeEligibilityDetailClient() {
           }
           await ensureValidActiveUserProfile();
           const retryClient = getClient();
-          data = await retryClient.request<{ employee: EmployeeDetail | null }>(EMPLOYEE_QUERY, { id });
+          data = await retryClient.request<{ employee: EmployeeDetail | null }>(
+            EMPLOYEE_QUERY,
+            { id },
+          );
         }
         if (cancelled) return;
         const emp = data.employee;
@@ -411,79 +435,78 @@ export default function EmployeeEligibilityDetailClient() {
                       })}
                     </div>
                   </div>
-                    <label className="mt-4 block text-sm font-medium text-slate-600 dark:text-[#C9D5EA]">
-                      Яагаад өөрчилснөө бичнэ үү
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={draftReason}
-                      onChange={(e) =>
-                        setDraftReasonByKey((prev) => ({
-                          ...prev,
-                          [key]: e.target.value,
-                        }))
+                  <label className="mt-4 block text-sm font-medium text-slate-600 dark:text-[#C9D5EA]">
+                    Яагаад өөрчилснөө бичнэ үү
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={draftReason}
+                    onChange={(e) =>
+                      setDraftReasonByKey((prev) => ({
+                        ...prev,
+                        [key]: e.target.value,
+                      }))
+                    }
+                    placeholder="Шалтгаан..."
+                    className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-white dark:placeholder:text-[#8FA3C5] dark:focus:border-[#4B6FA8]"
+                  />
+                  <div className="mt-4 flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void handleSaveStatus(
+                          benefit.benefitId,
+                          benefit.name,
+                          key,
+                        )
                       }
-                      placeholder="Шалтгаан..."
-                      className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-white dark:placeholder:text-[#8FA3C5] dark:focus:border-[#4B6FA8]"
-                    />
-                    <div className="mt-4 flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          void handleSaveStatus(
-                            benefit.benefitId,
-                            benefit.name,
-                            key
-                          )
-                        }
-                        disabled={!canSave || isSaving}
-                        className="rounded-xl bg-[#2F66E8] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {isSaving ? "Хадгалж байна..." : "Save"}
-                      </button>
-                    </div>
-                    {saveError && (
-                      <p className="mt-3 text-sm text-red-600 dark:text-red-300">
-                        {saveError}
-                      </p>
-                    )}
-                    {lastReason && (
-                      <p className="mt-3 text-sm text-slate-500 dark:text-[#8FA3C5]">
-                        Сүүлд хадгалсан тайлбар: {lastReason}
-                      </p>
-                    )}
-
-                    <div className="mt-5">
-                      <p className="text-sm font-medium text-slate-600 dark:text-[#C9D5EA]">
-                        Өөрчлөлтийн түүх
-                      </p>
-                      {benefit.history.length === 0 ? (
-                        <p className="mt-2 text-sm text-slate-500 dark:text-[#8FA3C5]">
-                          Түүх алга.
-                        </p>
-                      ) : (
-                        <div className="mt-3 space-y-2">
-                          {benefit.history.map((entry, idx) => (
-                            <div
-                              key={`${entry.changedAt}-${idx}`}
-                              className="rounded-none border border-slate-300 bg-slate-50 px-4 py-3 dark:border-[#324A70] dark:bg-[#1E293B]"
-                            >
-                              <p className="text-sm font-medium text-slate-900 dark:text-white">
-                                {entry.changedBy} • {entry.changedAt}
-                              </p>
-                              <p className="mt-1 text-sm text-slate-600 dark:text-[#A7B6D3]">
-                                Status: {entry.status}
-                              </p>
-                              <p className="mt-1 text-sm text-slate-500 dark:text-[#8FA3C5]">
-                                Шалтгаан: {entry.reason}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                      disabled={!canSave || isSaving}
+                      className="rounded-xl bg-[#2F66E8] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isSaving ? "Хадгалж байна..." : "Save"}
+                    </button>
                   </div>
-              
+                  {saveError && (
+                    <p className="mt-3 text-sm text-red-600 dark:text-red-300">
+                      {saveError}
+                    </p>
+                  )}
+                  {lastReason && (
+                    <p className="mt-3 text-sm text-slate-500 dark:text-[#8FA3C5]">
+                      Сүүлд хадгалсан тайлбар: {lastReason}
+                    </p>
+                  )}
+
+                  <div className="mt-5">
+                    <p className="text-sm font-medium text-slate-600 dark:text-[#C9D5EA]">
+                      Өөрчлөлтийн түүх
+                    </p>
+                    {benefit.history.length === 0 ? (
+                      <p className="mt-2 text-sm text-slate-500 dark:text-[#8FA3C5]">
+                        Түүх алга.
+                      </p>
+                    ) : (
+                      <div className="mt-3 space-y-2">
+                        {benefit.history.map((entry, idx) => (
+                          <div
+                            key={`${entry.changedAt}-${idx}`}
+                            className="rounded-none border border-slate-300 bg-slate-50 px-4 py-3 dark:border-[#324A70] dark:bg-[#1E293B]"
+                          >
+                            <p className="text-sm font-medium text-slate-900 dark:text-white">
+                              {entry.changedBy} • {entry.changedAt}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-600 dark:text-[#A7B6D3]">
+                              Status: {entry.status}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-[#8FA3C5]">
+                              Шалтгаан: {entry.reason}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </article>
             );
           })}

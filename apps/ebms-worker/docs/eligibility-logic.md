@@ -27,12 +27,12 @@
 
 ## 4. Rule type → ажилтны талбар
 
-| Config `type`       | Ажилтны талбар (DB)     |
-|---------------------|-------------------------|
-| employment_status   | employmentStatus        |
-| okr_submitted       | okrSubmitted (0/1 → boolean) |
-| attendance          | lateArrivalCount        |
-| responsibility_level| responsibilityLevel     |
+| Config `type`        | Ажилтны талбар (DB)          |
+| -------------------- | ---------------------------- |
+| employment_status    | employmentStatus             |
+| okr_submitted        | okrSubmitted (0/1 → boolean) |
+| attendance           | lateArrivalCount             |
+| responsibility_level | responsibilityLevel          |
 
 Operator: `eq`, `lt`, `lte`, `gte`, `gt`.  
 `value`: string, number, boolean (JSON-аас).
@@ -63,6 +63,7 @@ Operator: `eq`, `lt`, `lte`, `gte`, `gt`.
 **Файл:** `src/graphql/schema/schema.graphql` (мөн `src/graphql/schema/index.ts`-ийг ижил агуулгаар шинэчилнэ)
 
 1. **Input type** — mutation-д орж ирэх оролтын төрөл:
+
    ```graphql
    input EligibilityRuleInput {
      type: String!
@@ -138,7 +139,12 @@ Variables (жишээ):
     "subsidyPercent": 50,
     "requiresContract": false,
     "rules": [
-      { "type": "employment_status", "operator": "eq", "value": "active", "errorMessage": "Зөвхөн идэвхтэй" }
+      {
+        "type": "employment_status",
+        "operator": "eq",
+        "value": "active",
+        "errorMessage": "Зөвхөн идэвхтэй"
+      }
     ]
   }
 }
@@ -172,13 +178,16 @@ curl -s -X POST http://localhost:8787/graphql \
 ### 8.1 Бэлтгэл
 
 1. **Worker + local D1 ажиллуулах**
+
    ```bash
    cd apps/ebms-worker
    npm run dev
    ```
+
    API: `http://localhost:8787`
 
 2. **Migration (хэрэв хийгээгүй бол)**
+
    ```bash
    npm run db:local
    npm run db:local:config
@@ -215,6 +224,7 @@ curl -s -X POST http://localhost:8787/graphql \
 ```
 
 Шалгах зүйлс:
+
 - **status** — `ELIGIBLE` эсвэл `LOCKED` (config-ийн rules-ээс).
 - **ruleEvaluations** — rule бүрийн passed/reason (дүрэм давсан эсэх).
 
@@ -239,9 +249,9 @@ curl -s -X POST http://localhost:8787/graphql \
 
 ### 8.6 Товч шалгалтын дараалал
 
-| Алхам | Юу хийх | Юу харах |
-|-------|---------|----------|
-| 1 | `getEligibilityRuleConfig` (HR header) | config.benefits байна |
-| 2 | `myBenefits` (employee header) | status, ruleEvaluations config-тай нийцнэ |
-| 3 | `requestBenefit` (LOCKED benefit-д) | status: PENDING, алдаа гаргахгүй |
-| 4 | UI-аас config засаад дахин myBenefits | Шинэ дүрмийн үр дүн |
+| Алхам | Юу хийх                                | Юу харах                                  |
+| ----- | -------------------------------------- | ----------------------------------------- |
+| 1     | `getEligibilityRuleConfig` (HR header) | config.benefits байна                     |
+| 2     | `myBenefits` (employee header)         | status, ruleEvaluations config-тай нийцнэ |
+| 3     | `requestBenefit` (LOCKED benefit-д)    | status: PENDING, алдаа гаргахгүй          |
+| 4     | UI-аас config засаад дахин myBenefits  | Шинэ дүрмийн үр дүн                       |

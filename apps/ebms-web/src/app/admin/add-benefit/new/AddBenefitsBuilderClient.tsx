@@ -45,9 +45,13 @@ export default function AddBenefitsBuilderClient({
   const [form, setForm] = useState<AddBenefitFormState>(DEFAULT_FORM);
   const [creating, setCreating] = useState(false);
 
-  const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>([]);
+  const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>(
+    [],
+  );
   const [loadingCatalog, setLoadingCatalog] = useState(false);
-  const [selectedBenefitId, setSelectedBenefitId] = useState<string | null>(null);
+  const [selectedBenefitId, setSelectedBenefitId] = useState<string | null>(
+    null,
+  );
   const [config, setConfig] = useState<Record<string, BenefitConfig>>({});
   const [attributes, setAttributes] = useState<string[]>([]);
   const [loadingConfig, setLoadingConfig] = useState(false);
@@ -125,7 +129,9 @@ export default function AddBenefitsBuilderClient({
     });
   }, [benefitIdFromQuery, catalogBenefits, config]);
 
-  const selectedBenefit = catalogBenefits.find((b) => b.id === selectedBenefitId);
+  const selectedBenefit = catalogBenefits.find(
+    (b) => b.id === selectedBenefitId,
+  );
   const ruleTargetId = isEditMode ? selectedBenefitId : DRAFT_BENEFIT_ID;
   const rulesForSelected: BenefitConfig | null = isEditMode
     ? selectedBenefitId
@@ -152,15 +158,21 @@ export default function AddBenefitsBuilderClient({
       };
 
   const updateRuleForSelected = useCallback(
-    (ruleIndex: number, field: keyof Rule, value: string | number | boolean) => {
+    (
+      ruleIndex: number,
+      field: keyof Rule,
+      value: string | number | boolean,
+    ) => {
       if (!ruleTargetId) return;
       setConfig((prev) => {
         const benefit = prev[ruleTargetId] ?? {
-          name: isEditMode ? selectedBenefit?.name ?? "" : form.name,
+          name: isEditMode ? (selectedBenefit?.name ?? "") : form.name,
           description: isEditMode
-            ? selectedBenefit?.description ?? ""
+            ? (selectedBenefit?.description ?? "")
             : form.description,
-          category: isEditMode ? selectedBenefit?.category ?? "" : form.category,
+          category: isEditMode
+            ? (selectedBenefit?.category ?? "")
+            : form.category,
           rules: [],
         };
         const rules = [...(benefit.rules ?? [])];
@@ -175,9 +187,13 @@ export default function AddBenefitsBuilderClient({
     if (!ruleTargetId) return;
     setConfig((prev) => {
       const benefit = prev[ruleTargetId] ?? {
-        name: isEditMode ? selectedBenefit?.name ?? "" : form.name,
-        description: isEditMode ? selectedBenefit?.description ?? "" : form.description,
-        category: isEditMode ? selectedBenefit?.category ?? "" : form.category,
+        name: isEditMode ? (selectedBenefit?.name ?? "") : form.name,
+        description: isEditMode
+          ? (selectedBenefit?.description ?? "")
+          : form.description,
+        category: isEditMode
+          ? (selectedBenefit?.category ?? "")
+          : form.category,
         rules: [],
       };
       const rules = [
@@ -213,7 +229,9 @@ export default function AddBenefitsBuilderClient({
       return;
     }
     const benefitConfig = config[activeBenefitId];
-    if (benefitConfig?.rules?.some((r) => String(r.value ?? "").trim() === "")) {
+    if (
+      benefitConfig?.rules?.some((r) => String(r.value ?? "").trim() === "")
+    ) {
       setError2(ERROR_MESSAGES.RULE_VALUE_REQUIRED);
       return;
     }
@@ -257,7 +275,12 @@ export default function AddBenefitsBuilderClient({
         payloadConfig = {
           ...config,
           [benefitIdFromQuery]: {
-            ...(config[benefitIdFromQuery] ?? { name, description, category, rules: [] }),
+            ...(config[benefitIdFromQuery] ?? {
+              name,
+              description,
+              category,
+              rules: [],
+            }),
             name,
             description,
             category,
@@ -313,14 +336,16 @@ export default function AddBenefitsBuilderClient({
           ? "Сонгосон benefit-ийн дүрмүүд амжилттай хадгалагдлаа."
           : `"${name}" benefit болон дүрмүүд амжилттай хадгалагдлаа.`,
       );
-      const focusId = isEditMode ? selectedBenefitId ?? benefitIdFromQuery : null;
+      const focusId = isEditMode
+        ? (selectedBenefitId ?? benefitIdFromQuery)
+        : null;
       if (onSaved) {
         await onSaved();
       } else {
         router.push(
           focusId
             ? `/admin/add-benefit?focusBenefitId=${encodeURIComponent(focusId)}`
-            : "/admin/add-benefit"
+            : "/admin/add-benefit",
         );
       }
     } catch (e) {
@@ -346,7 +371,9 @@ export default function AddBenefitsBuilderClient({
     <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Add Benefits</h1>
+          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">
+            Add Benefits
+          </h1>
           <p className="mt-2 text-slate-600 dark:text-[#A7B6D3]">
             Benefit шинээр нэмэх, мөн rule тохиргоо хийх хэсэг.
           </p>

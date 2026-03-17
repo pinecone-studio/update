@@ -4,11 +4,9 @@ import { getDb } from "../../../db/drizzle";
 import { employees as employeesTable } from "../../../db/schema";
 import { asc } from "drizzle-orm";
 
-export const userOptions: NonNullable<QueryResolvers<Ctx>["userOptions"]> = async (
-  _,
-  __,
-  ctx,
-) => {
+export const userOptions: NonNullable<
+  QueryResolvers<Ctx>["userOptions"]
+> = async (_, __, ctx) => {
   const db = getDb(ctx.env);
   const rows = await db
     .select({

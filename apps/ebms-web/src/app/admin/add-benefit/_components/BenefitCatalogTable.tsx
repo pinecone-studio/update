@@ -43,7 +43,14 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-600 dark:border-[#334155] dark:text-[#94A3B8]">
-                  {["ID", "Нэр", "Тайлбар", "Ангилал", "Subsidy %", "Гэрээ"].map((h) => (
+                  {[
+                    "ID",
+                    "Нэр",
+                    "Тайлбар",
+                    "Ангилал",
+                    "Subsidy %",
+                    "Гэрээ",
+                  ].map((h) => (
                     <th key={h} className="py-2 pr-4 font-medium">
                       <Skeleton className="h-4 w-12" />
                     </th>

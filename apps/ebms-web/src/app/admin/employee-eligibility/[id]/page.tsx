@@ -23,7 +23,8 @@ const FALLBACK_EMPLOYEE_IDS = [
 
 function getClient(): GraphQLClient {
   const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
-  const base = raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
+  const base =
+    raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
   const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
   return new GraphQLClient(url, {
     headers: {
@@ -37,7 +38,7 @@ export async function generateStaticParams() {
   try {
     const client = getClient();
     const data = await client.request<{ employees: Array<{ id: string }> }>(
-      EMPLOYEES_QUERY
+      EMPLOYEES_QUERY,
     );
     const fromApi = (data.employees ?? []).map((emp) => emp.id).filter(Boolean);
     const ids = Array.from(new Set([...FALLBACK_EMPLOYEE_IDS, ...fromApi]));

@@ -62,9 +62,9 @@ pnpm dev:web
 
 ## Товч
 
-| Алхам | Команд |
-|-------|--------|
-| Migration (нэг удаа) | `pnpm db:local:employee-contracts` |
-| Backend | `pnpm dev:worker` |
-| Frontend | `pnpm dev:web` |
-| API URL | `apps/ebms-web/.env.local` → `NEXT_PUBLIC_API_URL=http://localhost:8787` |
+| Алхам                | Команд                                                                   |
+| -------------------- | ------------------------------------------------------------------------ |
+| Migration (нэг удаа) | `pnpm db:local:employee-contracts`                                       |
+| Backend              | `pnpm dev:worker`                                                        |
+| Frontend             | `pnpm dev:web`                                                           |
+| API URL              | `apps/ebms-web/.env.local` → `NEXT_PUBLIC_API_URL=http://localhost:8787` |

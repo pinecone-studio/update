@@ -2,13 +2,11 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import type { Env } from "../types";
 import { getDb } from "../db/drizzle";
+import { benefitRequests, benefits, contracts, employees } from "../db/schema";
 import {
-  benefitRequests,
-  benefits,
-  contracts,
-  employees,
-} from "../db/schema";
-import { renderPinefitContractHtml, toBool01 } from "../contracts/renderPinefit";
+  renderPinefitContractHtml,
+  toBool01,
+} from "../contracts/renderPinefit";
 
 const contractsRoute = new Hono<{ Bindings: Env }>();
 
@@ -54,12 +52,18 @@ contractsRoute.get("/requests/:requestId/template", async (c) => {
   }
 
   if (!isHrOrAdmin && row.requestEmployeeId !== actorEmployeeId) {
-    return c.json({ error: "Forbidden: request does not belong to employee" }, 403);
+    return c.json(
+      { error: "Forbidden: request does not belong to employee" },
+      403,
+    );
   }
 
   const requiresContract = toBool01(row.benefitRequiresContract);
   if (requiresContract && !row.contractId) {
-    return c.json({ error: "Active contract is not configured for this benefit" }, 409);
+    return c.json(
+      { error: "Active contract is not configured for this benefit" },
+      409,
+    );
   }
 
   const html = renderPinefitContractHtml(row);

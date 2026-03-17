@@ -41,12 +41,7 @@ feedbackRoute.get("/", async (c) => {
   const toExpire = await db
     .select({ id: feedback.id })
     .from(feedback)
-    .where(
-      and(
-        eq(feedback.status, "OPEN"),
-        lt(feedback.votingEndsAt, now),
-      ),
-    );
+    .where(and(eq(feedback.status, "OPEN"), lt(feedback.votingEndsAt, now)));
 
   for (const row of toExpire) {
     await db
@@ -84,7 +79,9 @@ feedbackRoute.get("/", async (c) => {
         .where(eq(feedbackVotes.employeeId, employeeId))
     : [];
 
-  const voteMap = new Map(voteCounts.map((v) => [v.feedbackId, Number(v.count)]));
+  const voteMap = new Map(
+    voteCounts.map((v) => [v.feedbackId, Number(v.count)]),
+  );
   const myVoteSet = new Set(myVotes.map((v) => v.feedbackId));
 
   const items = rows.map((r) => ({
@@ -111,12 +108,7 @@ feedbackRoute.get("/open-count", async (c) => {
   const toExpire = await db
     .select({ id: feedback.id })
     .from(feedback)
-    .where(
-      and(
-        eq(feedback.status, "OPEN"),
-        lt(feedback.votingEndsAt, now),
-      ),
-    );
+    .where(and(eq(feedback.status, "OPEN"), lt(feedback.votingEndsAt, now)));
 
   for (const row of toExpire) {
     await db
@@ -313,7 +305,10 @@ feedbackRoute.delete("/:id/vote", async (c) => {
 
   if (targetVoterId !== employeeId) {
     if (row.employeeId !== employeeId) {
-      return c.json({ error: "Only the creator can remove another voter's vote" }, 403);
+      return c.json(
+        { error: "Only the creator can remove another voter's vote" },
+        403,
+      );
     }
   }
 

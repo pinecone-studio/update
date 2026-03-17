@@ -21,12 +21,16 @@ function BenefitsAndRulePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const focusBenefitId = searchParams.get("focusBenefitId");
-  const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>([]);
+  const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>(
+    [],
+  );
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [config, setConfig] = useState<Record<string, BenefitConfig>>({});
   const [error, setError] = useState<string | null>(null);
   const [actionBusyId, setActionBusyId] = useState<string | null>(null);
-  const [highlightBenefitId, setHighlightBenefitId] = useState<string | null>(null);
+  const [highlightBenefitId, setHighlightBenefitId] = useState<string | null>(
+    null,
+  );
   const [showAddBenefitModal, setShowAddBenefitModal] = useState(false);
 
   const loadAll = useCallback(async () => {
@@ -98,26 +102,31 @@ function BenefitsAndRulePageContent() {
     }
   };
 
-  const handleDelete = useCallback(async (benefitId: string, benefitName: string) => {
-    const ok = window.confirm(`"${benefitName}" benefit-ийг устгах уу?`);
-    if (!ok) return;
-    setActionBusyId(benefitId);
-    setError(null);
-    try {
-      await deleteBenefitFromCatalog(getClient(), benefitId);
-      await loadAll();
-    } catch (e) {
-      setError(getApiErrorMessage(e));
-    } finally {
-      setActionBusyId(null);
-    }
-  }, [loadAll]);
+  const handleDelete = useCallback(
+    async (benefitId: string, benefitName: string) => {
+      const ok = window.confirm(`"${benefitName}" benefit-ийг устгах уу?`);
+      if (!ok) return;
+      setActionBusyId(benefitId);
+      setError(null);
+      try {
+        await deleteBenefitFromCatalog(getClient(), benefitId);
+        await loadAll();
+      } catch (e) {
+        setError(getApiErrorMessage(e));
+      } finally {
+        setActionBusyId(null);
+      }
+    },
+    [loadAll],
+  );
 
   return (
     <div className="p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Benefits&Rule</h1>
+          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">
+            Benefits&Rule
+          </h1>
           <p className="mt-3 text-slate-600 dark:text-[#A7B6D3]">
             Таны үүсгэсэн бүх benefit энд харагдана.
           </p>
@@ -184,7 +193,9 @@ function BenefitsAndRulePageContent() {
                           title="Edit"
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/admin/add-benefit/new?benefitId=${benefit.id}`);
+                            router.push(
+                              `/admin/add-benefit/new?benefitId=${benefit.id}`,
+                            );
                           }}
                           className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-200 hover:text-slate-900 dark:border-[#4B5D83] dark:bg-[#223655] dark:text-[#D4DEEF] dark:hover:border-[#5A719D] dark:hover:bg-[#31486B] dark:hover:text-white"
                         >

@@ -5,8 +5,17 @@ import type { MutationResolvers } from "../../generated/graphql";
 import type { Ctx } from "../context";
 import { requireEmployeeId } from "../context";
 import { getDb } from "../../../db/drizzle";
-import { benefitEligibility, benefitRequests, benefits, contracts, employees } from "../../../db/schema";
-import { renderPinefitContractHtml, toBool01 } from "../../../contracts/renderPinefit";
+import {
+  benefitEligibility,
+  benefitRequests,
+  benefits,
+  contracts,
+  employees,
+} from "../../../db/schema";
+import {
+  renderPinefitContractHtml,
+  toBool01,
+} from "../../../contracts/renderPinefit";
 import { dispatchEmployeeNotification } from "../../../notifications/dispatcher";
 import { and } from "drizzle-orm";
 import { requireHROrAdminOrFinance } from "../context";
@@ -42,7 +51,12 @@ function sanitizeForWinAnsi(value: string): string {
   return value.replace(/[^\x20-\x7E\xA0-\xFF]/g, "?");
 }
 
-function wrapLine(line: string, maxWidth: number, size: number, font: PDFFont): string[] {
+function wrapLine(
+  line: string,
+  maxWidth: number,
+  size: number,
+  font: PDFFont,
+): string[] {
   const safeLine = sanitizeForWinAnsi(line);
   const words = safeLine.split(/\s+/).filter(Boolean);
   if (words.length === 0) return [""];
@@ -73,7 +87,9 @@ async function renderPdfFromHtml(html: string): Promise<Uint8Array> {
 
   let page = pdfDoc.addPage(pageSize);
   let y = page.getHeight() - margin;
-  const sourceLines = text ? text.split("\n") : ["Contract content unavailable."];
+  const sourceLines = text
+    ? text.split("\n")
+    : ["Contract content unavailable."];
 
   for (const rawLine of sourceLines) {
     const rows = wrapLine(rawLine, maxWidth, fontSize, font);
@@ -96,7 +112,8 @@ export const archiveBenefitContractPdf: NonNullable<
 > = async (_, args, ctx) => {
   const actorEmployeeId = requireEmployeeId(ctx);
   const role = (ctx.role ?? "").toLowerCase();
-  const isHrOrAdminOrFinance = role === "hr" || role === "admin" || role === "finance-manager";
+  const isHrOrAdminOrFinance =
+    role === "hr" || role === "admin" || role === "finance-manager";
   if (isHrOrAdminOrFinance) {
     requireHROrAdminOrFinance(ctx);
   }
@@ -129,16 +146,22 @@ export const archiveBenefitContractPdf: NonNullable<
     .limit(1);
 
   const row = rows[0];
-  if (!row) throw new GraphQLError("Benefit request not found", { extensions: { code: "NOT_FOUND" } });
+  if (!row)
+    throw new GraphQLError("Benefit request not found", {
+      extensions: { code: "NOT_FOUND" },
+    });
   if (!isHrOrAdminOrFinance && row.requestEmployeeId !== actorEmployeeId) {
     throw new GraphQLError("Forbidden: request does not belong to employee", {
       extensions: { code: "FORBIDDEN" },
     });
   }
   if ((row.requestStatus ?? "").toLowerCase() !== "approved") {
-    throw new GraphQLError("Signed contract upload is allowed only for approved requests", {
-      extensions: { code: "BAD_USER_INPUT" },
-    });
+    throw new GraphQLError(
+      "Signed contract upload is allowed only for approved requests",
+      {
+        extensions: { code: "BAD_USER_INPUT" },
+      },
+    );
   }
   if (!toBool01(row.benefitRequiresContract)) {
     throw new GraphQLError("This benefit does not require contract archive", {
@@ -181,8 +204,8 @@ export const archiveBenefitContractPdf: NonNullable<
     .where(
       and(
         eq(benefitEligibility.employeeId, row.requestEmployeeId),
-        eq(benefitEligibility.benefitId, row.benefitId)
-      )
+        eq(benefitEligibility.benefitId, row.benefitId),
+      ),
     )
     .limit(1);
   if (existingEligibility[0]) {
@@ -197,8 +220,8 @@ export const archiveBenefitContractPdf: NonNullable<
       .where(
         and(
           eq(benefitEligibility.employeeId, row.requestEmployeeId),
-          eq(benefitEligibility.benefitId, row.benefitId)
-        )
+          eq(benefitEligibility.benefitId, row.benefitId),
+        ),
       );
   } else {
     await db.insert(benefitEligibility).values({

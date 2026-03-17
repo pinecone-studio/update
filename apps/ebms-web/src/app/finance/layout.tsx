@@ -6,11 +6,9 @@ import { FinanceRouteGuard } from "@/app/_components/FinanceRouteGuard";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: 'EBMS — Finance Management Dashboard',
-	description: 'Pinequest S3 Ep1 — Employee Benefits Management System',
-  };
-  
-
+  title: "EBMS — Finance Management Dashboard",
+  description: "Pinequest S3 Ep1 — Employee Benefits Management System",
+};
 
 export default function FinanceLayout({ children }: { children: ReactNode }) {
   return (

@@ -4,11 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getActiveUserProfile } from "@/app/_lib/activeUser";
 
-export function AdminRouteGuard({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [authorized, setAuthorized] = useState<boolean | null>(null);
 

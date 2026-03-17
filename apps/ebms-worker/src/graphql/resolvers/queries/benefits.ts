@@ -1,14 +1,14 @@
-import type { Ctx } from '../context';
-import { asBool01 } from '../utils';
-import type { QueryResolvers } from '../../generated/graphql';
-import { getDb } from '../../../db/drizzle';
-import { benefits as benefitsTable } from '../../../db/schema';
-import { and, eq } from 'drizzle-orm';
+import type { Ctx } from "../context";
+import { asBool01 } from "../utils";
+import type { QueryResolvers } from "../../generated/graphql";
+import { getDb } from "../../../db/drizzle";
+import { benefits as benefitsTable } from "../../../db/schema";
+import { and, eq } from "drizzle-orm";
 
-export const benefits: NonNullable<QueryResolvers<Ctx>['benefits']> = async (
+export const benefits: NonNullable<QueryResolvers<Ctx>["benefits"]> = async (
   _,
   args,
-  ctx
+  ctx,
 ) => {
   const db = getDb(ctx.env);
 

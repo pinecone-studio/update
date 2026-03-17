@@ -1,14 +1,14 @@
-import type { Ctx } from '../context';
-import { requireHROrAdminOrFinance } from '../context';
-import type { QueryResolvers } from '../../generated/graphql';
-import { getDb } from '../../../db/drizzle';
-import { eligibilityAudit } from '../../../db/schema';
-import { and, eq, gte, lte, sql } from 'drizzle-orm';
+import type { Ctx } from "../context";
+import { requireHROrAdminOrFinance } from "../context";
+import type { QueryResolvers } from "../../generated/graphql";
+import { getDb } from "../../../db/drizzle";
+import { eligibilityAudit } from "../../../db/schema";
+import { and, eq, gte, lte, sql } from "drizzle-orm";
 
-export const auditLog: NonNullable<QueryResolvers<Ctx>['auditLog']> = async (
+export const auditLog: NonNullable<QueryResolvers<Ctx>["auditLog"]> = async (
   _,
   args,
-  ctx
+  ctx,
 ) => {
   requireHROrAdminOrFinance(ctx);
   const db = getDb(ctx.env);
@@ -52,6 +52,6 @@ export const auditLog: NonNullable<QueryResolvers<Ctx>['auditLog']> = async (
     newStatus: r.newStatus,
     computedAt: r.computedAt,
     triggeredBy: r.triggeredBy ?? null,
-    createdAt: r.createdAt ?? '',
+    createdAt: r.createdAt ?? "",
   }));
 };

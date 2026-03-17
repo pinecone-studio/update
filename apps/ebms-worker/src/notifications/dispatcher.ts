@@ -1,16 +1,16 @@
-import type { Env } from '../types';
-import { getDb } from '../db/drizzle';
-import { employeeNotifications } from '../db/schema';
-import { and, eq, gte } from 'drizzle-orm';
+import type { Env } from "../types";
+import { getDb } from "../db/drizzle";
+import { employeeNotifications } from "../db/schema";
+import { and, eq, gte } from "drizzle-orm";
 
 export type NotificationType =
-  | 'ELIGIBILITY_CHANGE'
-  | 'REQUEST_STATUS'
-  | 'WARNING';
+  | "ELIGIBILITY_CHANGE"
+  | "REQUEST_STATUS"
+  | "WARNING";
 
-export type NotificationTone = 'success' | 'info' | 'warning' | 'neutral';
+export type NotificationTone = "success" | "info" | "warning" | "neutral";
 
-export type NotificationChannel = 'in_app' | 'email';
+export type NotificationChannel = "in_app" | "email";
 
 type DispatchInput = {
   employeeId: string;
@@ -27,7 +27,7 @@ const DEDUPE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 async function hasRecentDuplicate(
   env: Env,
   employeeId: string,
-  dedupeKey: string
+  dedupeKey: string,
 ): Promise<boolean> {
   const db = getDb(env);
   const since = new Date(Date.now() - DEDUPE_WINDOW_MS).toISOString();
@@ -38,8 +38,8 @@ async function hasRecentDuplicate(
       and(
         eq(employeeNotifications.employeeId, employeeId),
         eq(employeeNotifications.dedupeKey, dedupeKey),
-        gte(employeeNotifications.createdAt, since)
-      )
+        gte(employeeNotifications.createdAt, since),
+      ),
     )
     .limit(1);
   return Boolean(rows[0]);
@@ -49,8 +49,8 @@ async function insertNotification(
   env: Env,
   input: DispatchInput,
   channel: NotificationChannel,
-  deliveryStatus: 'delivered' | 'queued' | 'failed',
-  isRead: number
+  deliveryStatus: "delivered" | "queued" | "failed",
+  isRead: number,
 ): Promise<void> {
   const db = getDb(env);
   const now = new Date().toISOString();
@@ -60,7 +60,7 @@ async function insertNotification(
     title: input.title,
     body: input.body,
     type: input.type,
-    tone: input.tone ?? 'info',
+    tone: input.tone ?? "info",
     channel,
     deliveryStatus,
     isRead,
@@ -72,19 +72,23 @@ async function insertNotification(
 
 export async function dispatchEmployeeNotification(
   env: Env,
-  input: DispatchInput
+  input: DispatchInput,
 ): Promise<void> {
   if (input.dedupeKey) {
-    const skip = await hasRecentDuplicate(env, input.employeeId, input.dedupeKey);
+    const skip = await hasRecentDuplicate(
+      env,
+      input.employeeId,
+      input.dedupeKey,
+    );
     if (skip) return;
   }
 
-  await insertNotification(env, input, 'in_app', 'delivered', 0);
-  await insertNotification(env, input, 'email', 'queued', 1);
+  await insertNotification(env, input, "in_app", "delivered", 0);
+  await insertNotification(env, input, "email", "queued", 1);
 
   // Placeholder for mail channel integration.
   console.log(
-    `[notification] queued email for ${input.employeeId}: ${input.title}`
+    `[notification] queued email for ${input.employeeId}: ${input.title}`,
   );
 }
 
@@ -95,22 +99,21 @@ export async function dispatchEmployeeWarningsIfNeeded(
     employmentStatus?: string;
     okrSubmitted?: boolean;
     lateArrivalCount?: number;
-  }
+  },
 ): Promise<void> {
   const now = new Date();
   const monthKey = `${now.getUTCFullYear()}-${String(
-    now.getUTCMonth() + 1
-  ).padStart(2, '0')}`;
+    now.getUTCMonth() + 1,
+  ).padStart(2, "0")}`;
 
   if ((employee.lateArrivalCount ?? 0) >= 2) {
     await dispatchEmployeeNotification(env, {
       employeeId,
-      type: 'WARNING',
-      tone: 'warning',
+      type: "WARNING",
+      tone: "warning",
       dedupeKey: `warning:attendance:${monthKey}`,
-      title: 'Attendance Warning',
-      body:
-        'You have 2 late arrivals in the last 30 days. If you reach 3 late arrivals, some benefits will be locked.',
+      title: "Attendance Warning",
+      body: "You have 2 late arrivals in the last 30 days. If you reach 3 late arrivals, some benefits will be locked.",
       metadata: { lateArrivalCount: employee.lateArrivalCount ?? 0 },
     });
   }
@@ -118,24 +121,22 @@ export async function dispatchEmployeeWarningsIfNeeded(
   if (employee.okrSubmitted === false) {
     await dispatchEmployeeNotification(env, {
       employeeId,
-      type: 'WARNING',
-      tone: 'warning',
+      type: "WARNING",
+      tone: "warning",
       dedupeKey: `warning:okr:${monthKey}`,
-      title: 'OKR Submission Missing',
-      body:
-        'Your OKR submission is still missing. Please submit to avoid benefit restrictions.',
+      title: "OKR Submission Missing",
+      body: "Your OKR submission is still missing. Please submit to avoid benefit restrictions.",
     });
   }
 
-  if ((employee.employmentStatus ?? '').toLowerCase() === 'probation') {
+  if ((employee.employmentStatus ?? "").toLowerCase() === "probation") {
     await dispatchEmployeeNotification(env, {
       employeeId,
-      type: 'WARNING',
-      tone: 'warning',
+      type: "WARNING",
+      tone: "warning",
       dedupeKey: `warning:probation:${monthKey}`,
-      title: 'Probation Status',
-      body:
-        'You are currently on probation. Some benefits may remain locked until probation ends.',
+      title: "Probation Status",
+      body: "You are currently on probation. Some benefits may remain locked until probation ends.",
     });
   }
 }

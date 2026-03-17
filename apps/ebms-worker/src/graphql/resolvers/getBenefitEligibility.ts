@@ -4,27 +4,31 @@
  * Used by myBenefits query and Employee.benefits field resolver.
  */
 
-import type { Env } from '../../types';
-import { getDb } from '../../db/drizzle';
-import { benefits as benefitsTable, benefitEligibility, benefitRequests } from '../../db/schema';
-import { and, desc, eq } from 'drizzle-orm';
-import { asBool01, mapBenefitStatus, safeJsonParse } from './utils';
+import type { Env } from "../../types";
+import { getDb } from "../../db/drizzle";
+import {
+  benefits as benefitsTable,
+  benefitEligibility,
+  benefitRequests,
+} from "../../db/schema";
+import { and, desc, eq } from "drizzle-orm";
+import { asBool01, mapBenefitStatus, safeJsonParse } from "./utils";
 import {
   getActiveEligibilityConfig,
   getEmployeeForEligibility,
   evaluateBenefitRules,
-} from '../../eligibility/engine';
+} from "../../eligibility/engine";
 import {
   dispatchEmployeeNotification,
   dispatchEmployeeWarningsIfNeeded,
-} from '../../notifications/dispatcher';
+} from "../../notifications/dispatcher";
 
 async function safeDispatch(task: () => Promise<void>): Promise<void> {
   try {
     await task();
   } catch (error) {
     // Notification delivery should never block eligibility/me queries.
-    console.error('Notification dispatch failed:', error);
+    console.error("Notification dispatch failed:", error);
   }
 }
 
@@ -39,7 +43,7 @@ export type BenefitEligibilityRow = {
     vendorName: string | null;
     activeContractId: string | null;
   };
-  status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED';
+  status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED";
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
   computedAt: string;
   rejectedReason?: string | null;
@@ -49,45 +53,49 @@ export type BenefitEligibilityRow = {
 
 export async function getBenefitEligibilityForEmployee(
   env: Env,
-  employeeId: string
+  employeeId: string,
 ): Promise<BenefitEligibilityRow[]> {
   const db = getDb(env);
   const now = new Date().toISOString();
 
-  const [config, employee, pendingRequestRows, rejectedRequestRows] = await Promise.all([
-    getActiveEligibilityConfig(env),
-    getEmployeeForEligibility(env, employeeId),
-    db
-      .select({ benefitId: benefitRequests.benefitId })
-      .from(benefitRequests)
-      .where(
-        and(
-          eq(benefitRequests.employeeId, employeeId),
-          eq(benefitRequests.status, 'pending')
+  const [config, employee, pendingRequestRows, rejectedRequestRows] =
+    await Promise.all([
+      getActiveEligibilityConfig(env),
+      getEmployeeForEligibility(env, employeeId),
+      db
+        .select({ benefitId: benefitRequests.benefitId })
+        .from(benefitRequests)
+        .where(
+          and(
+            eq(benefitRequests.employeeId, employeeId),
+            eq(benefitRequests.status, "pending"),
+          ),
+        ),
+      db
+        .select({
+          benefitId: benefitRequests.benefitId,
+          rejectReason: benefitRequests.rejectReason,
+        })
+        .from(benefitRequests)
+        .where(
+          and(
+            eq(benefitRequests.employeeId, employeeId),
+            eq(benefitRequests.status, "rejected"),
+          ),
         )
-      ),
-    db
-      .select({
-        benefitId: benefitRequests.benefitId,
-        rejectReason: benefitRequests.rejectReason,
-      })
-      .from(benefitRequests)
-      .where(
-        and(
-          eq(benefitRequests.employeeId, employeeId),
-          eq(benefitRequests.status, 'rejected')
-        )
-      )
-      .orderBy(desc(benefitRequests.createdAt)),
-  ]);
+        .orderBy(desc(benefitRequests.createdAt)),
+    ]);
 
   if (employee) {
     await safeDispatch(async () => {
       await dispatchEmployeeWarningsIfNeeded(env, employeeId, {
-        employmentStatus: typeof employee.employmentStatus === 'string' ? employee.employmentStatus : '',
+        employmentStatus:
+          typeof employee.employmentStatus === "string"
+            ? employee.employmentStatus
+            : "",
         okrSubmitted: Boolean(employee.okrSubmitted),
         lateArrivalCount:
-          typeof employee.lateArrivalCount === 'number'
+          typeof employee.lateArrivalCount === "number"
             ? employee.lateArrivalCount
             : Number(employee.lateArrivalCount ?? 0),
       });
@@ -98,7 +106,7 @@ export async function getBenefitEligibilityForEmployee(
   const rejectedByBenefit = new Map<string, string>();
   for (const r of rejectedRequestRows) {
     if (!rejectedByBenefit.has(r.benefitId)) {
-      rejectedByBenefit.set(r.benefitId, r.rejectReason ?? '');
+      rejectedByBenefit.set(r.benefitId, r.rejectReason ?? "");
     }
   }
 
@@ -124,13 +132,16 @@ export async function getBenefitEligibilityForEmployee(
       benefitEligibility,
       and(
         eq(benefitEligibility.benefitId, benefitsTable.id),
-        eq(benefitEligibility.employeeId, employeeId)
-      )
+        eq(benefitEligibility.employeeId, employeeId),
+      ),
     )
     .where(eq(benefitsTable.isActive, 1))
     .orderBy(benefitsTable.category, benefitsTable.name);
 
-  function isOverrideActive(overrideBy: string | null, overrideExpiresAt: string | null): boolean {
+  function isOverrideActive(
+    overrideBy: string | null,
+    overrideExpiresAt: string | null,
+  ): boolean {
     if (!overrideBy) return false;
     if (!overrideExpiresAt) return true;
     const expiry = new Date(overrideExpiresAt);
@@ -139,67 +150,83 @@ export async function getBenefitEligibilityForEmployee(
   }
 
   function normalizeStatus(
-    raw: string | null | undefined
-  ): 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED' {
-    const s = String(raw ?? '').toLowerCase();
-    if (s === 'active') return 'ACTIVE';
-    if (s === 'eligible') return 'ELIGIBLE';
-    if (s === 'pending') return 'PENDING';
-    if (s === 'rejected') return 'REJECTED';
-    return 'LOCKED';
+    raw: string | null | undefined,
+  ): "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED" {
+    const s = String(raw ?? "").toLowerCase();
+    if (s === "active") return "ACTIVE";
+    if (s === "eligible") return "ELIGIBLE";
+    if (s === "pending") return "PENDING";
+    if (s === "rejected") return "REJECTED";
+    return "LOCKED";
   }
 
   const results: BenefitEligibilityRow[] = [];
   for (const row of rows) {
     const benefitConfig = config?.[row.benefitId];
     const rules = benefitConfig?.rules;
-    const overrideActive = isOverrideActive(row.overrideBy ?? null, row.overrideExpiresAt ?? null);
+    const overrideActive = isOverrideActive(
+      row.overrideBy ?? null,
+      row.overrideExpiresAt ?? null,
+    );
 
     if (rules?.length && employee) {
       const { status, ruleEvaluations } = evaluateBenefitRules(rules, employee);
-      let finalStatus: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED' = overrideActive
+      let finalStatus:
+        | "ACTIVE"
+        | "ELIGIBLE"
+        | "LOCKED"
+        | "PENDING"
+        | "REJECTED" = overrideActive
         ? normalizeStatus(row.eligibilityStatus)
-        : row.eligibilityStatus === 'active'
-          ? 'ACTIVE'
+        : row.eligibilityStatus === "active"
+          ? "ACTIVE"
           : status;
-      if (finalStatus === 'ELIGIBLE' && pendingBenefitIds.has(row.benefitId)) {
-        finalStatus = 'PENDING';
+      if (finalStatus === "ELIGIBLE" && pendingBenefitIds.has(row.benefitId)) {
+        finalStatus = "PENDING";
       }
       if (
         rejectedByBenefit.has(row.benefitId) &&
         !pendingBenefitIds.has(row.benefitId) &&
-        finalStatus !== 'ACTIVE'
+        finalStatus !== "ACTIVE"
       ) {
-        finalStatus = 'REJECTED';
+        finalStatus = "REJECTED";
       }
 
-      if (finalStatus === 'ELIGIBLE') {
+      if (finalStatus === "ELIGIBLE") {
         const cacheKey = `eligibility:${employeeId}:${row.benefitId}`;
         const prev = await env.ELIGIBILITY_CACHE.get(cacheKey);
-        if (prev === 'LOCKED') {
+        if (prev === "LOCKED") {
           await safeDispatch(async () => {
             await dispatchEmployeeNotification(env, {
               employeeId,
-              type: 'ELIGIBILITY_CHANGE',
-              tone: 'info',
+              type: "ELIGIBILITY_CHANGE",
+              tone: "info",
               dedupeKey: `eligibility:${row.benefitId}:unlocked`,
-              title: 'Benefit Unlocked',
+              title: "Benefit Unlocked",
               body: `Your ${row.benefitName} benefit is now ELIGIBLE. You can request this benefit from your dashboard.`,
-              metadata: { benefitId: row.benefitId, benefitName: row.benefitName },
+              metadata: {
+                benefitId: row.benefitId,
+                benefitName: row.benefitName,
+              },
             });
           });
         }
-        await env.ELIGIBILITY_CACHE.put(cacheKey, finalStatus, { expirationTtl: 60 * 60 * 24 * 30 });
-      } else if (finalStatus === 'LOCKED') {
+        await env.ELIGIBILITY_CACHE.put(cacheKey, finalStatus, {
+          expirationTtl: 60 * 60 * 24 * 30,
+        });
+      } else if (finalStatus === "LOCKED") {
         const cacheKey = `eligibility:${employeeId}:${row.benefitId}`;
-        await env.ELIGIBILITY_CACHE.put(cacheKey, finalStatus, { expirationTtl: 60 * 60 * 24 * 30 });
+        await env.ELIGIBILITY_CACHE.put(cacheKey, finalStatus, {
+          expirationTtl: 60 * 60 * 24 * 30,
+        });
       }
 
       results.push({
         benefit: {
           id: row.benefitId,
           name: row.benefitName,
-          description: row.benefitDescription ?? `${row.benefitCategory} benefit`,
+          description:
+            row.benefitDescription ?? `${row.benefitCategory} benefit`,
           category: row.benefitCategory,
           subsidyPercent: row.benefitSubsidyPercent ?? 0,
           requiresContract: asBool01(row.benefitRequiresContract),
@@ -208,17 +235,23 @@ export async function getBenefitEligibilityForEmployee(
         },
         status: finalStatus,
         ruleEvaluations: overrideActive
-          ? [{
-              ruleType: 'override',
-              passed: true,
-              reason: row.overrideReason ?? 'HR override',
-            }]
+          ? [
+              {
+                ruleType: "override",
+                passed: true,
+                reason: row.overrideReason ?? "HR override",
+              },
+            ]
           : ruleEvaluations,
         computedAt: now,
         rejectedReason:
-          finalStatus === 'REJECTED' ? rejectedByBenefit.get(row.benefitId) ?? null : null,
+          finalStatus === "REJECTED"
+            ? (rejectedByBenefit.get(row.benefitId) ?? null)
+            : null,
         overrideApplied: overrideActive,
-        overrideReason: overrideActive ? row.overrideReason ?? 'HR override' : null,
+        overrideReason: overrideActive
+          ? (row.overrideReason ?? "HR override")
+          : null,
       });
       continue;
     }
@@ -227,28 +260,36 @@ export async function getBenefitEligibilityForEmployee(
       ? safeJsonParse(row.ruleEvaluationJson, [])
       : [];
     const ruleEvaluations = Array.isArray(ruleEvaluationsRaw)
-      ? ruleEvaluationsRaw.map((r: { rule_type?: string; ruleType?: string; passed?: boolean; reason?: string }) => ({
-          ruleType: String(r.rule_type ?? r.ruleType ?? 'unknown'),
-          passed: Boolean(r.passed),
-          reason: String(r.reason ?? ''),
-        }))
+      ? ruleEvaluationsRaw.map(
+          (r: {
+            rule_type?: string;
+            ruleType?: string;
+            passed?: boolean;
+            reason?: string;
+          }) => ({
+            ruleType: String(r.rule_type ?? r.ruleType ?? "unknown"),
+            passed: Boolean(r.passed),
+            reason: String(r.reason ?? ""),
+          }),
+        )
       : [];
 
     // If no rule config and no stored eligibility row, default to ELIGIBLE
     // so "rule-not-configured" benefits are requestable instead of LOCKED.
     const baseStatus = row.eligibilityStatus
       ? mapBenefitStatus(row.eligibilityStatus)
-      : 'ELIGIBLE';
-    let status: 'ACTIVE' | 'ELIGIBLE' | 'LOCKED' | 'PENDING' | 'REJECTED' = baseStatus;
-    if (status === 'ELIGIBLE' && pendingBenefitIds.has(row.benefitId)) {
-      status = 'PENDING';
+      : "ELIGIBLE";
+    let status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED" =
+      baseStatus;
+    if (status === "ELIGIBLE" && pendingBenefitIds.has(row.benefitId)) {
+      status = "PENDING";
     }
     if (
       rejectedByBenefit.has(row.benefitId) &&
       !pendingBenefitIds.has(row.benefitId) &&
-      status !== 'ACTIVE'
+      status !== "ACTIVE"
     ) {
-      status = 'REJECTED';
+      status = "REJECTED";
     }
     results.push({
       benefit: {
@@ -264,9 +305,14 @@ export async function getBenefitEligibilityForEmployee(
       status,
       ruleEvaluations,
       computedAt: row.computedAt ?? now,
-      rejectedReason: status === 'REJECTED' ? rejectedByBenefit.get(row.benefitId) ?? null : null,
+      rejectedReason:
+        status === "REJECTED"
+          ? (rejectedByBenefit.get(row.benefitId) ?? null)
+          : null,
       overrideApplied: overrideActive,
-      overrideReason: overrideActive ? row.overrideReason ?? 'HR override' : null,
+      overrideReason: overrideActive
+        ? (row.overrideReason ?? "HR override")
+        : null,
     });
   }
 
