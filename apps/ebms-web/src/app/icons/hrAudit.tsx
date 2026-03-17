@@ -1,14 +1,16 @@
 export const HrAuditIcon = () => {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className="h-6 w-6"
-      stroke="currentColor"
-      strokeWidth="1.8"
-    >
-      <rect x="4" y="4" width="8" height="8" rx="1.5" />
-      <path d="M16 5h4M16 9h4M4 16h16M4 20h10" />
-    </svg>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_858_1133)">
+<path d="M8.00065 14.6654C11.6825 14.6654 14.6673 11.6806 14.6673 7.9987C14.6673 4.3168 11.6825 1.33203 8.00065 1.33203C4.31875 1.33203 1.33398 4.3168 1.33398 7.9987C1.33398 11.6806 4.31875 14.6654 8.00065 14.6654Z" stroke="#E5E5E5" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8 4V8L10.6667 9.33333" stroke="#E5E5E5" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_858_1133">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+
   );
 };

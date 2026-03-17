@@ -327,11 +327,11 @@ export default function HrDashboardPage() {
           {statCards.map((card) => (
             <article
               key={card.title}
-              className="w-[468px] h-[320px] rounded-2xl bg-[#0128244D]/30  px-[54px] py-[62px] text-left shadow-lg ring-1 ring-white/10"
+              className="w-[468px] h-[320px] rounded-2xl bg-[#4f2754]/30  px-[54px] py-[62px] text-left shadow-lg ring-1 ring-white/10"
               style={{
                 background:
                   card.key === "employees"
-                    ? `bg-[#4F275480]/50 `
+                    ? `bg-[#4F2754]/50 `
                     : "bg-[#0128244D]/30",
               }}
             >
@@ -345,11 +345,11 @@ export default function HrDashboardPage() {
                 <button
                   type="button"
                   onClick={() => router.push(card.key === "employees" ? "/admin/employee-eligibility" : "/admin/add-benefit")}
-                  className="max-h-[50px] max-w-[250px] shrink-0 rounded-lg border border-white/50 px-10 py-2.5 text-[24px] font-medium text-[#F2F3F3] transition hover:bg-[#4F2754]/70"
+                  className="max-h-[50px] max-w-[250px] bg-[#4F2754]/50 shrink-0 rounded-lg border border-white/50 px-10 py-2.5 text-[24px] font-medium text-[#F2F3F3] transition hover:bg-[#4F2754]/70"
                   style={{
                     background:
                       card.key === "employees"
-                        ? "[#4F275480]-50%"
+                        ? "[#4F2754]-50%"
                         : "bg-[#0128244D]/30",
                   }}
                 >
@@ -362,7 +362,7 @@ export default function HrDashboardPage() {
         </div>
 
         <article
-          className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#0128244D]/30 rounded-[24px] border border-[#262626] bg-[#1E293B] sm:p-6 dark:border-[#262626]"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[#262626] bg-[#1E293B] sm:p-6 dark:border-[#262626]"
         >
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between px-8 pt-11">
           <h2 className="text-xl font-bold text-white">Employee Benefit Requests</h2>
@@ -379,8 +379,8 @@ export default function HrDashboardPage() {
                 onClick={() => setStatusFilter(value)}
                 className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                   statusFilter === value
-                    ? "bg-blue-600 text-white dark:bg-[#2A8BFF]"
-                    : "border border-blue-500/50 bg-transparent text-white hover:border-blue-400/70"
+                    ? "bg-white  text-black dark:bg-[#ffffff]"
+                    : "border border-white/50  text-white "
                 }`}
               >
                 {label}
@@ -394,7 +394,7 @@ export default function HrDashboardPage() {
         {displayRequests.length === 0 ? (
           <p className="px-8 py-8 text-center text-slate-400 dark:text-[#A7B6D3]">No benefit requests found.</p>
         ) : (
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-8 pb-8">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-8 pb-8 max-h-[calc(100vh-320px)]">
             {displayRequests.map((req) => {
               const status = (req.status || "PENDING").toUpperCase();
               const isLoading = actionLoadingId === req.id;

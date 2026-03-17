@@ -1,18 +1,19 @@
 export const HrBenefitsRuleIcon = () => {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className="h-6 w-6"
-      stroke="currentColor"
-      strokeWidth="1.8"
-    >
-      <rect x="3" y="4" width="8" height="7" rx="1.5" />
-      <rect x="13" y="4" width="8" height="7" rx="1.5" />
-      <path d="M7 15h10" />
-      <path d="M7 19h6" />
-      <path d="M18 17v-3" />
-      <path d="M16.5 15.5h3" />
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g clip-path="url(#clip0_858_1124)">
+    <path d="M9.99935 1.33203H3.99935C3.64573 1.33203 3.30659 1.47251 3.05654 1.72256C2.80649 1.9726 2.66602 2.31174 2.66602 2.66536V13.332C2.66602 13.6857 2.80649 14.0248 3.05654 14.2748C3.30659 14.5249 3.64573 14.6654 3.99935 14.6654H11.9993C12.353 14.6654 12.6921 14.5249 12.9422 14.2748C13.1922 14.0248 13.3327 13.6857 13.3327 13.332V4.66536L9.99935 1.33203Z" stroke="#F2F3F3" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9.33398 1.33203V3.9987C9.33398 4.35232 9.47446 4.69146 9.72451 4.94151C9.97456 5.19156 10.3137 5.33203 10.6673 5.33203H13.334" stroke="#F2F3F3" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6.66732 6H5.33398" stroke="#F2F3F3" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M10.6673 8.66797H5.33398" stroke="#F2F3F3" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M10.6673 11.332H5.33398" stroke="#F2F3F3" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <defs>
+    <clipPath id="clip0_858_1124">
+    <rect width="16" height="16" fill="white"/>
+    </clipPath>
+    </defs>
     </svg>
+    
   );
 };
