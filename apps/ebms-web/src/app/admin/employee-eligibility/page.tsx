@@ -151,13 +151,14 @@ function EmployeeEligibilityPageContent() {
                 </div>
             </section>
 
-            <section className="rounded-3xl h-[450px] p-6  dark:border-[#2C4264] dark:bg-[#20194D80]/50">
-                <div className=" space-y-2">
-                    {filteredEmployees.map((emp) => (
+            <section className="rounded-3xl h-[450px] p-6 overflow-hidden flex flex-col dark:border-[#2C4264] dark:bg-[#20194D80]/50">
+                <div className="space-y-2 overflow-y-auto overflow-x-hidden overscroll-contain flex-1 min-h-0 pr-1">
+                    {filteredEmployees.map((emp, index) => (
                         <Link
                             key={emp.id}
                             href={`/admin/employee-eligibility/${emp.id}`}
-                            className="flex w-full items-center gap-4 rounded-2xl border border-white/50 bg-[#20194D80]/50 px-4 py-3 text-left transition hover:bg-slate-100 dark:border-[#324A70] dark:bg-[#0F172A] dark:hover:bg-[#142544]"
+                            className="flex w-full items-center gap-4 rounded-2xl px-4 py-3 text-left transition-all duration-300 ease-out hover:opacity-80 animate-card-slide-in"
+                            style={{ animationDelay: `${index * 50}ms`, animationFillMode: "backwards" }}
                         >
                             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-5 font-semibold text-white">
                                 {getInitials(emp.name)}

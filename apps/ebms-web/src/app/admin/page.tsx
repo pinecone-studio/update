@@ -321,8 +321,8 @@ export default function HrDashboardPage() {
   if (loading) return <AdminDashboardSkeleton />;
 
   return (
-    <div className="flex min-h-0 flex-col gap-8 overflow-hidden">
-      <section className="grid min-h-0 flex-1 grid-cols-1 gap-8 lg:grid-cols-[auto_1fr] px-6 py-6">
+    <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-hidden">
+      <section className="grid min-h-0 flex-1 grid-cols-1 gap-8 lg:grid-cols-[auto_1fr] px-6 py-6 overflow-hidden">
         <div className="flex flex-col gap-8 lg:min-w-[468px]">
           {statCards.map((card) => (
             <article
@@ -394,7 +394,7 @@ export default function HrDashboardPage() {
         {displayRequests.length === 0 ? (
           <p className="px-8 py-8 text-center text-slate-400 dark:text-[#A7B6D3]">No benefit requests found.</p>
         ) : (
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-8 pb-8 max-h-[calc(100vh-320px)]">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden overscroll-contain px-8 pb-8">
             {displayRequests.map((req) => {
               const status = (req.status || "PENDING").toUpperCase();
               const isLoading = actionLoadingId === req.id;
