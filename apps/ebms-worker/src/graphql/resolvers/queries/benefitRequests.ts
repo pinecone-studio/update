@@ -73,6 +73,9 @@ export const benefitRequests: NonNullable<
       if (isFinance) {
         const needsFinanceApproval = Boolean(config?.[r.benefitId]?.financeCheck);
         if (!needsFinanceApproval) return false;
+        if (!statusFilter) return true;
+        return (r.status ?? '').toLowerCase() === statusFilter;
+      }
       if (isHrOrAdminOrFinance) {
         if (!statusFilter) return true;
         return (r.status ?? '').toLowerCase() === statusFilter;
@@ -82,25 +85,25 @@ export const benefitRequests: NonNullable<
       return (r.status ?? '').toLowerCase() === statusFilter;
     })
     .map((r) => ({
-    id: r.id,
-    employeeId: r.employeeId,
-    benefitId: r.benefitId,
-    status: (r.status?.toUpperCase() ?? 'PENDING') as
-      | 'PENDING'
-      | 'APPROVED'
-      | 'REJECTED'
-      | 'CANCELLED',
-    createdAt: r.createdAt ?? '',
-    employeeName: r.employeeName ?? null,
-    benefitName: r.benefitName ?? null,
-    rejectReason: r.rejectReason ?? null,
-    contractVersionAccepted: r.contractVersionAccepted ?? null,
-    contractAcceptedAt: r.contractAcceptedAt ?? null,
-    requiresContract: asBool01(r.requiresContract),
-    contractId: r.contractId ?? null,
-    // Reused as downloadable employee-signed contract URL when uploaded.
-    contractTemplateUrl: r.employeeContractR2Key
-      ? `/admin/contracts/employee-requests/${encodeURIComponent(r.id)}/file`
-      : null,
-  }));
+      id: r.id,
+      employeeId: r.employeeId,
+      benefitId: r.benefitId,
+      status: (r.status?.toUpperCase() ?? 'PENDING') as
+        | 'PENDING'
+        | 'APPROVED'
+        | 'REJECTED'
+        | 'CANCELLED',
+      createdAt: r.createdAt ?? '',
+      employeeName: r.employeeName ?? null,
+      benefitName: r.benefitName ?? null,
+      rejectReason: r.rejectReason ?? null,
+      contractVersionAccepted: r.contractVersionAccepted ?? null,
+      contractAcceptedAt: r.contractAcceptedAt ?? null,
+      requiresContract: asBool01(r.requiresContract),
+      contractId: r.contractId ?? null,
+      // Reused as downloadable employee-signed contract URL when uploaded.
+      contractTemplateUrl: r.employeeContractR2Key
+        ? `/admin/contracts/employee-requests/${encodeURIComponent(r.id)}/file`
+        : null,
+    }));
 };
