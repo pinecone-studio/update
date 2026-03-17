@@ -1,0 +1,110 @@
+/** @format */
+
+"use client";
+
+import Link from "next/link";
+import {
+  HiOutlineArrowTopRightOnSquare,
+  HiOutlineBell,
+  HiOutlineChartBar,
+} from "react-icons/hi2";
+import type { SwitchUserOption } from "@/app/_lib/activeUser";
+
+interface MobileHeaderMenuProps {
+  open: boolean;
+  selectedUserId: string;
+  userOptions: SwitchUserOption[];
+  meName?: string;
+  isAdminOrHrUser: boolean;
+  isFinanceManagerUser: boolean;
+  onClose: () => void;
+  onSelectUser: (id: string) => void;
+  onAdminNavigate: (e: { preventDefault: () => void }) => void;
+  onFinanceNavigate: (e: { preventDefault: () => void }) => void;
+}
+
+export function MobileHeaderMenu({
+  open,
+  selectedUserId,
+  userOptions,
+  meName,
+  isAdminOrHrUser,
+  isFinanceManagerUser,
+  onClose,
+  onSelectUser,
+  onAdminNavigate,
+  onFinanceNavigate,
+}: MobileHeaderMenuProps) {
+  if (!open) return null;
+
+  return (
+    <div className="md:hidden absolute left-0 top-[72px] w-full bg-white border-t border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <nav className="flex flex-col gap-1 p-3 text-slate-600 dark:text-slate-300 text-sm">
+        <Link
+          href="/admin"
+          onClick={(e) => {
+            onAdminNavigate(e);
+            if (isAdminOrHrUser) onClose();
+          }}
+          aria-disabled={!isAdminOrHrUser}
+          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-slate-600 ring-1 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 transition dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
+        >
+          <HiOutlineArrowTopRightOnSquare className="text-base" />
+          Admin руу шилжих
+        </Link>
+
+        <Link
+          href="/finance"
+          onClick={(e) => {
+            onFinanceNavigate(e);
+            if (isFinanceManagerUser) onClose();
+          }}
+          aria-disabled={!isFinanceManagerUser}
+          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-slate-600 ring-1 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 transition dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
+        >
+          <HiOutlineChartBar className="text-base" />
+          Finance руу шилжих
+        </Link>
+
+        <div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
+        <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+          <span>User</span>
+          <select
+            value={selectedUserId}
+            onChange={(e) => onSelectUser(e.target.value)}
+            className="ml-3 bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+            aria-label="Select active user"
+          >
+            {userOptions.map((opt) => (
+              <option key={opt.id} value={opt.id} className="text-slate-900">
+                {opt.name} ({opt.id})
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/employee/notification"
+            onClick={onClose}
+            className="h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            <HiOutlineBell className="text-sm" />
+          </Link>
+          <Link href="/employee/notification" onClick={onClose} className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center">
+              {(meName ?? "JD")
+                .split(" ")
+                .map((s) => s[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+            <span className="text-slate-600 text-xs dark:text-slate-300">Account</span>
+          </Link>
+        </div>
+      </nav>
+    </div>
+  );
+}
