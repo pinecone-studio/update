@@ -43,6 +43,7 @@ const ME_QUERY = gql`
         rejectedReason
         overrideApplied
         overrideReason
+        pendingApprovalBy
       }
     }
   }
@@ -75,6 +76,7 @@ const MY_BENEFITS_QUERY = gql`
       rejectedReason
       overrideApplied
       overrideReason
+      pendingApprovalBy
     }
   }
 `;

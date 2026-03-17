@@ -305,17 +305,34 @@ adminContracts.post("/upload", async (c) => {
       httpMetadata: { contentType: "application/pdf" },
     });
 
-    await db.insert(employeeContractsTable).values({
-      id: contractId,
-      employeeId: employeeId || null,
-      benefitId,
-      version,
-      r2ObjectKey,
-      effectiveDate,
-      expiryDate,
-      createdAt: now,
-      updatedAt: now,
-    });
+    try {
+      await db.insert(employeeContractsTable).values({
+        id: contractId,
+        employeeId: employeeId || null,
+        benefitId,
+        version,
+        r2ObjectKey,
+        effectiveDate,
+        expiryDate,
+        createdAt: now,
+        updatedAt: now,
+      });
+    } catch (err) {
+      const msg = getErrorText(err);
+      if (
+        msg.includes("employee_contracts") &&
+        (msg.includes("no such table") || msg.includes("no such column"))
+      ) {
+        return c.json(
+          {
+            error:
+              "employee_contracts table missing. Run: npm run db:local:employee-contracts (local) or db:migrate:employee-contracts (remote)",
+          },
+          503,
+        );
+      }
+      throw err;
+    }
 
     return c.json({
       ok: true,
