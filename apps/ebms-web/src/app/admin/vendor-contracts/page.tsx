@@ -22,7 +22,7 @@ export default function VendorContractsPage() {
             onClick={() => setActiveTab("employee")}
             className={`rounded-xl px-3 py-2 font-medium transition ${
               activeTab === "employee"
-                ? "text-[35px] text-white"
+                ? "text-[35px] text-white border-b border-white rounded-b-none"
                 : "text-[18px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
             }`}
           >
@@ -35,7 +35,7 @@ export default function VendorContractsPage() {
             onClick={() => setActiveTab("vendor")}
             className={`rounded-xl px-3 py-2 font-medium transition ${
               activeTab === "vendor"
-                ? "text-[35px] text-white"
+                ? "text-[35px] text-white border-b border-white rounded-b-none"
                 : "text-[18px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
             }`}
           >

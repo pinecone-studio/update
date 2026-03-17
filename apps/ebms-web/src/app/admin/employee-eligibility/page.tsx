@@ -87,97 +87,137 @@ function EmployeeEligibilityPageContent() {
         const data = await client.request<{ employees: EmployeeListItem[] }>(
           EMPLOYEES_QUERY,
         );
-        if (cancelled) return;
-        const rows: EmployeeRow[] = (data.employees ?? []).map((e) => ({
-          id: e.id ?? "",
-          name: e.name ?? "Unknown",
-          department: e.role ?? e.employmentStatus ?? "—",
-        }));
-        setEmployeeList(rows);
-      } catch {
-        if (!cancelled) {
-          setEmployeeList([]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    }, [search, employeeList]);
 
-  useEffect(() => {
-    setSearch(initialSearch);
-  }, [initialSearch]);
+    const getInitials = (name: string) =>
+        name
+            .split(" ")
+            .map((part) => part[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase();
 
-  if (loading) {
-    return <EmployeeEligibilitySkeleton />;
-  }
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                await ensureValidActiveUserProfile();
+                const client = getClient();
+                const data =
+                    await client.request<{ employees: EmployeeListItem[] }>(
+                        EMPLOYEES_QUERY,
+                    );
+                if (cancelled) return;
+                const rows: EmployeeRow[] = (data.employees ?? []).map((e) => ({
+                    id: e.id ?? "",
+                    name: e.name ?? "Unknown",
+                    department: e.role ?? e.employmentStatus ?? "—",
+                }));
+                setEmployeeList(rows);
+            } catch {
+                if (!cancelled) {
+                    setEmployeeList([]);
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-[35px] font-medium text-slate-900 dark:text-white">
-          Employee Eligibility Overview
-        </h1>
-        <p className="mt-3 text-[20px]text-slate-600 font-normal dark:text-[#A7B6D3]">
-          Understand which employees qualify for benefits.
-        </p>
-      </div>
+    useEffect(() => {
+        setSearch(initialSearch);
+    }, [initialSearch]);
 
-      <section className="rounded-2xl bg-white p-6 dark:border-[#2C4264] dark:bg-[#20194D80]/50">
-        <div className="relative">
-          <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              className="h-6 w-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-4-4" />
-            </svg>
-          </span>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search employees by name"
-            className="h-14 w-full rounded-2xl text-[20px] font-normal border border-white/50  bg-slate-50 pl-14 pr-4 text-5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#FAFBFB1A10 dark:border-[#324A70]/10 dark:bg-[#0B102B1A]/10 dark:text-white dark:placeholder:text-white/50 dark:focus:border-white/50"
-          />
-        </div>
-      </section>
+    if (loading) {
+        return <EmployeeEligibilitySkeleton />;
+    }
 
-      <section className="rounded-3xl h-[450px] p-6 overflow-hidden flex flex-col dark:border-[#2C4264] dark:bg-[#20194D80]/50">
-        <div className="space-y-2 overflow-y-auto overflow-x-hidden overscroll-contain flex-1 min-h-0 pr-1">
-          {filteredEmployees.map((emp, index) => (
-            <Link
-              key={emp.id}
-              href={`/admin/employee-eligibility/${emp.id}`}
-              className="flex w-full items-center gap-4 rounded-2xl px-4 py-3 text-left transition-all duration-300 ease-out hover:opacity-80 animate-card-slide-in"
-              style={{
-                animationDelay: `${index * 50}ms`,
-                animationFillMode: "backwards",
-              }}
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-5 font-semibold text-white">
-                {getInitials(emp.name)}
-              </span>
-              <div className="flex flex-row items-center justify-between w-full">
-                <div>
-                  <p className="text-5 font-medium text-slate-900 dark:text-white">
-                    {emp.name}
-                  </p>
-                  <p className="text-5 text-slate-500 dark:text-[#8FA3C5]">
-                    {emp.department}
-                  </p>
+    return (
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-[35px] font-medium text-slate-900 dark:text-white">
+                    Employee Eligibility Overview
+                </h1>
+                <p className="mt-3 text-[20px] text-slate-600 font-normal dark:text-[#A7B6D3]">
+                Understand which employees qualify for benefits.
+                </p>
+            </div>
+
+            <section className="rounded-2xl bg-white p-6 dark:border-[#2C4264] dark:bg-[#20194D80]/50">
+                <div className="relative">
+                    <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            className="h-6 w-6"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                        >
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="m20 20-4-4" />
+                        </svg>
+                    </span>
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search employees by name"
+                        className="h-14 w-full rounded-2xl text-[20px] font-normal border border-white/50  bg-slate-50 pl-14 pr-4 text-5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#FAFBFB1A10 dark:border-[#324A70]/10 dark:bg-[#0B102B1A]/10 dark:text-white dark:placeholder:text-white/50 dark:focus:border-white/50"
+                    />
                 </div>
-                <div>
-                  <p className="text-5 font-medium text-slate-900 dark:text-white">
-                    Show details
-                  </p>
+            </section>
+
+            <section className="flex h-[450px] flex-col overflow-hidden rounded-3xl dark:bg-[#20194D80]/50">
+                <div className="grid grid-cols-[40px_1fr_1fr_auto] items-center gap-4 border-b border-white/10 px-6 py-4 text-left text-sm font-medium text-slate-500 dark:border-[#2C4264] dark:bg-[#60587B4D] dark:text-[#93A4C3]">
+                    <span>#</span>
+                    <span>Employee</span>
+                    <span>Role</span>
+                    <span>Action</span>
+                </div>
+                <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overflow-x-hidden overscroll-contain px-6 pb-6">
+                    {filteredEmployees.length === 0 ? (
+                        <div className="flex h-[350px] flex-col items-center justify-center gap-3.5 rounded-2xl border border-white/50 text-center">
+                            <div className="flex h-[87px] w-[87px] items-center justify-center rounded-full bg-[#20194D80]/50">
+                                <SearchIcon />
+                            </div>
+                            <p className="text-[28px] font-normal text-slate-500 dark:text-[#9FB0CF]">
+                                No employees found.
+                            </p>
+                            <p className="text-[19px] font-normal text-slate-500 dark:text-[#9FB0CF]">
+                                Try adjusting your search
+                            </p>
+                        </div>
+                    ) : (
+                        filteredEmployees.map((emp, index) => (
+                            <Link
+                                key={emp.id}
+                                href={`/admin/employee-eligibility/${emp.id}`}
+                                className="-mx-6 grid grid-cols-[40px_1fr_1fr_auto] items-center gap-4 border-b border-white/5 px-6 py-3 text-left transition-all duration-300 ease-out last:border-b-0 hover:bg-white/5 dark:border-[#2C4264]/50 dark:hover:bg-white/5 animate-card-slide-in"
+                                style={{ animationDelay: `${index * 50}ms`, animationFillMode: "backwards" }}
+                            >
+                                <span className="text-sm text-slate-500 dark:text-[#8FA3C5]">
+                                    {index + 1}
+                                </span>
+                                <div className="flex min-w-0 items-center gap-3">
+                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-sm font-semibold text-white">
+                                        {getInitials(emp.name)}
+                                    </span>
+                                    <span className="truncate font-medium text-slate-900 dark:text-white">
+                                        {emp.name}
+                                    </span>
+                                </div>
+                                <span className="truncate text-slate-500 dark:text-[#8FA3C5]">
+                                    {emp.department}
+                                </span>
+                                <span className="block w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-blue-500">
+                                    View
+                                </span>
+                            </Link>
+                        ))
+                    )}
                 </div>
               </div>
             </Link>

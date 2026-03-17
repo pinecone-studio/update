@@ -1,10 +1,10 @@
 "use client";
 
 import { gql } from "graphql-request";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VendorContractsSkeleton } from "../components/VendorContractsSkeleton";
 import { getAdminClient, getApiBaseUrl, getApiErrorMessage } from "../_lib/api";
-import type { Contract, ContractApiRow } from "./types";
+import type { BenefitOption, Contract, ContractApiRow } from "./types";
 
 type EmployeeOption = { id: string; name: string | null };
 
@@ -16,6 +16,18 @@ const EMPLOYEES_QUERY = gql`
     }
   }
 `;
+
+const BENEFITS_QUERY = gql`
+  query BenefitsForVendorOptions {
+    benefits {
+      id
+      name
+      vendorName
+    }
+  }
+`;
+
+const MAX_PDF_SIZE_MB = 10;
 
 function mapRowsToContracts(items: ContractApiRow[]): Contract[] {
   const nowMs = Date.now();
@@ -51,6 +63,12 @@ export function EmployeeContracts() {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [employeesLoading, setEmployeesLoading] = useState(false);
   const [filterByEmployeeId, setFilterByEmployeeId] = useState("");
+  const [vendorOptions, setVendorOptions] = useState<string[]>([]);
+  const [selectedVendor, setSelectedVendor] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadContracts = useCallback(async () => {
     try {
@@ -113,6 +131,26 @@ export function EmployeeContracts() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const client = getAdminClient();
+        const res = await client.request<{ benefits: BenefitOption[] }>(BENEFITS_QUERY);
+        const list = res.benefits ?? [];
+        const vendors = [...new Set(list.map((b) => b.vendorName).filter(Boolean))] as string[];
+        if (!cancelled) {
+          setVendorOptions(vendors.sort());
+        }
+      } catch {
+        if (!cancelled) setVendorOptions([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const filteredContracts = useMemo(() => {
     let list = contractRows;
     if (filterByEmployeeId) {
@@ -133,13 +171,35 @@ export function EmployeeContracts() {
     [contractRows],
   );
 
+  function validatePdf(file: File): string | null {
+    if (file.type !== "application/pdf") return "PDF only";
+    if (file.size > MAX_PDF_SIZE_MB * 1024 * 1024) return `Max ${MAX_PDF_SIZE_MB}MB`;
+    return null;
+  }
+
+  function handlePdfSelect(file: File) {
+    const err = validatePdf(file);
+    setPdfError(err);
+    setPdfFile(err ? null : file);
+    if (fileInputRef.current && !err) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInputRef.current.files = dt.files;
+    }
+  }
+
   async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!pdfFile && !fileInputRef.current?.files?.length) {
+      setPdfError("Please upload a PDF file");
+      return;
+    }
     setUploading(true);
     setUploadError(null);
     setUploadMessage(null);
     const formEl = e.currentTarget;
     const formData = new FormData(formEl);
+    if (selectedVendor) formData.set("vendorName", selectedVendor);
     try {
       const base = getApiBaseUrl();
       const res = await fetch(`${base}/admin/contracts/upload`, {
@@ -161,6 +221,8 @@ export function EmployeeContracts() {
       setUploadMessage("Contract uploaded successfully.");
       await loadContracts();
       formEl.reset();
+      setPdfFile(null);
+      setPdfError(null);
       setShowUploadForm(false);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : String(err));
@@ -234,123 +296,195 @@ export function EmployeeContracts() {
       </section>
 
       {showUploadForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-6">
           <button
             type="button"
             aria-label="Close add contract modal"
-            onClick={() => setShowUploadForm(false)}
+            onClick={() => {
+              setShowUploadForm(false);
+              setPdfFile(null);
+              setPdfError(null);
+            }}
             className="absolute inset-0 bg-white/25 backdrop-blur-md dark:bg-black/30 dark:backdrop-blur-lg"
           />
-          <section className="relative z-10 max-h-[92vh] w-full max-w-7xl overflow-auto rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-5 font-semibold text-slate-900 dark:text-white">
-                Upload Employee Contract PDF
-              </h2>
-              <button
-                type="button"
-                onClick={() => setShowUploadForm(false)}
-                className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
-              >
-                Close
-              </button>
+          <section
+            className="relative z-10 flex w-[900px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[28.63px] border bg-[#1A2037]"
+            style={{
+              borderWidth: "0.72px",
+              borderColor: "rgba(158, 158, 158, 0.5)",
+              padding: "40px 32px",
+              gap: "24px",
+            }}
+          >
+            <div className="flex shrink-0 items-center">
+              <h2 className="text-[22px] font-normal text-white">Upload Contract</h2>
             </div>
-            <form
-              onSubmit={handleUpload}
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
-            >
+            <form onSubmit={handleUpload} className="flex flex-col gap-6 overflow-hidden">
               <input type="hidden" name="tab" value="employee" />
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-                  Ажилтан
-                </label>
-                <select
-                  name="employeeId"
-                  value={selectedEmployeeId}
-                  onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                  disabled={employeesLoading}
-                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 outline-none focus:border-blue-500 disabled:opacity-60 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              <div className="flex flex-col gap-4">
+                <h3 className="text-5 font-medium text-[#A7B6D3]">Basic Info</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-5 text-[#A7B6D3]">Employee</label>
+                    <select
+                      name="employeeId"
+                      value={selectedEmployeeId}
+                      onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                      disabled={employeesLoading}
+                      className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8] disabled:opacity-60"
+                    >
+                      <option value="">
+                        {employeesLoading ? "Loading..." : "— Select employee —"}
+                      </option>
+                      {employeeOptions.map((emp) => (
+                        <option key={emp.id} value={emp.id}>
+                          {emp.name || emp.id}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-5 text-[#A7B6D3]">Benefit ID</label>
+                    <input
+                      name="benefitId"
+                      required
+                      placeholder="gym-Pinefit"
+                      className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-5 text-[#A7B6D3]">Version</label>
+                    <input
+                      name="version"
+                      required
+                      placeholder="2025.1"
+                      className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <h3 className="text-5 font-medium text-[#A7B6D3]">Contract Details</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-5 text-[#A7B6D3]">Vendor (optional)</label>
+                    <select
+                      value={selectedVendor}
+                      onChange={(e) => setSelectedVendor(e.target.value)}
+                      className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8]"
+                    >
+                      <option value="">— Select vendor —</option>
+                      {vendorOptions.map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-5 text-[#A7B6D3]">Effective Date (optional)</label>
+                    <input
+                      name="effectiveDate"
+                      type="date"
+                      placeholder="yyyy-mm-dd"
+                      className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8] [color-scheme:dark]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-5 text-[#A7B6D3]">Expiry Date</label>
+                    <input
+                      name="expiryDate"
+                      type="date"
+                      required
+                      placeholder="yyyy-mm-dd"
+                      className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8] [color-scheme:dark]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-10">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    const file = e.dataTransfer.files[0];
+                    if (file) handlePdfSelect(file);
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+                  className={`flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-4 transition-colors ${
+                    isDragging
+                      ? "border-[#4B6FA8] bg-[#24364F]/50"
+                      : pdfError
+                        ? "border-red-500"
+                        : "border-[#324A70]"
+                  }`}
                 >
-                  <option value="">
-                    {employeesLoading ? "Уншиж байна..." : "— Ажилтан сонгох —"}
-                  </option>
-                  {employeeOptions.map((emp) => (
-                    <option key={emp.id} value={emp.id}>
-                      {emp.name || emp.id}
-                    </option>
-                  ))}
-                </select>
+                  <input
+                    ref={fileInputRef}
+                    name="file"
+                    type="file"
+                    accept="application/pdf"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handlePdfSelect(f);
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#2F66E8] px-5 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Upload PDF
+                  </button>
+                  <p className="text-5 text-[#8595B6]">
+                    Drag & drop or click to upload PDF only Max {MAX_PDF_SIZE_MB}MB
+                  </p>
+                  {pdfFile && (
+                    <p className="text-5 text-green-400">{pdfFile.name}</p>
+                  )}
+                  {pdfError && (
+                    <p className="text-5 text-red-400">{pdfError}</p>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-                  Benefit ID
-                </label>
-                <input
-                  name="benefitId"
-                  required
-                  placeholder="gym_pinefit"
-                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-                  Version
-                </label>
-                <input
-                  name="version"
-                  required
-                  placeholder="2025.1"
-                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-                  Vendor Name (optional)
-                </label>
-                <input
-                  name="vendorName"
-                  placeholder="PineFit"
-                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-                  Effective Date (optional)
-                </label>
-                <input
-                  name="effectiveDate"
-                  type="date"
-                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-                  Expiry Date (optional)
-                </label>
-                <input
-                  name="expiryDate"
-                  type="date"
-                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-5 text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
-                  Contract PDF
-                </label>
-                <input
-                  name="file"
-                  type="file"
-                  accept="application/pdf"
-                  required
-                  className="h-11 rounded-xl border border-slate-300 bg-white px-2 text-5 text-slate-900 file:mr-3 file:rounded-lg file:border-none file:bg-blue-600 file:px-3 file:py-1.5 file:text-5 file:text-white hover:file:bg-blue-700 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:file:bg-[#334160] dark:file:text-[#D4DEEF] dark:hover:file:bg-[#3A4A6C]"
-                />
-              </div>
-              <div className="flex items-end">
+
+              <div className="flex justify-end gap-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUploadForm(false);
+                    setPdfFile(null);
+                    setPdfError(null);
+                  }}
+                  className="h-13 w-[172px] rounded-lg  bg-[#B0B0B0]  text-[20px] font-normal text-[#122459]"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
-                  disabled={uploading}
-                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2F66E8] px-5 text-5 font-medium text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={uploading || !pdfFile}
+                  className="inline-flex  w-[172px] h-13 items-center justify-center rounded-lg bg-[#0057AD] px-5 text-[20px] font-normal text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {uploading ? "Uploading..." : "Upload Contract"}
+                  {uploading ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
@@ -359,41 +493,25 @@ export function EmployeeContracts() {
       )}
 
       <section className="rounded-3xl  bg-white p-6 dark:border-[#2C4264] dark:bg-[#181743]/50">
-        <div className="flex flex-col gap-12">
-          <div className="flex items-center justify-between">
-            <h2 className="text-[26px] font-semibold  dark:text-white">
-              Contracts
-            </h2>
-            <div className="flex items-center gap-3">
-              <select
-                aria-label="Ажилтанаар шүүх"
-                value={filterByEmployeeId}
-                onChange={(e) => setFilterByEmployeeId(e.target.value)}
-                className="h-11 min-w-[160px] rounded-xl border border-slate-200 bg-[#FFFFFF]/10 px-3 text-5 text-slate-900 outline-none  dark:text-white "
-              >
-                <option value="" className="text-[18px] font-normal">
-                  Status{" "}
-                </option>
-                {employeeOptions.map((emp) => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.name || emp.id}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowUploadForm((prev) => !prev);
-                  setUploadError(null);
-                  setUploadMessage(null);
-                }}
-                className="inline-flex h-11 min-w-[170px] gap-2 flex-[0_0_auto] items-center justify-center rounded-xl bg-[#0057ADCC]/80 border border-slate-300 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
-              >
-                {" "}
-                +<span className="text-[18px] font-normal">Add Contract</span>
-              </button>
-            </div>
-          </div>
+      <div className="flex flex-col gap-12">
+        <div className="flex items-center justify-between">
+        <h2 className="text-[26px] font-semibold  dark:text-white">
+       Contracts
+        </h2>
+        <div className="flex items-center gap-3">
+        <button
+              type="button"
+              onClick={() => {
+                setShowUploadForm((prev) => !prev);
+                setUploadError(null);
+                setUploadMessage(null);
+              }}
+              className="inline-flex h-11 min-w-[170px] gap-2 flex-[0_0_auto] items-center justify-center rounded-xl bg-[#0057ADCC]/80 border border-slate-300 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
+            > +
+              <span className="text-[18px] font-normal">Add Contract</span>
+            </button> 
+        </div>
+        </div>
           <div className="flex flex-wrap items-center gap-4">
             <select
               aria-label="Ажилтанаар шүүх"
@@ -426,7 +544,7 @@ export function EmployeeContracts() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by contract name"
-                className="h-11 w-[368px] rounded-xl  pl-12 pr-4 text-5 border bg-[#FFFFFF]/10  text-slate-200 placeholder:text-slate-200 outline-none  dark:text-white dark:placeholder:text-[#FFFFFF80]/50 "
+                className="h-11 w-[368px] rounded-lg  pl-12 pr-4 text-5 border bg-[#FFFFFF]/10  text-slate-200 placeholder:text-slate-200 outline-none  dark:text-white dark:placeholder:text-[#FFFFFF80]/50 "
               />
             </div>
           </div>
