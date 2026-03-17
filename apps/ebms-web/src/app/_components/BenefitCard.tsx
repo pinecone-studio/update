@@ -345,7 +345,7 @@ export const BenefitCard = ({
                   ) : null}
                 </div>
               )}
-              {overrideApplied ? (
+              {isAdminVariant && overrideApplied ? (
                 <span className="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-amber-200">
                   MANUAL OVERRIDE
                 </span>
@@ -394,7 +394,7 @@ export const BenefitCard = ({
                   <span className={valueClass}>{vendorDisplayName}</span>
                 </div>
                 <p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
-                {overrideApplied ? (
+                {isAdminVariant && overrideApplied ? (
                   <p className="pt-2 text-xs text-amber-200/90">
                     Override:{" "}
                     {normalizedOverrideReason ||
@@ -422,7 +422,7 @@ export const BenefitCard = ({
                   <span className={valueClass}>{vendorDisplayName}</span>
                 </div>
                 <p className={`pt-4 ${bodyClass}`}>{supportText}</p>
-                {overrideApplied ? (
+                {isAdminVariant && overrideApplied ? (
                   <p className="pt-2 text-xs text-amber-200/90">
                     Override:{" "}
                     {normalizedOverrideReason ||

@@ -35,10 +35,26 @@ export default function EmployeeDashboardPage() {
   } = useEmployeeDashboardData();
 
   const filterItems = [
-    { key: "ACTIVE" as const, count: counts.active, icon: <FiCheck size={16} /> },
-    { key: "ELIGIBLE" as const, count: counts.eligible, icon: <FiStar size={16} /> },
-    { key: "PENDING" as const, count: counts.pending, icon: <FiClock size={16} /> },
-    { key: "LOCKED" as const, count: counts.locked, icon: <FiLock size={16} /> },
+    {
+      key: "ACTIVE" as const,
+      count: counts.active,
+      icon: <FiCheck size={16} />,
+    },
+    {
+      key: "ELIGIBLE" as const,
+      count: counts.eligible,
+      icon: <FiStar size={16} />,
+    },
+    {
+      key: "PENDING" as const,
+      count: counts.pending,
+      icon: <FiClock size={16} />,
+    },
+    {
+      key: "LOCKED" as const,
+      count: counts.locked,
+      icon: <FiLock size={16} />,
+    },
   ];
 
   const benefitsWithContractFlow = orderedBenefits.map((benefit) => {
@@ -97,12 +113,14 @@ export default function EmployeeDashboardPage() {
               }
             />
 
-            <section className="mt-8 w-full sm:mt-12 lg:mt-14">
-              <div className="mb-4 sm:mb-6">
+            <section className="mt-2 w-full sm:mt-8 lg:mt-10">
+              <div className=" sm:mb-6">
                 <h2 className="text-[18px] font-semibold tracking-[-0.4px] text-white sm:text-[20px] sm:tracking-[-0.6px]">
                   {title}
                 </h2>
-                <p className="mt-1 text-[14px] text-white/45 sm:text-[15px]">{subtitle}</p>
+                <p className="mt-1 text-[14px] text-white/45 sm:text-[15px]">
+                  {subtitle}
+                </p>
               </div>
 
               <BenefitPortfolio

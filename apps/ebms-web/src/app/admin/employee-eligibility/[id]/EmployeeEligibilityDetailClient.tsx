@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { GraphQLClient, gql } from "graphql-request";
 import {
@@ -84,10 +84,11 @@ const statusOptions: BenefitStatus[] = [
   "LOCKED",
 ];
 
-const modalStatusOptions: Array<Exclude<BenefitStatus, "LOCKED">> = [
+const modalStatusOptions: BenefitStatus[] = [
   "ACTIVE",
   "PENDING",
   "ELIGIBLE",
+  "LOCKED",
 ];
 
 const statusCopy: Record<BenefitStatus, string> = {
@@ -110,7 +111,7 @@ const statusButtonClass: Record<BenefitStatus, string> = {
 
 function getStatusSegmentClass(option: BenefitStatus, selected: boolean) {
   const base =
-    "inline-flex h-[58px] items-center justify-center rounded-[8px] border text-[18px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9BFF]/70";
+    "inline-flex h-[54px] items-center justify-center rounded-[8px] border text-[16px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9BFF]/70";
   if (selected) return `${base} ${statusButtonClass[option]}`;
   return `${base} border-white/10 bg-[rgba(255,255,255,0.03)] text-white`;
 }
@@ -167,6 +168,7 @@ function inferLastDate(index: number): string {
 }
 
 export default function EmployeeEligibilityDetailClient() {
+  const reasonTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === "string" ? params.id : null;
@@ -216,6 +218,13 @@ export default function EmployeeEligibilityDetailClient() {
   const activeSaving = activeBenefitKey
     ? (savingByKey[activeBenefitKey] ?? false)
     : false;
+
+  useEffect(() => {
+    const el = reasonTextareaRef.current;
+    if (!el) return;
+    el.style.height = "0px";
+    el.style.height = `${Math.max(el.scrollHeight, 112)}px`;
+  }, [activeDraftReason, activeBenefitKey]);
 
   const openBenefitModal = (key: string, currentStatus: BenefitStatus) => {
     setActiveBenefitKey(key);
@@ -415,7 +424,7 @@ export default function EmployeeEligibilityDetailClient() {
             </button>
 
             <div className=" flex flex-col justify-end">
-              <h1 className="text-[58px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
+              <h1 className="text-[12px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
                 {employee.name}
               </h1>
               <p className="mt-[12px] text-[27px] font-normal text-[#9AA8AB80] tracking-[-0.02em] text-white/48">
@@ -479,28 +488,28 @@ export default function EmployeeEligibilityDetailClient() {
 
       {activeBenefit && activeBenefitKey && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(8,10,20,0.50)] px-6 backdrop-blur-[4px]">
-          <div className="h-[599px] w-full max-w-[900px] rounded-[30px]  border-white/18 bg-[#1F2744]/[0.98] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.58)]">
+          <div className="h-[480px] w-full max-w-[700px] rounded-[30px]  border-white/18 bg-[#1F2744]/[0.98] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.58)]">
             <div>
-              <h2 className="text-[31px] font-normal tracking-[-0.03em] text-white">
+              <h2 className="text-[22px] font-normal tracking-[-0.03em] text-white">
                 {activeBenefit.name}
               </h2>
-              <p className="mt-[2px] text-[18px] text-white/45">
+              <p className="mt-[2px] text-[16px] text-white/45">
                 Edit benefit status
               </p>
             </div>
 
             <div className="mt-[22px] grid grid-cols-[1.04fr_1.62fr] gap-[12px]">
               <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] px-[22px] py-[14px]">
-                <p className="text-[34px] font-normal leading-[1.05] tracking-[-0.03em] text-white">
+                <p className="text-[20px] font-normal leading-[1.05] tracking-[-0.03em] text-white">
                   {employee.name}
                 </p>
-                <p className="mt-[4px] text-[20px] text-white/63">
+                <p className="mt-[4px] text-[12px] text-white/63">
                   {employee.role}
                 </p>
               </div>
 
               <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] p-[20px]">
-                <div className="grid grid-cols-3 gap-[12px]">
+                <div className="grid grid-cols-4 gap-[10px]">
                   {modalStatusOptions.map((option) => {
                     const selected = activeDraftStatus === option;
                     return (
@@ -524,20 +533,23 @@ export default function EmployeeEligibilityDetailClient() {
               </div>
             </div>
 
-            <label className="mt-[42px] block pl-[24px] text-[14px] text-white/50">
+            <label className="mt-[20px] block pl-[24px] text-[13px] text-white/50">
               *Reason for change (optional)
             </label>
             <textarea
+              ref={reasonTextareaRef}
               rows={6}
               value={activeDraftReason}
-              onChange={(e) =>
+              onChange={(e) => {
                 setDraftReasonByKey((prev) => ({
                   ...prev,
                   [activeBenefitKey]: e.target.value,
-                }))
-              }
+                }));
+                e.target.style.height = "0px";
+                e.target.style.height = `${Math.max(e.target.scrollHeight, 112)}px`;
+              }}
               placeholder="Comment..."
-              className="mt-[10px] h-[192px] w-full rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[20px] text-[23px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
+              className="mt-[10px] min-h-[50px] w-full resize-none overflow-hidden rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[18px] text-[18px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
             />
 
             {activeError && (
@@ -568,9 +580,9 @@ export default function EmployeeEligibilityDetailClient() {
                   )
                 }
                 disabled={activeSaving}
-                className="h-[46px] w-50 rounded-[10px] bg-[#0868CB] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#0B76E4] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-[46px] w-50 rounded-[10px] bg-[#6d1297] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#0B76E4] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {activeSaving ? "Saving..." : "Save changes"}
+                {activeSaving ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
