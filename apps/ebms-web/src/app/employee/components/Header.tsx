@@ -30,6 +30,8 @@ import {
 } from "react-icons/hi2";
 import { IoDiceOutline } from "react-icons/io5";
 import { ProfileIcon } from "@/app/icons/profile";
+import { ProfileDropdown } from "./header/ProfileDropdown";
+import { MobileHeaderMenu } from "./header/MobileHeaderMenu";
 
 const TAGLINE_INDEX_KEY = "ebms_employee_tagline_index";
 const TAGLINE_LAST_CHANGE_KEY = "ebms_employee_tagline_last_change";
@@ -302,8 +304,8 @@ export const Header = () => {
 					</div>
 				</div>
 
-        <div className="flex min-w-[180px] items-center justify-end gap-2">
-          <label className="hidden items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 md:flex dark:border-[#334155] dark:text-[#A7B6D3]">
+				<div className="flex min-w-[180px] items-center justify-end gap-2">
+				<label className="hidden items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 md:flex dark:border-[#334155] dark:text-[#A7B6D3]">
             <span>User</span>
             <select
               value={selectedUser.id}
@@ -333,15 +335,12 @@ export const Header = () => {
 
           <div className="hidden items-center gap-2 md:flex">
             <div ref={notificationRef}>
-              <NotificationDropdown
-                open={notificationOpen}
-                unreadCount={unreadCount}
-                notifications={notifications}
-                onToggle={() => {
+              <button
+                onClick={() => {
                   setNotificationOpen((p) => !p);
                   setProfileOpen(false);
                 }}
-                className="relative h-10 w-10 rounded-full border border-slate-200  grid place-items-center ring-1 ring-transparent  hover:bg-slate-200 transition  "
+                className="relative h-10 w-10 rounded-full border border-slate-200 grid place-items-center ring-1 ring-transparent hover:bg-slate-200 transition"
                 aria-label="Notifications"
               >
                 <HiOutlineBell className="text-sm w-5 h-5" />
@@ -422,8 +421,10 @@ export const Header = () => {
 											})
 											)}
 										</div>
-
-          <div ref={profileRef}>
+                </div>
+              )}
+            </div>
+            <div ref={profileRef}>
             <ProfileDropdown
               open={profileOpen}
               me={me}
@@ -437,11 +438,12 @@ export const Header = () => {
               onAdminNavigate={handleAdminNavigate}
               onFinanceNavigate={handleFinanceNavigate}
             />
-          </div>
-        </div>
-      </div>
+				</div>
+				</div>
+				</div>
+			</div>
 
-      <div className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full bg-[linear-gradient(90deg,rgba(118,55,255,0.0)_0%,rgba(118,55,255,0.65)_50%,rgba(118,55,255,0.0)_100%)]" />
+			<div className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full bg-[linear-gradient(90deg,rgba(118,55,255,0.0)_0%,rgba(118,55,255,0.65)_50%,rgba(118,55,255,0.0)_100%)]" />
 
       <MobileHeaderMenu
         open={menuOpen}

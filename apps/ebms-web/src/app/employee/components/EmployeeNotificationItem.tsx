@@ -22,11 +22,13 @@ export type EmployeeNotification = {
 interface EmployeeNotificationItemProps {
   item: EmployeeNotification;
   relativeTime: string;
+  onMarkRead?: () => void;
 }
 
 export function EmployeeNotificationItem({
   item,
   relativeTime,
+  onMarkRead,
 }: EmployeeNotificationItemProps) {
   const toneClasses =
     item.tone === "SUCCESS"
@@ -87,16 +89,21 @@ export function EmployeeNotificationItem({
           {actionHref ? (
             <Link
               href={actionHref}
+              onClick={onMarkRead}
               className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
             >
               Open
               <HiOutlineArrowUpRight className="text-sm" />
             </Link>
           ) : (
-            <span className="text-xs text-blue-600 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400">
+            <button
+              type="button"
+              onClick={onMarkRead}
+              className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
+            >
               View Details
               <HiOutlineArrowUpRight className="text-sm" />
-            </span>
+            </button>
           )}
         </div>
       </div>

@@ -8,9 +8,11 @@ import {
   HiOutlineCheckCircle,
   HiOutlineClock,
   HiOutlineInformationCircle,
+  HiOutlineMagnifyingGlass,
   HiOutlineArrowUpRight,
 } from "react-icons/hi2";
 import { NotificationSkeleton } from "../components/NotificationSkeleton";
+import { EmployeeNotificationItem } from "../components/EmployeeNotificationItem";
 import {
   fetchMyNotifications,
   markNotificationRead,
@@ -121,14 +123,6 @@ export default function NotificationPage() {
               </button>
             )}
           </div>
-          <div className="flex flex-col">
-            <p className="text-2xl font-semibold text-slate-900 dark:text-white">
-              Notifications
-            </p>
-            <p className="text-slate-600 text-sm dark:text-slate-300">
-              Stay updated on your benefits and eligibility
-            </p>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -224,95 +218,35 @@ export default function NotificationPage() {
 
         {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
 
-              return (
-                <div
-                  key={item.id}
-                  className={`rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md ${unreadClasses}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`flex-shrink-0 h-10 w-10 rounded-xl grid place-items-center ${toneClasses}`}
-                      >
-                        <HiOutlineInformationCircle className="text-lg" />
-                      </div>
-                      <div>
-                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-[#2A3A52] dark:bg-[#121A28] dark:text-slate-300">
-                          {item.type === "ELIGIBILITY_CHANGE"
-                            ? "Eligibility"
-                            : item.type === "REQUEST_STATUS"
-                              ? "Request"
-                              : "Warning"}
-                        </span>
-                        <p className="text-slate-900 text-sm font-semibold dark:text-white">
-                          {item.title}
-                        </p>
-                        <p className="text-slate-600 text-xs mt-1 dark:text-slate-300">
-                          {item.body}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-2">
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                        {formatRelativeTime(item.createdAt)}
-                      </p>
-                      {actionHref ? (
-                        <Link
-                          href={actionHref}
-                          onClick={async () => {
-                            if (!item.isRead) {
-                              try {
-                                await markNotificationRead(item.id);
-                                setNotifications((prev) =>
-                                  prev.map((n) =>
-                                    n.id === item.id ? { ...n, isRead: true } : n,
-                                  ),
-                                );
-                              } catch {
-                                // ignore
-                              }
-                            }
-                          }}
-                          className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
-                        >
-                          Open
-                          <HiOutlineArrowUpRight className="text-sm" />
-                        </Link>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            if (!item.isRead) {
-                              try {
-                                await markNotificationRead(item.id);
-                                setNotifications((prev) =>
-                                  prev.map((n) =>
-                                    n.id === item.id ? { ...n, isRead: true } : n,
-                                  ),
-                                );
-                              } catch {
-                                // ignore
-                              }
-                            }
-                          }}
-                          className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
-                        >
-                          View Details
-                          <HiOutlineArrowUpRight className="text-sm" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {!loading && filteredNotifications.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                No notifications found.
-              </p>
-            ) : null}
-          </div>
+        <div className="mt-6 space-y-4">
+          {filteredNotifications.map((item) => (
+            <EmployeeNotificationItem
+              key={item.id}
+              item={item}
+              relativeTime={formatRelativeTime(item.createdAt)}
+              onMarkRead={
+                !item.isRead
+                  ? async () => {
+                      try {
+                        await markNotificationRead(item.id);
+                        setNotifications((prev) =>
+                          prev.map((n) =>
+                            n.id === item.id ? { ...n, isRead: true } : n,
+                          ),
+                        );
+                      } catch {
+                        // ignore
+                      }
+                    }
+                  : undefined
+              }
+            />
+          ))}
+          {filteredNotifications.length === 0 ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              No notifications found.
+            </p>
+          ) : null}
         </div>
       </div>
     </div>
