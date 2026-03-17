@@ -104,7 +104,7 @@ export function EmployeeDashboardOverview({
                 key={item.key}
                 type="button"
                 onClick={() => onToggleStatus(item.key)}
-                className={`inline-flex h-[42px] w-full min-w-0 cursor-pointer items-center gap-[10px] rounded-[13px] border px-[8px] py-[6px] text-left transition-all duration-200 sm:h-[38px] sm:w-[150px] sm:shrink-0 lg:w-[138px] xl:w-[160px] ${
+                className={`inline-flex h-[48px] w-full min-w-0 cursor-pointer items-center rounded-[13px] border px-[12px] py-[6px] text-left transition-all duration-200 sm:h-[40px] sm:w-[150px] sm:shrink-0 lg:w-[138px] xl:w-[160px] ${
                   isActive ? styles.active : styles.idle
                 }`}
               >
@@ -113,13 +113,17 @@ export function EmployeeDashboardOverview({
                 >
                   {item.icon}
                 </span>
-                <span
-                  className={`text-[14px] leading-none font-medium tracking-[-0.2px] ${styles.tone}`}
-                >
-                  {styles.label}
-                  <span className={`${styles.countTone} ml-2`}>
-                    {item.count}
+                <span className="ml-5 min-w-0 flex-1">
+                  <span
+                    className={`text-[14px] leading-none font-medium tracking-[-0.2px] ${styles.tone}`}
+                  >
+                    {styles.label}
                   </span>
+                </span>
+                <span
+                  className={`shrink-0 pr-2 text-[14px] leading-none font-medium tracking-[-0.2px] ${styles.countTone}`}
+                >
+                  {item.count}
                 </span>
               </button>
             );
@@ -127,7 +131,7 @@ export function EmployeeDashboardOverview({
         </div>
       </div>
 
-      <div className="mt-1 w-full lg:mt-6">
+      <div className="mt-1 w-full lg:mt-6 lg:pr-[10px]">
         <div className="relative flex h-[208px] w-full overflow-hidden rounded-[22px] border border-white/30 p-5 shadow-[0_25px_50px_rgba(0,0,0,0.28)] sm:h-[236px] sm:p-6 lg:h-[242px] lg:w-full">
           <div className="z-10 flex flex-1 flex-col items-start justify-center text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-1.5 text-white/80">

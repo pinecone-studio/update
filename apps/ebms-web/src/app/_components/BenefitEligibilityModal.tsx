@@ -349,8 +349,8 @@ export function BenefitEligibilityModal({
           )}
         </div>
 
-        <div className="p-5 pt-4 border-t border-slate-200 dark:border-[#2d3a4d] flex flex-col gap-2">
-          {canRequest && !showContractStep && (
+        {canRequest && !showContractStep ? (
+          <div className="p-5 pt-4 border-t border-slate-200 dark:border-[#2d3a4d]">
             <button
               type="button"
               onClick={handleRequestClick}
@@ -358,19 +358,8 @@ export function BenefitEligibilityModal({
             >
               Request benefit
             </button>
-          )}
-          <button
-            type="button"
-            onClick={onClose}
-            className={`w-full py-3 px-4 rounded-xl font-medium text-sm transition-colors ${
-              canRequest
-                ? "bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200"
-                : "bg-slate-800 hover:bg-slate-700 text-white dark:bg-[#0f172a] dark:hover:bg-[#1e293b]"
-            }`}
-          >
-            Close
-          </button>
-        </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

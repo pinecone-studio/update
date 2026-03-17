@@ -40,7 +40,6 @@ export function BenefitStatusModal({
 
   const theme = MODAL_THEME[benefit.status];
   const rules = getRules(benefit);
-  const isActive = benefit.status === "ACTIVE";
   const canRequest =
     (benefit.status === "ELIGIBLE" || benefit.status === "REJECTED") &&
     !!onRequestBenefit;
@@ -52,10 +51,10 @@ export function BenefitStatusModal({
 
   const dialogSizeClass =
     benefit.status === "ACTIVE" || benefit.status === "PENDING"
-      ? "max-w-[calc(100vw-24px)] sm:max-w-[500px] rounded-[20px]"
+      ? "max-h-[92vh] max-w-[calc(100vw-24px)] rounded-[20px] sm:max-w-[500px]"
       : benefit.status === "ELIGIBLE"
-        ? "h-[min(760px,92vh)] max-w-[calc(100vw-24px)] sm:max-w-[500px] rounded-[17.21px]"
-        : "h-[min(760px,92vh)] max-w-[calc(100vw-24px)] sm:max-w-[500px] rounded-[16.73px]";
+        ? "max-h-[92vh] max-w-[calc(100vw-24px)] rounded-[17.21px] sm:max-w-[500px]"
+        : "max-h-[92vh] max-w-[calc(100vw-24px)] rounded-[16.73px] sm:max-w-[500px]";
 
   return (
     <div
@@ -105,9 +104,9 @@ export function BenefitStatusModal({
           </div>
 
           <div
-            className={`${isActive ? "px-3 pb-3 pt-3 sm:px-5 sm:pb-5" : "min-h-0 flex-1 px-3 pb-3 pt-3 sm:px-5 sm:pb-4"} ${theme.body}`}
+            className={`min-h-0 flex-1 overflow-y-auto px-3 pb-3 pt-3 sm:px-5 sm:pb-4 ${theme.body}`}
           >
-            <div className={`${isActive ? "space-y-3" : "h-full space-y-3"}`}>
+            <div className="space-y-3">
               <BenefitModalDetails
                 benefit={benefit}
                 theme={{
@@ -121,26 +120,17 @@ export function BenefitStatusModal({
             </div>
           </div>
 
-          <div className={`border-t px-3 py-3 sm:px-5 sm:py-4 ${theme.footer}`}>
-            <div className="flex flex-col gap-2.5 sm:flex-row sm:gap-3">
-              {canRequest ? (
-                <button
-                  type="button"
-                  onClick={onRequestClick}
-                  className="h-[50px] rounded-2xl border border-[#4d78ff] bg-[#3d78ff] px-6 text-[15px] font-semibold text-white transition hover:bg-[#5285ff] sm:h-[56px] sm:text-[16px]"
-                >
-                  Request benefit
-                </button>
-              ) : null}
+          {canRequest ? (
+            <div className={`border-t px-3 py-3 sm:px-5 sm:py-4 ${theme.footer}`}>
               <button
                 type="button"
-                onClick={onClose}
-                className="h-[46px] w-full rounded-2xl border border-white/20 bg-white/10 text-center text-[16px] font-semibold text-white transition hover:bg-white/15 sm:h-[50px] sm:text-[18px]"
+                onClick={onRequestClick}
+                className="h-[50px] w-full rounded-2xl border border-[#4d78ff] bg-[#3d78ff] px-6 text-[15px] font-semibold text-white transition hover:bg-[#5285ff] sm:h-[56px] sm:text-[16px]"
               >
-                Close
+                Request benefit
               </button>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </div>
