@@ -1,29 +1,34 @@
-import { GraphQLError } from 'graphql';
-import type { Ctx } from '../context';
-import type { MutationResolvers } from '../../generated/graphql';
-import { getDb } from '../../../db/drizzle';
-import { benefits as benefitsTable, eligibilityConfig } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { GraphQLError } from "graphql";
+import type { Ctx } from "../context";
+import type { MutationResolvers } from "../../generated/graphql";
+import { getDb } from "../../../db/drizzle";
+import {
+  benefits as benefitsTable,
+  eligibilityConfig,
+} from "../../../db/schema";
+import { eq } from "drizzle-orm";
 
 function slugFromName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, '_')
-    .replace(/[^a-z0-9_-]/g, '')
-    .replace(/_+/g, '_')
-    .replace(/^_|_$/g, '') || 'benefit';
+  return (
+    name
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_-]/g, "")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "") || "benefit"
+  );
 }
 
 export const createBenefit: NonNullable<
-  MutationResolvers<Ctx>['createBenefit']
+  MutationResolvers<Ctx>["createBenefit"]
 > = async (_, args, ctx) => {
   const input = args.input;
   const name = input.name?.trim();
   const description = input.description?.trim() || null;
   const category = input.category?.trim();
   if (!name || !category) {
-    throw new GraphQLError('name and category are required', {
-      extensions: { code: 'BAD_USER_INPUT' },
+    throw new GraphQLError("name and category are required", {
+      extensions: { code: "BAD_USER_INPUT" },
     });
   }
 
@@ -51,14 +56,18 @@ export const createBenefit: NonNullable<
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (/no such table|Failed query|benefits.*not found|table.*benefits/i.test(msg)) {
+    if (
+      /no such table|Failed query|benefits.*not found|table.*benefits/i.test(
+        msg,
+      )
+    ) {
       throw new GraphQLError(
-        'benefits хүснэгт олдсонгүй. Орон нутгийн D1: npm run db:local',
-        { extensions: { code: 'INTERNAL_SERVER_ERROR' } }
+        "benefits хүснэгт олдсонгүй. Орон нутгийн D1: npm run db:local",
+        { extensions: { code: "INTERNAL_SERVER_ERROR" } },
       );
     }
     throw new GraphQLError(`Benefit id шалгахад алдаа: ${msg}`, {
-      extensions: { code: 'INTERNAL_SERVER_ERROR' },
+      extensions: { code: "INTERNAL_SERVER_ERROR" },
     });
   }
 
@@ -77,7 +86,7 @@ export const createBenefit: NonNullable<
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     throw new GraphQLError(`Failed to create benefit: ${msg}`, {
-      extensions: { code: 'INTERNAL_SERVER_ERROR' },
+      extensions: { code: "INTERNAL_SERVER_ERROR" },
     });
   }
 
@@ -109,10 +118,15 @@ export const createBenefit: NonNullable<
       const parsed = JSON.parse(activeRows[0].configData) as {
         benefits?: Record<string, unknown>;
       };
-      const benefits = { ...(parsed.benefits ?? {}), [benefitId]: newBenefitConfig };
+      const benefits = {
+        ...(parsed.benefits ?? {}),
+        [benefitId]: newBenefitConfig,
+      };
       configStr = JSON.stringify({ benefits });
     } catch {
-      configStr = JSON.stringify({ benefits: { [benefitId]: newBenefitConfig } });
+      configStr = JSON.stringify({
+        benefits: { [benefitId]: newBenefitConfig },
+      });
     }
   } else {
     configStr = JSON.stringify({ benefits: { [benefitId]: newBenefitConfig } });
@@ -141,13 +155,13 @@ export const createBenefit: NonNullable<
     const msg = err instanceof Error ? err.message : String(err);
     if (/no such table|eligibility_config/i.test(msg)) {
       throw new GraphQLError(
-        'Benefit created in catalog but eligibility_config table not found. Run migration: npm run db:migrate:config',
-        { extensions: { code: 'INTERNAL_SERVER_ERROR' } }
+        "Benefit created in catalog but eligibility_config table not found. Run migration: npm run db:migrate:config",
+        { extensions: { code: "INTERNAL_SERVER_ERROR" } },
       );
     }
     throw new GraphQLError(
       `Benefit created in catalog but failed to update rules config: ${msg}`,
-      { extensions: { code: 'INTERNAL_SERVER_ERROR' } }
+      { extensions: { code: "INTERNAL_SERVER_ERROR" } },
     );
   }
 

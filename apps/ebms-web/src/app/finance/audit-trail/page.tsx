@@ -30,8 +30,12 @@ export default function AuditTrailPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [logIdFilter, setLogIdFilter] = useState("");
   const [benefitFilter, setBenefitFilter] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED">("ALL");
-  const [actionFilter, setActionFilter] = useState<"ALL" | "Override Granted" | "Temporary Exception" | "Rule Updated">("ALL");
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED"
+  >("ALL");
+  const [actionFilter, setActionFilter] = useState<
+    "ALL" | "Override Granted" | "Temporary Exception" | "Rule Updated"
+  >("ALL");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -47,12 +51,17 @@ export default function AuditTrailPage() {
           fetchEmployees(client),
           fetchBenefits(client),
         ]);
-        const employeeMap = Object.fromEntries(employees.map((e) => [e.id, e.name || e.id]));
+        const employeeMap = Object.fromEntries(
+          employees.map((e) => [e.id, e.name || e.id]),
+        );
         const benefitMap = Object.fromEntries(benefits.map((b) => [b.id, b]));
         const rows: AuditRow[] = audits.map((a, idx) => {
           const statusUpper = (a.newStatus || "PENDING").toUpperCase();
           const status: AuditRow["status"] =
-            statusUpper === "ACTIVE" || statusUpper === "ELIGIBLE" || statusUpper === "PENDING" || statusUpper === "LOCKED"
+            statusUpper === "ACTIVE" ||
+            statusUpper === "ELIGIBLE" ||
+            statusUpper === "PENDING" ||
+            statusUpper === "LOCKED"
               ? statusUpper
               : "PENDING";
           const action =
@@ -63,7 +72,9 @@ export default function AuditTrailPage() {
                 : "Rule Updated";
           const benefit = benefitMap[a.benefitId];
           const rawLogId = String(a.id || "").toUpperCase();
-          const logId = /^LOG-\d+$/.test(rawLogId) ? rawLogId : `LOG-${1001 + idx}`;
+          const logId = /^LOG-\d+$/.test(rawLogId)
+            ? rawLogId
+            : `LOG-${1001 + idx}`;
           return {
             rowKey: a.id,
             logId,
@@ -93,7 +104,9 @@ export default function AuditTrailPage() {
     return <FinancePageSkeleton statCardCount={0} tableRowCount={3} />;
   }
 
-  const benefitOptions = Array.from(new Set(auditEntries.map((entry) => entry.benefit)));
+  const benefitOptions = Array.from(
+    new Set(auditEntries.map((entry) => entry.benefit)),
+  );
 
   const filteredEntries = auditEntries.filter((entry) => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -107,8 +120,13 @@ export default function AuditTrailPage() {
     ) {
       return false;
     }
-    if (benefitFilter !== "ALL" && entry.benefit !== benefitFilter) return false;
-    if (logIdFilter.trim() && !entry.logId.toLowerCase().includes(logIdFilter.trim().toLowerCase())) return false;
+    if (benefitFilter !== "ALL" && entry.benefit !== benefitFilter)
+      return false;
+    if (
+      logIdFilter.trim() &&
+      !entry.logId.toLowerCase().includes(logIdFilter.trim().toLowerCase())
+    )
+      return false;
     if (actionFilter !== "ALL" && entry.action !== actionFilter) return false;
     if (statusFilter !== "ALL" && entry.status !== statusFilter) return false;
 
@@ -130,7 +148,11 @@ export default function AuditTrailPage() {
   const formatTime = (raw: string) => {
     const date = new Date(raw);
     if (Number.isNaN(date.getTime())) return raw || "—";
-    return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   const activeFilters = [
@@ -147,15 +169,25 @@ export default function AuditTrailPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-5 font-semibold text-slate-900 dark:text-white">Audit Log Explorer</h1>
-          <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">Searchable audit trail for all system actions</p>
+          <h1 className="text-5 font-semibold text-slate-900 dark:text-white">
+            Audit Log Explorer
+          </h1>
+          <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
+            Searchable audit trail for all system actions
+          </p>
         </div>
 
         <button
           type="button"
           className="flex items-center gap-3 rounded-2xl bg-[#2F66E8] px-6 py-3 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
         >
-          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            className="h-6 w-6"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          >
             <path d="M12 3v12M7 10l5 5 5-5M4 21h16" />
           </svg>
           Export Logs
@@ -170,7 +202,13 @@ export default function AuditTrailPage() {
       <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="flex items-center gap-3 text-5 font-semibold text-slate-900 dark:text-white">
-            <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.8">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              className="h-7 w-7"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
               <path d="M3 5h18l-7 8v6l-4-2v-4L3 5Z" />
             </svg>
             Filters
@@ -194,10 +232,18 @@ export default function AuditTrailPage() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-2">
-            <label className="text-5 font-medium text-slate-900 dark:text-white">Search</label>
+            <label className="text-5 font-medium text-slate-900 dark:text-white">
+              Search
+            </label>
             <div className="relative">
               <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
-                <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-6 w-6"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
                   <circle cx="11" cy="11" r="7" />
                   <path d="m20 20-4-4" />
                 </svg>
@@ -213,7 +259,9 @@ export default function AuditTrailPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-5 font-medium text-slate-900 dark:text-white">Benefit Type</label>
+            <label className="text-5 font-medium text-slate-900 dark:text-white">
+              Benefit Type
+            </label>
             <div className="relative">
               <select
                 value={benefitFilter}
@@ -228,7 +276,13 @@ export default function AuditTrailPage() {
                 ))}
               </select>
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8595B6]">
-                <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-6 w-6"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </span>
@@ -236,7 +290,9 @@ export default function AuditTrailPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-5 font-medium text-slate-900 dark:text-white">Log ID</label>
+            <label className="text-5 font-medium text-slate-900 dark:text-white">
+              Log ID
+            </label>
             <input
               type="text"
               value={logIdFilter}
@@ -247,7 +303,9 @@ export default function AuditTrailPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-5 font-medium text-slate-900 dark:text-white">Date Range</label>
+            <label className="text-5 font-medium text-slate-900 dark:text-white">
+              Date Range
+            </label>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <input
                 type="date"
@@ -265,13 +323,19 @@ export default function AuditTrailPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-5 font-medium text-slate-900 dark:text-white">Action Type</label>
+            <label className="text-5 font-medium text-slate-900 dark:text-white">
+              Action Type
+            </label>
             <div className="relative">
               <select
                 value={actionFilter}
                 onChange={(e) =>
                   setActionFilter(
-                    e.target.value as "ALL" | "Override Granted" | "Temporary Exception" | "Rule Updated"
+                    e.target.value as
+                      | "ALL"
+                      | "Override Granted"
+                      | "Temporary Exception"
+                      | "Rule Updated",
                   )
                 }
                 className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
@@ -282,7 +346,13 @@ export default function AuditTrailPage() {
                 <option value="Rule Updated">Rule Updated</option>
               </select>
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8595B6]">
-                <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-6 w-6"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </span>
@@ -290,13 +360,20 @@ export default function AuditTrailPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-5 font-medium text-slate-900 dark:text-white">Status</label>
+            <label className="text-5 font-medium text-slate-900 dark:text-white">
+              Status
+            </label>
             <div className="relative">
               <select
                 value={statusFilter}
                 onChange={(e) =>
                   setStatusFilter(
-                    e.target.value as "ALL" | "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED"
+                    e.target.value as
+                      | "ALL"
+                      | "ACTIVE"
+                      | "ELIGIBLE"
+                      | "PENDING"
+                      | "LOCKED",
                   )
                 }
                 className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
@@ -308,7 +385,13 @@ export default function AuditTrailPage() {
                 <option value="LOCKED">LOCKED</option>
               </select>
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8595B6]">
-                <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.8">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-6 w-6"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </span>
@@ -344,7 +427,9 @@ export default function AuditTrailPage() {
                 <th className="px-4 py-4 font-medium sm:px-6">User</th>
                 <th className="px-4 py-4 font-medium sm:px-6">Action</th>
                 <th className="px-4 py-4 font-medium sm:px-6">Benefit</th>
-                <th className="px-4 py-4 font-medium sm:px-6">Contract Start</th>
+                <th className="px-4 py-4 font-medium sm:px-6">
+                  Contract Start
+                </th>
                 <th className="px-4 py-4 font-medium sm:px-6">Contract End</th>
                 <th className="px-4 py-4 font-medium sm:px-6">Result</th>
                 <th className="px-4 py-4 font-medium sm:px-6">Log ID</th>
@@ -352,23 +437,44 @@ export default function AuditTrailPage() {
             </thead>
             <tbody>
               {filteredEntries.map((entry, idx) => (
-                <tr key={entry.rowKey} className="border-b border-slate-200 last:border-b-0 dark:border-[#22395A]">
-                  <td className="px-4 py-5 font-semibold text-slate-900 dark:text-white sm:px-6">{idx + 1}</td>
-                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">{formatTime(entry.timestamp)}</td>
-                  <td className="px-4 py-5 sm:px-6">
-                    <p className="whitespace-nowrap font-semibold text-slate-900 dark:text-white">{entry.employeeName}</p>
-                    <p className="text-sm text-slate-500 dark:text-[#8FA3C5]">{entry.employeeId}</p>
+                <tr
+                  key={entry.rowKey}
+                  className="border-b border-slate-200 last:border-b-0 dark:border-[#22395A]"
+                >
+                  <td className="px-4 py-5 font-semibold text-slate-900 dark:text-white sm:px-6">
+                    {idx + 1}
                   </td>
-                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">{entry.action}</td>
-                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">{entry.benefit}</td>
-                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">{entry.contractStartDate}</td>
-                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">{entry.contractEndDate}</td>
+                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">
+                    {formatTime(entry.timestamp)}
+                  </td>
+                  <td className="px-4 py-5 sm:px-6">
+                    <p className="whitespace-nowrap font-semibold text-slate-900 dark:text-white">
+                      {entry.employeeName}
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-[#8FA3C5]">
+                      {entry.employeeId}
+                    </p>
+                  </td>
+                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">
+                    {entry.action}
+                  </td>
+                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">
+                    {entry.benefit}
+                  </td>
+                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">
+                    {entry.contractStartDate}
+                  </td>
+                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">
+                    {entry.contractEndDate}
+                  </td>
                   <td className="px-4 py-5 sm:px-6">
                     <span className="inline-flex rounded-xl border border-slate-300 bg-slate-100 px-3 py-1 text-sm text-slate-700 dark:border-[#4B5D83] dark:bg-[#334160] dark:text-[#D4DEEF]">
                       {entry.status}
                     </span>
                   </td>
-                  <td className="px-4 py-5 text-slate-500 dark:text-[#8FA3C5] sm:px-6">{entry.logId}</td>
+                  <td className="px-4 py-5 text-slate-500 dark:text-[#8FA3C5] sm:px-6">
+                    {entry.logId}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,21 +1,21 @@
-import { GraphQLError } from 'graphql';
-import type { Ctx } from '../context';
-import { requireEmployeeId } from '../context';
-import type { MutationResolvers } from '../../generated/graphql';
-import { getDb } from '../../../db/drizzle';
-import { benefits as benefitsTable, benefitRequests } from '../../../db/schema';
-import { asBool01 } from '../utils';
-import { and, eq } from 'drizzle-orm';
+import { GraphQLError } from "graphql";
+import type { Ctx } from "../context";
+import { requireEmployeeId } from "../context";
+import type { MutationResolvers } from "../../generated/graphql";
+import { getDb } from "../../../db/drizzle";
+import { benefits as benefitsTable, benefitRequests } from "../../../db/schema";
+import { asBool01 } from "../utils";
+import { and, eq } from "drizzle-orm";
 
-export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit']> = async (
-  _,
-  args,
-  ctx
-) => {
+export const requestBenefit: NonNullable<
+  MutationResolvers<Ctx>["requestBenefit"]
+> = async (_, args, ctx) => {
   const employeeId = requireEmployeeId(ctx);
   const benefitId = args.input?.benefitId;
   if (!benefitId) {
-    throw new GraphQLError('benefitId is required', { extensions: { code: 'BAD_USER_INPUT' } });
+    throw new GraphQLError("benefitId is required", {
+      extensions: { code: "BAD_USER_INPUT" },
+    });
   }
 
   const db = getDb(ctx.env);
@@ -33,7 +33,9 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
     .limit(1);
   const benefit = benefitRow[0];
   if (!benefit) {
-    throw new GraphQLError('Benefit not found', { extensions: { code: 'NOT_FOUND' } });
+    throw new GraphQLError("Benefit not found", {
+      extensions: { code: "NOT_FOUND" },
+    });
   }
   const requiresContract = asBool01(benefit.requiresContract);
 
@@ -43,7 +45,7 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
     id,
     employeeId,
     benefitId,
-    status: 'pending',
+    status: "pending",
     createdAt: now,
     updatedAt: now,
   });
@@ -52,7 +54,7 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
     id,
     employeeId,
     benefitId,
-    status: 'PENDING' as const,
+    status: "PENDING" as const,
     createdAt: now,
     rejectReason: null,
     contractVersionAccepted: null,
@@ -62,4 +64,3 @@ export const requestBenefit: NonNullable<MutationResolvers<Ctx>['requestBenefit'
     contractTemplateUrl: null,
   };
 };
-

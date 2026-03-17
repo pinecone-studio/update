@@ -54,7 +54,9 @@ adminFeedback.get("/", async (c) => {
     .from(feedbackVotes)
     .groupBy(feedbackVotes.feedbackId);
 
-  const voteMap = new Map(voteCounts.map((v) => [v.feedbackId, Number(v.count)]));
+  const voteMap = new Map(
+    voteCounts.map((v) => [v.feedbackId, Number(v.count)]),
+  );
 
   const items = rows.map((r) => ({
     id: r.id,
@@ -95,10 +97,7 @@ adminFeedback.patch("/:id/close", async (c) => {
     return c.json({ error: "Can only close escalated feedback" }, 400);
   }
 
-  await db
-    .update(feedback)
-    .set({ closedAt: now })
-    .where(eq(feedback.id, id));
+  await db.update(feedback).set({ closedAt: now }).where(eq(feedback.id, id));
 
   return c.json({ closed: true, closedAt: now });
 });

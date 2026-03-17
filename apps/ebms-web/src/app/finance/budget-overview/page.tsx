@@ -55,7 +55,9 @@ export default function BudgetOverviewPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-5 font-semibold text-slate-900 dark:text-white">Budget Overview</h1>
+        <h1 className="text-5 font-semibold text-slate-900 dark:text-white">
+          Budget Overview
+        </h1>
         <p className="mt-2 text-5 text-slate-600 dark:text-slate-400">
           Track budget allocation and spending across departments
         </p>
@@ -73,9 +75,13 @@ export default function BudgetOverviewPage() {
               >
                 {card.icon}
               </div>
-              <p className="text-5 text-slate-600 dark:text-slate-300">{card.title}</p>
+              <p className="text-5 text-slate-600 dark:text-slate-300">
+                {card.title}
+              </p>
             </div>
-            <p className="text-5 font-bold text-slate-900 dark:text-white">{card.value}</p>
+            <p className="text-5 font-bold text-slate-900 dark:text-white">
+              {card.value}
+            </p>
           </article>
         ))}
       </section>
@@ -90,8 +96,12 @@ export default function BudgetOverviewPage() {
               key={item.name}
               className="flex flex-col gap-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4 dark:border-[#1E3258] dark:bg-[#07132B]"
             >
-              <p className="text-5 text-slate-700 dark:text-slate-200">{item.name}</p>
-              <p className="text-5 font-semibold text-slate-900 dark:text-white">{item.value}</p>
+              <p className="text-5 text-slate-700 dark:text-slate-200">
+                {item.name}
+              </p>
+              <p className="text-5 font-semibold text-slate-900 dark:text-white">
+                {item.value}
+              </p>
             </div>
           ))}
         </div>

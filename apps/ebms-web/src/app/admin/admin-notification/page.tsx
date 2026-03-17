@@ -139,7 +139,13 @@ const DEFAULT_NOTIFICATIONS: AdminNotification[] = [
 
 export default function AdminNotificationPage() {
   const [activeTab, setActiveTab] = useState<
-    "all" | "requests" | "documents" | "eligibility" | "warnings" | "system" | "unread"
+    | "all"
+    | "requests"
+    | "documents"
+    | "eligibility"
+    | "warnings"
+    | "system"
+    | "unread"
   >("all");
   const [search, setSearch] = useState("");
   const [notifications, setNotifications] = useState<AdminNotification[]>(
@@ -156,7 +162,8 @@ export default function AdminNotificationPage() {
   );
   const totalCount = notifications.length;
   const pendingCount = useMemo(
-    () => notifications.filter((n) => n.type === "request" && n.isPending).length,
+    () =>
+      notifications.filter((n) => n.type === "request" && n.isPending).length,
     [notifications],
   );
 
@@ -300,9 +307,7 @@ export default function AdminNotificationPage() {
           if (items.length === 0) return null;
           return (
             <div key={group} className="space-y-3">
-              <p className="text-5 font-semibold text-[#8FA3C5]">
-                {group}
-              </p>
+              <p className="text-5 font-semibold text-[#8FA3C5]">{group}</p>
               <div className="space-y-4">
                 {items.map((item) => {
                   const typeStyles =

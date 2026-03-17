@@ -35,7 +35,10 @@ export function getInitialUserProfile(): ActiveUserProfile {
 
 export function getCurrentUserOptionFallback(): SwitchUserOption {
   // Keep initial render deterministic between SSR and hydration.
-  const current = typeof window === "undefined" ? getInitialUserProfile() : getActiveUserProfile();
+  const current =
+    typeof window === "undefined"
+      ? getInitialUserProfile()
+      : getActiveUserProfile();
   return {
     id: current.id,
     name: current.name || current.id,
@@ -76,7 +79,9 @@ export function setActiveUserProfile(profile: ActiveUserProfile): void {
   window.localStorage.setItem(LEGACY_USER_ID_STORAGE_KEY, profile.id);
 }
 
-export function getActiveUserHeaders(defaultRole = "employee"): Record<string, string> {
+export function getActiveUserHeaders(
+  defaultRole = "employee",
+): Record<string, string> {
   const profile = getActiveUserProfile();
   const role = defaultRole.toLowerCase().trim() || "employee";
   return {
@@ -110,7 +115,11 @@ export async function fetchSwitchUserOptions(): Promise<SwitchUserOption[]> {
       headers: { "Content-Type": "application/json" },
     });
     const data = await client.request<{
-      userOptions?: Array<{ id: string; name?: string | null; role?: string | null }>;
+      userOptions?: Array<{
+        id: string;
+        name?: string | null;
+        role?: string | null;
+      }>;
     }>(USER_OPTIONS_QUERY);
     const users = (data.userOptions ?? [])
       .filter((u) => !!u.id)

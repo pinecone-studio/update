@@ -40,7 +40,11 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: <HrDashboardIcon /> },
-  { label: "Employees", href: "/admin/employee-eligibility", icon: <HrEmployeeIcon /> },
+  {
+    label: "Employees",
+    href: "/admin/employee-eligibility",
+    icon: <HrEmployeeIcon />,
+  },
   {
     label: "Contracts",
     href: "/admin/vendor-contracts",
@@ -184,26 +188,32 @@ export function Header() {
   const handleUserChange = (value: string) => {
     const nextUser = userOptions.find((u) => u.id === value);
     if (!nextUser) return;
-    const profile = { id: nextUser.id, name: nextUser.name, role: nextUser.role };
+    const profile = {
+      id: nextUser.id,
+      name: nextUser.name,
+      role: nextUser.role,
+    };
     setSelectedUser(profile);
     setActiveUserProfile(profile);
   };
 
   return (
-    <header className={`sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md ${GeistSans.className}`}>
+    <header
+      className={`sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md ${GeistSans.className}`}
+    >
       <div className="mx-auto flex h-[72px] w-full max-w-[1500px] items-center justify-between gap-4">
         <Link
           href="/admin"
           className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity"
         >
           <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
-              <div className="leading-[24px] ">
-                <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
-                  UPDATE
-                </p>
-              </div>
+            <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
+            <div className="leading-[24px] ">
+              <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
+                UPDATE
+              </p>
             </div>
+          </div>
         </Link>
 
         <nav className="hidden items-center gap-2 md:flex">
@@ -218,7 +228,9 @@ export function Header() {
               }`}
             >
               <span className="scale-90">{item.icon}</span>
-              <span className="font-medium text-[12px] text-[#E5E5E5] line-height-[16px]">{item.label}</span>
+              <span className="font-medium text-[12px] text-[#E5E5E5] line-height-[16px]">
+                {item.label}
+              </span>
             </Link>
           ))}
         </nav>
@@ -248,7 +260,7 @@ export function Header() {
             </select>
           </label>
           <div className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
-          <ThemeToggle />
+            <ThemeToggle />
           </div>
           <div className="relative hidden md:block" ref={notificationRef}>
             <button
@@ -321,7 +333,8 @@ export function Header() {
                           ) : (
                             <HiOutlineInformationCircle className="text-lg" />
                           )}
-                        </div>Benefit
+                        </div>
+                        Benefit
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-slate-900 dark:text-white">
                             {n.title}
@@ -371,14 +384,14 @@ export function Header() {
               className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200"
               aria-label="Profile"
             >
-              <ProfileIcon/>
+              <ProfileIcon />
             </button>
             {profileOpen && (
               <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
                 <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white border border-slate-200">
-                      <ProfileIcon/>
+                      <ProfileIcon />
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -391,13 +404,13 @@ export function Header() {
                   </div>
                 </div>
                 <div className="p-2">
-            <Link
-            href="/employee"
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
-             >
-            <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
-            Employee
-             </Link>
+                  <Link
+                    href="/employee"
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+                  >
+                    <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+                    Employee
+                  </Link>
                   <Link
                     href="/admin/profile"
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"

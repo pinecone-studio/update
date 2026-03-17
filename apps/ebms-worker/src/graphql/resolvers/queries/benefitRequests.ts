@@ -1,41 +1,41 @@
-import type { Ctx } from '../context';
-import { requireEmployeeId } from '../context';
-import type { QueryResolvers } from '../../generated/graphql';
-import { getDb } from '../../../db/drizzle';
-import { asBool01 } from '../utils';
-import { getActiveEligibilityConfig } from '../../../eligibility/engine';
+import type { Ctx } from "../context";
+import { requireEmployeeId } from "../context";
+import type { QueryResolvers } from "../../generated/graphql";
+import { getDb } from "../../../db/drizzle";
+import { asBool01 } from "../utils";
+import { getActiveEligibilityConfig } from "../../../eligibility/engine";
 import {
   benefitRequests as benefitRequestsTable,
   employees,
   benefits,
   contracts,
-} from '../../../db/schema';
-import { eq, sql } from 'drizzle-orm';
+} from "../../../db/schema";
+import { eq, sql } from "drizzle-orm";
 
 const statusMap: Record<string, string> = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  CANCELLED: 'cancelled',
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  CANCELLED: "cancelled",
 };
 
 function isFinanceRole(role: string | null | undefined): boolean {
-  const normalized = (role ?? '').toLowerCase();
-  return normalized.includes('finance');
+  const normalized = (role ?? "").toLowerCase();
+  return normalized.includes("finance");
 }
 
 export const benefitRequests: NonNullable<
-  QueryResolvers<Ctx>['benefitRequests']
+  QueryResolvers<Ctx>["benefitRequests"]
 > = async (_, args, ctx) => {
   const actorId = requireEmployeeId(ctx);
-  const role = (ctx.role ?? '').toLowerCase();
-  const isHrOrAdmin = role === 'hr' || role === 'admin';
+  const role = (ctx.role ?? "").toLowerCase();
+  const isHrOrAdmin = role === "hr" || role === "admin";
   const isFinance = isFinanceRole(role);
   const db = getDb(ctx.env);
   const config = await getActiveEligibilityConfig(ctx.env);
 
   const statusFilter = args.status
-    ? statusMap[args.status] ?? args.status.toLowerCase()
+    ? (statusMap[args.status] ?? args.status.toLowerCase())
     : undefined;
 
   const rows = await db
@@ -64,35 +64,39 @@ export const benefitRequests: NonNullable<
   return rows
     .filter((r) => {
       if (isHrOrAdmin) {
-        const needsFinanceApproval = Boolean(config?.[r.benefitId]?.financeCheck);
+        const needsFinanceApproval = Boolean(
+          config?.[r.benefitId]?.financeCheck,
+        );
         if (needsFinanceApproval) return false;
         if (!statusFilter) return true;
-        return (r.status ?? '').toLowerCase() === statusFilter;
+        return (r.status ?? "").toLowerCase() === statusFilter;
       }
       if (isFinance) {
-        const needsFinanceApproval = Boolean(config?.[r.benefitId]?.financeCheck);
+        const needsFinanceApproval = Boolean(
+          config?.[r.benefitId]?.financeCheck,
+        );
         if (!needsFinanceApproval) return false;
         if (!statusFilter) return true;
-        return (r.status ?? '').toLowerCase() === statusFilter;
+        return (r.status ?? "").toLowerCase() === statusFilter;
       }
       if (isHrOrAdminOrFinance) {
         if (!statusFilter) return true;
-        return (r.status ?? '').toLowerCase() === statusFilter;
+        return (r.status ?? "").toLowerCase() === statusFilter;
       }
       if (r.employeeId !== actorId) return false;
       if (!statusFilter) return true;
-      return (r.status ?? '').toLowerCase() === statusFilter;
+      return (r.status ?? "").toLowerCase() === statusFilter;
     })
     .map((r) => ({
       id: r.id,
       employeeId: r.employeeId,
       benefitId: r.benefitId,
-      status: (r.status?.toUpperCase() ?? 'PENDING') as
-        | 'PENDING'
-        | 'APPROVED'
-        | 'REJECTED'
-        | 'CANCELLED',
-      createdAt: r.createdAt ?? '',
+      status: (r.status?.toUpperCase() ?? "PENDING") as
+        | "PENDING"
+        | "APPROVED"
+        | "REJECTED"
+        | "CANCELLED",
+      createdAt: r.createdAt ?? "",
       employeeName: r.employeeName ?? null,
       benefitName: r.benefitName ?? null,
       rejectReason: r.rejectReason ?? null,

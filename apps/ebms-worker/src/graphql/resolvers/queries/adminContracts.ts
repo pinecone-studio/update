@@ -11,11 +11,9 @@ import {
 import { desc, eq, isNotNull } from "drizzle-orm";
 import { asBool01 } from "../utils";
 
-export const adminContracts: NonNullable<QueryResolvers<Ctx>["adminContracts"]> = async (
-  _,
-  args,
-  ctx,
-) => {
+export const adminContracts: NonNullable<
+  QueryResolvers<Ctx>["adminContracts"]
+> = async (_, args, ctx) => {
   requireHR(ctx);
   const tab = (args.tab ?? "employee").toLowerCase();
   const db = getDb(ctx.env);
@@ -37,9 +35,18 @@ export const adminContracts: NonNullable<QueryResolvers<Ctx>["adminContracts"]> 
         employeeName: employeesTable.name,
       })
       .from(benefitRequestsTable)
-      .leftJoin(benefitsTable, eq(benefitRequestsTable.benefitId, benefitsTable.id))
-      .leftJoin(contractsTable, eq(benefitsTable.activeContractId, contractsTable.id))
-      .leftJoin(employeesTable, eq(benefitRequestsTable.employeeId, employeesTable.id))
+      .leftJoin(
+        benefitsTable,
+        eq(benefitRequestsTable.benefitId, benefitsTable.id),
+      )
+      .leftJoin(
+        contractsTable,
+        eq(benefitsTable.activeContractId, contractsTable.id),
+      )
+      .leftJoin(
+        employeesTable,
+        eq(benefitRequestsTable.employeeId, employeesTable.id),
+      )
       .where(isNotNull(benefitRequestsTable.employeeContractR2Key))
       .orderBy(desc(benefitRequestsTable.employeeContractUploadedAt));
 

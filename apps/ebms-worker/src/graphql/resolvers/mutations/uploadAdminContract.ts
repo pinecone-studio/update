@@ -4,7 +4,10 @@ import type { MutationResolvers } from "../../generated/graphql";
 import type { Ctx } from "../context";
 import { requireAdmin } from "../context";
 import { getDb } from "../../../db/drizzle";
-import { benefits as benefitsTable, contracts as contractsTable } from "../../../db/schema";
+import {
+  benefits as benefitsTable,
+  contracts as contractsTable,
+} from "../../../db/schema";
 
 function toHex(bytes: ArrayBuffer): string {
   const arr = new Uint8Array(bytes);
@@ -12,7 +15,9 @@ function toHex(bytes: ArrayBuffer): string {
 }
 
 function decodeBase64(input: string): Uint8Array {
-  const normalized = input.includes(",") ? input.split(",").pop() ?? "" : input;
+  const normalized = input.includes(",")
+    ? (input.split(",").pop() ?? "")
+    : input;
   const binary = atob(normalized);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) {
@@ -21,19 +26,25 @@ function decodeBase64(input: string): Uint8Array {
   return bytes;
 }
 
-export const uploadAdminContract: NonNullable<MutationResolvers<Ctx>["uploadAdminContract"]> = async (
-  _,
-  { input },
-  ctx,
-) => {
+export const uploadAdminContract: NonNullable<
+  MutationResolvers<Ctx>["uploadAdminContract"]
+> = async (_, { input }, ctx) => {
   requireAdmin(ctx);
 
   const benefitId = input.benefitId.trim();
   const version = input.version.trim();
-  if (!benefitId) throw new GraphQLError("benefitId is required", { extensions: { code: "BAD_USER_INPUT" } });
-  if (!version) throw new GraphQLError("version is required", { extensions: { code: "BAD_USER_INPUT" } });
+  if (!benefitId)
+    throw new GraphQLError("benefitId is required", {
+      extensions: { code: "BAD_USER_INPUT" },
+    });
+  if (!version)
+    throw new GraphQLError("version is required", {
+      extensions: { code: "BAD_USER_INPUT" },
+    });
   if (!input.fileBase64.trim()) {
-    throw new GraphQLError("fileBase64 is required", { extensions: { code: "BAD_USER_INPUT" } });
+    throw new GraphQLError("fileBase64 is required", {
+      extensions: { code: "BAD_USER_INPUT" },
+    });
   }
 
   const db = getDb(ctx.env);
@@ -47,13 +58,19 @@ export const uploadAdminContract: NonNullable<MutationResolvers<Ctx>["uploadAdmi
     .where(eq(benefitsTable.id, benefitId))
     .limit(1);
   const benefitRow = benefitRows[0];
-  if (!benefitRow) throw new GraphQLError("Benefit not found", { extensions: { code: "NOT_FOUND" } });
+  if (!benefitRow)
+    throw new GraphQLError("Benefit not found", {
+      extensions: { code: "NOT_FOUND" },
+    });
 
   const vendorName = input.vendorName?.trim() || benefitRow.vendorName || null;
   if (!vendorName) {
-    throw new GraphQLError("vendorName is required (or set benefit vendor name)", {
-      extensions: { code: "BAD_USER_INPUT" },
-    });
+    throw new GraphQLError(
+      "vendorName is required (or set benefit vendor name)",
+      {
+        extensions: { code: "BAD_USER_INPUT" },
+      },
+    );
   }
 
   const pdfBytes = decodeBase64(input.fileBase64);
@@ -61,11 +78,17 @@ export const uploadAdminContract: NonNullable<MutationResolvers<Ctx>["uploadAdmi
     pdfBytes.byteOffset,
     pdfBytes.byteOffset + pdfBytes.byteLength,
   );
-  const sha256 = await crypto.subtle.digest("SHA-256", digestInput as ArrayBuffer);
+  const sha256 = await crypto.subtle.digest(
+    "SHA-256",
+    digestInput as ArrayBuffer,
+  );
   const sha256Hex = toHex(sha256);
   const now = new Date().toISOString();
   const contractId = crypto.randomUUID();
-  const safeName = (input.fileName || "contract.pdf").replace(/[^a-zA-Z0-9._-]+/g, "_");
+  const safeName = (input.fileName || "contract.pdf").replace(
+    /[^a-zA-Z0-9._-]+/g,
+    "_",
+  );
   const r2ObjectKey = `contracts/${benefitId}/${version}/${contractId}-${safeName}`;
 
   await ctx.env.CONTRACTS.put(r2ObjectKey, pdfBytes, {
@@ -75,7 +98,12 @@ export const uploadAdminContract: NonNullable<MutationResolvers<Ctx>["uploadAdmi
   await db
     .update(contractsTable)
     .set({ isActive: 0, updatedAt: now })
-    .where(and(eq(contractsTable.benefitId, benefitId), eq(contractsTable.isActive, 1)));
+    .where(
+      and(
+        eq(contractsTable.benefitId, benefitId),
+        eq(contractsTable.isActive, 1),
+      ),
+    );
 
   await db.insert(contractsTable).values({
     id: contractId,

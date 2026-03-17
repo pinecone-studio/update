@@ -155,7 +155,11 @@ export function FinanceHeader() {
   const handleUserChange = (value: string) => {
     const nextUser = userOptions.find((u) => u.id === value);
     if (!nextUser) return;
-    const profile = { id: nextUser.id, name: nextUser.name, role: nextUser.role };
+    const profile = {
+      id: nextUser.id,
+      name: nextUser.name,
+      role: nextUser.role,
+    };
     setSelectedUser(profile);
     setActiveUserProfile(profile);
   };
@@ -189,14 +193,14 @@ export function FinanceHeader() {
           href="/finance"
           className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 transition-opacity hover:opacity-90"
         >
-         <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
-              <div className="leading-[24px] ">
-                <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
-                  UPDATE
-                </p>
-              </div>
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
+            <div className="leading-[24px] ">
+              <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
+                UPDATE
+              </p>
             </div>
+          </div>
         </Link>
         <nav className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
@@ -214,7 +218,7 @@ export function FinanceHeader() {
             </Link>
           ))}
         </nav>
-      
+
         <div className="flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
           <button
             type="button"
@@ -319,14 +323,14 @@ export function FinanceHeader() {
               className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200"
               aria-label="Profile"
             >
-              <ProfileIcon/>
+              <ProfileIcon />
             </button>
             {profileOpen && (
               <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
                 <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200">
-                  <ProfileIcon/>
+                      <ProfileIcon />
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -415,24 +419,24 @@ export function FinanceHeader() {
             </select>
           </label>
           <div className="h-px bg-slate-200 dark:bg-[#24395C] my-2" />
-            <div className="flex flex-col gap-2" ref={mobileNotificationRef}>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNotificationOpen(!notificationOpen);
-                    setProfileOpen(false);
-                  }}
-                  className="relative h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                  aria-label="Notifications"
-                >
-                  <HiOutlineBell className="text-sm" />
-                  {unreadCount > 0 ? (
-                    <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
-                  ) : null}
-                </button>
-                <Link
-                  href="/finance/profile"
+          <div className="flex flex-col gap-2" ref={mobileNotificationRef}>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationOpen(!notificationOpen);
+                  setProfileOpen(false);
+                }}
+                className="relative h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                aria-label="Notifications"
+              >
+                <HiOutlineBell className="text-sm" />
+                {unreadCount > 0 ? (
+                  <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
+                ) : null}
+              </button>
+              <Link
+                href="/finance/profile"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2"
               >
