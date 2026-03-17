@@ -31,6 +31,7 @@ export const benefitRequests: NonNullable<
   const role = (ctx.role ?? '').toLowerCase();
   const isHrOrAdmin = role === 'hr' || role === 'admin';
   const isFinance = isFinanceRole(role);
+  const isHrOrAdminOrFinance = role === 'hr' || role === 'admin' || role === 'finance-manager';
   const db = getDb(ctx.env);
   const config = await getActiveEligibilityConfig(ctx.env);
 
@@ -72,6 +73,7 @@ export const benefitRequests: NonNullable<
       if (isFinance) {
         const needsFinanceApproval = Boolean(config?.[r.benefitId]?.financeCheck);
         if (!needsFinanceApproval) return false;
+      if (isHrOrAdminOrFinance) {
         if (!statusFilter) return true;
         return (r.status ?? '').toLowerCase() === statusFilter;
       }

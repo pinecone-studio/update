@@ -25,6 +25,16 @@ export function requireHR(ctx: Ctx): void {
   }
 }
 
+/** HR, admin, or finance-manager — for benefit approval, contract template, etc. */
+export function requireHROrAdminOrFinance(ctx: Ctx): void {
+  const role = (ctx.role ?? '').toLowerCase();
+  if (role !== 'hr' && role !== 'admin' && role !== 'finance-manager') {
+    throw new GraphQLError('Forbidden: HR, admin, or finance-manager role required', {
+      extensions: { code: 'FORBIDDEN' },
+    });
+  }
+}
+
 /** Benefit нэмэх зэрэг үйлдлүүд — зөвхөн admin. */
 export function requireAdmin(ctx: Ctx): void {
   const role = (ctx.role ?? '').toLowerCase();

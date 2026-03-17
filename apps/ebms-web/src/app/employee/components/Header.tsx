@@ -257,12 +257,22 @@ export const Header = () => {
 		setActiveUserProfile(profile);
 	};
 
-	const isAdminUser = (selectedUser.role ?? "").toLowerCase() === "admin";
+	const isAdminOrHrUser =
+		(selectedUser.role ?? "").toLowerCase() === "admin" ||
+		(selectedUser.role ?? "").toLowerCase() === "hr";
+	const isFinanceManagerUser =
+		(selectedUser.role ?? "").toLowerCase() === "finance-manager";
 
 	const handleAdminNavigate = (e: { preventDefault: () => void }) => {
-		if (isAdminUser) return;
+		if (isAdminOrHrUser) return;
 		e.preventDefault();
-		alert("Зөвхөн admin role-тэй хэрэглэгч Admin хэсэг рүү орж чадна.");
+		alert("Зөвхөн admin эсвэл hr role-тэй хэрэглэгч Admin хэсэг рүү орж чадна.");
+	};
+
+	const handleFinanceNavigate = (e: { preventDefault: () => void }) => {
+		if (isFinanceManagerUser) return;
+		e.preventDefault();
+		alert("Зөвхөн finance-manager role-тэй хэрэглэгч Finance хэсэг рүү орж чадна.");
 	};
 
 	return (
@@ -451,10 +461,23 @@ export const Header = () => {
 									<div className="p-2">
 										<Link
 											href="/admin"
-											className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
+											onClick={(e) => {
+												handleAdminNavigate(e);
+											}}
+											className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white ${!isAdminOrHrUser ? "opacity-60 cursor-not-allowed" : ""}`}
 										>
 											<HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
 											Admin
+										</Link>
+										<Link
+											href="/finance"
+											onClick={(e) => {
+												handleFinanceNavigate(e);
+											}}
+											className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white ${!isFinanceManagerUser ? "opacity-60 cursor-not-allowed" : ""}`}
+										>
+											<HiOutlineChartBar className="h-4 w-4" />
+											Finance
 										</Link>
 										<Link
 											href="/employee/myprofile"
@@ -490,13 +513,25 @@ export const Header = () => {
 						href="/admin"
 						onClick={(e) => {
 							handleAdminNavigate(e);
-							if (isAdminUser) setMenuOpen(false);
+							if (isAdminOrHrUser) setMenuOpen(false);
 						}}
-						aria-disabled={!isAdminUser}
+						aria-disabled={!isAdminOrHrUser}
 						className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-slate-600 ring-1 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 transition dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
 					>
 						<HiOutlineArrowTopRightOnSquare className="text-base" />
 						Admin руу шилжих
+					</Link>
+					<Link
+						href="/finance"
+						onClick={(e) => {
+							handleFinanceNavigate(e);
+							if (isFinanceManagerUser) setMenuOpen(false);
+						}}
+						aria-disabled={!isFinanceManagerUser}
+						className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-slate-600 ring-1 ring-transparent hover:ring-blue-300 hover:text-slate-900 hover:bg-slate-100 transition dark:text-slate-300 dark:hover:ring-blue-300 dark:hover:text-white dark:hover:bg-slate-800"
+					>
+						<HiOutlineChartBar className="text-base" />
+						Finance руу шилжих
 					</Link>
 					<div className="h-px bg-slate-200 dark:bg-slate-800 my-2" />
 					<label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">

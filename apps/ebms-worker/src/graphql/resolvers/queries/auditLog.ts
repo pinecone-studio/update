@@ -1,5 +1,5 @@
 import type { Ctx } from '../context';
-import { requireHR } from '../context';
+import { requireHROrAdminOrFinance } from '../context';
 import type { QueryResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
 import { eligibilityAudit } from '../../../db/schema';
@@ -10,7 +10,7 @@ export const auditLog: NonNullable<QueryResolvers<Ctx>['auditLog']> = async (
   args,
   ctx
 ) => {
-  requireHR(ctx);
+  requireHROrAdminOrFinance(ctx);
   const db = getDb(ctx.env);
   const filters = args.filters;
 

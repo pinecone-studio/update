@@ -1,5 +1,6 @@
 import type { Ctx } from '../context';
 import { GraphQLError } from 'graphql';
+import { requireHROrAdminOrFinance } from '../context';
 import { asBool01, mapEmploymentStatus } from '../utils';
 import type { QueryResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
@@ -19,6 +20,7 @@ export const employees: NonNullable<QueryResolvers<Ctx>['employees']> = async (
       extensions: { code: 'FORBIDDEN' },
     });
   }
+  requireHROrAdminOrFinance(ctx);
   const db = getDb(ctx.env);
 
   const conditions = [];

@@ -179,79 +179,43 @@ export function EmployeeContracts() {
         </p>
       )}
 
-      <section className="grid w-full grid-cols-1 gap-3 lg:grid-cols-5">
-        <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3 lg:col-span-3">
-          <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
-            <div className="mb-2 flex items-start justify-between">
-              <p className="text-6 text-slate-600 dark:text-[#A7B6D3]">Active Contracts</p>
-              <span className="mt-1 h-3 w-3 rounded-full bg-[#19D463]" />
-            </div>
-            <p className="text-5 font-semibold text-slate-900 dark:text-white">
-              {contractRows.filter((c) => c.status === "Active").length}
-            </p>
-          </article>
-          <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
-            <div className="mb-2 flex items-start justify-between">
-              <p className="text-6 text-slate-600 dark:text-[#A7B6D3]">Expiring Soon</p>
-              <span className="mt-1 h-3 w-3 rounded-full bg-amber-500 dark:bg-[#FFB21C]" />
-            </div>
-            <p className="text-5 font-semibold text-slate-900 dark:text-white">
-              {contractRows.filter((c) => c.status === "Expiring soon").length}
-            </p>
-          </article>
-          <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B]">
-            <div className="mb-2 flex items-start justify-between">
-              <p className="text-6 text-slate-600 dark:text-[#A7B6D3]">Pending Renewal</p>
-              <span className="mt-1 h-3 w-3 rounded-full bg-[#3E82F7]" />
-            </div>
-            <p className="text-5 font-semibold text-slate-900 dark:text-white">
-              {pendingRenewalCount}
-            </p>
-          </article>
-        </div>
-        <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#2C4264] dark:bg-[#1E293B] lg:col-span-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              aria-label="Ажилтанаар шүүх"
-              value={filterByEmployeeId}
-              onChange={(e) => setFilterByEmployeeId(e.target.value)}
-              className="h-11 min-w-[160px] rounded-xl border border-slate-300 bg-slate-50 px-3 text-5 text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
-            >
-              <option value="">Бүгд</option>
-              {employeeOptions.map((emp) => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.name || emp.id}
-                </option>
-              ))}
-            </select>
-            <div className="relative min-w-0 flex-1">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
-                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8">
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="m20 20-4-4" />
-                </svg>
-              </span>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by contract number, name, or URL..."
-                className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setShowUploadForm((prev) => !prev);
-                setUploadError(null);
-                setUploadMessage(null);
-              }}
-              className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center rounded-xl bg-[#2F66E8] px-4 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
-            >
-              + Add Contract
-            </button>
+      <section className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <article className="min-w-0 h-[107px] rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50">
+          <div className="mb-2 flex items-start justify-between">
+            <p className="text-[20px] font-normal dark:text-[#FFFFFF]">Active Contracts</p>
+            <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#19D463]" />
           </div>
-        </div>
+          <p className="text-[34px] font-normal text-slate-900 dark:text-white">
+            {contractRows.filter((c) => c.status === "Active").length}
+          </p>
+        </article>
+        <article className="min-w-0 h-[107px] rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50">
+          <div className="mb-2 flex items-start justify-between">
+            <p className="text-[20px] font-normal dark:text-[#ffffff]">Expiring Soon</p>
+            <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-amber-500 dark:bg-[#FFB21C]" />
+          </div>
+          <p className="text-[34px] font-normal text-slate-900 dark:text-white">
+            {contractRows.filter((c) => c.status === "Expiring soon").length}
+          </p>
+        </article>
+        <article className="min-w-0 h-[107px] rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50">
+          <div className="mb-2 flex items-start justify-between">
+            <p className="text-[20px] font-normal dark:text-[#ffffff]">Pending Renewal</p>
+            <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#3E82F7]" />
+          </div>
+          <p className="text-[34px] font-normal text-slate-900 dark:text-white">
+            {pendingRenewalCount}
+          </p>
+        </article>
+        <article className="min-w-0 h-[107px] rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50">
+          <div className="mb-2 flex items-start justify-between">
+            <p className="text-[20px] font-normal dark:text-[#ffffff]">Total Contracts</p>
+            <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#ffffff]" />
+          </div>
+          <p className="text-[34px] font-normal text-slate-900 dark:text-white">
+            {contractRows.length}
+          </p>
+        </article>
       </section>
 
       {showUploadForm && (
@@ -365,23 +329,82 @@ export function EmployeeContracts() {
         </div>
       )}
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
-        <h2 className="text-5 font-semibold text-slate-900 dark:text-white">
-          All Employee Contracts
+      <section className="rounded-3xl  bg-white p-6 dark:border-[#2C4264] dark:bg-[#181743]/50">
+      <div className="flex flex-col gap-12">
+        <div className="flex items-center justify-between">
+        <h2 className="text-[26px] font-semibold  dark:text-white">
+       Contracts
         </h2>
-        <div className="mt-5 overflow-x-auto rounded-3xl border border-slate-200 dark:border-[#2C4264]">
-          <table className="min-w-full divide-y divide-slate-200 dark:divide-[#2C4264]">
-            <thead className="bg-slate-100 dark:bg-[#0F1D3A]">
+        <div className="flex items-center gap-3">
+        <select
+              aria-label="Ажилтанаар шүүх"
+              value={filterByEmployeeId}
+              onChange={(e) => setFilterByEmployeeId(e.target.value)}
+              className="h-11 min-w-[160px] rounded-xl border border-slate-200 bg-[#FFFFFF]/10 px-3 text-5 text-slate-900 outline-none  dark:text-white "
+            >
+              <option value="" className="text-[18px] font-normal">Status </option>
+              {employeeOptions.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.name || emp.id}
+                </option>
+              ))}
+            </select>
+        <button
+              type="button"
+              onClick={() => {
+                setShowUploadForm((prev) => !prev);
+                setUploadError(null);
+                setUploadMessage(null);
+              }}
+              className="inline-flex h-11 min-w-[170px] gap-2 flex-[0_0_auto] items-center justify-center rounded-xl bg-[#0057ADCC]/80 border border-slate-300 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
+            > +
+              <span className="text-[18px] font-normal">Add Contract</span>
+            </button> 
+        </div>
+        </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <select
+              aria-label="Ажилтанаар шүүх"
+              value={filterByEmployeeId}
+              onChange={(e) => setFilterByEmployeeId(e.target.value)}
+              className="h-11 min-w-[94px] rounded-lg border border-slate-20 bg-[#FFFFFF]/10  px-3 text-5 text-slate-900 outline-none  dark:text-white "
+            >
+              <option value="">All</option>
+              {employeeOptions.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.name || emp.id}
+                </option>
+              ))}
+            </select>
+            <div className="relative min-w-0 flex-1">
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
+                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-4-4" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by contract name"
+                className="h-11 w-[368px] rounded-xl  pl-12 pr-4 text-5 border bg-[#FFFFFF]/10  text-slate-200 placeholder:text-slate-200 outline-none  dark:text-white dark:placeholder:text-[#FFFFFF80]/50 "
+              />
+            </div>
+          </div>
+
+          <table className="min-w-full ">
+            <thead className="">
               <tr>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">№</th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">Гэрээний дугаар</th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">Гэрээний нэр</th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">Эхлэх хугацаа</th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">Дуусах хугацаа</th>
-                <th className="px-5 py-4 text-left text-5 font-semibold text-slate-600 dark:text-[#A7B6D3]">Гэрээний URL</th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal dark:text-[#A7B6D3]">№</th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">Contract name </th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">Contract code </th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">Start date</th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]"> End date</th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">Contract URL</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-slate-50 dark:divide-[#2C4264] dark:bg-[#0E2047]">
+            <tbody className="">
               {filteredContracts.map((contract, index) => (
                 <tr key={contract.id}>
                   <td className="px-5 py-5 text-5 text-slate-900 dark:text-white">{index + 1}</td>
@@ -410,7 +433,7 @@ export function EmployeeContracts() {
               )}
             </tbody>
           </table>
-        </div>
+      </div>
       </section>
     </div>
   );

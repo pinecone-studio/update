@@ -11,6 +11,7 @@ import {
     ensureValidActiveUserProfile,
     getActiveUserHeaders,
 } from "@/app/_lib/activeUser";
+import { SearchIcon } from "@/app/icons/search";
 
 
 type EmployeeListItem = {
@@ -119,16 +120,15 @@ function EmployeeEligibilityPageContent() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
+                <h1 className="text-[35px] font-medium text-slate-900 dark:text-white">
                     Employee Eligibility Overview
                 </h1>
-                <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
-                    Нэрээр хайж, ажилтан дээр дарахад benefit eligibility-г бүтэн дэлгэц дээр
-                    харна.
+                <p className="mt-3 text-[20px]text-slate-600 font-normal dark:text-[#A7B6D3]">
+                Understand which employees qualify for benefits.
                 </p>
             </div>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+            <section className="rounded-2xl bg-white p-6 dark:border-[#2C4264] dark:bg-[#20194D80]/50">
                 <div className="relative">
                     <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
                         <svg
@@ -146,22 +146,20 @@ function EmployeeEligibilityPageContent() {
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Ажилтны нэрээр хайх..."
-                        className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 pl-14 pr-4 text-5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8FA3C5] dark:focus:border-[#4B6FA8]"
+                        placeholder="Search employees by name"
+                        className="h-14 w-full rounded-2xl text-[20px] font-normal border border-white/50  bg-slate-50 pl-14 pr-4 text-5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#FAFBFB1A10 dark:border-[#324A70]/10 dark:bg-[#0B102B1A]/10 dark:text-white dark:placeholder:text-white/50 dark:focus:border-white/50"
                     />
                 </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
-                <h2 className="text-10 font-semibold text-slate-900 dark:text-white">
-                    Ажилтнуудын жагсаалт
-                </h2>
-                <div className="mt-4 space-y-2">
-                    {filteredEmployees.map((emp) => (
+            <section className="rounded-3xl h-[450px] p-6 overflow-hidden flex flex-col dark:border-[#2C4264] dark:bg-[#20194D80]/50">
+                <div className="space-y-2 overflow-y-auto overflow-x-hidden overscroll-contain flex-1 min-h-0 pr-1">
+                    {filteredEmployees.map((emp, index) => (
                         <Link
                             key={emp.id}
                             href={`/admin/employee-eligibility/${emp.id}`}
-                            className="flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:bg-slate-100 dark:border-[#324A70] dark:bg-[#0F172A] dark:hover:bg-[#142544]"
+                            className="flex w-full items-center gap-4 rounded-2xl px-4 py-3 text-left transition-all duration-300 ease-out hover:opacity-80 animate-card-slide-in"
+                            style={{ animationDelay: `${index * 50}ms`, animationFillMode: "backwards" }}
                         >
                             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7B7FFF] to-[#6B35FF] text-5 font-semibold text-white">
                                 {getInitials(emp.name)}
@@ -182,9 +180,17 @@ function EmployeeEligibilityPageContent() {
                         </Link>
                     ))}
                     {filteredEmployees.length === 0 && (
-                        <p className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-5 text-slate-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-[#9FB0CF]">
-                            Хайлтад тохирох ажилтан олдсонгүй.
-                        </p>
+                        <div className="flex items-center justify-center rounded-2xl border border-white/50 h-[402px] flex-col gap-3.5  text-center">
+                            <button className="w-[87px] h-[87px] flex items-center justify-center bg-[#20194D80]/50 rounded-full">
+                            <SearchIcon />
+                            </button>
+                            <p className="text-[28px] font-normal text-slate-500 dark:text-[#9FB0CF]">
+                                No employees found.
+                            </p>
+                            <p className="text-[19px] font-normal text-slate-500 dark:text-[#9FB0CF]">
+                                Try adjusting your search
+                            </p>
+                        </div>
                     )}
                 </div>
             </section>

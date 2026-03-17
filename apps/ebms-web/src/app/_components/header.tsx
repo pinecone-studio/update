@@ -213,12 +213,12 @@ export function Header() {
               href={item.href}
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 isActive(item.href)
-                  ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-[#2F66E8] dark:hover:bg-[#3E82F7]"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
+                  ? "bg-gray-700 text-white hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-700"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-gray-700 dark:hover:text-white"
               }`}
             >
               <span className="scale-90">{item.icon}</span>
-              <span>{item.label}</span>
+              <span className="font-medium text-[12px] text-[#E5E5E5] line-height-[16px]">{item.label}</span>
             </Link>
           ))}
         </nav>

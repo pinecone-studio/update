@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql';
 import type { Ctx } from '../context';
-import { requireEmployeeId, requireHR } from '../context';
+import { requireEmployeeId, requireHROrAdminOrFinance } from '../context';
 import { mapRequestStatus } from '../utils';
 import type { MutationResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
@@ -18,6 +18,7 @@ export const confirmBenefitRequest: NonNullable<
   MutationResolvers<Ctx>['confirmBenefitRequest']
 > = async (_, args, ctx) => {
   const actorId = requireEmployeeId(ctx);
+  requireHROrAdminOrFinance(ctx);
   const { requestId, contractAccepted, rejectReason } = args;
   if (!requestId) {
     throw new GraphQLError('requestId is required', { extensions: { code: 'BAD_USER_INPUT' } });
