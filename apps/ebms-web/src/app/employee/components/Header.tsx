@@ -320,11 +320,138 @@ export const Header = () => {
               ))}
             </select>
           </label>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 flex items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+              <ThemeToggle />
+            </div>
+            <button
+              className="md:hidden h-10 w-10 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle navigation"
+            >
+              <HiBars3 className="text-sm" />
+            </button>
+            <div className="hidden md:flex items-center gap-2">
+              <div className="relative" ref={notificationRef}>
+                <button
+                  onClick={() => {
+                    setNotificationOpen(!notificationOpen);
+                    setProfileOpen(false);
+                  }}
+                  className="relative h-10 w-10 rounded-full border border-slate-200  grid place-items-center ring-1 ring-transparent  hover:bg-slate-200 transition  "
+                  aria-label="Notifications"
+                >
+                  <HiOutlineBell className="text-sm w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                  )}
+                </button>
+                {notificationOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-3 w-[360px] overflow-hidden rounded-2xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          Notifications
+                        </p>
+                        <p className="text-xs text-white/60">
+                          {unreadCount} unread
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setNotificationOpen(false)}
+                        className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/60 transition hover:border-white/20 hover:text-white"
+                      >
+                        <HiXMark className="text-base" />
+                      </button>
+                    </div>
 
           <div className="h-10 w-10 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#0a121b] dark:hover:text-white">
             <ThemeToggle />
           </div>
 
+                    <div className="border-t border-white/10 px-3 py-3">
+                      <Link
+                        href="/employee/notification"
+                        onClick={() => setNotificationOpen(false)}
+                        className="block w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-center text-xs font-semibold text-white/80 transition hover:border-white/20 hover:text-white"
+                      >
+                        View all notifications
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="relative" ref={profileRef}>
+							<button
+								onClick={() => {
+									setProfileOpen(!profileOpen);
+									setNotificationOpen(false);
+								}}
+								className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200  text-sm font-semibold text-white "
+								aria-label="Profile"
+							>
+								<ProfileIcon />
+							</button>
+							{profileOpen && (
+								<div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
+									<div className="p-4 border-b border-slate-200 dark:border-[#243041]">
+										<div className="flex items-center gap-3">
+											<div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200  text-sm font-semibold text-white ">
+												<ProfileIcon />
+											</div>
+											<div>
+												<p className="text-slate-900 font-semibold dark:text-white">
+													{me?.name ?? "—"}
+												</p>
+												<p className="text-slate-500 text-xs mt-1 dark:text-slate-500">
+													{me?.id ?? "—"}
+												</p>
+											</div>
+										</div>
+									</div>
+									<div className="p-2">
+										<Link
+											href="/admin"
+											onClick={(e) => {
+												handleAdminNavigate(e);
+											}}
+											className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white ${!isAdminOrHrUser ? "opacity-60 cursor-not-allowed" : ""}`}
+										>
+											<HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+											Admin
+										</Link>
+										<Link
+											href="/finance"
+											onClick={(e) => {
+												handleFinanceNavigate(e);
+											}}
+											className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white ${!isFinanceManagerUser ? "opacity-60 cursor-not-allowed" : ""}`}
+										>
+											<HiOutlineChartBar className="h-4 w-4" />
+											Finance
+										</Link>
+										<Link
+											href="/employee/myprofile"
+											onClick={() => setProfileOpen(false)}
+											className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
+										>
+											<HiOutlineUserCircle className="text-lg" />
+											Profile
+										</Link>
+										<div className="my-2 h-px bg-slate-200 dark:bg-[#243041]" />
+										<button
+											onClick={() => setProfileOpen(false)}
+											className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition"
+										>
+											<HiOutlineArrowRightOnRectangle className="text-lg" />
+											Sign out
+										</button>
+									</div>
+								</div>
+							)}
+						</div>
+					</div>
           <button
             className="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-slate-200 md:hidden dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             onClick={() => setMenuOpen((p) => !p)}

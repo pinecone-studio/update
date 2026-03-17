@@ -216,19 +216,19 @@ export function Header() {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-2 md:flex">
+        <nav className="hidden items-center  md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
+              className={`inline-flex items-center h-[46px] rounded-lg gap-2 px-5 py-4 font-medium transition ${
                 isActive(item.href)
-                  ? "bg-gray-700 text-white hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-700"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-gray-700 dark:hover:text-white"
+                  ? "bg-[#151b1d] text-white hover:bg-[#151b1d] dark:bg-[#ffffff]/10 dark:hover:bg-[#ffffff]/10"
+                  : "text-slate-400 hover:bg-[#ffffff]/10 hover:text-white dark:text-[#D1DBEF] dark:hover:bg-[#ffffff]/10 dark:hover:text-white"
               }`}
             >
-              <span className="scale-90">{item.icon}</span>
-              <span className="font-medium text-[20px] text-[#E5E5E5] line-height-[16px]">{item.label}</span>
+              <span className="scale-[1.2x]">{item.icon}</span>
+              <span className="text-[20px] font-medium text-[#E5E5E5]">{item.label}</span>
             </Link>
           ))}
         </nav>
@@ -257,7 +257,7 @@ export function Header() {
               ))}
             </select>
           </label>
-          <div className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+          <div className="h-10 w-10 flex items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
             <ThemeToggle />
           </div>
           <div className="relative hidden md:block" ref={notificationRef}>

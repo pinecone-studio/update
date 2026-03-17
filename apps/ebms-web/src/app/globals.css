@@ -63,13 +63,7 @@
   }
 
   html {
-    letter-spacing: -1px;
+    letter-spacing: 0.5px;
   }
 
-  .geist-<uniquifier > {
-    font-family: "Geist", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: <weight>;
-    font-style: normal;
-  }
 }
