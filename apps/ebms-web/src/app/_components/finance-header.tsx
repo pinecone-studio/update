@@ -246,7 +246,7 @@ export function FinanceHeader() {
               ))}
             </select>
           </label>
-          <div className="h-10 w-10 flex  items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+          <div className="h-10 w-10 flex  items-center justify-center rounded-full border border-white/10 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
             <ThemeToggle />
           </div>
           <div className="relative hidden md:block" ref={notificationRef}>
@@ -256,7 +256,7 @@ export function FinanceHeader() {
                 setNotificationOpen((prev) => !prev);
                 setProfileOpen(false);
               }}
-              className="relative inline-flex h-10 w-10 items-center justify-center border border-slate-200 rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
+              className="relative inline-flex h-10 w-10 items-center justify-center border border-white/10 rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
               aria-label="Notifications"
             >
               <HiOutlineBell className="h-5 w-5" />
@@ -320,7 +320,7 @@ export function FinanceHeader() {
                 setProfileOpen((prev) => !prev);
                 setNotificationOpen(false);
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200"
+              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-white/10"
               aria-label="Profile"
             >
               <ProfileIcon />
@@ -329,7 +329,7 @@ export function FinanceHeader() {
               <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
                 <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-white/10">
                       <ProfileIcon />
                     </div>
                     <div>
