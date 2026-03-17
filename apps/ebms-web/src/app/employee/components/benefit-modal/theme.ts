@@ -10,7 +10,7 @@ export type Status = BenefitCardProps["status"];
 export const STATUS_BADGE: Record<Status, string> = {
   ACTIVE: "border-[#00d3a7]/40 bg-[#0a6b63]/35 text-[#1bf5ca]",
   ELIGIBLE: "border-[#5f9bff]/40 bg-[#274ca6]/35 text-[#74acff]",
-  PENDING: "border-[#f0a638]/45 bg-[#7b4a20]/35 text-[#ffb63d]",
+  PENDING: "border-[#FFB84D]/55 bg-[#7A4A1B]/45 text-[#FFC247]",
   LOCKED: "border-[#ff6799]/45 bg-[#79284d]/35 text-[#ff7fa7]",
   REJECTED: "border-[#ff7d87]/45 bg-[#7f2b40]/35 text-[#ff8d96]",
 };
@@ -31,12 +31,12 @@ export const MODAL_THEME: Record<
     frame:
       "border-[0.58px] border-[#00D49266] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]",
     header:
-      "bg-[linear-gradient(135deg,rgba(0,188,125,0.20)_0%,rgba(0,187,167,0.15)_50%,rgba(0,184,219,0.10)_100%),rgba(15,23,43,0.95)]",
-    body: "bg-[linear-gradient(135deg,rgba(0,188,125,0.20)_0%,rgba(0,187,167,0.15)_50%,rgba(0,184,219,0.10)_100%),rgba(15,23,43,0.95)]",
+      "bg-[linear-gradient(90deg,rgba(8,44,72,0.98)_0%,rgba(11,35,66,0.98)_52%,rgba(14,28,60,0.98)_100%)]",
+    body: "bg-[radial-gradient(circle_at_16%_22%,rgba(0,160,138,0.22),transparent_38%),radial-gradient(circle_at_68%_56%,rgba(11,149,201,0.18),transparent_42%),linear-gradient(120deg,rgba(4,62,73,0.96)_0%,rgba(9,54,83,0.95)_42%,rgba(12,36,66,0.97)_100%)]",
     section:
-      "border-[#2f5a72]/55 bg-[linear-gradient(120deg,rgba(21,63,84,0.94)_0%,rgba(24,57,84,0.94)_100%)]",
+      "border-[#2e6f82]/55 bg-[linear-gradient(120deg,rgba(30,80,99,0.93)_0%,rgba(27,67,98,0.94)_52%,rgba(26,57,89,0.95)_100%)]",
     rulePass:
-      "border-[#00D492]/35 bg-[linear-gradient(120deg,rgba(8,84,87,0.92)_0%,rgba(10,67,80,0.92)_100%)]",
+      "border-[#00D492]/35 bg-[linear-gradient(120deg,rgba(10,93,99,0.94)_0%,rgba(11,73,91,0.94)_100%)]",
     ruleFail: "border-[#ff6d8f]/35 bg-[#5d2840]/45",
     closeBtn: "border-white/15 bg-white/10 hover:bg-white/15",
   },
@@ -55,17 +55,17 @@ export const MODAL_THEME: Record<
   },
   PENDING: {
     frame:
-      "border-[0.4px] border-[#FF890466] shadow-[0_17.43px_34.85px_-8.36px_rgba(0,0,0,0.25)]",
+      "border-[0.4px] border-[#FF9C2D80] shadow-[0_17.43px_34.85px_-8.36px_rgba(0,0,0,0.25)]",
     header:
-      "bg-[linear-gradient(135deg,rgba(255,105,0,0.20)_0%,rgba(254,154,0,0.15)_50%,rgba(240,177,0,0.10)_100%),#0F172B]",
-    body: "bg-[linear-gradient(135deg,rgba(255,105,0,0.20)_0%,rgba(254,154,0,0.15)_50%,rgba(240,177,0,0.10)_100%),#0F172B]",
+      "bg-[linear-gradient(90deg,rgba(8,44,72,0.98)_0%,rgba(11,35,66,0.98)_52%,rgba(14,28,60,0.98)_100%)]",
+    body: "bg-[radial-gradient(circle_at_16%_22%,rgba(0,160,138,0.22),transparent_38%),radial-gradient(circle_at_68%_56%,rgba(11,149,201,0.18),transparent_42%),linear-gradient(120deg,rgba(4,62,73,0.96)_0%,rgba(9,54,83,0.95)_42%,rgba(12,36,66,0.97)_100%)]",
     section:
-      "border-[#8a6a45]/45 bg-[linear-gradient(120deg,#4E3C34_0%,#3A3543_100%)]",
+      "border-[#2e6f82]/55 bg-[linear-gradient(120deg,rgba(30,80,99,0.93)_0%,rgba(27,67,98,0.94)_52%,rgba(26,57,89,0.95)_100%)]",
     rulePass:
       "border-[#27c5ad]/45 bg-[linear-gradient(120deg,#215349_0%,#214B59_100%)]",
     ruleFail:
       "border-[#FF637E66] bg-[linear-gradient(120deg,#74274D_0%,#611E66_100%)]",
-    closeBtn: "border-[#5f553f] bg-[#3f455a] hover:bg-[#4a5168]",
+    closeBtn: "border-[#806643] bg-[#3f455a] hover:bg-[#4a5168]",
   },
   LOCKED: {
     frame:

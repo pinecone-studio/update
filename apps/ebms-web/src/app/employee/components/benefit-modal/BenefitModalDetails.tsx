@@ -31,7 +31,7 @@ function SectionCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border px-[20.57px] pb-[12px] pt-[20.57px] ${theme} ${className ?? ""}`}
+      className={`rounded-2xl border px-[20px] pb-[14px] pt-[18px] ${theme} ${className ?? ""}`}
     >
       <div className="mb-2 flex items-center gap-2.5 text-white/55">
         <span className="shrink-0">{icon}</span>
@@ -77,13 +77,11 @@ export function BenefitModalDetails({
       <SectionCard
         theme={theme.section}
         icon={<FiFileText size={22} />}
-        title={benefit.status === "ACTIVE" ? "ELIGIBILITY CRITERIA" : "DESCRIPTION"}
+        title="DESCRIPTION"
         className="min-h-[88px]"
       >
         <p className="text-[14px] leading-5 tracking-[-0.15px] text-white/95">
-          {benefit.status === "ACTIVE"
-            ? benefit.eligibilityCriteria || "All active employees"
-            : benefit.description || benefit.eligibilityCriteria}
+          {benefit.description || benefit.eligibilityCriteria}
         </p>
       </SectionCard>
 
@@ -94,7 +92,7 @@ export function BenefitModalDetails({
           title="SUBSIDY"
           className="min-h-[93px]"
         >
-          <p className="text-[22px] font-semibold text-white">{subsidy}</p>
+          <p className="text-[18px] font-semibold text-white">{subsidy}</p>
         </SectionCard>
         <SectionCard
           theme={theme.section}
@@ -102,9 +100,20 @@ export function BenefitModalDetails({
           title="VENDOR"
           className="min-h-[93px]"
         >
-          <p className="text-[22px] font-medium text-white">{vendor}</p>
+          <p className="text-[18px] font-medium text-white">{vendor}</p>
         </SectionCard>
       </div>
+
+      <SectionCard
+        theme={theme.section}
+        icon={<FiFileText size={18} />}
+        title="ELIGIBILITY CRITERIA"
+        className="min-h-[93px]"
+      >
+        <p className="text-[14px] leading-5 tracking-[-0.15px] text-white/95">
+          {benefit.eligibilityCriteria || "All active employees"}
+        </p>
+      </SectionCard>
 
       <SectionCard
         theme={theme.section}
@@ -138,7 +147,7 @@ export function BenefitModalDetails({
               title="BENEFIT STARTED"
               className="min-h-[93px]"
             >
-              <p className="text-[22px] font-semibold leading-8 tracking-[0.2px] text-white">
+              <p className="text-[16px] font-semibold leading-8 tracking-[0.2px] text-white">
                 {benefit.benefitStartDate || "-"}
               </p>
             </SectionCard>
@@ -148,7 +157,7 @@ export function BenefitModalDetails({
               title="BENEFIT ENDS"
               className="min-h-[93px]"
             >
-              <p className="text-[22px] font-semibold leading-8 tracking-[0.2px] text-white">
+              <p className="text-[16px] font-semibold leading-8 tracking-[0.2px] text-white">
                 {benefit.benefitEndDate || "-"}
               </p>
             </SectionCard>
@@ -163,7 +172,7 @@ export function BenefitModalDetails({
           </h3>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {rules.map((rule, index) => (
             <div
               key={`${rule.rule}-${index}`}
@@ -176,7 +185,7 @@ export function BenefitModalDetails({
                   {rule.passed ? <FiCheck size={22} /> : <FiX size={22} />}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[22px] font-semibold leading-8 tracking-[0.2px] text-white">
+                  <p className="text-[16px] font-semibold leading-6 tracking-[0.1px] text-white">
                     {rule.rule}
                   </p>
                   {rule.detail ? (
@@ -184,7 +193,7 @@ export function BenefitModalDetails({
                       {rule.detail}
                     </p>
                   ) : null}
-                  <span className="mt-2 inline-flex h-[24px] min-w-[59px] items-center justify-center rounded-[10px] bg-[#00BC7D]/20 px-3 text-[14px] font-semibold leading-5 tracking-[-0.05px] text-[#00E0A6]">
+                  <span className="mt-2 inline-flex h-[20px] min-w-[59px] items-center justify-center rounded-[10px] bg-[#00BC7D]/20 px-3 text-[12px] font-semibold leading-5 tracking-[-0.05px] text-[#00E0A6]">
                     {rule.passed ? "PASS" : "FAIL"}
                   </span>
                 </div>

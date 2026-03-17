@@ -38,6 +38,7 @@ export function BenefitStatusModal({
 
   const theme = MODAL_THEME[benefit.status];
   const rules = getRules(benefit);
+  const isActive = benefit.status === "ACTIVE";
   const canRequest =
     (benefit.status === "ELIGIBLE" || benefit.status === "REJECTED") &&
     !!onRequestBenefit;
@@ -48,9 +49,11 @@ export function BenefitStatusModal({
   };
 
   const dialogSizeClass =
-    benefit.status === "ELIGIBLE"
-      ? "h-[min(669.8px,92vh)] max-w-[481.77px] rounded-[17.21px]"
-      : "h-[min(614px,92vh)] max-w-[468px] rounded-[16.73px]";
+    benefit.status === "ACTIVE" || benefit.status === "PENDING"
+      ? "max-w-[500px] rounded-[20px]"
+      : benefit.status === "ELIGIBLE"
+        ? "h-[min(669.8px,92vh)] max-w-[740px] rounded-[17.21px]"
+        : "h-[min(86vh,760px)] max-w-[760px] rounded-[16.73px]";
 
   return (
     <div
@@ -60,12 +63,14 @@ export function BenefitStatusModal({
       aria-modal="true"
       aria-labelledby="benefit-status-modal-title"
     >
-      <div className="flex min-h-full items-center justify-center p-3 sm:p-6">
+      <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
         <div
-          className={`relative w-full overflow-hidden border ${dialogSizeClass} ${theme.frame}`}
+          className={`relative flex w-full flex-col overflow-hidden border ${dialogSizeClass} ${theme.frame}`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className={`px-4 pb-4 pt-6 sm:px-5 sm:pb-4 sm:pt-6 ${theme.header}`}>
+          <div
+            className={`px-4 pb-4 pt-6 sm:px-5 sm:pb-4 sm:pt-6 ${theme.header}`}
+          >
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-start gap-3">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border border-white/15 bg-white/5 text-white/75">
@@ -79,13 +84,8 @@ export function BenefitStatusModal({
                     >
                       {benefit.name}
                     </h2>
-                    <span
-                      className={`inline-flex h-5 items-center rounded-full border px-2 text-[10px] font-semibold tracking-[0.08em] ${STATUS_BADGE[benefit.status]}`}
-                    >
-                      {benefit.status}
-                    </span>
                   </div>
-                  <p className="text-[12px] font-normal leading-5 tracking-[-0.15px] text-white/50">
+                  <p className="text-[14px] font-normal leading-5 tracking-[-0.15px] text-white/50">
                     {benefit.category} benefit
                   </p>
                 </div>
@@ -102,8 +102,12 @@ export function BenefitStatusModal({
             </div>
           </div>
 
-          <div className={`px-4 pb-4 pt-3 sm:px-5 sm:pb-5 ${theme.body}`}>
-            <div className="max-h-[430px] space-y-3 overflow-y-auto pr-1">
+          <div
+            className={`${isActive ? "px-4 pb-4 pt-3 sm:px-5 sm:pb-5" : "min-h-0 flex-1 px-4 pb-4 pt-3 sm:px-5 sm:pb-5"} ${theme.body}`}
+          >
+            <div
+              className={`${isActive ? "space-y-3" : "h-full space-y-3 overflow-y-auto pr-1"}`}
+            >
               <BenefitModalDetails
                 benefit={benefit}
                 theme={{
@@ -131,7 +135,7 @@ export function BenefitStatusModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="h-[56px] w-full rounded-2xl border border-white/20 bg-white/10 text-center text-[20px] font-semibold text-white transition hover:bg-white/15"
+                className="h-[50px] w-full rounded-2xl border border-white/20 bg-white/10 text-center text-[18px] font-semibold text-white transition hover:bg-white/15"
               >
                 Close
               </button>
