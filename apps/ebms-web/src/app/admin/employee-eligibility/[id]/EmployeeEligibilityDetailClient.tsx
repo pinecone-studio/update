@@ -409,22 +409,6 @@ export default function EmployeeEligibilityDetailClient() {
     );
   }
 
-  const activeDraftStatus = activeBenefit
-    ? (draftStatusByKey[activeBenefitKey ?? ""] ?? activeBenefit.status)
-    : "ACTIVE";
-  const activeDraftReason = activeBenefitKey
-    ? (draftReasonByKey[activeBenefitKey] ?? "")
-    : "";
-  const activeError = activeBenefitKey
-    ? (errorByKey[activeBenefitKey] ?? "")
-    : "";
-  const activeSavedReason = activeBenefitKey
-    ? (savedReasonByKey[activeBenefitKey] ?? "")
-    : "";
-  const activeSaving = activeBenefitKey
-    ? (savingByKey[activeBenefitKey] ?? false)
-    : false;
-
   return (
     <>
       <div className="min-h-[80vh] px-[28px] pb-12 pt-[34px] text-white">
