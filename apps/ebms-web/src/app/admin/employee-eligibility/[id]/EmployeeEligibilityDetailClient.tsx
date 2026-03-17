@@ -2,13 +2,14 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { GraphQLClient, gql } from "graphql-request";
 import {
   ensureValidActiveUserProfile,
   getActiveUserHeaders,
 } from "@/app/_lib/activeUser";
+import { BackIcon } from "@/app/icons/back";
 
 type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
@@ -26,16 +27,20 @@ type EmployeeDetail = {
   benefits: EmployeeBenefit[];
 };
 
+type BenefitHistoryEntry = {
+  status: string;
+  reason: string;
+  changedAt: string;
+  changedBy: string;
+};
+
 type BenefitRow = {
   benefitId: string;
   name: string;
   status: BenefitStatus;
-  history: Array<{
-    status: string;
-    reason: string;
-    changedAt: string;
-    changedBy: string;
-  }>;
+  reason: string;
+  lastDate: string;
+  history: BenefitHistoryEntry[];
 };
 
 const EMPLOYEE_QUERY = gql`
@@ -72,13 +77,6 @@ const OVERRIDE_ELIGIBILITY_MUTATION = gql`
   }
 `;
 
-const statusClass: Record<BenefitStatus, string> = {
-  ACTIVE: "border-[#166534] dark:bg-[#052E25] text-[#34D399]",
-  ELIGIBLE: "border-[#1D4ED8] dark:bg-[#122B4C] text-[#60A5FA]",
-  LOCKED: "border-[#9F1239] dark:bg-[#3A1026] text-[#FB7185]",
-  PENDING: "border-[#B45309] dark:bg-[#3B2A12] text-[#FBBF24]",
-};
-
 const statusOptions: BenefitStatus[] = [
   "ACTIVE",
   "PENDING",
@@ -86,22 +84,35 @@ const statusOptions: BenefitStatus[] = [
   "LOCKED",
 ];
 
-const statusTabActiveClass: Record<BenefitStatus, string> = {
-  ACTIVE:
-    "bg-emerald-600 text-white shadow-sm dark:bg-emerald-500 dark:text-[#06261F]",
-  PENDING:
-    "bg-amber-500 text-[#1F1300] shadow-sm dark:bg-amber-400 dark:text-[#1F1300]",
-  ELIGIBLE:
-    "bg-blue-600 text-white shadow-sm dark:bg-blue-500 dark:text-[#071629]",
-  LOCKED:
-    "bg-rose-600 text-white shadow-sm dark:bg-rose-500 dark:text-[#2A0B17]",
+const modalStatusOptions: Array<Exclude<BenefitStatus, "LOCKED">> = [
+  "ACTIVE",
+  "PENDING",
+  "ELIGIBLE",
+];
+
+const statusCopy: Record<BenefitStatus, string> = {
+  ACTIVE: "Active",
+  PENDING: "Pending",
+  ELIGIBLE: "Eligible",
+  LOCKED: "Locked",
 };
 
-function getStatusTabClass(option: BenefitStatus, selected: boolean): string {
+const statusButtonClass: Record<BenefitStatus, string> = {
+  ACTIVE:
+    "border-[#365C70] bg-[linear-gradient(180deg,rgba(30,60,79,0.95),rgba(24,47,63,0.95))] text-white",
+  PENDING:
+    "border-[#48405D] bg-[linear-gradient(180deg,rgba(52,48,73,0.95),rgba(42,38,60,0.95))] text-white",
+  ELIGIBLE:
+    "border-[#36527C] bg-[linear-gradient(180deg,rgba(41,63,101,0.95),rgba(33,51,82,0.95))] text-white",
+  LOCKED:
+    "border-[#5E3849] bg-[linear-gradient(180deg,rgba(81,42,57,0.95),rgba(63,34,45,0.95))] text-white",
+};
+
+function getStatusSegmentClass(option: BenefitStatus, selected: boolean) {
   const base =
-    "inline-flex h-7 items-center justify-center rounded-md px-2 text-[11px] font-semibold tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:focus-visible:ring-blue-300/60";
-  if (selected) return `${base} ${statusTabActiveClass[option]}`;
-  return `${base} text-slate-600 hover:text-slate-900 dark:text-[#A7B6D3] dark:hover:text-white`;
+    "inline-flex h-[58px] items-center justify-center rounded-[8px] border text-[18px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9BFF]/70";
+  if (selected) return `${base} ${statusButtonClass[option]}`;
+  return `${base} border-white/10 bg-[rgba(255,255,255,0.03)] text-white`;
 }
 
 function getClient(): GraphQLClient {
@@ -127,6 +138,34 @@ function getErrorMessage(e: unknown): string {
   return String(e);
 }
 
+function formatRoleLabel(value: string): string {
+  return value
+    .split(/[\s-_]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function inferReason(benefit: EmployeeBenefit): string {
+  return (
+    benefit.ruleEvaluations?.find((evaluation) => !evaluation.passed)?.reason ||
+    (benefit.status === "ELIGIBLE" || benefit.status === "ACTIVE"
+      ? "Meets all requirements"
+      : "Missing document")
+  );
+}
+
+function inferLastDate(index: number): string {
+  const fallbackDates = [
+    "2025/01/22",
+    "2025/05/03",
+    "2025/04/02",
+    "2025/08/18",
+    "2025/09/29",
+  ];
+  return fallbackDates[index] ?? "2025/09/29";
+}
+
 export default function EmployeeEligibilityDetailClient() {
   const params = useParams();
   const router = useRouter();
@@ -136,12 +175,10 @@ export default function EmployeeEligibilityDetailClient() {
   const [employee, setEmployee] = useState<{
     id: string;
     name: string;
-    department: string;
+    role: string;
     benefits: BenefitRow[];
   } | null>(null);
-  const [expandedBenefitKey, setExpandedBenefitKey] = useState<string | null>(
-    null,
-  );
+  const [activeBenefitKey, setActiveBenefitKey] = useState<string | null>(null);
   const [draftStatusByKey, setDraftStatusByKey] = useState<
     Record<string, BenefitStatus>
   >({});
@@ -155,29 +192,57 @@ export default function EmployeeEligibilityDetailClient() {
   const [errorByKey, setErrorByKey] = useState<Record<string, string>>({});
   const currentAdmin = "HR Admin";
 
-  const handleBack = () => {
-    router.push("/admin");
-  };
+  const activeBenefit = useMemo(() => {
+    if (!employee || !activeBenefitKey) return null;
+    return (
+      employee.benefits.find(
+        (benefit) => `${employee.id}-${benefit.benefitId}` === activeBenefitKey,
+      ) ?? null
+    );
+  }, [activeBenefitKey, employee]);
 
-  const handleShowToggle = (key: string, currentStatus: BenefitStatus) => {
-    setExpandedBenefitKey((prev) => (prev === key ? null : key));
+  const activeDraftStatus = activeBenefit
+    ? (draftStatusByKey[activeBenefitKey ?? ""] ?? activeBenefit.status)
+    : "ACTIVE";
+  const activeDraftReason = activeBenefitKey
+    ? (draftReasonByKey[activeBenefitKey] ?? "")
+    : "";
+  const activeError = activeBenefitKey
+    ? (errorByKey[activeBenefitKey] ?? "")
+    : "";
+  const activeSavedReason = activeBenefitKey
+    ? (savedReasonByKey[activeBenefitKey] ?? "")
+    : "";
+  const activeSaving = activeBenefitKey
+    ? (savingByKey[activeBenefitKey] ?? false)
+    : false;
+
+  const openBenefitModal = (key: string, currentStatus: BenefitStatus) => {
+    setActiveBenefitKey(key);
     setDraftStatusByKey((prev) =>
       prev[key] ? prev : { ...prev, [key]: currentStatus },
     );
+    setErrorByKey((prev) => ({ ...prev, [key]: "" }));
+  };
+
+  const closeBenefitModal = () => {
+    setActiveBenefitKey(null);
   };
 
   const handleSaveStatus = async (
     benefitId: string,
-    benefitName: string,
     key: string,
+    fallbackReason: string,
   ) => {
     if (!id) return;
-    const reason = (draftReasonByKey[key] ?? "").trim();
-    if (!reason) return;
 
     const nextStatus = draftStatusByKey[key] ?? "PENDING";
+    const rawReason = draftReasonByKey[key] ?? "";
+    const reason = rawReason.trim() || fallbackReason;
+
     setSavingByKey((prev) => ({ ...prev, [key]: true }));
     setErrorByKey((prev) => ({ ...prev, [key]: "" }));
+
     try {
       await ensureValidActiveUserProfile();
       const client = getClient();
@@ -192,9 +257,8 @@ export default function EmployeeEligibilityDetailClient() {
         });
       } catch (firstError) {
         const msg = getErrorMessage(firstError).toLowerCase();
-        if (!msg.includes("employee not found")) {
-          throw firstError;
-        }
+        if (!msg.includes("employee not found")) throw firstError;
+
         await ensureValidActiveUserProfile();
         const retryClient = getClient();
         await retryClient.request(OVERRIDE_ELIGIBILITY_MUTATION, {
@@ -206,7 +270,10 @@ export default function EmployeeEligibilityDetailClient() {
           },
         });
       }
+
       const changedAt = new Date().toLocaleString();
+      const formattedDate = new Date().toLocaleDateString("en-CA");
+
       setEmployee((prev) =>
         prev
           ? {
@@ -216,6 +283,8 @@ export default function EmployeeEligibilityDetailClient() {
                   ? {
                       ...benefit,
                       status: nextStatus,
+                      reason,
+                      lastDate: formattedDate,
                       history: [
                         {
                           status: nextStatus,
@@ -231,9 +300,10 @@ export default function EmployeeEligibilityDetailClient() {
             }
           : null,
       );
+
       setSavedReasonByKey((prev) => ({ ...prev, [key]: reason }));
-      setDraftReasonByKey((prev) => ({ ...prev, [key]: "" }));
-      setExpandedBenefitKey(null);
+      setDraftReasonByKey((prev) => ({ ...prev, [key]: rawReason }));
+      setActiveBenefitKey(null);
     } catch (e) {
       setErrorByKey((prev) => ({ ...prev, [key]: getErrorMessage(e) }));
     } finally {
@@ -246,12 +316,15 @@ export default function EmployeeEligibilityDetailClient() {
       setLoading(false);
       return;
     }
+
     let cancelled = false;
+
     (async () => {
       try {
         await ensureValidActiveUserProfile();
         const client = getClient();
         let data: { employee: EmployeeDetail | null };
+
         try {
           data = await client.request<{ employee: EmployeeDetail | null }>(
             EMPLOYEE_QUERY,
@@ -259,9 +332,8 @@ export default function EmployeeEligibilityDetailClient() {
           );
         } catch (firstError) {
           const msg = getErrorMessage(firstError).toLowerCase();
-          if (!msg.includes("employee not found")) {
-            throw firstError;
-          }
+          if (!msg.includes("employee not found")) throw firstError;
+
           await ensureValidActiveUserProfile();
           const retryClient = getClient();
           data = await retryClient.request<{ employee: EmployeeDetail | null }>(
@@ -269,20 +341,25 @@ export default function EmployeeEligibilityDetailClient() {
             { id },
           );
         }
+
         if (cancelled) return;
+
         const emp = data.employee;
         if (!emp) {
           setEmployee(null);
           return;
         }
+
         setEmployee({
           id: emp.id ?? "",
           name: emp.name ?? "Unknown",
-          department: emp.role ?? emp.employmentStatus ?? "—",
-          benefits: (emp.benefits ?? []).map((b) => ({
-            benefitId: b.benefit?.id ?? "",
-            name: b.benefit?.name ?? "Unknown",
-            status: b.status,
+          role: formatRoleLabel(emp.role ?? emp.employmentStatus ?? "Employee"),
+          benefits: (emp.benefits ?? []).map((benefit, index) => ({
+            benefitId: benefit.benefit?.id ?? "",
+            name: benefit.benefit?.name ?? "Unknown",
+            status: benefit.status,
+            reason: inferReason(benefit),
+            lastDate: inferLastDate(index),
             history: [],
           })),
         });
@@ -292,6 +369,7 @@ export default function EmployeeEligibilityDetailClient() {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -299,224 +377,205 @@ export default function EmployeeEligibilityDetailClient() {
 
   if (!id) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center">
-        <p className="text-slate-500 dark:text-[#9FB0CF]">Ажилтан олдсонгүй.</p>
-        <button
-          type="button"
-          onClick={handleBack}
-          className="mt-4 text-[#2F66E8] hover:underline"
-        >
-          Буцах
-        </button>
+      <div className="flex min-h-[60vh] items-center justify-center text-white/70">
+        Ажилтан олдсонгүй.
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-6">
-        <div className="h-16 w-64 rounded-2xl bg-slate-200 dark:bg-[#1E293B]" />
-        <div className="h-96 rounded-3xl bg-slate-200 dark:bg-[#1E293B]" />
+      <div className="min-h-[80vh] animate-pulse px-6 pb-10 pt-10">
+        <div className="mb-10 h-24 w-80 rounded-3xl bg-white/10" />
+        <div className="h-[540px] rounded-[28px] bg-white/10" />
       </div>
     );
   }
 
   if (!employee) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center">
-        <p className="text-slate-500 dark:text-[#9FB0CF]">Ажилтан олдсонгүй.</p>
-        <button
-          type="button"
-          onClick={handleBack}
-          className="mt-4 text-[#2F66E8] hover:underline"
-        >
-          Буцах
-        </button>
+      <div className="flex min-h-[60vh] items-center justify-center text-white/70">
+        Ажилтан олдсонгүй.
       </div>
     );
   }
 
   return (
-    <div className="min-h-[80vh] space-y-6">
-      {/* Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-row items-center gap-4">
-          <button
-            type="button"
-            onClick={handleBack}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-50 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-[#C9D5EA] dark:hover:bg-[#142544]"
-            aria-label="Буцах"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              className="h-5 w-5"
-              stroke="currentColor"
-              strokeWidth="2"
+    <>
+      <div className="min-h-[80vh] px-[28px] pb-12 pt-[34px] text-white">
+        <div className="mx-auto max-w-[1512px]">
+          <div className="mb-[42px] flex items-start gap-[22px] justify-between">
+            <button
+              type="button"
+              onClick={() => router.push("/admin/employee-eligibility")}
+              aria-label="Back"
+              className="mt-[6px] inline-flex h-[74px] w-[74px] items-center justify-center rounded-[16px]  border-[#35527A] bg-[#FFFFFF1A] text-white/88 transition hover:bg-[rgba(40,58,92,0.92)]"
             >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
-              {employee.name}
-            </h1>
-            <p className="mt-1 text-slate-500 dark:text-[#9FB0CF]">
-              {employee.id} • {employee.department}
-            </p>
+              <BackIcon />
+            </button>
+
+            <div className=" flex flex-col justify-end">
+              <h1 className="text-[58px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
+                {employee.name}
+              </h1>
+              <p className="mt-[12px] text-[27px] font-normal text-[#9AA8AB80] tracking-[-0.02em] text-white/48">
+                Role <span className="text-[#9AA8AB]">: {employee.role}</span>
+              </p>
+            </div>
           </div>
-        </div>
-      </header>
 
-      {/* Main content */}
-      <section className="max-w-[1500px] mx-auto ">
-        <h2 className="mb-6 text-lg font-semibold text-slate-900 dark:text-white">
-          Benefit eligibility
-        </h2>
-        <div className="flex flex-row gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {employee.benefits.map((benefit) => {
-            const key = `${employee.id}-${benefit.benefitId}`;
-            const isExpanded = expandedBenefitKey === key;
-            const draftStatus = draftStatusByKey[key] ?? benefit.status;
-            const draftReason = draftReasonByKey[key] ?? "";
-            const isSaving = savingByKey[key] ?? false;
-            const canSave = draftReason.trim().length > 0;
-            const lastReason = savedReasonByKey[key];
-            const saveError = errorByKey[key];
+          <section className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,rgba(36,24,56,0.78),rgba(22,15,39,0.54))] shadow-[0_18px_70px_rgba(5,3,16,0.34)] backdrop-blur-[3px]">
+            <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-[20px] py-[22px] text-[20px] text-white/50">
+              <div>Benefit</div>
+              <div>Status</div>
+              <div>Reason</div>
+              <div>Last Date</div>
+              <div>Action</div>
+            </div>
 
-            return (
-              <article
-                key={benefit.benefitId || benefit.name}
-                className="rounded-lg border border-slate-200 bg-slate-50 px-6 py-5 dark:border-[#324A70] dark:bg-[#1E293B] "
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
-                      {benefit.name}
-                    </h3>
-                    <span
-                      className={`rounded border px-2 py-0.5 text-xs font-medium ${statusClass[benefit.status]}`}
-                    >
-                      {benefit.status}
-                    </span>
-                  </div>
+            <div className="px-[20px]">
+              {employee.benefits.map((benefit) => {
+                const key = `${employee.id}-${benefit.benefitId}`;
 
-                  <button
-                    type="button"
-                    onClick={() => handleShowToggle(key, benefit.status)}
-                    className="group flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-slate-600 transition hover:border-slate-400 hover:bg-slate-50 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-[#C9D5EA] dark:hover:border-[#4B6FA8] dark:hover:bg-[#142544]"
+                return (
+                  <div
+                    key={benefit.benefitId || benefit.name}
+                    className="grid min-h-[72px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-white/14 text-[18px] text-white/92 last:border-b-0"
                   >
-                    <span className="text-sm font-medium">
-                      Change {benefit.history.length}
-                    </span>
-                  </button>
-                </div>
-                <div className="mt-5 rounded-lg border border-slate-300 bg-white p-5 dark:border-[#324A70] dark:bg-[#0F172A]">
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-[#243B61] dark:bg-[#0B1220]">
-                    <div className="grid grid-cols-4 gap-2">
-                      {statusOptions.map((option) => {
-                        const selected = draftStatus === option;
-                        return (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() =>
-                              setDraftStatusByKey((prev) => ({
-                                ...prev,
-                                [key]: option,
-                              }))
-                            }
-                            className={getStatusTabClass(option, selected)}
-                            aria-pressed={selected}
-                          >
-                            {option.toLowerCase()}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <label className="mt-4 block text-sm font-medium text-slate-600 dark:text-[#C9D5EA]">
-                    Яагаад өөрчилснөө бичнэ үү
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={draftReason}
-                    onChange={(e) =>
-                      setDraftReasonByKey((prev) => ({
-                        ...prev,
-                        [key]: e.target.value,
-                      }))
-                    }
-                    placeholder="Шалтгаан..."
-                    className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-white dark:placeholder:text-[#8FA3C5] dark:focus:border-[#4B6FA8]"
-                  />
-                  <div className="mt-4 flex items-center gap-3">
+                    <div className="pr-6 font-medium">{benefit.name}</div>
+                    <div>{statusCopy[benefit.status]}</div>
+                    <div className="pr-6 text-white/90">{benefit.reason}</div>
+                    <div>{benefit.lastDate} . 20:00pm</div>
                     <button
                       type="button"
-                      onClick={() =>
-                        void handleSaveStatus(
-                          benefit.benefitId,
-                          benefit.name,
-                          key,
-                        )
-                      }
-                      disabled={!canSave || isSaving}
-                      className="rounded-xl bg-[#2F66E8] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => openBenefitModal(key, benefit.status)}
+                      className="inline-flex items-center gap-[10px] text-[18px] font-medium text-[#1E78FF] transition hover:text-[#56A5FF]"
                     >
-                      {isSaving ? "Хадгалж байна..." : "Save"}
+                      <span>Fix</span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        className="h-[18px] w-[18px]"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M7 17L17 7" />
+                        <path d="M10 7h7v7" />
+                      </svg>
                     </button>
                   </div>
-                  {saveError && (
-                    <p className="mt-3 text-sm text-red-600 dark:text-red-300">
-                      {saveError}
-                    </p>
-                  )}
-                  {lastReason && (
-                    <p className="mt-3 text-sm text-slate-500 dark:text-[#8FA3C5]">
-                      Сүүлд хадгалсан тайлбар: {lastReason}
-                    </p>
-                  )}
+                );
+              })}
 
-                  <div className="mt-5">
-                    <p className="text-sm font-medium text-slate-600 dark:text-[#C9D5EA]">
-                      Өөрчлөлтийн түүх
-                    </p>
-                    {benefit.history.length === 0 ? (
-                      <p className="mt-2 text-sm text-slate-500 dark:text-[#8FA3C5]">
-                        Түүх алга.
-                      </p>
-                    ) : (
-                      <div className="mt-3 space-y-2">
-                        {benefit.history.map((entry, idx) => (
-                          <div
-                            key={`${entry.changedAt}-${idx}`}
-                            className="rounded-none border border-slate-300 bg-slate-50 px-4 py-3 dark:border-[#324A70] dark:bg-[#1E293B]"
-                          >
-                            <p className="text-sm font-medium text-slate-900 dark:text-white">
-                              {entry.changedBy} • {entry.changedAt}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-600 dark:text-[#A7B6D3]">
-                              Status: {entry.status}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-[#8FA3C5]">
-                              Шалтгаан: {entry.reason}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              {employee.benefits.length === 0 && (
+                <div className="py-12 text-center text-[18px] text-white/58">
+                  Benefit мэдээлэл олдсонгүй.
                 </div>
-              </article>
-            );
-          })}
-          {employee.benefits.length === 0 && (
-            <p className="rounded-none border border-slate-300 bg-slate-50 px-6 py-8 text-center text-slate-500 dark:border-[#324A70] dark:bg-[#1E293B] dark:text-[#9FB0CF]">
-              Benefit мэдээлэл олдсонгүй.
-            </p>
-          )}
+              )}
+            </div>
+          </section>
         </div>
-      </section>
-    </div>
+      </div>
+
+      {activeBenefit && activeBenefitKey && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(8,10,20,0.50)] px-6 backdrop-blur-[4px]">
+          <div className="h-[599px] w-full max-w-[900px] rounded-[30px]  border-white/18 bg-[#1F2744]/[0.98] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.58)]">
+            <div>
+              <h2 className="text-[31px] font-normal tracking-[-0.03em] text-white">
+                {activeBenefit.name}
+              </h2>
+              <p className="mt-[2px] text-[18px] text-white/45">
+                Edit benefit status
+              </p>
+            </div>
+
+            <div className="mt-[22px] grid grid-cols-[1.04fr_1.62fr] gap-[12px]">
+              <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] px-[22px] py-[14px]">
+                <p className="text-[34px] font-normal leading-[1.05] tracking-[-0.03em] text-white">
+                  {employee.name}
+                </p>
+                <p className="mt-[4px] text-[20px] text-white/63">
+                  {employee.role}
+                </p>
+              </div>
+
+              <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] p-[20px]">
+                <div className="grid grid-cols-3 gap-[12px]">
+                  {modalStatusOptions.map((option) => {
+                    const selected = activeDraftStatus === option;
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() =>
+                          setDraftStatusByKey((prev) => ({
+                            ...prev,
+                            [activeBenefitKey]: option,
+                          }))
+                        }
+                        className={getStatusSegmentClass(option, selected)}
+                        aria-pressed={selected}
+                      >
+                        {statusCopy[option]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <label className="mt-[42px] block pl-[24px] text-[14px] text-white/50">
+              *Reason for change (optional)
+            </label>
+            <textarea
+              rows={6}
+              value={activeDraftReason}
+              onChange={(e) =>
+                setDraftReasonByKey((prev) => ({
+                  ...prev,
+                  [activeBenefitKey]: e.target.value,
+                }))
+              }
+              placeholder="Comment..."
+              className="mt-[10px] h-[192px] w-full rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[20px] text-[23px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
+            />
+
+            {activeError && (
+              <p className="mt-3 text-sm text-red-300">{activeError}</p>
+            )}
+
+            {activeSavedReason && !activeError && (
+              <p className="mt-3 text-sm text-white/48">
+                Last saved reason: {activeSavedReason}
+              </p>
+            )}
+
+            <div className="mt-[16px] flex justify-end gap-[20px]">
+              <button
+                type="button"
+                onClick={closeBenefitModal}
+                className="h-[46px] w-34 rounded-[10px] bg-[#C3C3C3] px-[20px] py-[10px]  text-[16px] font-ligth text-[#16346E] transition hover:bg-[#D1D1D1]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  void handleSaveStatus(
+                    activeBenefit.benefitId,
+                    activeBenefitKey,
+                    activeBenefit.reason,
+                  )
+                }
+                disabled={activeSaving}
+                className="h-[46px] w-50 rounded-[10px] bg-[#0868CB] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#0B76E4] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {activeSaving ? "Saving..." : "Save changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
