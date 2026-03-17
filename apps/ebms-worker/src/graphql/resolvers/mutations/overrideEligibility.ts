@@ -100,16 +100,49 @@ export const overrideEligibility: NonNullable<
     createdAt: now,
   });
 
-  if (statusLower === "eligible" && prevStatus !== "eligible") {
-    await dispatchEmployeeNotification(ctx.env, {
-      employeeId,
-      type: "ELIGIBILITY_CHANGE",
-      tone: "info",
-      dedupeKey: `eligibility:${benefitId}:override:unlocked`,
-      title: "Benefit Unlocked",
-      body: `Your ${benefitRows[0]?.name ?? "benefit"} benefit is now ELIGIBLE. You can request this benefit from your dashboard.`,
-      metadata: { benefitId, reason: reason ?? null },
-    });
+  const benefitName = benefitRows[0]?.name ?? 'benefit';
+  if (prevStatus !== statusLower) {
+    if (statusLower === 'eligible') {
+      await dispatchEmployeeNotification(ctx.env, {
+        employeeId,
+        type: 'ELIGIBILITY_CHANGE',
+        tone: 'info',
+        dedupeKey: `eligibility:${benefitId}:override:unlocked`,
+        title: 'Benefit Unlocked',
+        body: `Your ${benefitName} benefit is now ELIGIBLE. You can request this benefit from your dashboard.`,
+        metadata: { benefitId, reason: reason ?? null },
+      });
+    } else if (statusLower === 'locked') {
+      await dispatchEmployeeNotification(ctx.env, {
+        employeeId,
+        type: 'ELIGIBILITY_CHANGE',
+        tone: 'warning',
+        dedupeKey: `eligibility:${benefitId}:override:locked`,
+        title: 'Eligibility Restricted',
+        body: `Your ${benefitName} benefit eligibility has been restricted. Contact HR if you have questions.`,
+        metadata: { benefitId, reason: reason ?? null },
+      });
+    } else if (statusLower === 'active') {
+      await dispatchEmployeeNotification(ctx.env, {
+        employeeId,
+        type: 'ELIGIBILITY_CHANGE',
+        tone: 'success',
+        dedupeKey: `eligibility:${benefitId}:override:active`,
+        title: 'Benefit Activated',
+        body: `Your ${benefitName} benefit is now ACTIVE.`,
+        metadata: { benefitId, reason: reason ?? null },
+      });
+    } else if (statusLower === 'pending') {
+      await dispatchEmployeeNotification(ctx.env, {
+        employeeId,
+        type: 'ELIGIBILITY_CHANGE',
+        tone: 'info',
+        dedupeKey: `eligibility:${benefitId}:override:pending`,
+        title: 'Benefit Pending',
+        body: `Your ${benefitName} benefit is pending review.`,
+        metadata: { benefitId, reason: reason ?? null },
+      });
+    }
   }
 
   const list = await getBenefitEligibilityForEmployee(ctx.env, employeeId);

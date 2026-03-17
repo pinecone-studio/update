@@ -82,10 +82,8 @@ export const benefitRequests: NonNullable<
           config?.[r.benefitId]?.financeCheck,
         );
         if (!needsFinanceApproval) return false;
-        if (rowStatus === "admin_approved") return true;
-        if (rowStatus === "pending") return false;
-        if (!statusFilter) return false;
-        return rowStatus === statusFilter;
+        if (!statusFilter) return true;
+        return (r.status ?? '').toLowerCase() === statusFilter;
       }
       if (r.employeeId !== actorId) return false;
       if (!statusFilter) return true;
