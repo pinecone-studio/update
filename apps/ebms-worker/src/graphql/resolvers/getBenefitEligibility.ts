@@ -18,10 +18,7 @@ import {
   getEmployeeForEligibility,
   evaluateBenefitRules,
 } from "../../eligibility/engine";
-import {
-  dispatchEmployeeNotification,
-  dispatchEmployeeWarningsIfNeeded,
-} from "../../notifications/dispatcher";
+import { dispatchEmployeeWarningsIfNeeded } from "../../notifications/dispatcher";
 
 async function safeDispatch(task: () => Promise<void>): Promise<void> {
   try {
@@ -199,35 +196,6 @@ export async function getBenefitEligibilityForEmployee(
         finalStatus !== "ACTIVE"
       ) {
         finalStatus = "REJECTED";
-      }
-
-      if (finalStatus === "ELIGIBLE") {
-        const cacheKey = `eligibility:${employeeId}:${row.benefitId}`;
-        const prev = await env.ELIGIBILITY_CACHE.get(cacheKey);
-        if (prev === "LOCKED") {
-          await safeDispatch(async () => {
-            await dispatchEmployeeNotification(env, {
-              employeeId,
-              type: "ELIGIBILITY_CHANGE",
-              tone: "info",
-              dedupeKey: `eligibility:${row.benefitId}:unlocked`,
-              title: "Benefit Unlocked",
-              body: `Your ${row.benefitName} benefit is now ELIGIBLE. You can request this benefit from your dashboard.`,
-              metadata: {
-                benefitId: row.benefitId,
-                benefitName: row.benefitName,
-              },
-            });
-          });
-        }
-        await env.ELIGIBILITY_CACHE.put(cacheKey, finalStatus, {
-          expirationTtl: 60 * 60 * 24 * 30,
-        });
-      } else if (finalStatus === "LOCKED") {
-        const cacheKey = `eligibility:${employeeId}:${row.benefitId}`;
-        await env.ELIGIBILITY_CACHE.put(cacheKey, finalStatus, {
-          expirationTtl: 60 * 60 * 24 * 30,
-        });
       }
 
       const reqStatus = pendingRequestStatusByBenefit.get(row.benefitId) ?? "pending";
