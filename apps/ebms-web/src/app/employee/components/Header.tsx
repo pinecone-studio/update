@@ -345,7 +345,9 @@ export const Header = () => {
               >
                 <HiOutlineBell className="text-sm w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-[0_0_0_2px_rgba(10,18,27,0.95)] animate-pulse">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
                 )}
               </button>
               {notificationOpen && (
@@ -450,6 +452,7 @@ export const Header = () => {
         selectedUserId={selectedUser.id}
         userOptions={userOptions}
         meName={me?.name}
+        unreadNotificationCount={unreadCount}
         isAdminOrHrUser={isAdminOrHrUser}
         isFinanceManagerUser={isFinanceManagerUser}
         onClose={() => setMenuOpen(false)}

@@ -15,6 +15,7 @@ interface MobileHeaderMenuProps {
   selectedUserId: string;
   userOptions: SwitchUserOption[];
   meName?: string;
+  unreadNotificationCount?: number;
   isAdminOrHrUser: boolean;
   isFinanceManagerUser: boolean;
   onClose: () => void;
@@ -28,6 +29,7 @@ export function MobileHeaderMenu({
   selectedUserId,
   userOptions,
   meName,
+  unreadNotificationCount = 0,
   isAdminOrHrUser,
   isFinanceManagerUser,
   onClose,
@@ -88,9 +90,14 @@ export function MobileHeaderMenu({
           <Link
             href="/employee/notification"
             onClick={onClose}
-            className="h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            className="relative h-8 w-8 rounded-full bg-slate-100 text-slate-600 grid place-items-center ring-1 ring-transparent hover:ring-blue-300 hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
             <HiOutlineBell className="text-sm" />
+            {unreadNotificationCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+              </span>
+            )}
           </Link>
           <Link href="/employee/notification" onClick={onClose} className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-blue-600 text-white text-[10px] font-semibold grid place-items-center">
