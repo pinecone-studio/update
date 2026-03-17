@@ -1,0 +1,81 @@
+"use client";
+
+import Link from "next/link";
+import {
+  HiOutlineArrowRightOnRectangle,
+  HiOutlineArrowTopRightOnSquare,
+  HiOutlineUserCircle,
+} from "react-icons/hi2";
+import { ProfileIcon } from "@/app/icons/profile";
+
+type AdminProfileDropdownProps = {
+  open: boolean;
+  selectedUser: { name?: string; id: string };
+  onClose: () => void;
+  onToggle: () => void;
+};
+
+export function AdminProfileDropdown({
+  open,
+  selectedUser,
+  onClose,
+  onToggle,
+}: AdminProfileDropdownProps) {
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-sm font-semibold text-white"
+        aria-label="Profile"
+      >
+        <ProfileIcon />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
+          <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 text-sm font-semibold text-white">
+                <ProfileIcon />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {selectedUser.name || selectedUser.id}
+                </p>
+                <p className="mt-1 text-4 text-slate-500 dark:text-[#A7B6D3]">
+                  {selectedUser.id}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="p-2">
+            <Link
+              href="/employee"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+              onClick={onClose}
+            >
+              <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+              Employee
+            </Link>
+            <Link
+              href="/admin/profile"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+              onClick={onClose}
+            >
+              <HiOutlineUserCircle className="h-4 w-4" />
+              Profile
+            </Link>
+            <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
+            <button
+              type="button"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-500/10"
+            >
+              <HiOutlineArrowRightOnRectangle className="h-4 w-4" />
+              Sign out
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
