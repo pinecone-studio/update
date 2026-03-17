@@ -16,7 +16,7 @@ database_id = "139bcf8f-fa56-4d83-b060-b0582c0fd458"
 binding = "CONTRACTS"
 bucket_name = "ebms-contracts"
 
-# ─── KV (eligibility cache, TTL 300s) ────────────────────────────────
+# ─── KV (eligibility cache — binding kept for compatibility, unused) ───
 [[kv_namespaces]]
 binding = "ELIGIBILITY_CACHE"
 id = "612adff365b747bea1d421bf4899b697"

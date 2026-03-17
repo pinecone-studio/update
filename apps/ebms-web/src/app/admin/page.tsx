@@ -373,109 +373,87 @@ export default function HrDashboardPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-hidden">
       <section className="grid min-h-0 flex-1 grid-cols-1 gap-8 lg:grid-cols-[auto_1fr] px-6 py-6 overflow-hidden">
-        <div className="flex flex-col gap-8 lg:min-w-[468px]">
+        <div className="flex flex-col gap-8 lg:min-w-[454px]">
           {statCards.map((card) => (
             <article
               key={card.title}
-              className="w-[468px] h-[320px] rounded-2xl bg-[#4f2754]/30  px-[54px] py-[62px] text-left shadow-lg ring-1 ring-white/10"
+              className="flex h-[320px] w-[454px] flex-col rounded-2xl px-[54px] py-[48px] text-left shadow-lg ring-1 ring-white/10"
               style={{
                 background:
                   card.key === "employees"
-                    ? `bg-[#4F2754]/50 `
-                    : "bg-[#0128244D]/30",
+                    ? "rgba(79, 39, 84, 0.5)"
+                    : "rgba(1, 40, 36, 0.3)",
               }}
             >
-              <div className="flex h-full min-h-[160px] flex-col gap-3">
-                <div className="flex items-center justify-center gap-10 ">
-                  <div className="flex h-[64px] w-[64px] items-center justify-center rounded-xl border border-white/50 text-white">
+              <div className="flex flex-1 flex-col justify-between gap-6">
+                <div className="flex items-center gap-10">
+                  <div className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-xl border border-white/50 text-white">
                     {card.icon}
                   </div>
-                  <p className=" text-[24px] font-semibold text-[#FAFBFB]">
-                    {card.title}
-                  </p>
+                  <p className="text-[24px] font-semibold text-[#FAFBFB]">{card.title}</p>
                 </div>
-                <div className="flex items-center gap-10 w-[382px] h-[185px] justify-center p-11">
-                  <p className=" flex-1 text-[154px] line-height-[120%] letter-spacing-[-0.2px] font-medium text-[#FAFBFB]">
-                    {card.value}
-                  </p>
+                <div className="flex items-center justify-between gap-10">
                   <button
                     type="button"
-                    onClick={() =>
-                      router.push(
-                        card.key === "employees"
-                          ? "/admin/employee-eligibility"
-                          : "/admin/add-benefit",
-                      )
-                    }
-                    className="max-h-[50px] max-w-[250px] bg-[#4F2754]/50 shrink-0 rounded-lg border border-white/50 px-10 py-2.5 text-[24px] font-medium text-[#F2F3F3] transition hover:bg-[#4F2754]/70"
+                    onClick={() => router.push(card.key === "employees" ? "/admin/employee-eligibility" : "/admin/add-benefit")}
+                    className="shrink-0 rounded-lg border border-white/50 px-10 py-2.5 text-[24px] font-medium text-[#F2F3F3] transition hover:bg-[#4F2754]/70"
                     style={{
                       background:
                         card.key === "employees"
-                          ? "[#4F2754]-50%"
-                          : "bg-[#0128244D]/30",
+                          ? "rgba(79, 39, 84, 0.5)"
+                          : "rgba(1, 40, 36, 0.3)",
                     }}
                   >
-                    {card.key === "employees" ? "Manage" : "Manage"}
+                    Manage 
                   </button>
+                  <p className="text-[154px] font-normal leading-none text-[#EDF6FF]">{card.value}</p>
                 </div>
               </div>
             </article>
           ))}
         </div>
 
-        <article className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[#262626] bg-[#1E293B] sm:p-6 dark:border-[#262626]">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between px-8 pt-11">
-            <h2 className="text-xl font-bold text-white">
-              Employee Benefit Requests
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {(
-                [
-                  { value: "PENDING" as const, label: "Pending" },
-                  { value: "APPROVED" as const, label: "Approved" },
-                  { value: "REJECTED" as const, label: "Rejected" },
-                  { value: undefined, label: "All" },
-                ] as const
-              ).map(({ value, label }) => (
-                <button
-                  key={value ?? "all"}
-                  type="button"
-                  onClick={() => setStatusFilter(value)}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                    statusFilter === value
-                      ? "bg-white  text-black dark:bg-[#ffffff]"
-                      : "border border-white/50  text-white "
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+        <article
+          className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[#262626] bg-[#0128244D] sm:p-6 dark:border-[#262626]"
+        >
+        <div className="mb-6 shrink-0 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between px-8 pt-11">
+          <h2 className="text-xl font-bold text-white">Employee Benefit Requests</h2>
+          <div className="flex flex-wrap gap-2">
+            {([
+              { value: "PENDING" as const, label: "Pending" },
+              { value: "APPROVED" as const, label: "Approved" },
+              { value: "REJECTED" as const, label: "Rejected" },
+              { value: undefined, label: "All" },
+            ] as const).map(({ value, label }) => (
+              <button
+                key={value ?? "all"}
+                type="button"
+                onClick={() => setStatusFilter(value)}
+                className={`rounded-xl px-4 text-[18px] py-2  font-medium transition ${
+                  statusFilter === value
+                    ? "bg-white text-black dark:bg-[#ffffff]"
+                    : "border border-white/50  text-white "
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {error && (
-            <div className="mx-8 mb-4 rounded-lg border border-red-500/50 bg-red-500/20 px-4 py-2 text-red-200">
-              {error}
-            </div>
-          )}
+        {error && <div className="mx-8 mb-4 shrink-0 rounded-lg border border-red-500/50 bg-red-500/20 px-4 py-2 text-red-200">{error}</div>}
 
+        <div className="min-h-0 flex-1 overflow-y-auto">
           {displayRequests.length === 0 ? (
-            <p className="px-8 py-8 text-center text-slate-400 dark:text-[#A7B6D3]">
-              No benefit requests found.
-            </p>
+            <p className="px-8 py-8 text-center text-slate-400 dark:text-[#A7B6D3]">No benefit requests found.</p>
           ) : (
-            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden overscroll-contain px-8 pb-8">
+            <div className="space-y-4 px-8 pb-8">
               {displayRequests.map((req) => {
-                const status = (req.status || "PENDING").toUpperCase();
-                const isLoading = actionLoadingId === req.id;
-                const hasSignedContract = Boolean(req.contractTemplateUrl);
-                const needsSignature =
-                  status === "APPROVED" &&
-                  req.requiresContract &&
-                  !hasSignedContract;
-                const employeeName = req.employeeName ?? req.employeeId ?? "";
-                const benefitText =
-                  req.benefitName ?? req.benefitId ?? "Benefit request";
+              const status = (req.status || "PENDING").toUpperCase();
+              const isLoading = actionLoadingId === req.id;
+              const needsSignature = req.requiresContract && !req.contractAcceptedAt;
+              const employeeName = req.employeeName ?? req.employeeId ?? "";
+              const benefitText = req.benefitName ?? req.benefitId ?? "Benefit request";
 
                 return (
                   <div
@@ -521,7 +499,7 @@ export default function HrDashboardPage() {
                             Signed contract uploaded
                           </span>
                         )}
-                        {hasSignedContract ? (
+                        {!needsSignature && req.contractTemplateUrl ? (
                           <a
                             href={`${apiBaseUrl}${req.contractTemplateUrl}`}
                             target="_blank"
@@ -547,11 +525,12 @@ export default function HrDashboardPage() {
                       </div>
                     </div>
                   </div>
-                );
-              })}
+              );
+            })}
             </div>
           )}
-        </article>
+        </div>
+      </article>
       </section>
     </div>
   );
