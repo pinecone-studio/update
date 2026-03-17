@@ -15,7 +15,7 @@ export function FinanceRouteGuard({
   useEffect(() => {
     const profile = getActiveUserProfile();
     const role = (profile.role ?? "").toLowerCase();
-    const allowed = role === "finance-manager";
+    const allowed = role.includes("finance");
     if (!allowed) {
       router.replace("/employee");
       setAuthorized(false);

@@ -260,8 +260,9 @@ export const Header = () => {
 	const isAdminOrHrUser =
 		(selectedUser.role ?? "").toLowerCase() === "admin" ||
 		(selectedUser.role ?? "").toLowerCase() === "hr";
-	const isFinanceManagerUser =
-		(selectedUser.role ?? "").toLowerCase() === "finance-manager";
+	const isFinanceManagerUser = (selectedUser.role ?? "")
+		.toLowerCase()
+		.includes("finance");
 
 	const handleAdminNavigate = (e: { preventDefault: () => void }) => {
 		if (isAdminOrHrUser) return;
@@ -272,7 +273,7 @@ export const Header = () => {
 	const handleFinanceNavigate = (e: { preventDefault: () => void }) => {
 		if (isFinanceManagerUser) return;
 		e.preventDefault();
-		alert("Зөвхөн finance-manager role-тэй хэрэглэгч Finance хэсэг рүү орж чадна.");
+		alert("Зөвхөн finance role-тэй хэрэглэгч Finance хэсэг рүү орж чадна.");
 	};
 
 	return (
