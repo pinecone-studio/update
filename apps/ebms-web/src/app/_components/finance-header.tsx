@@ -7,6 +7,7 @@ import {
   HiBars3,
   HiOutlineArrowPath,
   HiOutlineArrowRightOnRectangle,
+  HiOutlineArrowTopRightOnSquare,
   HiOutlineBell,
   HiOutlineClock,
   HiOutlineCurrencyDollar,
@@ -257,6 +258,13 @@ export function FinanceHeader() {
                 </div>
                 <div className="p-2">
                   <Link
+                    href="/employee"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+                  >
+                    <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+                    Employee
+                  </Link>
+                  <Link
                     href="/finance/profile"
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
                   >
@@ -299,6 +307,15 @@ export function FinanceHeader() {
               <span>{item.label}</span>
             </Link>
           ))}
+          <div className="h-px bg-slate-200 dark:bg-[#24395C] my-2" />
+          <Link
+            href="/employee"
+            onClick={() => setMenuOpen(false)}
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
+          >
+            <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
+            Employee руу шилжих
+          </Link>
           <div className="h-px bg-slate-200 dark:bg-[#24395C] my-2" />
           <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
             <span>User</span>
