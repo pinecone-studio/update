@@ -398,7 +398,8 @@ export default function HrDashboardPage() {
             {displayRequests.map((req) => {
               const status = (req.status || "PENDING").toUpperCase();
               const isLoading = actionLoadingId === req.id;
-              const needsSignature = req.requiresContract && !req.contractAcceptedAt;
+              const hasSignedContract = Boolean(req.contractTemplateUrl);
+              const needsSignature = status === "APPROVED" && req.requiresContract && !hasSignedContract;
               const employeeName = req.employeeName ?? req.employeeId ?? "";
               const benefitText = req.benefitName ?? req.benefitId ?? "Benefit request";
 
@@ -416,10 +417,10 @@ export default function HrDashboardPage() {
                           <button
                             type="button"
                             onClick={() => handleApprove(req.id)}
-                            disabled={isLoading || needsSignature}
+                            disabled={isLoading}
                             className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                           >
-                            {needsSignature ? "Await sign" : isLoading ? "..." : "Approve"}
+                            {isLoading ? "..." : "Approve"}
                           </button>
                           <button
                             type="button"
@@ -433,6 +434,29 @@ export default function HrDashboardPage() {
                       ) : null}
                     </div>
                   </div>
+                  {status === "APPROVED" && req.requiresContract ? (
+                    <div className="mt-1 flex items-center gap-3 text-xs">
+                      {needsSignature ? (
+                        <span className="rounded-md border border-amber-400/40 bg-amber-500/10 px-2 py-1 text-amber-200">
+                          Await sign
+                        </span>
+                      ) : (
+                        <span className="rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-emerald-200">
+                          Signed contract uploaded
+                        </span>
+                      )}
+                      {hasSignedContract ? (
+                        <a
+                          href={`${apiBaseUrl}${req.contractTemplateUrl}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-300 underline decoration-blue-300/40 underline-offset-4 hover:text-blue-200"
+                        >
+                          View signed contract
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : null}
                   <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
                       {getInitials(employeeName)}

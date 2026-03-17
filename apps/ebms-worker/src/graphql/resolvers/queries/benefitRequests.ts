@@ -3,6 +3,7 @@ import { requireEmployeeId } from '../context';
 import type { QueryResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
 import { asBool01 } from '../utils';
+import { getActiveEligibilityConfig } from '../../../eligibility/engine';
 import {
   benefitRequests as benefitRequestsTable,
   employees,
@@ -18,13 +19,21 @@ const statusMap: Record<string, string> = {
   CANCELLED: 'cancelled',
 };
 
+function isFinanceRole(role: string | null | undefined): boolean {
+  const normalized = (role ?? '').toLowerCase();
+  return normalized.includes('finance');
+}
+
 export const benefitRequests: NonNullable<
   QueryResolvers<Ctx>['benefitRequests']
 > = async (_, args, ctx) => {
   const actorId = requireEmployeeId(ctx);
   const role = (ctx.role ?? '').toLowerCase();
+  const isHrOrAdmin = role === 'hr' || role === 'admin';
+  const isFinance = isFinanceRole(role);
   const isHrOrAdminOrFinance = role === 'hr' || role === 'admin' || role === 'finance-manager';
   const db = getDb(ctx.env);
+  const config = await getActiveEligibilityConfig(ctx.env);
 
   const statusFilter = args.status
     ? statusMap[args.status] ?? args.status.toLowerCase()
@@ -55,6 +64,15 @@ export const benefitRequests: NonNullable<
 
   return rows
     .filter((r) => {
+      if (isHrOrAdmin) {
+        const needsFinanceApproval = Boolean(config?.[r.benefitId]?.financeCheck);
+        if (needsFinanceApproval) return false;
+        if (!statusFilter) return true;
+        return (r.status ?? '').toLowerCase() === statusFilter;
+      }
+      if (isFinance) {
+        const needsFinanceApproval = Boolean(config?.[r.benefitId]?.financeCheck);
+        if (!needsFinanceApproval) return false;
       if (isHrOrAdminOrFinance) {
         if (!statusFilter) return true;
         return (r.status ?? '').toLowerCase() === statusFilter;

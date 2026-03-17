@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { Header } from "@/app/_components/header";
 import { AdminRouteGuard } from "@/app/_components/AdminRouteGuard";
 import { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
+
 
 export const metadata: Metadata = {
 	title: 'EBMS — Admin Dashboard',

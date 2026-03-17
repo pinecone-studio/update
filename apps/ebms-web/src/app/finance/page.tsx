@@ -341,8 +341,11 @@ export default function FinancePage() {
 						</thead>
 						<tbody>
 							{visibleRequests.map((request, index) => {
+								const isPending = (request.status || "PENDING").toUpperCase() === "PENDING";
 								const needsSignature =
-									request.requiresContract && !request.contractAcceptedAt;
+									(request.status || "PENDING").toUpperCase() === "APPROVED" &&
+									request.requiresContract &&
+									!request.contractTemplateUrl;
 								return (
 								<tr key={request.id} className="border-b border-slate-200 dark:border-[#2B405F]">
 									<td className="px-4 py-4 sm:px-6 sm:py-5 text-5 font-semibold text-slate-900 dark:text-white">
@@ -407,10 +410,13 @@ export default function FinancePage() {
 											<button
 												type="button"
 												onClick={() => void handleDecision(request.id, true)}
-												disabled={submittingRequestId === request.id || needsSignature}
+												disabled={
+													submittingRequestId === request.id ||
+													!isPending
+												}
 												className="rounded-lg bg-green-600 px-3 py-1.5 text-5 font-medium text-white hover:bg-green-700 disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2 dark:bg-[#00C95F] dark:hover:bg-[#00B355]"
 											>
-												{needsSignature ? "Await sign" : "Approve"}
+												Approve
 											</button>
 											<button
 												type="button"
@@ -418,7 +424,7 @@ export default function FinancePage() {
 													setRejectingRequestId(request.id);
 													setRejectionReason("");
 												}}
-												disabled={submittingRequestId === request.id}
+												disabled={submittingRequestId === request.id || !isPending}
 												className="rounded-lg bg-red-500/90 px-3 py-1.5 text-5 font-medium text-white hover:bg-red-500 sm:rounded-xl sm:px-4 sm:py-2"
 											>
 												Reject

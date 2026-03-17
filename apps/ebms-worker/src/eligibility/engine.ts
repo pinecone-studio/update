@@ -9,7 +9,14 @@ import { eligibilityConfig, employees } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 type Rule = { type: string; operator: string; value: unknown; errorMessage?: string };
-type BenefitConfig = { name?: string; category?: string; subsidyPercent?: number; requiresContract?: boolean; rules?: Rule[] };
+type BenefitConfig = {
+  name?: string;
+  category?: string;
+  subsidyPercent?: number;
+  requiresContract?: boolean;
+  financeCheck?: boolean;
+  rules?: Rule[];
+};
 type ConfigBenefits = Record<string, BenefitConfig>;
 
 const EMPLOYEE_FIELD_MAP: Record<string, keyof typeof employees.$inferSelect> = {

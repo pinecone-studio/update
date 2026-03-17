@@ -7,6 +7,12 @@ import { getDb } from '../../../db/drizzle';
 import { benefitEligibility, benefitRequests, benefits, contracts } from '../../../db/schema';
 import { and, eq } from 'drizzle-orm';
 import { dispatchEmployeeNotification } from '../../../notifications/dispatcher';
+import { getActiveEligibilityConfig } from '../../../eligibility/engine';
+
+function isFinanceRole(role: string | null | undefined): boolean {
+  const normalized = (role ?? '').toLowerCase();
+  return normalized.includes('finance');
+}
 
 export const confirmBenefitRequest: NonNullable<
   MutationResolvers<Ctx>['confirmBenefitRequest']
@@ -51,6 +57,19 @@ export const confirmBenefitRequest: NonNullable<
     });
   }
 
+  const config = await getActiveEligibilityConfig(ctx.env);
+  const needsFinanceApproval = Boolean(config?.[row.benefitId]?.financeCheck);
+  const actorRole = (ctx.role ?? '').toLowerCase();
+  if (needsFinanceApproval) {
+    if (!isFinanceRole(actorRole)) {
+      throw new GraphQLError('Forbidden: finance role required for this benefit approval', {
+        extensions: { code: 'FORBIDDEN' },
+      });
+    }
+  } else {
+    requireHR(ctx);
+  }
+
   const requiresContract = row.requiresContract === 1;
 
   const now = new Date().toISOString();
@@ -83,8 +102,8 @@ export const confirmBenefitRequest: NonNullable<
 
     const nextEligibilityStatus = requiresContract ? 'pending' : 'active';
     const nextOverrideReason = requiresContract
-      ? 'Approved by admin/hr - awaiting signed contract upload'
-      : 'Approved by admin/hr';
+      ? `Approved by ${needsFinanceApproval ? 'finance' : 'admin/hr'} - awaiting signed contract upload`
+      : `Approved by ${needsFinanceApproval ? 'finance' : 'admin/hr'}`;
 
     if (existingEligibility[0]) {
       await db

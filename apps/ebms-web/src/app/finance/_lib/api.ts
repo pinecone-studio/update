@@ -11,6 +11,7 @@ export function getFinanceClient(): GraphQLClient {
   const base = getBaseUrl();
   const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
   return new GraphQLClient(url, {
+    headers: getActiveUserHeaders("finance"),
     headers: getActiveUserHeaders("finance-manager"),
   });
 }
