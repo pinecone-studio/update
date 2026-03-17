@@ -66,6 +66,8 @@ export const typeDefs = /* GraphQL */ `
     ruleEvaluations: [RuleEvaluation!]!
     computedAt: String!
     rejectedReason: String
+    overrideApplied: Boolean!
+    overrideReason: String
   }
 
   type RuleEvaluation {

@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   HiBars3,
+  HiOutlineArrowPath,
   HiOutlineArrowRightOnRectangle,
   HiOutlineBell,
-  HiOutlineChartPie,
   HiOutlineClock,
   HiOutlineCurrencyDollar,
   HiOutlineDocumentText,
@@ -23,6 +23,7 @@ import {
   type ActiveUserProfile,
   type SwitchUserOption,
 } from "@/app/_lib/activeUser";
+import { ProfileIcon } from "../icons/profile";
 
 type NavItem = {
   label: string;
@@ -34,7 +35,7 @@ const navItems: NavItem[] = [
   {
     label: "Dashboard",
     href: "/finance",
-    icon: <HiOutlineChartPie className="h-4 w-4" />,
+    icon: <HiOutlineArrowPath className="h-4 w-4" />,
   },
   {
     label: "Budget Overview",
@@ -146,7 +147,7 @@ export function FinanceHeader() {
           href="/finance"
           className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 transition-opacity hover:opacity-90"
         >
-      <div className="flex items-center gap-2">
+         <div className="flex items-center gap-2">
               <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
               <div className="leading-[24px] ">
                 <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
@@ -155,8 +156,6 @@ export function FinanceHeader() {
               </div>
             </div>
         </Link>
-        </div>
-
         <nav className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
             <Link
@@ -173,7 +172,7 @@ export function FinanceHeader() {
             </Link>
           ))}
         </nav>
-
+      
         <div className="flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
           <button
             type="button"
@@ -183,9 +182,8 @@ export function FinanceHeader() {
           >
             <HiBars3 className="h-5 w-5" />
           </button>
-          <div className="h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white">
-          <ThemeToggle />
           <label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+            <HiOutlineUserCircle className="h-4 w-4 shrink-0" />
             <span>User</span>
             <select
               value={selectedUser.id}
@@ -200,6 +198,9 @@ export function FinanceHeader() {
               ))}
             </select>
           </label>
+          <div className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+            <ThemeToggle />
+          </div>
           <div className="relative hidden md:block" ref={notificationRef}>
             <button
               type="button"
@@ -232,17 +233,17 @@ export function FinanceHeader() {
                 setProfileOpen((prev) => !prev);
                 setNotificationOpen(false);
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white "
+              className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200"
               aria-label="Profile"
             >
-              {initials}
+              <ProfileIcon/>
             </button>
             {profileOpen && (
               <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
                 <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white dark:bg-[#2F66E8]">
-                      {initials}
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200">
+                  <ProfileIcon/>
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-slate-900 dark:text-white">

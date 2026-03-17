@@ -118,7 +118,7 @@ export async function getEmployeeForEligibility(env: Env, employeeId: string): P
   if (!row) return null;
   return {
     employmentStatus: row.employmentStatus ?? '',
-    okrSubmitted: Number(row.okrSubmitted) === 1,
+    okrSubmitted: Number(row.okrSubmitted ?? 0) > 0,
     lateArrivalCount: row.lateArrivalCount ?? 0,
     responsibilityLevel: row.responsibilityLevel ?? 0,
     tenureDays: calculateTenureDays(row.hireDate),

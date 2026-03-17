@@ -31,4 +31,6 @@ export type MyBenefitEligibility = {
 	ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
 	computedAt: string;
 	rejectedReason?: string | null;
+	overrideApplied: boolean;
+	overrideReason?: string | null;
 };

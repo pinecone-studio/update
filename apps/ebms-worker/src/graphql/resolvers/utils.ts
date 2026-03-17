@@ -1,5 +1,15 @@
 export function asBool01(v: unknown): boolean {
-  return v === 1 || v === true || v === '1';
+  if (v === true) return true;
+  if (v === false || v == null) return false;
+  if (typeof v === 'number') return v > 0;
+  if (typeof v === 'string') {
+    const s = v.trim().toLowerCase();
+    if (s === 'true' || s === 'yes') return true;
+    if (s === 'false' || s === 'no' || s === '') return false;
+    const n = Number(s);
+    if (!Number.isNaN(n)) return n > 0;
+  }
+  return false;
 }
 
 export function mapBenefitStatus(

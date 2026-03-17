@@ -78,6 +78,8 @@ export function mapMyBenefitsToCardProps(
 			status: item.status as BenefitCardProps["status"],
 			lockReason,
 			rejectReason,
+			overrideApplied: item.overrideApplied ?? false,
+			overrideReason: item.overrideReason ?? undefined,
 			eligibilityRules,
 			icon,
 			iconBgColor: "bg-[#334155]",

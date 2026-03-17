@@ -102,15 +102,41 @@ function formatDate(iso: string): string {
   }
 }
 
+function formatRelativeTime(iso: string): string {
+  if (!iso) return "—";
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins} minute${diffMins === 1 ? "" : "s"} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+    return formatDate(iso);
+  } catch {
+    return iso;
+  }
+}
+
+function getInitials(name: string | null | undefined): string {
+  if (!name || !name.trim()) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
 function statusBadge(status: string) {
   const styles: Record<string, string> = {
-    PENDING: "bg-[#FFAD0F]/20 text-[#FFAD0F] border-[#FFAD0F]/40",
-    APPROVED: "bg-[#00C95F]/20 text-[#00C95F] border-[#00C95F]/40",
-    REJECTED: "bg-red-500/20 text-red-400 border-red-500/40",
-    CANCELLED: "bg-[#64748B]/20 text-[#94A3B8] border-[#64748B]/40",
+    PENDING: "bg-amber-700/90 text-white",
+    APPROVED: "bg-emerald-800/90 text-white",
+    REJECTED: "bg-red-900/90 text-white",
+    CANCELLED: "bg-slate-600/90 text-slate-300",
   };
-  const cls = styles[status] ?? "bg-[#64748B]/20 text-[#94A3B8] border-[#64748B]/40";
-  return <span className={`inline-flex rounded-xl border px-3 py-1 text-xs font-medium ${cls}`}>{status}</span>;
+  const cls = styles[status] ?? "bg-slate-600/90 text-slate-300";
+  return <span className={`inline-flex rounded-lg px-3 py-1 text-xs font-medium ${cls}`}>{status}</span>;
 }
 
 export default function HrDashboardPage() {
@@ -205,16 +231,16 @@ export default function HrDashboardPage() {
   const statCards: StatCard[] = [
     {
       key: "employees",
-      title: "Total Employees",
+      title: "Total-Employees",
       value: String(totalEmployees),
-      toneClass: "border-[#2A8BFF]/40 bg-[#2A8BFF]/20 text-[#2A8BFF]",
+      toneClass: "from-purple-600/80 to-purple-800/90",
       icon: <HrTotalEmployeeIcon />,
     },
     {
       key: "benefits",
-      title: "All Benefits",
+      title: "All-Benefits",
       value: String(activeBenefits),
-      toneClass: "border-[#00C95F]/40 bg-[#00C95F]/20 text-[#00C95F]",
+      toneClass: "from-emerald-500/80 to-cyan-700/90",
       icon: <HrActiveBenefitsIcon />,
     },
   ];
@@ -295,41 +321,51 @@ export default function HrDashboardPage() {
   if (loading) return <AdminDashboardSkeleton />;
 
   return (
-    <div className="space-y-6">
-      <div className="mb-8 sm:mb-10">
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white sm:text-3xl">Dashboard</h1>
-        <p className="mt-2 sm:mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">Overview of your HR benefits management system</p>
-      </div>
-
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="grid grid-cols-2 gap-2 lg:col-span-1">
+    <div className="flex min-h-0 flex-col gap-8 overflow-hidden">
+      <section className="grid min-h-0 flex-1 grid-cols-1 gap-8 lg:grid-cols-[auto_1fr] px-6 py-6">
+        <div className="flex flex-col gap-8 lg:min-w-[468px]">
           {statCards.map((card) => (
-            <article key={card.title} className="min-w-0 h-[128px] rounded-xl border border-slate-200 bg-white p-3 text-left dark:border-[#2C4264] dark:bg-[#1E293B]">
-              <div className="flex h-full flex-col justify-between">
-                <div className="flex items-start justify-between">
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-lg border text-base ${card.toneClass}`}>{card.icon}</div>
-                  <button
-                    type="button"
-                    onClick={() => router.push(card.key === "employees" ? "/admin/employee-eligibility" : "/admin/add-benefit")}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-xl text-blue-600 dark:bg-[#24364F] dark:text-[#2A8BFF]"
-                    aria-label={`${card.title} details`}
-                  >
-                    ›
-                  </button>
+            <article
+              key={card.title}
+              className="w-[468px] h-[320px] rounded-2xl bg-[#0128244D]/30  px-[54px] py-[62px] text-left shadow-lg ring-1 ring-white/10"
+              style={{
+                background:
+                  card.key === "employees"
+                    ? `bg-[#4F275480]/50 `
+                    : "bg-[#0128244D]/30",
+              }}
+            >
+              <div className="flex h-full min-h-[160px] flex-col gap-3">
+                <div className="flex items-center justify-center gap-10 ">
+                <div className="flex h-[64px] w-[64px] items-center justify-center rounded-xl border border-white/50 text-white">{card.icon}</div>
+                <p className=" text-[24px] font-semibold text-[#FAFBFB]">{card.title}</p>
                 </div>
-                <p className="flex items-baseline gap-2 text-8 font-medium text-slate-600 dark:text-[#A7B6D3]">
-                  <span>{card.title}</span>
-                  <span className="text-10 font-semibold text-slate-900 dark:text-white">{card.value}</span>
-                </p>
+                <div className="flex items-center gap-10 w-[382px] h-[185px] justify-center p-11">
+                <p className=" flex-1 text-[154px] line-height-[120%] letter-spacing-[-0.2px] font-medium text-[#FAFBFB]">{card.value}</p>
+                <button
+                  type="button"
+                  onClick={() => router.push(card.key === "employees" ? "/admin/employee-eligibility" : "/admin/add-benefit")}
+                  className="max-h-[50px] max-w-[250px] shrink-0 rounded-lg border border-white/50 px-10 py-2.5 text-[24px] font-medium text-[#F2F3F3] transition hover:bg-[#4F2754]/70"
+                  style={{
+                    background:
+                      card.key === "employees"
+                        ? "[#4F275480]-50%"
+                        : "bg-[#0128244D]/30",
+                  }}
+                >
+                  {card.key === "employees" ? "Manage" : "Manage"}
+                </button>
+                </div>
               </div>
             </article>
           ))}
         </div>
-      </section>
 
-      <article className="mt-6 sm:mt-8 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
-        <div className="mb-4 sm:mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <h2 className="text-11 font-semibold text-slate-900 dark:text-white">Employee Benefit Requests</h2>
+        <article
+          className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#0128244D]/30 rounded-[24px] border border-[#262626] bg-[#1E293B] sm:p-6 dark:border-[#262626]"
+        >
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between px-8 pt-11">
+          <h2 className="text-xl font-bold text-white">Employee Benefit Requests</h2>
           <div className="flex flex-wrap gap-2">
             {([
               { value: "PENDING" as const, label: "Pending" },
@@ -344,7 +380,7 @@ export default function HrDashboardPage() {
                 className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                   statusFilter === value
                     ? "bg-blue-600 text-white dark:bg-[#2A8BFF]"
-                    : "border border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-[#2C4264] dark:text-[#A7B6D3] dark:hover:bg-[#24364F]"
+                    : "border border-blue-500/50 bg-transparent text-white hover:border-blue-400/70"
                 }`}
               >
                 {label}
@@ -353,125 +389,66 @@ export default function HrDashboardPage() {
           </div>
         </div>
 
-        {error && <div className="mb-4 rounded-lg border border-red-500/50 bg-red-500/20 px-4 py-2 text-red-200">{error}</div>}
+        {error && <div className="mx-8 mb-4 rounded-lg border border-red-500/50 bg-red-500/20 px-4 py-2 text-red-200">{error}</div>}
 
         {displayRequests.length === 0 ? (
-          <p className="py-8 text-center text-slate-600 dark:text-[#A7B6D3]">No benefit requests found.</p>
+          <p className="px-8 py-8 text-center text-slate-400 dark:text-[#A7B6D3]">No benefit requests found.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-5">
-              <thead className="border-b border-slate-200 text-slate-600 dark:border-[#2B405F] dark:text-[#A7B6D3]">
-                <tr>
-                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Request (Benefit)</th>
-                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Employee</th>
-                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Status</th>
-                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Contract</th>
-                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Date</th>
-                  <th className="px-3 py-3 font-medium sm:px-4 sm:py-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayRequests.map((req) => {
-                  const status = (req.status || "PENDING").toUpperCase();
-                  const isLoading = actionLoadingId === req.id;
-                  const hasUploadedSignedContract = Boolean(req.contractTemplateUrl);
-                  const canUploadSignedContract =
-                    req.requiresContract && status === "APPROVED" && !hasUploadedSignedContract;
-                  const isUploadingSignedContract =
-                    uploadingContractByRequestId[req.id] ?? false;
-                  const signedContractUrl = req.contractTemplateUrl
-                    ? req.contractTemplateUrl.startsWith("http")
-                      ? req.contractTemplateUrl
-                      : `${apiBaseUrl}${req.contractTemplateUrl.startsWith("/") ? "" : "/"}${req.contractTemplateUrl}`
-                    : null;
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-8 pb-8">
+            {displayRequests.map((req) => {
+              const status = (req.status || "PENDING").toUpperCase();
+              const isLoading = actionLoadingId === req.id;
+              const needsSignature = req.requiresContract && !req.contractAcceptedAt;
+              const employeeName = req.employeeName ?? req.employeeId ?? "";
+              const benefitText = req.benefitName ?? req.benefitId ?? "Benefit request";
 
-                  return (
-                    <tr key={req.id} className="border-b border-slate-200 last:border-b-0 dark:border-[#2B405F]">
-                      <td className="px-3 py-3 font-medium text-slate-900 dark:text-white sm:px-4 sm:py-4">{req.benefitName ?? req.benefitId}</td>
-                      <td className="px-3 py-3 text-slate-600 dark:text-[#A7B6D3] sm:px-4 sm:py-4">{req.employeeName ?? req.employeeId}</td>
-                      <td className="px-3 py-3 sm:px-4 sm:py-4">{statusBadge(status)}</td>
-                      <td className="px-3 py-3 sm:px-4 sm:py-4">
-                        {req.requiresContract ? (
-                          hasUploadedSignedContract ? (
-                            <a
-                              href={signedContractUrl ?? "#"}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-xs font-medium text-emerald-500 underline"
-                            >
-                              Signed contract
-                            </a>
-                          ) : (
-                            <span className="text-xs font-medium text-amber-500">
-                              Await upload
-                            </span>
-                          )
-                        ) : (
-                          <span className="text-xs text-slate-400 dark:text-slate-500">N/A</span>
-                        )}
-                      </td>
-                      <td className="px-3 py-3 text-slate-500 dark:text-[#8FA3C5] sm:px-4 sm:py-4">{formatDate(req.createdAt)}</td>
-                      <td className="px-3 py-3 sm:px-4 sm:py-4">
-                        {status === "PENDING" ? (
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                            <button
-                              type="button"
-                              onClick={() => handleApprove(req.id)}
-                              disabled={isLoading}
-                              className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {isLoading ? "..." : "Approve"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleReject(req.id)}
-                              disabled={isLoading}
-                              className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap items-center gap-2">
-                            {canUploadSignedContract ? (
-                              <>
-                                <input
-                                  type="file"
-                                  accept="application/pdf"
-                                  onChange={(e) =>
-                                    setSelectedContractFileByRequestId((prev) => ({
-                                      ...prev,
-                                      [req.id]: e.target.files?.[0] ?? null,
-                                    }))
-                                  }
-                                  className="text-xs text-slate-600 dark:text-slate-300 file:mr-2 file:rounded-md file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:text-xs file:text-slate-700 dark:file:bg-[#24364F] dark:file:text-[#D1DBEF]"
-                                />
-                                <button
-                                  type="button"
-                                  disabled={
-                                    !selectedContractFileByRequestId[req.id] ||
-                                    isUploadingSignedContract
-                                  }
-                                  onClick={() => void handleUploadSignedContract(req.id)}
-                                  className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  {isUploadingSignedContract ? "Uploading..." : "Upload signed"}
-                                </button>
-                              </>
-                            ) : (
-                              <span className="text-slate-400 dark:text-slate-500">—</span>
-                            )}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+              return (
+                <div
+                  key={req.id}
+                  className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-4 dark:border-[#2C4264] dark:bg-[#24364F]/30"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-slate-400 dark:text-[#94A3B8]">{formatRelativeTime(req.createdAt)}</span>
+                    <div className="flex items-center gap-2">
+                      {statusBadge(status)}
+                      {status === "PENDING" ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(req.id)}
+                            disabled={isLoading || needsSignature}
+                            className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {needsSignature ? "Await sign" : isLoading ? "..." : "Approve"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleReject(req.id)}
+                            disabled={isLoading}
+                            className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
+                      {getInitials(employeeName)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white">{employeeName}</p>
+                      <p className="mt-0.5 text-sm text-slate-400 dark:text-[#A7B6D3]">{benefitText}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </article>
+      </section>
     </div>
   );
 }

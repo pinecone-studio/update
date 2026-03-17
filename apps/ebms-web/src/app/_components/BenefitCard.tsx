@@ -119,6 +119,10 @@ export interface BenefitCardProps {
 	lockReason?: string;
 	/** Rejection reason when status is REJECTED (admin's feedback) */
 	rejectReason?: string;
+	/** True when status is currently controlled by an HR/Admin override */
+	overrideApplied?: boolean;
+	/** Optional reason attached to the active override */
+	overrideReason?: string;
 	/** Rules evaluated for eligibility breakdown (shown in detail view) */
 	eligibilityRules?: EligibilityRule[];
 	icon: ReactNode;
@@ -160,6 +164,8 @@ export const BenefitCard = ({
 	status,
 	lockReason,
 	rejectReason,
+	overrideApplied = false,
+	overrideReason,
 	eligibilityRules,
 	icon,
 	iconBgColor: _iconBgColor = "bg-[#4CAF50]/20",
@@ -187,6 +193,7 @@ export const BenefitCard = ({
 				: status === "REJECTED"
 					? normalizedRejectReason || STATUS_MESSAGE[status]
 					: STATUS_MESSAGE[status];
+	const normalizedOverrideReason = (overrideReason ?? "").trim();
 	const [shouldAnimate, setShouldAnimate] = useState(false);
 
 	useEffect(() => {
@@ -311,27 +318,15 @@ export const BenefitCard = ({
 							{hideStatusBadge ? null : <StatusBadge status={status} />}
 						</div>
 
-						{isAdminVariant && !compact ? (
-							<div className="mb-2">
-								<div className="mt-3 space-y-0.5">
-									{subsidyPercentage ? (
-										<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
-											<span className={labelClass}>Coverage</span>
-											<span className={valueClass}>{subsidyPercentage} subsidy</span>
-										</div>
-									) : null}
-									<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
-										<span className={labelClass}>Vendor</span>
-										<span className={valueClass}>{vendorDisplayName}</span>
-									</div>
-									<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
-										<span className={labelClass}>Rules</span>
-										<span className={valueClass}>{_eligibilityCriteria}</span>
-									</div>
-									<p className={`pt-4 ${bodyClass}`}>{description}</p>
-								</div>
-							</div>
-						) : null}
+						<div className="flex flex-col items-end gap-2">
+							<StatusBadge status={status} />
+							{overrideApplied ? (
+								<span className="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-amber-200">
+									MANUAL OVERRIDE
+								</span>
+							) : null}
+						</div>
+					</div>
 
 						{!isAdminVariant && !compact && status === "ACTIVE" ? (
 							<div className="mb-2">
@@ -349,6 +344,12 @@ export const BenefitCard = ({
 									</div>
 									<p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
 								</div>
+								<p className="pt-4 text-base text-white/85">{STATUS_MESSAGE.ACTIVE}</p>
+								{overrideApplied ? (
+									<p className="pt-2 text-xs text-amber-200/90">
+										Override: {normalizedOverrideReason || "Status manually updated by HR/Admin."}
+									</p>
+								) : null}
 							</div>
 						) : null}
 
@@ -368,6 +369,12 @@ export const BenefitCard = ({
 									</div>
 									<p className={`pt-5 ${bodyClass}`}>{supportText}</p>
 								</div>
+								<p className="pt-5 text-base text-white/85">{supportText}</p>
+								{overrideApplied ? (
+									<p className="pt-2 text-xs text-amber-200/90">
+										Override: {normalizedOverrideReason || "Status manually updated by HR/Admin."}
+									</p>
+								) : null}
 							</div>
 						) : null}
 
