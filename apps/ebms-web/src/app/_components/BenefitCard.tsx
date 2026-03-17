@@ -75,10 +75,10 @@ const STATUS_CARD_STYLES: Record<
 };
 
 const BUTTON_TEXT_BY_STATUS: Record<BenefitStatus, string> = {
-	ELIGIBLE: "Request benefit \u2192",
-	ACTIVE: "Manage benefit \u2192",
-	PENDING: "View request \u2192",
-	LOCKED: "View requirements \u2192",
+	ELIGIBLE: "Request benefit",
+	ACTIVE: "Manage benefit",
+	PENDING: "View request",
+	LOCKED: "View requirements",
 	REJECTED: "Request benefit",
 };
 
@@ -132,6 +132,8 @@ export interface BenefitCardProps {
 	footerActions?: ReactNode;
 	/** Compact layout for list/sidebar (single column) */
 	compact?: boolean;
+	variant?: "default" | "admin";
+	hideStatusBadge?: boolean;
 }
 
 function StatusBadge({ status }: { status: BenefitStatus }) {
@@ -167,9 +169,12 @@ export const BenefitCard = ({
 	onRequestBenefit,
 	footerActions,
 	compact,
+	variant = "default",
+	hideStatusBadge = false,
 }: BenefitCardProps) => {
 	const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[status];
 	const theme = STATUS_CARD_STYLES[status];
+	const isAdminVariant = variant === "admin";
 	const categoryLabel = category
 		? `${category.charAt(0).toUpperCase()}${category.slice(1)} benefit`
 		: description;
@@ -206,6 +211,28 @@ export const BenefitCard = ({
 		status === "REJECTED" ||
 		((status === "ACTIVE" || status === "LOCKED" || status === "PENDING") &&
 			onClick);
+	const cardClass = isAdminVariant
+		? "border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-[#324A70] dark:bg-[linear-gradient(180deg,#162338_0%,#122033_100%)] dark:shadow-[0_14px_36px_rgba(2,11,31,0.34)]"
+		: theme.card;
+	const iconWrapClass = isAdminVariant
+		? `${_iconBgColor} ${_iconColor} border border-black/5 dark:border-white/10`
+		: `${theme.iconWrap} ${theme.iconColor}`;
+	const titleClass = isAdminVariant ? "text-slate-900 dark:text-white" : "text-white";
+	const metaClass = isAdminVariant
+		? "text-slate-500 dark:text-[#9FB0CF]"
+		: "text-white/50";
+	const dividerClass = isAdminVariant
+		? "bg-gradient-to-r from-slate-200 via-slate-100 to-transparent dark:from-[#2C4264] dark:via-[#223655] dark:to-transparent"
+		: "bg-gradient-to-r from-white/18 via-white/12 to-white/6";
+	const labelClass = isAdminVariant
+		? "text-sm text-slate-500 dark:text-[#9FB0CF]"
+		: "text-sm text-white/55";
+	const valueClass = isAdminVariant
+		? "text-sm font-semibold text-slate-800 dark:text-white/90"
+		: "text-sm font-semibold text-white/90";
+	const bodyClass = isAdminVariant
+		? "text-[15px] leading-6 text-slate-600 dark:text-[#D1DBEF]"
+		: "text-base text-white/85";
 	return (
 		<div
 			className={`flex flex-col w-full ${compact ? "" : "h-full"} ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
@@ -222,15 +249,15 @@ export const BenefitCard = ({
 			}
 			role={onClick ? "button" : undefined}
 			tabIndex={onClick ? 0 : undefined}
-		>
-			<div
-				className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-5 backdrop-blur-sm shadow-lg transition-all duration-300 ${
-					theme.card
-				} ${
-					compact ? "flex-none" : "flex-1 min-h-0"
-				}`}
 			>
-				{shouldAnimate ? (
+				<div
+					className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-5 backdrop-blur-sm shadow-lg transition-all duration-300 ${
+						cardClass
+					} ${
+						compact ? "flex-none" : "flex-1 min-h-0"
+					}`}
+				>
+					{shouldAnimate && !isAdminVariant ? (
 					<div
 						className="pointer-events-none absolute inset-0 opacity-70"
 						style={{
@@ -242,17 +269,17 @@ export const BenefitCard = ({
 				<div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
 				<div className="relative flex h-full flex-col">
-					<div className="mb-4 flex items-start justify-between">
-						<div className="flex items-start gap-4">
-							<div
-								className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${theme.iconWrap} ${theme.iconColor}`}
-							>
-								<div className="h-6 w-6">{icon}</div>
-							</div>
+						<div className="mb-4 flex items-start justify-between">
+							<div className="flex items-start gap-4">
+								<div
+									className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${iconWrapClass}`}
+								>
+									<div className="h-6 w-6">{icon}</div>
+								</div>
 
-							<div className="min-w-0">
-								<div className="flex items-center gap-2">
-									<h3 className="text-base font-semibold text-white">{name}</h3>
+								<div className="min-w-0">
+									<div className="flex items-center gap-2">
+										<h3 className={`text-base font-semibold ${titleClass}`}>{name}</h3>
 									{status === "ACTIVE" &&
 									(eligibilityRules ?? []).length > 0 ? (
 										<span
@@ -275,62 +302,78 @@ export const BenefitCard = ({
 												</ul>
 											</span>
 										</span>
+										) : null}
+									</div>
+									<p className={`mt-1 text-sm ${metaClass}`}>{categoryLabel}</p>
+								</div>
+							</div>
+
+							{hideStatusBadge ? null : <StatusBadge status={status} />}
+						</div>
+
+						{isAdminVariant && !compact ? (
+							<div className="mb-2">
+								<div className="mt-3 space-y-0.5">
+									{subsidyPercentage ? (
+										<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+											<span className={labelClass}>Coverage</span>
+											<span className={valueClass}>{subsidyPercentage} subsidy</span>
+										</div>
 									) : null}
-								</div>
-								<p className="mt-1 text-sm text-white/50">{categoryLabel}</p>
-							</div>
-						</div>
-
-						<StatusBadge status={status} />
-					</div>
-
-					{!compact && status === "ACTIVE" ? (
-						<div className="mb-2">
-							<div className="h-px bg-gradient-to-r from-white/18 via-white/12 to-white/6" />
-							<div className="mt-3 space-y-0.5">
-								{subsidyPercentage ? (
-									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
-										<span className="text-sm text-white/55">Coverage</span>
-										<span className="text-sm font-semibold text-white/90">
-											{subsidyPercentage} subsidy
-										</span>
+									<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+										<span className={labelClass}>Vendor</span>
+										<span className={valueClass}>{vendorDisplayName}</span>
 									</div>
-								) : null}
-								<div className="flex items-center justify-between border-b border-white/10 py-2.5">
-									<span className="text-sm text-white/55">Vendor</span>
-									<span className="text-sm font-semibold text-white/90">
-										{vendorDisplayName}
-									</span>
-								</div>
-								<p className="pt-4 text-base text-white/85">{STATUS_MESSAGE.ACTIVE}</p>
-							</div>
-						</div>
-					) : null}
-
-					{!compact && status !== "ACTIVE" ? (
-						<div className="mb-2">
-							<div className="h-px bg-gradient-to-r from-white/18 via-white/12 to-white/6" />
-							<div className="mt-3 space-y-0.5">
-								{subsidyPercentage ? (
-									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
-										<span className="text-sm text-white/55">Coverage</span>
-										<span className="text-sm font-semibold text-white/90">
-											{subsidyPercentage} subsidy
-										</span>
+									<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+										<span className={labelClass}>Rules</span>
+										<span className={valueClass}>{_eligibilityCriteria}</span>
 									</div>
-								) : null}
-								<div className="flex items-center justify-between border-b border-white/10 py-2.5">
-									<span className="text-sm text-white/55">Vendor</span>
-									<span className="text-sm font-semibold text-white/90">
-										{vendorDisplayName}
-									</span>
+									<p className={`pt-4 ${bodyClass}`}>{description}</p>
 								</div>
-								<p className="pt-5 text-base text-white/85">{supportText}</p>
 							</div>
-						</div>
-					) : null}
+						) : null}
 
-					<div className="mb-4 mt-auto h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+						{!isAdminVariant && !compact && status === "ACTIVE" ? (
+							<div className="mb-2">
+								<div className={`h-px ${dividerClass}`} />
+								<div className="mt-3 space-y-0.5">
+									{subsidyPercentage ? (
+										<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+											<span className={labelClass}>Coverage</span>
+											<span className={valueClass}>{subsidyPercentage} subsidy</span>
+										</div>
+									) : null}
+									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+										<span className={labelClass}>Vendor</span>
+										<span className={valueClass}>{vendorDisplayName}</span>
+									</div>
+									<p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
+								</div>
+							</div>
+						) : null}
+
+						{!isAdminVariant && !compact && status !== "ACTIVE" ? (
+							<div className="mb-2">
+								<div className={`h-px ${dividerClass}`} />
+								<div className="mt-3 space-y-0.5">
+									{subsidyPercentage ? (
+										<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+											<span className={labelClass}>Coverage</span>
+											<span className={valueClass}>{subsidyPercentage} subsidy</span>
+										</div>
+									) : null}
+									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+										<span className={labelClass}>Vendor</span>
+										<span className={valueClass}>{vendorDisplayName}</span>
+									</div>
+									<p className={`pt-5 ${bodyClass}`}>{supportText}</p>
+								</div>
+							</div>
+						) : null}
+
+						{!isAdminVariant ? (
+							<div className="mb-4 mt-auto h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+						) : null}
 
 					{footerActions ? (
 						<div className="w-full">{footerActions}</div>

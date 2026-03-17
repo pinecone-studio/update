@@ -56,12 +56,12 @@ export function AddBenefitForm({
   return (
     <section className={sectionClass}>
       <h2 className="text-xl font-medium text-slate-900 dark:text-white">
-        {isEditMode ? "1. Benefit засварлах" : "1. Benefit нэмэх (зөвхөн D1)"}
+        {isEditMode ? "1. Benefit засварлах" : "1. Benefit нэмэх"}
       </h2>
       <p className="mt-1 text-sm text-slate-600 dark:text-[#94A3B8]">
         {isEditMode
           ? "Нэр, ангилал, хөнгөлөлтийн хувийг засварлаад хадгална."
-          : "Нэр, ангилал, хөнгөлөлт, гэрээ шаардлагатай гэх мэтийг оруулаад D1 руу нэмнэ. Дүрмийг дараагийн хэсэгт тохируулна."}
+          : "Нэр, ангилал, хөнгөлөлтөө оруулаад доорх хэсэгт дүрмээ нэмнэ. Доорх Save товчоор benefit болон дүрмийг хамт хадгална."}
       </p>
 
       {error && (

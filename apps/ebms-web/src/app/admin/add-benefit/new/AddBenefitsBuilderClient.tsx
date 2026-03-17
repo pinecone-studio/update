@@ -26,7 +26,7 @@ import { RuleConfigSection } from "../_components/RuleConfigSection";
 type AddBenefitsBuilderClientProps = {
   inModal?: boolean;
   compactCreateMode?: boolean;
-  onSaved?: () => void;
+  onSaved?: () => void | Promise<void>;
   onClose?: () => void;
 };
 
@@ -36,6 +36,7 @@ export default function AddBenefitsBuilderClient({
   onSaved,
   onClose,
 }: AddBenefitsBuilderClientProps = {}) {
+  const DRAFT_BENEFIT_ID = "__draft_new_benefit__";
   const router = useRouter();
   const searchParams = useSearchParams();
   const benefitIdFromQuery = searchParams.get("benefitId");
@@ -43,8 +44,6 @@ export default function AddBenefitsBuilderClient({
 
   const [form, setForm] = useState<AddBenefitFormState>(DEFAULT_FORM);
   const [creating, setCreating] = useState(false);
-  const [error1, setError1] = useState<string | null>(null);
-  const [message1, setMessage1] = useState<string | null>(null);
 
   const [catalogBenefits, setCatalogBenefits] = useState<BenefitFromCatalog[]>([]);
   const [loadingCatalog, setLoadingCatalog] = useState(false);
@@ -126,98 +125,59 @@ export default function AddBenefitsBuilderClient({
     });
   }, [benefitIdFromQuery, catalogBenefits, config]);
 
-  const handleCreateBenefit = useCallback(async () => {
-    const name = form.name?.trim();
-    const description = form.description?.trim();
-    const category = form.category?.trim();
-    setError1(null);
-    setMessage1(null);
-
-    if (!name) {
-      setError1(ERROR_MESSAGES.NAME_REQUIRED);
-      return;
-    }
-    if (!category) {
-      setError1(ERROR_MESSAGES.CATEGORY_REQUIRED);
-      return;
-    }
-    if (!description) {
-      setError1("Тайлбар заавал бөглөнө үү.");
-      return;
-    }
-    const subsidy = form.subsidyPercent ?? 0;
-    if (subsidy < 0 || subsidy > 100) {
-      setError1(ERROR_MESSAGES.SUBSIDY_RANGE);
-      return;
-    }
-    if (isEditMode && benefitIdFromQuery) return;
-
-    setCreating(true);
-    try {
-      await getClient().request(CREATE_BENEFIT, {
-        input: {
-          name,
-          description,
-          category,
-          subsidyPercent: subsidy,
-          requiresContract: form.requiresContract ?? false,
-          rules: [],
-        },
-      });
-      setMessage1(
-        `"${name}" D1-д амжилттай нэмэгдлээ. Доорх "Дүрэм тохируулах" хэсгээс дүрмээ тохируулна уу.`,
-      );
-      setForm(DEFAULT_FORM);
-      await Promise.all([loadCatalog(), loadConfigAndAttributes()]);
-      if (onSaved) onSaved();
-    } catch (e) {
-      setError1(ERROR_MESSAGES.D1_CREATE + getApiErrorMessage(e));
-    } finally {
-      setCreating(false);
-    }
-  }, [
-    benefitIdFromQuery,
-    form,
-    isEditMode,
-    loadCatalog,
-    loadConfigAndAttributes,
-  ]);
-
   const selectedBenefit = catalogBenefits.find((b) => b.id === selectedBenefitId);
-  const rulesForSelected: BenefitConfig | null = selectedBenefitId
-    ? (config[selectedBenefitId] ?? {
-        name: selectedBenefit?.name ?? "",
-        description: selectedBenefit?.description ?? "",
-        category: selectedBenefit?.category ?? "",
-        rules: [],
-      })
-    : null;
-
-  const updateRuleForSelected = useCallback(
-    (ruleIndex: number, field: keyof Rule, value: string | number | boolean) => {
-      if (!selectedBenefitId) return;
-      setConfig((prev) => {
-        const benefit = prev[selectedBenefitId] ?? {
+  const ruleTargetId = isEditMode ? selectedBenefitId : DRAFT_BENEFIT_ID;
+  const rulesForSelected: BenefitConfig | null = isEditMode
+    ? selectedBenefitId
+      ? (config[selectedBenefitId] ?? {
           name: selectedBenefit?.name ?? "",
           description: selectedBenefit?.description ?? "",
           category: selectedBenefit?.category ?? "",
           rules: [],
+        })
+      : null
+    : {
+        ...(config[DRAFT_BENEFIT_ID] ?? { rules: [] }),
+        name: form.name,
+        description: form.description,
+        category: form.category,
+        subsidyPercent: form.subsidyPercent,
+        financeCheck: form.financeCheck,
+        requiresContract: form.requiresContract,
+        contractNumber: form.contractNumber,
+        contractName: form.contractName,
+        contractFileName: form.contractFileName,
+        contractUrl: form.contractUrl,
+        rules: config[DRAFT_BENEFIT_ID]?.rules ?? [],
+      };
+
+  const updateRuleForSelected = useCallback(
+    (ruleIndex: number, field: keyof Rule, value: string | number | boolean) => {
+      if (!ruleTargetId) return;
+      setConfig((prev) => {
+        const benefit = prev[ruleTargetId] ?? {
+          name: isEditMode ? selectedBenefit?.name ?? "" : form.name,
+          description: isEditMode
+            ? selectedBenefit?.description ?? ""
+            : form.description,
+          category: isEditMode ? selectedBenefit?.category ?? "" : form.category,
+          rules: [],
         };
         const rules = [...(benefit.rules ?? [])];
         rules[ruleIndex] = { ...rules[ruleIndex], [field]: value };
-        return { ...prev, [selectedBenefitId]: { ...benefit, rules } };
+        return { ...prev, [ruleTargetId]: { ...benefit, rules } };
       });
     },
-    [selectedBenefitId, selectedBenefit],
+    [ruleTargetId, isEditMode, selectedBenefit, form],
   );
 
   const addRuleForSelected = useCallback(() => {
-    if (!selectedBenefitId) return;
+    if (!ruleTargetId) return;
     setConfig((prev) => {
-      const benefit = prev[selectedBenefitId] ?? {
-        name: selectedBenefit?.name ?? "",
-        description: selectedBenefit?.description ?? "",
-        category: selectedBenefit?.category ?? "",
+      const benefit = prev[ruleTargetId] ?? {
+        name: isEditMode ? selectedBenefit?.name ?? "" : form.name,
+        description: isEditMode ? selectedBenefit?.description ?? "" : form.description,
+        category: isEditMode ? selectedBenefit?.category ?? "" : form.category,
         rules: [],
       };
       const rules = [
@@ -229,29 +189,30 @@ export default function AddBenefitsBuilderClient({
           errorMessage: "",
         },
       ];
-      return { ...prev, [selectedBenefitId]: { ...benefit, rules } };
+      return { ...prev, [ruleTargetId]: { ...benefit, rules } };
     });
-  }, [selectedBenefitId, selectedBenefit]);
+  }, [ruleTargetId, isEditMode, selectedBenefit, form]);
 
   const removeRuleForSelected = useCallback(
     (ruleIndex: number) => {
-      if (!selectedBenefitId) return;
+      if (!ruleTargetId) return;
       setConfig((prev) => {
-        const benefit = prev[selectedBenefitId];
+        const benefit = prev[ruleTargetId];
         if (!benefit?.rules?.length) return prev;
         const rules = benefit.rules.filter((_, i) => i !== ruleIndex);
-        return { ...prev, [selectedBenefitId]: { ...benefit, rules } };
+        return { ...prev, [ruleTargetId]: { ...benefit, rules } };
       });
     },
-    [selectedBenefitId],
+    [ruleTargetId],
   );
 
   const handleSaveRules = useCallback(async () => {
-    if (!selectedBenefitId) {
+    const activeBenefitId = isEditMode ? selectedBenefitId : DRAFT_BENEFIT_ID;
+    if (!activeBenefitId) {
       setError2(ERROR_MESSAGES.SELECT_BENEFIT);
       return;
     }
-    const benefitConfig = config[selectedBenefitId];
+    const benefitConfig = config[activeBenefitId];
     if (benefitConfig?.rules?.some((r) => String(r.value ?? "").trim() === "")) {
       setError2(ERROR_MESSAGES.RULE_VALUE_REQUIRED);
       return;
@@ -262,27 +223,28 @@ export default function AddBenefitsBuilderClient({
     try {
       let payloadConfig = config;
 
+      const name = form.name?.trim();
+      const description = form.description?.trim();
+      const category = form.category?.trim();
+      const subsidy = form.subsidyPercent ?? 0;
+      if (!name) {
+        setError2(ERROR_MESSAGES.NAME_REQUIRED);
+        return;
+      }
+      if (!category) {
+        setError2(ERROR_MESSAGES.CATEGORY_REQUIRED);
+        return;
+      }
+      if (!description) {
+        setError2("Тайлбар заавал бөглөнө үү.");
+        return;
+      }
+      if (subsidy < 0 || subsidy > 100) {
+        setError2(ERROR_MESSAGES.SUBSIDY_RANGE);
+        return;
+      }
+
       if (isEditMode && benefitIdFromQuery) {
-        const name = form.name?.trim();
-        const description = form.description?.trim();
-        const category = form.category?.trim();
-        const subsidy = form.subsidyPercent ?? 0;
-        if (!name) {
-          setError2(ERROR_MESSAGES.NAME_REQUIRED);
-          return;
-        }
-        if (!category) {
-          setError2(ERROR_MESSAGES.CATEGORY_REQUIRED);
-          return;
-        }
-        if (!description) {
-          setError2("Тайлбар заавал бөглөнө үү.");
-          return;
-        }
-        if (subsidy < 0 || subsidy > 100) {
-          setError2(ERROR_MESSAGES.SUBSIDY_RANGE);
-          return;
-        }
         await updateBenefitInCatalog(getClient(), {
           id: benefitIdFromQuery,
           name,
@@ -308,30 +270,76 @@ export default function AddBenefitsBuilderClient({
             contractUrl: form.contractUrl ?? "",
           },
         };
+      } else {
+        setCreating(true);
+        const res = await getClient().request<{
+          createBenefit: BenefitFromCatalog;
+        }>(CREATE_BENEFIT, {
+          input: {
+            name,
+            description,
+            category,
+            subsidyPercent: subsidy,
+            requiresContract: form.requiresContract ?? false,
+            rules: [],
+          },
+        });
+
+        const { [DRAFT_BENEFIT_ID]: _draftBenefit, ...restConfig } = config;
+        payloadConfig = {
+          ...restConfig,
+          [res.createBenefit.id]: {
+            ...(config[DRAFT_BENEFIT_ID] ?? { rules: [] }),
+            name,
+            description,
+            category,
+            subsidyPercent: subsidy,
+            financeCheck: form.financeCheck ?? false,
+            requiresContract: form.requiresContract ?? false,
+            contractNumber: form.contractNumber ?? "",
+            contractName: form.contractName ?? "",
+            contractFileName: form.contractFileName ?? "",
+            contractUrl: form.contractUrl ?? "",
+            rules: config[DRAFT_BENEFIT_ID]?.rules ?? [],
+          },
+        };
       }
 
       await getClient().request(UPDATE_CONFIG, {
         config: JSON.stringify({ benefits: payloadConfig }),
       });
-      setMessage2("Сонгосон benefit-ийн дүрмүүд амжилттай хадгалагдлаа.");
-      const focusId = selectedBenefitId ?? benefitIdFromQuery;
-      router.push(
-        focusId
-          ? `/admin/add-benefit?focusBenefitId=${encodeURIComponent(focusId)}`
-          : "/admin/add-benefit"
+      setMessage2(
+        isEditMode
+          ? "Сонгосон benefit-ийн дүрмүүд амжилттай хадгалагдлаа."
+          : `"${name}" benefit болон дүрмүүд амжилттай хадгалагдлаа.`,
       );
+      const focusId = isEditMode ? selectedBenefitId ?? benefitIdFromQuery : null;
+      if (onSaved) {
+        await onSaved();
+      } else {
+        router.push(
+          focusId
+            ? `/admin/add-benefit?focusBenefitId=${encodeURIComponent(focusId)}`
+            : "/admin/add-benefit"
+        );
+      }
     } catch (e) {
-      setError2(ERROR_MESSAGES.CONFIG_SAVE + getApiErrorMessage(e));
+      setError2(
+        `${isEditMode ? ERROR_MESSAGES.CONFIG_SAVE : "Benefit хадгалах үед алдаа: "}${getApiErrorMessage(e)}`,
+      );
     } finally {
+      setCreating(false);
       setSaving(false);
     }
   }, [
+    DRAFT_BENEFIT_ID,
     selectedBenefitId,
     config,
     isEditMode,
     router,
     benefitIdFromQuery,
     form,
+    onSaved,
   ]);
 
   return (
@@ -364,12 +372,12 @@ export default function AddBenefitsBuilderClient({
       <AddBenefitForm
         form={form}
         onChange={setForm}
-        onSubmit={handleCreateBenefit}
+        onSubmit={() => {}}
         creating={creating}
-        error={error1}
-        message={message1}
+        error={null}
+        message={null}
         isEditMode={isEditMode}
-        hideSubmitButton={isEditMode}
+        hideSubmitButton
       />
 
       {!isEditMode && !compactCreateMode && (
@@ -380,28 +388,26 @@ export default function AddBenefitsBuilderClient({
         />
       )}
 
-      {!compactCreateMode && (
-        <RuleConfigSection
-          catalogBenefits={catalogBenefits}
-          selectedBenefitId={selectedBenefitId}
-          onSelectBenefitId={setSelectedBenefitId}
-          rulesForSelected={rulesForSelected}
-          attributes={attributes}
-          onUpdateRule={updateRuleForSelected}
-          onAddRule={addRuleForSelected}
-          onRemoveRule={removeRuleForSelected}
-          onSave={handleSaveRules}
-          loadingCatalog={loadingCatalog}
-          loadingConfig={loadingConfig}
-          saving={saving}
-          error={error2}
-          message={message2}
-          hideBenefitSelector={isEditMode}
-          showCancelButton={isEditMode}
-          onCancel={() => router.push("/admin/add-benefit")}
-          saveButtonLabel={isEditMode ? "Save" : "Дүрмүүдийг хадгалах"}
-        />
-      )}
+      <RuleConfigSection
+        catalogBenefits={catalogBenefits}
+        selectedBenefitId={ruleTargetId}
+        onSelectBenefitId={setSelectedBenefitId}
+        rulesForSelected={rulesForSelected}
+        attributes={attributes}
+        onUpdateRule={updateRuleForSelected}
+        onAddRule={addRuleForSelected}
+        onRemoveRule={removeRuleForSelected}
+        onSave={handleSaveRules}
+        loadingCatalog={loadingCatalog}
+        loadingConfig={loadingConfig}
+        saving={saving}
+        error={error2}
+        message={message2}
+        hideBenefitSelector
+        showCancelButton={isEditMode}
+        onCancel={() => router.push("/admin/add-benefit")}
+        saveButtonLabel={isEditMode ? "Save" : "Benefit хадгалах"}
+      />
     </div>
   );
 }
