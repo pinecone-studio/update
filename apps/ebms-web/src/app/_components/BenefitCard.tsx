@@ -256,15 +256,13 @@ export const BenefitCard = ({
 			}
 			role={onClick ? "button" : undefined}
 			tabIndex={onClick ? 0 : undefined}
+		>
+			<div
+				className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-5 backdrop-blur-sm shadow-lg transition-all duration-300 ${
+					cardClass
+				} ${compact ? "flex-none" : "flex-1 min-h-0"}`}
 			>
-				<div
-					className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-5 backdrop-blur-sm shadow-lg transition-all duration-300 ${
-						cardClass
-					} ${
-						compact ? "flex-none" : "flex-1 min-h-0"
-					}`}
-				>
-					{shouldAnimate && !isAdminVariant ? (
+				{shouldAnimate && !isAdminVariant ? (
 					<div
 						className="pointer-events-none absolute inset-0 opacity-70"
 						style={{
@@ -276,19 +274,18 @@ export const BenefitCard = ({
 				<div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
 				<div className="relative flex h-full flex-col">
-						<div className="mb-4 flex items-start justify-between">
-							<div className="flex items-start gap-4">
-								<div
-									className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${iconWrapClass}`}
-								>
-									<div className="h-6 w-6">{icon}</div>
-								</div>
+					<div className="mb-4 flex items-start justify-between">
+						<div className="flex items-start gap-4">
+							<div
+								className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${iconWrapClass}`}
+							>
+								<div className="h-6 w-6">{icon}</div>
+							</div>
 
-								<div className="min-w-0">
-									<div className="flex items-center gap-2">
-										<h3 className={`text-base font-semibold ${titleClass}`}>{name}</h3>
-									{status === "ACTIVE" &&
-									(eligibilityRules ?? []).length > 0 ? (
+							<div className="min-w-0">
+								<div className="flex items-center gap-2">
+									<h3 className={`text-base font-semibold ${titleClass}`}>{name}</h3>
+									{status === "ACTIVE" && (eligibilityRules ?? []).length > 0 ? (
 										<span
 											className="relative group/info"
 											onClick={(e) => e.stopPropagation()}
@@ -309,17 +306,14 @@ export const BenefitCard = ({
 												</ul>
 											</span>
 										</span>
-										) : null}
-									</div>
-									<p className={`mt-1 text-sm ${metaClass}`}>{categoryLabel}</p>
+									) : null}
 								</div>
+								<p className={`mt-1 text-sm ${metaClass}`}>{categoryLabel}</p>
 							</div>
-
-							{hideStatusBadge ? null : <StatusBadge status={status} />}
 						</div>
 
 						<div className="flex flex-col items-end gap-2">
-							<StatusBadge status={status} />
+							{hideStatusBadge ? null : <StatusBadge status={status} />}
 							{overrideApplied ? (
 								<span className="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-amber-200">
 									MANUAL OVERRIDE
@@ -328,59 +322,79 @@ export const BenefitCard = ({
 						</div>
 					</div>
 
-						{!isAdminVariant && !compact && status === "ACTIVE" ? (
-							<div className="mb-2">
-								<div className={`h-px ${dividerClass}`} />
-								<div className="mt-3 space-y-0.5">
-									{subsidyPercentage ? (
-										<div className="flex items-center justify-between border-b border-white/10 py-2.5">
-											<span className={labelClass}>Coverage</span>
-											<span className={valueClass}>{subsidyPercentage} subsidy</span>
-										</div>
-									) : null}
-									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
-										<span className={labelClass}>Vendor</span>
-										<span className={valueClass}>{vendorDisplayName}</span>
+					{isAdminVariant && !compact ? (
+						<div className="mb-2">
+							<div className="mt-3 space-y-0.5">
+								{subsidyPercentage ? (
+									<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+										<span className={labelClass}>Coverage</span>
+										<span className={valueClass}>{subsidyPercentage} subsidy</span>
 									</div>
-									<p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
+								) : null}
+								<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+									<span className={labelClass}>Vendor</span>
+									<span className={valueClass}>{vendorDisplayName}</span>
 								</div>
-								<p className="pt-4 text-base text-white/85">{STATUS_MESSAGE.ACTIVE}</p>
+								<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+									<span className={labelClass}>Rules</span>
+									<span className={valueClass}>{_eligibilityCriteria}</span>
+								</div>
+								<p className={`pt-4 ${bodyClass}`}>{description}</p>
+							</div>
+						</div>
+					) : null}
+
+					{!isAdminVariant && !compact && status === "ACTIVE" ? (
+						<div className="mb-2">
+							<div className={`h-px ${dividerClass}`} />
+							<div className="mt-3 space-y-0.5">
+								{subsidyPercentage ? (
+									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+										<span className={labelClass}>Coverage</span>
+										<span className={valueClass}>{subsidyPercentage} subsidy</span>
+									</div>
+								) : null}
+								<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+									<span className={labelClass}>Vendor</span>
+									<span className={valueClass}>{vendorDisplayName}</span>
+								</div>
+								<p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
 								{overrideApplied ? (
 									<p className="pt-2 text-xs text-amber-200/90">
 										Override: {normalizedOverrideReason || "Status manually updated by HR/Admin."}
 									</p>
 								) : null}
 							</div>
-						) : null}
+						</div>
+					) : null}
 
-						{!isAdminVariant && !compact && status !== "ACTIVE" ? (
-							<div className="mb-2">
-								<div className={`h-px ${dividerClass}`} />
-								<div className="mt-3 space-y-0.5">
-									{subsidyPercentage ? (
-										<div className="flex items-center justify-between border-b border-white/10 py-2.5">
-											<span className={labelClass}>Coverage</span>
-											<span className={valueClass}>{subsidyPercentage} subsidy</span>
-										</div>
-									) : null}
+					{!isAdminVariant && !compact && status !== "ACTIVE" ? (
+						<div className="mb-2">
+							<div className={`h-px ${dividerClass}`} />
+							<div className="mt-3 space-y-0.5">
+								{subsidyPercentage ? (
 									<div className="flex items-center justify-between border-b border-white/10 py-2.5">
-										<span className={labelClass}>Vendor</span>
-										<span className={valueClass}>{vendorDisplayName}</span>
+										<span className={labelClass}>Coverage</span>
+										<span className={valueClass}>{subsidyPercentage} subsidy</span>
 									</div>
-									<p className={`pt-5 ${bodyClass}`}>{supportText}</p>
+								) : null}
+								<div className="flex items-center justify-between border-b border-white/10 py-2.5">
+									<span className={labelClass}>Vendor</span>
+									<span className={valueClass}>{vendorDisplayName}</span>
 								</div>
-								<p className="pt-5 text-base text-white/85">{supportText}</p>
+								<p className={`pt-5 ${bodyClass}`}>{supportText}</p>
 								{overrideApplied ? (
 									<p className="pt-2 text-xs text-amber-200/90">
 										Override: {normalizedOverrideReason || "Status manually updated by HR/Admin."}
 									</p>
 								) : null}
 							</div>
-						) : null}
+						</div>
+					) : null}
 
-						{!isAdminVariant ? (
-							<div className="mb-4 mt-auto h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
-						) : null}
+					{!isAdminVariant ? (
+						<div className="mb-4 mt-auto h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+					) : null}
 
 					{footerActions ? (
 						<div className="w-full">{footerActions}</div>
