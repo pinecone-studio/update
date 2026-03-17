@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { FinanceHeader } from "@/app/_components/finance-header";
+import { FinanceRouteGuard } from "@/app/_components/FinanceRouteGuard";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -20,10 +21,12 @@ export default function FinanceLayout({ children }: { children: ReactNode }) {
         <div className="absolute right-[14%] top-[24%] h-[520px] w-[520px] rounded-full bg-[linear-gradient(135deg,rgba(59,130,246,0.16),rgba(6,182,212,0.12))] blur-3xl" />
         <div className="absolute bottom-[-10%] left-[36%] h-[720px] w-[720px] rounded-full bg-[linear-gradient(135deg,rgba(79,70,229,0.18),rgba(147,51,234,0.18))] blur-3xl" />
       </div>
-      <FinanceHeader />
-      <section className="relative z-10 mx-auto w-full max-w-[1512px] p-4 sm:p-6 xl:p-8">
-        {children}
-      </section>
+      <FinanceRouteGuard>
+        <FinanceHeader />
+        <section className="relative z-10 mx-auto w-full max-w-[1512px] p-4 sm:p-6 xl:p-8">
+          {children}
+        </section>
+      </FinanceRouteGuard>
     </main>
   );
 }
