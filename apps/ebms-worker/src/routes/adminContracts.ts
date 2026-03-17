@@ -12,6 +12,17 @@ import { and, desc, eq, isNotNull } from "drizzle-orm";
 
 const adminContracts = new Hono<{ Bindings: Env }>();
 
+function getErrorText(error: unknown): string {
+  if (error instanceof Error) {
+    const causeText =
+      error.cause && typeof error.cause === "object" && "message" in error.cause
+        ? String((error.cause as { message?: unknown }).message ?? "")
+        : "";
+    return `${error.message} ${causeText}`.trim().toLowerCase();
+  }
+  return String(error ?? "").toLowerCase();
+}
+
 function toHex(bytes: ArrayBuffer): string {
   const arr = new Uint8Array(bytes);
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
@@ -54,14 +65,24 @@ adminContracts.get("/", async (c) => {
           employeeName: employeesTable.name,
         })
         .from(employeeContractsTable)
-        .leftJoin(benefitsTable, eq(employeeContractsTable.benefitId, benefitsTable.id))
-        .leftJoin(employeesTable, eq(employeeContractsTable.employeeId, employeesTable.id))
+        .leftJoin(
+          benefitsTable,
+          eq(employeeContractsTable.benefitId, benefitsTable.id),
+        )
+        .leftJoin(
+          employeesTable,
+          eq(employeeContractsTable.employeeId, employeesTable.id),
+        )
         .orderBy(desc(employeeContractsTable.createdAt));
     } catch (error) {
-      const message = String(error ?? "").toLowerCase();
+      const message = getErrorText(error);
       // Backward compatibility: if local/remote DB does not yet have employee_contracts,
       // still return request-based uploaded contracts instead of failing the whole endpoint.
-      if (!message.includes("no such table") || !message.includes("employee_contracts")) {
+      const missingEmployeeContractsSchema =
+        message.includes("employee_contracts") &&
+        (message.includes("no such table") ||
+          message.includes("no such column"));
+      if (!missingEmployeeContractsSchema) {
         throw error;
       }
     }
@@ -82,9 +103,18 @@ adminContracts.get("/", async (c) => {
         employeeName: employeesTable.name,
       })
       .from(benefitRequestsTable)
-      .leftJoin(benefitsTable, eq(benefitRequestsTable.benefitId, benefitsTable.id))
-      .leftJoin(contractsTable, eq(benefitsTable.activeContractId, contractsTable.id))
-      .leftJoin(employeesTable, eq(benefitRequestsTable.employeeId, employeesTable.id))
+      .leftJoin(
+        benefitsTable,
+        eq(benefitRequestsTable.benefitId, benefitsTable.id),
+      )
+      .leftJoin(
+        contractsTable,
+        eq(benefitsTable.activeContractId, contractsTable.id),
+      )
+      .leftJoin(
+        employeesTable,
+        eq(benefitRequestsTable.employeeId, employeesTable.id),
+      )
       .where(isNotNull(benefitRequestsTable.employeeContractR2Key))
       .orderBy(desc(benefitRequestsTable.employeeContractUploadedAt));
 
@@ -99,7 +129,9 @@ adminContracts.get("/", async (c) => {
         isActive: 1,
         downloadUrl: `/admin/contracts/employee-requests/${encodeURIComponent(r.id)}/file`,
       })),
-    ].sort((a, b) => String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")));
+    ].sort((a, b) =>
+      String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")),
+    );
 
     return c.json({
       contracts: rows.map((r) => ({
@@ -153,7 +185,8 @@ adminContracts.get("/employee-requests/:requestId/file", async (c) => {
   }
 
   const object = await c.env.CONTRACTS.get(row.r2ObjectKey);
-  if (!object) return c.json({ error: "Employee contract file missing in R2" }, 404);
+  if (!object)
+    return c.json({ error: "Employee contract file missing in R2" }, 404);
   const bytes = await object.arrayBuffer();
   const filename = row.r2ObjectKey.split("/").pop() || `${requestId}.pdf`;
   return c.body(bytes, 200, {
@@ -177,7 +210,8 @@ adminContracts.get("/employee/:contractId/file", async (c) => {
   if (!row) return c.json({ error: "Employee contract not found" }, 404);
 
   const object = await c.env.CONTRACTS.get(row.r2ObjectKey);
-  if (!object) return c.json({ error: "Employee contract file not found in R2" }, 404);
+  if (!object)
+    return c.json({ error: "Employee contract file not found in R2" }, 404);
   const bytes = await object.arrayBuffer();
   const filename = row.r2ObjectKey.split("/").pop() || `${contractId}.pdf`;
   return c.body(bytes, 200, {
@@ -230,7 +264,9 @@ adminContracts.post("/upload", async (c) => {
   }
 
   const body = await c.req.parseBody();
-  const tab = String(body["tab"] ?? "vendor").trim().toLowerCase();
+  const tab = String(body["tab"] ?? "vendor")
+    .trim()
+    .toLowerCase();
   const benefitId = String(body["benefitId"] ?? "").trim();
   const version = String(body["version"] ?? "").trim();
   const effectiveDate = String(body["effectiveDate"] ?? "").trim() || null;
@@ -259,24 +295,44 @@ adminContracts.post("/upload", async (c) => {
     if (!benefitRows[0]) return c.json({ error: "Benefit not found" }, 404);
 
     const contractId = crypto.randomUUID();
-    const safeName = (pdf.name || "contract.pdf").replace(/[^a-zA-Z0-9._-]+/g, "_");
+    const safeName = (pdf.name || "contract.pdf").replace(
+      /[^a-zA-Z0-9._-]+/g,
+      "_",
+    );
     const r2ObjectKey = `contracts/employee-contracts/${benefitId}/${version}/${contractId}-${safeName}`;
 
     await c.env.CONTRACTS.put(r2ObjectKey, pdfBytes, {
       httpMetadata: { contentType: "application/pdf" },
     });
 
-    await db.insert(employeeContractsTable).values({
-      id: contractId,
-      employeeId: employeeId || null,
-      benefitId,
-      version,
-      r2ObjectKey,
-      effectiveDate,
-      expiryDate,
-      createdAt: now,
-      updatedAt: now,
-    });
+    try {
+      await db.insert(employeeContractsTable).values({
+        id: contractId,
+        employeeId: employeeId || null,
+        benefitId,
+        version,
+        r2ObjectKey,
+        effectiveDate,
+        expiryDate,
+        createdAt: now,
+        updatedAt: now,
+      });
+    } catch (err) {
+      const msg = getErrorText(err);
+      if (
+        msg.includes("employee_contracts") &&
+        (msg.includes("no such table") || msg.includes("no such column"))
+      ) {
+        return c.json(
+          {
+            error:
+              "employee_contracts table missing. Run: npm run db:local:employee-contracts (local) or db:migrate:employee-contracts (remote)",
+          },
+          503,
+        );
+      }
+      throw err;
+    }
 
     return c.json({
       ok: true,
@@ -295,7 +351,10 @@ adminContracts.post("/upload", async (c) => {
   const sha256 = await crypto.subtle.digest("SHA-256", pdfBytes);
   const sha256Hex = toHex(sha256);
   const contractId = crypto.randomUUID();
-  const safeName = (pdf.name || "contract.pdf").replace(/[^a-zA-Z0-9._-]+/g, "_");
+  const safeName = (pdf.name || "contract.pdf").replace(
+    /[^a-zA-Z0-9._-]+/g,
+    "_",
+  );
   const r2ObjectKey = `contracts/${benefitId}/${version}/${contractId}-${safeName}`;
 
   const benefitRows = await db
@@ -313,7 +372,10 @@ adminContracts.post("/upload", async (c) => {
   const vendorName = vendorNameFromBody ?? benefitRow.vendorName ?? null;
   if (!vendorName) {
     return c.json(
-      { error: "vendorName is required (either in request or benefit.vendorName)" },
+      {
+        error:
+          "vendorName is required (either in request or benefit.vendorName)",
+      },
       400,
     );
   }
@@ -325,7 +387,12 @@ adminContracts.post("/upload", async (c) => {
   await db
     .update(contractsTable)
     .set({ isActive: 0, updatedAt: now })
-    .where(and(eq(contractsTable.benefitId, benefitId), eq(contractsTable.isActive, 1)));
+    .where(
+      and(
+        eq(contractsTable.benefitId, benefitId),
+        eq(contractsTable.isActive, 1),
+      ),
+    );
 
   await db.insert(contractsTable).values({
     id: contractId,

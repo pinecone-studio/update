@@ -4,27 +4,20 @@
 
 ## 1. Өгөгдлийн сан (D1) — migration
 
-Локал D1 дээр `employee_contracts` хүснэгт (мөн `employee_id` талбар) байх ёстой. Нэг удаа ажиллуулна:
+Локал D1 дээр бүх хүснэгтүүд (`employee_contracts`, `employee_notifications` г.м) байх ёстой. Нэг удаа ажиллуулна:
 
 ```bash
 # Repo root-оос
-pnpm db:local:employee-contracts
-pnpm db:local:employee-contracts-employee-id
+pnpm db:local:all
 ```
 
-Эсвэл:
+Эсвэл зөвхөн шинэ хүснэгтүүд:
 
 ```bash
 cd apps/ebms-worker
+pnpm run db:local:employee-notifications
 pnpm run db:local:employee-contracts
 pnpm run db:local:employee-contracts-employee-id
-```
-
-Үндсэн хүснэгтүүд (employees, benefits, contracts г.м) байхгүй бол эхлээд:
-
-```bash
-cd apps/ebms-worker
-pnpm run db:local:all
 ```
 
 ## 2. Frontend — API URL тохируулах
@@ -62,9 +55,9 @@ pnpm dev:web
 
 ## Товч
 
-| Алхам | Команд |
-|-------|--------|
-| Migration (нэг удаа) | `pnpm db:local:employee-contracts` |
-| Backend | `pnpm dev:worker` |
-| Frontend | `pnpm dev:web` |
-| API URL | `apps/ebms-web/.env.local` → `NEXT_PUBLIC_API_URL=http://localhost:8787` |
+| Алхам                | Команд                                                                   |
+| -------------------- | ------------------------------------------------------------------------ |
+| Migration (нэг удаа) | `pnpm db:local:employee-contracts`                                       |
+| Backend              | `pnpm dev:worker`                                                        |
+| Frontend             | `pnpm dev:web`                                                           |
+| API URL              | `apps/ebms-web/.env.local` → `NEXT_PUBLIC_API_URL=http://localhost:8787` |

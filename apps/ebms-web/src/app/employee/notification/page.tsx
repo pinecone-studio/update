@@ -61,7 +61,9 @@ export default function NotificationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [notifications, setNotifications] = useState<EmployeeNotification[]>([]);
+  const [notifications, setNotifications] = useState<EmployeeNotification[]>(
+    [],
+  );
   const [activeType, setActiveType] = useState<
     "all" | "eligibility" | "request" | "warning"
   >("all");
@@ -80,8 +82,7 @@ export default function NotificationPage() {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return true;
     return (
-      n.title.toLowerCase().includes(q) ||
-      n.body.toLowerCase().includes(q)
+      n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q)
     );
   });
 
@@ -244,9 +245,7 @@ export default function NotificationPage() {
               placeholder="Search notifications..."
             />
           </div>
-          {error ? (
-            <p className="mt-2 text-sm text-red-400">{error}</p>
-          ) : null}
+          {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
 
           <div className="mt-5 space-y-3">
             {filteredNotifications.map((item) => {

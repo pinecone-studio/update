@@ -32,6 +32,14 @@ type NavItem = {
   icon: ReactNode;
 };
 
+type FinanceNotification = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  unread: boolean;
+};
+
 const navItems: NavItem[] = [
   {
     label: "Dashboard",
@@ -52,6 +60,37 @@ const navItems: NavItem[] = [
     label: "Audit Trail",
     href: "/finance/audit-trail",
     icon: <HiOutlineClock className="h-4 w-4" />,
+  },
+];
+
+const FINANCE_NOTIFICATIONS: FinanceNotification[] = [
+  {
+    id: "f1",
+    title: "Payment Approval Required",
+    body: "Bat-Erdene's Gym Membership benefit requires payment approval.",
+    time: "5 minutes ago",
+    unread: true,
+  },
+  {
+    id: "f2",
+    title: "New Reimbursement Request",
+    body: "Nomin submitted an expense reimbursement for Education Allowance.",
+    time: "30 minutes ago",
+    unread: true,
+  },
+  {
+    id: "f3",
+    title: "Payment Processed",
+    body: "Payment for Bat-Erdene's Gym Membership has been completed.",
+    time: "2 hours ago",
+    unread: false,
+  },
+  {
+    id: "f4",
+    title: "Reimbursement Approved",
+    body: "Ariunaa's Transit Pass reimbursement was approved.",
+    time: "Yesterday",
+    unread: false,
   },
 ];
 
@@ -82,6 +121,8 @@ export function FinanceHeader() {
   const isActive = (href: string) =>
     normalizedPath === href ||
     (href !== "/finance" && normalizedPath.startsWith(href));
+
+  const unreadCount = FINANCE_NOTIFICATIONS.filter((n) => n.unread).length;
 
   useEffect(() => {
     const current = getActiveUserProfile();
@@ -114,7 +155,11 @@ export function FinanceHeader() {
   const handleUserChange = (value: string) => {
     const nextUser = userOptions.find((u) => u.id === value);
     if (!nextUser) return;
-    const profile = { id: nextUser.id, name: nextUser.name, role: nextUser.role };
+    const profile = {
+      id: nextUser.id,
+      name: nextUser.name,
+      role: nextUser.role,
+    };
     setSelectedUser(profile);
     setActiveUserProfile(profile);
   };
@@ -148,14 +193,14 @@ export function FinanceHeader() {
           href="/finance"
           className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 transition-opacity hover:opacity-90"
         >
-         <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
-              <div className="leading-[24px] ">
-                <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
-                  UPDATE
-                </p>
-              </div>
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
+            <div className="leading-[24px] ">
+              <p className="flex justify-start items-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
+                UPDATE
+              </p>
             </div>
+          </div>
         </Link>
         <nav className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
@@ -173,7 +218,7 @@ export function FinanceHeader() {
             </Link>
           ))}
         </nav>
-      
+
         <div className="flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
           <button
             type="button"
@@ -213,16 +258,57 @@ export function FinanceHeader() {
               aria-label="Notifications"
             >
               <HiOutlineBell className="h-5 w-5" />
-              <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-red-500" />
+              {unreadCount > 0 ? (
+                <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white shadow-sm">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              ) : null}
             </button>
             {notificationOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-[#24395C] dark:bg-[#1E293B]">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                  Notifications
-                </p>
-                <p className="mt-2 text-xs text-slate-600 dark:text-[#A7B6D3]">
-                  No new finance notifications.
-                </p>
+              <div className="absolute right-0 top-full mt-2 w-[320px] rounded-2xl border border-slate-200 bg-white p-3 shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    Notifications
+                  </p>
+                  <span className="text-[11px] text-slate-500 dark:text-[#A7B6D3]">
+                    {unreadCount} unread
+                  </span>
+                </div>
+                <div className="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1">
+                  {FINANCE_NOTIFICATIONS.slice(0, 5).map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-slate-300 hover:bg-slate-100 dark:border-[#24395C] dark:bg-[#0F172A] dark:hover:border-[#3A4A6C] dark:hover:bg-[#162033]"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span
+                          className={`mt-1 h-2.5 w-2.5 rounded-full ${
+                            item.unread ? "bg-red-500" : "bg-slate-300"
+                          }`}
+                        />
+                        <div>
+                          <p className="text-xs font-semibold text-slate-900 dark:text-white">
+                            {item.title}
+                          </p>
+                          <p className="mt-1 text-[11px] text-slate-600 dark:text-[#A7B6D3]">
+                            {item.body}
+                          </p>
+                          <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">
+                            {item.time}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <Link
+                  href="/finance/finance-notification"
+                  onClick={() => setNotificationOpen(false)}
+                  className="mt-3 block rounded-xl border border-slate-200 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-[#24395C] dark:bg-[#111A2A] dark:text-slate-200 dark:hover:bg-[#1A2333]"
+                >
+                  View all notifications
+                </Link>
               </div>
             )}
           </div>
@@ -237,14 +323,14 @@ export function FinanceHeader() {
               className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200"
               aria-label="Profile"
             >
-              <ProfileIcon/>
+              <ProfileIcon />
             </button>
             {profileOpen && (
               <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
                 <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white  border border-slate-200">
-                  <ProfileIcon/>
+                      <ProfileIcon />
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -344,7 +430,9 @@ export function FinanceHeader() {
                 aria-label="Notifications"
               >
                 <HiOutlineBell className="text-sm" />
-                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                {unreadCount > 0 ? (
+                  <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
+                ) : null}
               </button>
               <Link
                 href="/finance/profile"
@@ -361,12 +449,45 @@ export function FinanceHeader() {
             </div>
             {notificationOpen && (
               <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-[#24395C] dark:bg-[#0F172A]">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                  Notifications
-                </p>
-                <p className="mt-2 text-xs text-slate-600 dark:text-[#A7B6D3]">
-                  No new finance notifications.
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    Notifications
+                  </p>
+                  <span className="text-[11px] text-slate-500 dark:text-[#A7B6D3]">
+                    {unreadCount} unread
+                  </span>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {FINANCE_NOTIFICATIONS.slice(0, 3).map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-[#24395C] dark:bg-[#111A2A]"
+                    >
+                      <div className="flex items-start gap-2">
+                        <span
+                          className={`mt-1 h-2 w-2 rounded-full ${
+                            item.unread ? "bg-red-500" : "bg-slate-300"
+                          }`}
+                        />
+                        <div>
+                          <p className="text-[11px] font-semibold text-slate-900 dark:text-white">
+                            {item.title}
+                          </p>
+                          <p className="mt-1 text-[10px] text-slate-600 dark:text-[#A7B6D3]">
+                            {item.body}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Link
+                  href="/finance/finance-notification"
+                  onClick={() => setMenuOpen(false)}
+                  className="mt-3 block rounded-lg border border-slate-200 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-700 dark:border-[#24395C] dark:bg-[#111A2A] dark:text-slate-200"
+                >
+                  View all notifications
+                </Link>
               </div>
             )}
           </div>

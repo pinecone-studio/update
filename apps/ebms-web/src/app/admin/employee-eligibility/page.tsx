@@ -8,65 +8,84 @@ import { useSearchParams } from "next/navigation";
 import { EmployeeEligibilitySkeleton } from "../components/EmployeeEligibilitySkeleton";
 import { GraphQLClient, gql } from "graphql-request";
 import {
-    ensureValidActiveUserProfile,
-    getActiveUserHeaders,
+  ensureValidActiveUserProfile,
+  getActiveUserHeaders,
 } from "@/app/_lib/activeUser";
 import { SearchIcon } from "@/app/icons/search";
 
 type EmployeeListItem = {
-    id: string;
-    name?: string | null;
-    role?: string | null;
-    employmentStatus?: string | null;
+  id: string;
+  name?: string | null;
+  role?: string | null;
+  employmentStatus?: string | null;
 };
 
 type EmployeeRow = {
-    id: string;
-    name: string;
-    department: string;
+  id: string;
+  name: string;
+  department: string;
 };
 
 const initialEmployees: EmployeeRow[] = [];
 
 const EMPLOYEES_QUERY = gql`
-    query Employees {
-        employees {
-            id
-            name
-            role
-            employmentStatus
-        }
+  query Employees {
+    employees {
+      id
+      name
+      role
+      employmentStatus
     }
+  }
 `;
 
 function getClient(): GraphQLClient {
-    const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
-    const base =
-        raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
-    const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
-    return new GraphQLClient(url, {
-        headers: {
-            ...getActiveUserHeaders("admin"),
-        },
-    });
+  const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+  const base =
+    raw.replace(/\/graphql\/?$/, "").trim() || "http://localhost:8787";
+  const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
+  return new GraphQLClient(url, {
+    headers: {
+      ...getActiveUserHeaders("admin"),
+    },
+  });
 }
 
 function EmployeeEligibilityPageContent() {
-    const searchParams = useSearchParams();
-    const initialSearch = searchParams.get("search") ?? "";
-    const [loading, setLoading] = useState(true);
-    const [employeeList, setEmployeeList] =
-        useState<EmployeeRow[]>(initialEmployees);
-    const [search, setSearch] = useState(initialSearch);
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("search") ?? "";
+  const [loading, setLoading] = useState(true);
+  const [employeeList, setEmployeeList] =
+    useState<EmployeeRow[]>(initialEmployees);
+  const [search, setSearch] = useState(initialSearch);
 
-    const filteredEmployees = useMemo(() => {
-        const q = search.trim().toLowerCase();
-        if (!q) return employeeList;
-        return employeeList.filter(
-            (emp) =>
-                emp.name.toLowerCase().includes(q) ||
-                emp.id.toLowerCase().includes(q) ||
-                emp.department.toLowerCase().includes(q),
+  const filteredEmployees = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return employeeList;
+    return employeeList.filter(
+      (emp) =>
+        emp.name.toLowerCase().includes(q) ||
+        emp.id.toLowerCase().includes(q) ||
+        emp.department.toLowerCase().includes(q),
+    );
+  }, [search, employeeList]);
+
+  const getInitials = (name: string) =>
+    name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureValidActiveUserProfile();
+        const client = getClient();
+        const data = await client.request<{ employees: EmployeeListItem[] }>(
+          EMPLOYEES_QUERY,
         );
     }, [search, employeeList]);
 
@@ -200,15 +219,32 @@ function EmployeeEligibilityPageContent() {
                         ))
                     )}
                 </div>
-            </section>
+              </div>
+            </Link>
+          ))}
+          {filteredEmployees.length === 0 && (
+            <div className="flex items-center justify-center rounded-2xl border border-white/50 h-[402px] flex-col gap-3.5  text-center">
+              <button className="w-[87px] h-[87px] flex items-center justify-center bg-[#20194D80]/50 rounded-full">
+                <SearchIcon />
+              </button>
+              <p className="text-[28px] font-normal text-slate-500 dark:text-[#9FB0CF]">
+                No employees found.
+              </p>
+              <p className="text-[19px] font-normal text-slate-500 dark:text-[#9FB0CF]">
+                Try adjusting your search
+              </p>
+            </div>
+          )}
         </div>
-    );
+      </section>
+    </div>
+  );
 }
 
 export default function EmployeeEligibilityPage() {
-    return (
-        <Suspense fallback={<EmployeeEligibilitySkeleton />}>
-            <EmployeeEligibilityPageContent />
-        </Suspense>
-    );
+  return (
+    <Suspense fallback={<EmployeeEligibilitySkeleton />}>
+      <EmployeeEligibilityPageContent />
+    </Suspense>
+  );
 }

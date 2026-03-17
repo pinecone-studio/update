@@ -1,9 +1,12 @@
-import { GraphQLError } from 'graphql';
-import type { Ctx } from '../context';
-import { requireHR } from '../context';
-import { getDb } from '../../../db/drizzle';
-import { benefits as benefitsTable, eligibilityConfig } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { GraphQLError } from "graphql";
+import type { Ctx } from "../context";
+import { requireHR } from "../context";
+import { getDb } from "../../../db/drizzle";
+import {
+  benefits as benefitsTable,
+  eligibilityConfig,
+} from "../../../db/schema";
+import { eq } from "drizzle-orm";
 
 type UpdateBenefitArgs = {
   input: {
@@ -19,7 +22,7 @@ type UpdateBenefitArgs = {
 export const updateBenefit = async (
   _: unknown,
   args: UpdateBenefitArgs,
-  ctx: Ctx
+  ctx: Ctx,
 ) => {
   requireHR(ctx);
   const input = args.input;
@@ -31,13 +34,13 @@ export const updateBenefit = async (
   const requiresContract = input.requiresContract;
 
   if (!id || !name || !category) {
-    throw new GraphQLError('id, name and category are required', {
-      extensions: { code: 'BAD_USER_INPUT' },
+    throw new GraphQLError("id, name and category are required", {
+      extensions: { code: "BAD_USER_INPUT" },
     });
   }
   if (subsidyPercent < 0 || subsidyPercent > 100) {
-    throw new GraphQLError('subsidyPercent must be between 0 and 100', {
-      extensions: { code: 'BAD_USER_INPUT' },
+    throw new GraphQLError("subsidyPercent must be between 0 and 100", {
+      extensions: { code: "BAD_USER_INPUT" },
     });
   }
 
@@ -53,8 +56,8 @@ export const updateBenefit = async (
     .where(eq(benefitsTable.id, id))
     .limit(1);
   if (!rows[0]) {
-    throw new GraphQLError('Benefit not found', {
-      extensions: { code: 'NOT_FOUND' },
+    throw new GraphQLError("Benefit not found", {
+      extensions: { code: "NOT_FOUND" },
     });
   }
 
@@ -88,7 +91,12 @@ export const updateBenefit = async (
             category?: string;
             subsidyPercent?: number;
             requiresContract?: boolean;
-            rules?: Array<{ type: string; operator: string; value: string; errorMessage?: string }>;
+            rules?: Array<{
+              type: string;
+              operator: string;
+              value: string;
+              errorMessage?: string;
+            }>;
           }
         >;
       };

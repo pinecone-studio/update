@@ -1,8 +1,8 @@
-import type { Ctx } from '../context';
-import type { BenefitResolvers } from '../../generated/graphql';
-import { getDb } from '../../../db/drizzle';
-import { contracts } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import type { Ctx } from "../context";
+import type { BenefitResolvers } from "../../generated/graphql";
+import { getDb } from "../../../db/drizzle";
+import { contracts } from "../../../db/schema";
+import { eq } from "drizzle-orm";
 
 type BenefitParent = { id: string; activeContractId?: string | null };
 

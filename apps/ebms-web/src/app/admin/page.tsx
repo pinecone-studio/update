@@ -112,8 +112,10 @@ function formatRelativeTime(iso: string): string {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
     if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins} minute${diffMins === 1 ? "" : "s"} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+    if (diffMins < 60)
+      return `${diffMins} minute${diffMins === 1 ? "" : "s"} ago`;
+    if (diffHours < 24)
+      return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
     return formatDate(iso);
   } catch {
@@ -124,7 +126,8 @@ function formatRelativeTime(iso: string): string {
 function getInitials(name: string | null | undefined): string {
   if (!name || !name.trim()) return "?";
   const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  if (parts.length >= 2)
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
 
@@ -136,7 +139,13 @@ function statusBadge(status: string) {
     CANCELLED: "bg-slate-600/90 text-slate-300",
   };
   const cls = styles[status] ?? "bg-slate-600/90 text-slate-300";
-  return <span className={`inline-flex rounded-lg px-3 py-1 text-xs font-medium ${cls}`}>{status}</span>;
+  return (
+    <span
+      className={`inline-flex rounded-lg px-3 py-1 text-xs font-medium ${cls}`}
+    >
+      {status}
+    </span>
+  );
 }
 
 export default function HrDashboardPage() {
@@ -146,16 +155,24 @@ export default function HrDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [activeBenefits, setActiveBenefits] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<string | undefined>("PENDING");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    "PENDING",
+  );
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [eligibilitySearch, setEligibilitySearch] = useState("");
-  const [employeesForSearch, setEmployeesForSearch] = useState<EmployeeSearchItem[]>([]);
+  const [employeesForSearch, setEmployeesForSearch] = useState<
+    EmployeeSearchItem[]
+  >([]);
   const [selectedContractFileByRequestId, setSelectedContractFileByRequestId] =
     useState<Record<string, File | null>>({});
   const [uploadingContractByRequestId, setUploadingContractByRequestId] =
     useState<Record<string, boolean>>({});
-  const [unclosedFeedback, setUnclosedFeedback] = useState<EscalatedFeedbackItem[]>([]);
-  const [feedbackClosingId, setFeedbackClosingId] = useState<string | null>(null);
+  const [unclosedFeedback, setUnclosedFeedback] = useState<
+    EscalatedFeedbackItem[]
+  >([]);
+  const [feedbackClosingId, setFeedbackClosingId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -167,10 +184,15 @@ export default function HrDashboardPage() {
       try {
         const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
           BENEFIT_REQUESTS_QUERY,
-          { status: statusFilter ?? undefined }
+          { status: statusFilter ?? undefined },
         );
         if (!cancelled) {
-          setRequests((res.benefitRequests ?? []).map((r) => ({ ...r, status: (r.status || "PENDING").toUpperCase() })));
+          setRequests(
+            (res.benefitRequests ?? []).map((r) => ({
+              ...r,
+              status: (r.status || "PENDING").toUpperCase(),
+            })),
+          );
         }
       } catch (e) {
         if (!cancelled) {
@@ -195,9 +217,16 @@ export default function HrDashboardPage() {
       try {
         const [employeesRes, benefitsRes] = await Promise.all([
           client.request<{
-            employees: Array<{ id: string; name?: string | null; role?: string | null; employmentStatus?: string | null }>;
+            employees: Array<{
+              id: string;
+              name?: string | null;
+              role?: string | null;
+              employmentStatus?: string | null;
+            }>;
           }>(EMPLOYEES_COUNT_QUERY),
-          client.request<{ benefits: Array<{ id: string }> }>(ACTIVE_BENEFITS_COUNT_QUERY),
+          client.request<{ benefits: Array<{ id: string }> }>(
+            ACTIVE_BENEFITS_COUNT_QUERY,
+          ),
         ]);
 
         if (!cancelled) {
@@ -211,7 +240,7 @@ export default function HrDashboardPage() {
                 name: (e.name ?? "").trim(),
                 department: (e.role ?? e.employmentStatus ?? "").trim(),
               }))
-              .filter((e) => e.id && e.name)
+              .filter((e) => e.id && e.name),
           );
         }
       } catch {
@@ -254,11 +283,15 @@ export default function HrDashboardPage() {
         (emp) =>
           emp.name.toLowerCase().includes(normalizedSearch) ||
           emp.id.toLowerCase().includes(normalizedSearch) ||
-          emp.department.toLowerCase().includes(normalizedSearch)
+          emp.department.toLowerCase().includes(normalizedSearch),
       )
       .sort((a, b) => {
-        const aStarts = a.name.toLowerCase().startsWith(normalizedSearch) ? 0 : 1;
-        const bStarts = b.name.toLowerCase().startsWith(normalizedSearch) ? 0 : 1;
+        const aStarts = a.name.toLowerCase().startsWith(normalizedSearch)
+          ? 0
+          : 1;
+        const bStarts = b.name.toLowerCase().startsWith(normalizedSearch)
+          ? 0
+          : 1;
         if (aStarts !== bStarts) return aStarts - bStarts;
         return a.name.localeCompare(b.name);
       })
@@ -266,14 +299,19 @@ export default function HrDashboardPage() {
   }, [employeesForSearch, normalizedSearch]);
 
   const displayRequests = requests.filter(
-    (req) => !statusFilter || (req.status || "PENDING").toUpperCase() === statusFilter
+    (req) =>
+      !statusFilter || (req.status || "PENDING").toUpperCase() === statusFilter,
   );
 
   const handleApprove = async (requestId: string) => {
     setActionLoadingId(requestId);
     try {
       await confirmBenefitRequest(getAdminClient(), requestId, true);
-      setRequests((prev) => prev.map((r) => (r.id === requestId ? { ...r, status: "APPROVED" } : r)));
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === requestId ? { ...r, status: "APPROVED" } : r,
+        ),
+      );
     } catch (e) {
       setError(getApiErrorMessage(e));
     } finally {
@@ -287,7 +325,11 @@ export default function HrDashboardPage() {
     setActionLoadingId(requestId);
     try {
       await confirmBenefitRequest(getAdminClient(), requestId, false, reason);
-      setRequests((prev) => prev.map((r) => (r.id === requestId ? { ...r, status: "REJECTED" } : r)));
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === requestId ? { ...r, status: "REJECTED" } : r,
+        ),
+      );
     } catch (e) {
       setError(getApiErrorMessage(e));
     } finally {
@@ -308,13 +350,21 @@ export default function HrDashboardPage() {
       const client = getAdminClient();
       const res = await client.request<{ benefitRequests: BenefitRequest[] }>(
         BENEFIT_REQUESTS_QUERY,
-        { status: statusFilter ?? undefined }
+        { status: statusFilter ?? undefined },
       );
-      setRequests((res.benefitRequests ?? []).map((r) => ({ ...r, status: (r.status || "PENDING").toUpperCase() })));
+      setRequests(
+        (res.benefitRequests ?? []).map((r) => ({
+          ...r,
+          status: (r.status || "PENDING").toUpperCase(),
+        })),
+      );
     } catch (e) {
       setError(getApiErrorMessage(e));
     } finally {
-      setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: false }));
+      setUploadingContractByRequestId((prev) => ({
+        ...prev,
+        [requestId]: false,
+      }));
     }
   };
 
@@ -389,7 +439,6 @@ export default function HrDashboardPage() {
               </button>
             ))}
           </div>
-        </div>
 
         {error && <div className="mx-8 mb-4 shrink-0 rounded-lg border border-red-500/50 bg-red-500/20 px-4 py-2 text-red-200">{error}</div>}
 
@@ -405,44 +454,74 @@ export default function HrDashboardPage() {
               const employeeName = req.employeeName ?? req.employeeId ?? "";
               const benefitText = req.benefitName ?? req.benefitId ?? "Benefit request";
 
-              return (
-                <div
-                  key={req.id}
-                  className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-4 dark:border-[#2C4264] dark:bg-[#24364F]/30"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-slate-400 dark:text-[#94A3B8]">{formatRelativeTime(req.createdAt)}</span>
-                    <div className="flex items-center gap-2">
-                      {statusBadge(status)}
-                      {status === "PENDING" ? (
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleApprove(req.id)}
-                            disabled={isLoading || needsSignature}
-                            className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {needsSignature ? "Await sign" : isLoading ? "..." : "Approve"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleReject(req.id)}
-                            disabled={isLoading}
-                            className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : null}
+                return (
+                  <div
+                    key={req.id}
+                    className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-4 dark:border-[#2C4264] dark:bg-[#24364F]/30"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs text-slate-400 dark:text-[#94A3B8]">
+                        {formatRelativeTime(req.createdAt)}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {statusBadge(status)}
+                        {status === "PENDING" ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleApprove(req.id)}
+                              disabled={isLoading}
+                              className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {isLoading ? "..." : "Approve"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleReject(req.id)}
+                              disabled={isLoading}
+                              className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
-                      {getInitials(employeeName)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-white">{employeeName}</p>
-                      <p className="mt-0.5 text-sm text-slate-400 dark:text-[#A7B6D3]">{benefitText}</p>
+                    {status === "APPROVED" && req.requiresContract ? (
+                      <div className="mt-1 flex items-center gap-3 text-xs">
+                        {needsSignature ? (
+                          <span className="rounded-md border border-amber-400/40 bg-amber-500/10 px-2 py-1 text-amber-200">
+                            Await sign
+                          </span>
+                        ) : (
+                          <span className="rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-emerald-200">
+                            Signed contract uploaded
+                          </span>
+                        )}
+                        {hasSignedContract ? (
+                          <a
+                            href={`${apiBaseUrl}${req.contractTemplateUrl}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-300 underline decoration-blue-300/40 underline-offset-4 hover:text-blue-200"
+                          >
+                            View signed contract
+                          </a>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
+                        {getInitials(employeeName)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-white">
+                          {employeeName}
+                        </p>
+                        <p className="mt-0.5 text-sm text-slate-400 dark:text-[#A7B6D3]">
+                          {benefitText}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

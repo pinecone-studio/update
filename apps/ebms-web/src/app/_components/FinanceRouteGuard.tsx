@@ -4,18 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getActiveUserProfile } from "@/app/_lib/activeUser";
 
-export function FinanceRouteGuard({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function FinanceRouteGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [authorized, setAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
     const profile = getActiveUserProfile();
     const role = (profile.role ?? "").toLowerCase();
-    const allowed = role === "finance-manager";
+    const allowed = role.includes("finance");
     if (!allowed) {
       router.replace("/employee");
       setAuthorized(false);

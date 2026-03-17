@@ -108,12 +108,16 @@ export function EmployeeContracts() {
     (async () => {
       try {
         const client = getAdminClient();
-        const res = await client.request<{ employees: EmployeeOption[] }>(EMPLOYEES_QUERY);
+        const res = await client.request<{ employees: EmployeeOption[] }>(
+          EMPLOYEES_QUERY,
+        );
         const list = res.employees ?? [];
         if (!cancelled) {
           setEmployeeOptions(list);
           setSelectedEmployeeId((prev) =>
-            prev && list.some((e) => e.id === prev) ? prev : list[0]?.id ?? ""
+            prev && list.some((e) => e.id === prev)
+              ? prev
+              : (list[0]?.id ?? ""),
           );
         }
       } catch {
@@ -158,13 +162,13 @@ export function EmployeeContracts() {
       (c) =>
         c.contractNumber.toLowerCase().includes(query) ||
         c.contractName.toLowerCase().includes(query) ||
-        c.contractUrl.toLowerCase().includes(query)
+        c.contractUrl.toLowerCase().includes(query),
     );
   }, [contractRows, search, filterByEmployeeId]);
 
   const pendingRenewalCount = useMemo(
     () => contractRows.filter((c) => c.status === "Expiring soon").length,
-    [contractRows]
+    [contractRows],
   );
 
   function validatePdf(file: File): string | null {
@@ -205,9 +209,12 @@ export function EmployeeContracts() {
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         setUploadError(
-          (data && typeof data === "object" && "error" in data && (data as { error?: string }).error) ||
+          (data &&
+            typeof data === "object" &&
+            "error" in data &&
+            (data as { error?: string }).error) ||
             res.statusText ||
-            "Upload failed"
+            "Upload failed",
         );
         return;
       }
@@ -244,7 +251,9 @@ export function EmployeeContracts() {
       <section className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <article className="min-w-0 h-[107px] rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50">
           <div className="mb-2 flex items-start justify-between">
-            <p className="text-[20px] font-normal dark:text-[#FFFFFF]">Active Contracts</p>
+            <p className="text-[20px] font-normal dark:text-[#FFFFFF]">
+              Active Contracts
+            </p>
             <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#19D463]" />
           </div>
           <p className="text-[34px] font-normal text-slate-900 dark:text-white">
@@ -253,7 +262,9 @@ export function EmployeeContracts() {
         </article>
         <article className="min-w-0 h-[107px] rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50">
           <div className="mb-2 flex items-start justify-between">
-            <p className="text-[20px] font-normal dark:text-[#ffffff]">Expiring Soon</p>
+            <p className="text-[20px] font-normal dark:text-[#ffffff]">
+              Expiring Soon
+            </p>
             <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-amber-500 dark:bg-[#FFB21C]" />
           </div>
           <p className="text-[34px] font-normal text-slate-900 dark:text-white">
@@ -262,7 +273,9 @@ export function EmployeeContracts() {
         </article>
         <article className="min-w-0 h-[107px] rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50">
           <div className="mb-2 flex items-start justify-between">
-            <p className="text-[20px] font-normal dark:text-[#ffffff]">Pending Renewal</p>
+            <p className="text-[20px] font-normal dark:text-[#ffffff]">
+              Pending Renewal
+            </p>
             <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#3E82F7]" />
           </div>
           <p className="text-[34px] font-normal text-slate-900 dark:text-white">
@@ -271,7 +284,9 @@ export function EmployeeContracts() {
         </article>
         <article className="min-w-0 h-[107px] rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50">
           <div className="mb-2 flex items-start justify-between">
-            <p className="text-[20px] font-normal dark:text-[#ffffff]">Total Contracts</p>
+            <p className="text-[20px] font-normal dark:text-[#ffffff]">
+              Total Contracts
+            </p>
             <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#ffffff]" />
           </div>
           <p className="text-[34px] font-normal text-slate-900 dark:text-white">
@@ -513,7 +528,13 @@ export function EmployeeContracts() {
             </select>
             <div className="relative min-w-0 flex-1">
               <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
-                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-5 w-5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
                   <circle cx="11" cy="11" r="7" />
                   <path d="m20 20-4-4" />
                 </svg>
@@ -531,22 +552,45 @@ export function EmployeeContracts() {
           <table className="min-w-full ">
             <thead className="">
               <tr>
-                <th className="px-5 py-4 text-left text-[18px] font-normal dark:text-[#A7B6D3]">№</th>
-                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">Contract name </th>
-                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">Contract code </th>
-                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">Start date</th>
-                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]"> End date</th>
-                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">Contract URL</th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal dark:text-[#A7B6D3]">
+                  №
+                </th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">
+                  Contract name{" "}
+                </th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">
+                  Contract code{" "}
+                </th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">
+                  Start date
+                </th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">
+                  {" "}
+                  End date
+                </th>
+                <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">
+                  Contract URL
+                </th>
               </tr>
             </thead>
             <tbody className="">
               {filteredContracts.map((contract, index) => (
                 <tr key={contract.id}>
-                  <td className="px-5 py-5 text-5 text-slate-900 dark:text-white">{index + 1}</td>
-                  <td className="px-5 py-5 text-5 font-semibold text-slate-900 dark:text-white">{contract.contractNumber}</td>
-                  <td className="px-5 py-5 text-5 text-slate-900 dark:text-white">{contract.contractName}</td>
-                  <td className="px-5 py-5 text-5 text-slate-600 dark:text-[#D1DBEF]">{contract.startDate}</td>
-                  <td className="px-5 py-5 text-5 text-slate-600 dark:text-[#D1DBEF]">{contract.endDate}</td>
+                  <td className="px-5 py-5 text-5 text-slate-900 dark:text-white">
+                    {index + 1}
+                  </td>
+                  <td className="px-5 py-5 text-5 font-semibold text-slate-900 dark:text-white">
+                    {contract.contractNumber}
+                  </td>
+                  <td className="px-5 py-5 text-5 text-slate-900 dark:text-white">
+                    {contract.contractName}
+                  </td>
+                  <td className="px-5 py-5 text-5 text-slate-600 dark:text-[#D1DBEF]">
+                    {contract.startDate}
+                  </td>
+                  <td className="px-5 py-5 text-5 text-slate-600 dark:text-[#D1DBEF]">
+                    {contract.endDate}
+                  </td>
                   <td className="px-5 py-5 text-5">
                     <a
                       href={contract.contractUrl}
@@ -561,14 +605,17 @@ export function EmployeeContracts() {
               ))}
               {filteredContracts.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-5 py-6 text-center text-5 text-slate-600 dark:text-[#A7B6D3]">
+                  <td
+                    colSpan={6}
+                    className="px-5 py-6 text-center text-5 text-slate-600 dark:text-[#A7B6D3]"
+                  >
                     Contract олдсонгүй.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
-      </div>
+        </div>
       </section>
     </div>
   );

@@ -1,39 +1,49 @@
-import { GraphQLError } from 'graphql';
-import type { Ctx } from '../context';
-import { requireHR } from '../context';
-import { mapBenefitStatus } from '../utils';
-import type { MutationResolvers } from '../../generated/graphql';
-import { getDb } from '../../../db/drizzle';
+import { GraphQLError } from "graphql";
+import type { Ctx } from "../context";
+import { requireHR } from "../context";
+import { mapBenefitStatus } from "../utils";
+import type { MutationResolvers } from "../../generated/graphql";
+import { getDb } from "../../../db/drizzle";
 import {
   benefits as benefitsTable,
   benefitEligibility,
   eligibilityAudit,
-} from '../../../db/schema';
-import { and, eq } from 'drizzle-orm';
-import { getBenefitEligibilityForEmployee } from '../getBenefitEligibility';
-import { dispatchEmployeeNotification } from '../../../notifications/dispatcher';
+} from "../../../db/schema";
+import { and, eq } from "drizzle-orm";
+import { getBenefitEligibilityForEmployee } from "../getBenefitEligibility";
+import { dispatchEmployeeNotification } from "../../../notifications/dispatcher";
 
 export const overrideEligibility: NonNullable<
-  MutationResolvers<Ctx>['overrideEligibility']
-> = async (_:any, args:any, ctx:any) => {
+  MutationResolvers<Ctx>["overrideEligibility"]
+> = async (_: any, args: any, ctx: any) => {
   requireHR(ctx);
   const db = getDb(ctx.env);
 
   const { employeeId, benefitId, status, reason, expiresAt } = args.input;
 
   const benefitRows = await db
-    .select({ id: benefitsTable.id, name: benefitsTable.name, category: benefitsTable.category, subsidyPercent: benefitsTable.subsidyPercent, requiresContract: benefitsTable.requiresContract })
+    .select({
+      id: benefitsTable.id,
+      name: benefitsTable.name,
+      category: benefitsTable.category,
+      subsidyPercent: benefitsTable.subsidyPercent,
+      requiresContract: benefitsTable.requiresContract,
+    })
     .from(benefitsTable)
     .where(eq(benefitsTable.id, benefitId))
     .limit(1);
   if (!benefitRows[0]) {
-    throw new GraphQLError('Benefit not found', { extensions: { code: 'NOT_FOUND' } });
+    throw new GraphQLError("Benefit not found", {
+      extensions: { code: "NOT_FOUND" },
+    });
   }
 
   const now = new Date().toISOString();
   const statusLower = status.toLowerCase();
-  const overrideBy = ctx.employeeId ?? 'system';
-  const ruleJson = JSON.stringify([{ ruleType: 'override', passed: true, reason: reason ?? 'HR override' }]);
+  const overrideBy = ctx.employeeId ?? "system";
+  const ruleJson = JSON.stringify([
+    { ruleType: "override", passed: true, reason: reason ?? "HR override" },
+  ]);
 
   const existing = await db
     .select()
@@ -41,11 +51,11 @@ export const overrideEligibility: NonNullable<
     .where(
       and(
         eq(benefitEligibility.employeeId, employeeId),
-        eq(benefitEligibility.benefitId, benefitId)
-      )
+        eq(benefitEligibility.benefitId, benefitId),
+      ),
     )
     .limit(1);
-  const prevStatus = (existing[0]?.status ?? '').toLowerCase();
+  const prevStatus = (existing[0]?.status ?? "").toLowerCase();
 
   if (existing.length > 0) {
     await db
@@ -61,8 +71,8 @@ export const overrideEligibility: NonNullable<
       .where(
         and(
           eq(benefitEligibility.employeeId, employeeId),
-          eq(benefitEligibility.benefitId, benefitId)
-        )
+          eq(benefitEligibility.benefitId, benefitId),
+        ),
       );
   } else {
     await db.insert(benefitEligibility).values({
@@ -90,14 +100,14 @@ export const overrideEligibility: NonNullable<
     createdAt: now,
   });
 
-  if (statusLower === 'eligible' && prevStatus !== 'eligible') {
+  if (statusLower === "eligible" && prevStatus !== "eligible") {
     await dispatchEmployeeNotification(ctx.env, {
       employeeId,
-      type: 'ELIGIBILITY_CHANGE',
-      tone: 'info',
+      type: "ELIGIBILITY_CHANGE",
+      tone: "info",
       dedupeKey: `eligibility:${benefitId}:override:unlocked`,
-      title: 'Benefit Unlocked',
-      body: `Your ${benefitRows[0]?.name ?? 'benefit'} benefit is now ELIGIBLE. You can request this benefit from your dashboard.`,
+      title: "Benefit Unlocked",
+      body: `Your ${benefitRows[0]?.name ?? "benefit"} benefit is now ELIGIBLE. You can request this benefit from your dashboard.`,
       metadata: { benefitId, reason: reason ?? null },
     });
   }
@@ -105,8 +115,8 @@ export const overrideEligibility: NonNullable<
   const list = await getBenefitEligibilityForEmployee(ctx.env, employeeId);
   const entry = list.find((e) => e.benefit.id === benefitId);
   if (!entry) {
-    throw new GraphQLError('Eligibility not found after override', {
-      extensions: { code: 'INTERNAL_SERVER_ERROR' },
+    throw new GraphQLError("Eligibility not found after override", {
+      extensions: { code: "INTERNAL_SERVER_ERROR" },
     });
   }
 

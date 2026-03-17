@@ -28,6 +28,16 @@ import { mapMyBenefitsToCardProps } from "./_lib/mapBenefits";
 import { IoClose } from "react-icons/io5";
 import { ensureValidActiveUserProfile } from "@/app/_lib/activeUser";
 
+type ContractTaskStatus = "PENDING" | "APPROVED";
+type ContractTask = {
+  requestId: string;
+  benefitId: string;
+  benefitName: string;
+  requestStatus: ContractTaskStatus;
+  uploadedUrl?: string | null;
+  createdAt: string;
+};
+
 const FILTER_PILL_STYLES = {
   ACTIVE: {
     label: "Active",
@@ -109,13 +119,9 @@ export default function EmployeeDashboardPage() {
   const [statusFilter, setStatusFilter] = useState<
     "ACTIVE" | "ELIGIBLE" | "PENDING" | "LOCKED" | "ALL"
   >("ALL");
-  const [contractTasks, setContractTasks] = useState<
-    Array<{
-      requestId: string;
-      benefitName: string;
-      uploadedUrl?: string | null;
-    }>
-  >([]);
+  const [contractTasksByBenefitId, setContractTasksByBenefitId] = useState<
+    Record<string, ContractTask>
+  >({});
   const [selectedContractFileByRequestId, setSelectedContractFileByRequestId] =
     useState<Record<string, File | null>>({});
   const [uploadingContractByRequestId, setUploadingContractByRequestId] =
@@ -148,17 +154,36 @@ export default function EmployeeDashboardPage() {
           });
         });
         try {
-          const requests = await fetchMyBenefitRequests("APPROVED");
+          const requests = await fetchMyBenefitRequests();
           const tasks = requests
-            .filter((r) => r.requiresContract)
+            .filter(
+              (r) =>
+                r.requiresContract &&
+                (r.status === "PENDING" || r.status === "APPROVED"),
+            )
             .map((r) => ({
               requestId: r.id,
+              benefitId: r.benefitId,
               benefitName: r.benefitName ?? r.benefitId,
+              requestStatus: r.status as "PENDING" | "APPROVED",
               uploadedUrl: r.contractTemplateUrl ?? null,
-            }));
-          setContractTasks(tasks);
+              createdAt: r.createdAt,
+            }))
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            );
+          const latestByBenefitId = tasks.reduce<Record<string, ContractTask>>(
+            (acc, task) => {
+              if (!acc[task.benefitId]) acc[task.benefitId] = task;
+              return acc;
+            },
+            {},
+          );
+          setContractTasksByBenefitId(latestByBenefitId);
         } catch {
-          setContractTasks([]);
+          setContractTasksByBenefitId({});
         }
       } catch (e) {
         const message = getApiErrorMessage(e);
@@ -373,37 +398,46 @@ export default function EmployeeDashboardPage() {
     setChatMessages((prev) => [...prev, { role: "assistant", text: reply }]);
   }, [chatQuestion]);
 
-  const renderContractTaskCard = (task: {
-    requestId: string;
-    benefitName: string;
-    uploadedUrl?: string | null;
-  }) => {
+  const renderContractTaskCard = (task: ContractTask) => {
     const isUploading = uploadingContractByRequestId[task.requestId] ?? false;
     const selected = selectedContractFileByRequestId[task.requestId];
     const errorText = contractUploadErrorByRequestId[task.requestId];
-    const needsUpload = !task.uploadedUrl;
+    const needsUpload = task.requestStatus === "APPROVED" && !task.uploadedUrl;
     return (
       <div
         key={task.requestId}
-        className="rounded-xl border border-amber-300/30 bg-black/20 p-3"
+        className="rounded-xl border border-white/10 bg-white/5 p-3"
+        onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-sm font-medium text-white">{task.benefitName}</p>
-        <p className="mt-1 text-xs text-white/65">
-          Request ID: {task.requestId}
+        <p className="text-xs font-medium text-white/90">Contract status</p>
+        <p className="mt-1 text-xs text-white/70">
+          {task.benefitName} ({task.requestId})
         </p>
+        <p className="mt-1 text-xs text-amber-100/80">
+          Status: {task.requestStatus}
+        </p>
+        {task.requestStatus === "PENDING" ? (
+          <p className="mt-2 text-xs text-amber-100/80">
+            Admin approval pending. Upload will be enabled after approval.
+          </p>
+        ) : null}
         {!needsUpload ? (
           <div className="mt-2 flex items-center gap-3">
-            <span className="text-xs text-emerald-300">
-              Signed contract uploaded
-            </span>
-            <a
-              href={task.uploadedUrl ?? "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-medium text-blue-300 hover:text-blue-200"
-            >
-              View uploaded file
-            </a>
+            {task.uploadedUrl ? (
+              <>
+                <span className="text-xs text-emerald-300">
+                  Signed contract uploaded
+                </span>
+                <a
+                  href={task.uploadedUrl ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-medium text-blue-300 hover:text-blue-200"
+                >
+                  View uploaded file
+                </a>
+              </>
+            ) : null}
           </div>
         ) : (
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -434,6 +468,16 @@ export default function EmployeeDashboardPage() {
       </div>
     );
   };
+
+  const benefitsWithContractFlow = orderedBenefits.map((benefit) => {
+    if (benefit.status !== "PENDING" || !benefit.benefitId) return benefit;
+    const task = contractTasksByBenefitId[benefit.benefitId];
+    if (!task) return benefit;
+    return {
+      ...benefit,
+      footerActions: renderContractTaskCard(task),
+    };
+  });
 
   return (
     <div>
@@ -507,20 +551,6 @@ export default function EmployeeDashboardPage() {
               </section>
 
               <section className="mt-12 w-full sm:mt-16">
-                {contractTasks.length > 0 && (
-                  <div className="mb-8 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4">
-                    <h3 className="text-sm font-semibold text-amber-200">
-                      Signed Contract Required
-                    </h3>
-                    <p className="mt-1 text-xs text-amber-100/80">
-                      Admin approved these requests. Please upload your manually
-                      signed contract PDF.
-                    </p>
-                    <div className="mt-4 space-y-3">
-                      {contractTasks.map(renderContractTaskCard)}
-                    </div>
-                  </div>
-                )}
                 <div>
                   <div className="mb-6">
                     <div>
@@ -540,7 +570,7 @@ export default function EmployeeDashboardPage() {
                   </div>
 
                   <BenefitPortfolio
-                    benefits={orderedBenefits}
+                    benefits={benefitsWithContractFlow}
                     onRequestBenefit={handleRequestBenefit}
                     onViewContract={handleViewContract}
                   />

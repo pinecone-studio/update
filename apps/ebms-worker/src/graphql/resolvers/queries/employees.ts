@@ -1,16 +1,25 @@
-import type { Ctx } from '../context';
-import { requireHROrAdminOrFinance } from '../context';
-import { asBool01, mapEmploymentStatus } from '../utils';
-import type { QueryResolvers } from '../../generated/graphql';
-import { getDb } from '../../../db/drizzle';
-import { employees as employeesTable } from '../../../db/schema';
-import { and, eq, sql } from 'drizzle-orm';
+import type { Ctx } from "../context";
+import { GraphQLError } from "graphql";
+import { requireHROrAdminOrFinance } from "../context";
+import { asBool01, mapEmploymentStatus } from "../utils";
+import type { QueryResolvers } from "../../generated/graphql";
+import { getDb } from "../../../db/drizzle";
+import { employees as employeesTable } from "../../../db/schema";
+import { and, eq, sql } from "drizzle-orm";
 
-export const employees: NonNullable<QueryResolvers<Ctx>['employees']> = async (
+export const employees: NonNullable<QueryResolvers<Ctx>["employees"]> = async (
   _,
   args,
-  ctx
+  ctx,
 ) => {
+  const role = (ctx.role ?? "").toLowerCase();
+  const isHrOrAdmin = role === "hr" || role === "admin";
+  const isFinance = role.includes("finance");
+  if (!isHrOrAdmin && !isFinance) {
+    throw new GraphQLError("Forbidden: HR/admin or finance role required", {
+      extensions: { code: "FORBIDDEN" },
+    });
+  }
   requireHROrAdminOrFinance(ctx);
   const db = getDb(ctx.env);
 
@@ -22,8 +31,7 @@ export const employees: NonNullable<QueryResolvers<Ctx>['employees']> = async (
     conditions.push(eq(employeesTable.employmentStatus, args.employmentStatus));
   }
 
-  const whereClause =
-    conditions.length > 0 ? and(...conditions) : undefined;
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const rows = await db
     .select({
@@ -41,10 +49,10 @@ export const employees: NonNullable<QueryResolvers<Ctx>['employees']> = async (
 
   return rows.map((row) => ({
     id: row.id,
-    name: row.name ?? '',
+    name: row.name ?? "",
     role: row.role,
     responsibilityLevel: row.responsibilityLevel ?? 1,
-    employmentStatus: mapEmploymentStatus(row.employmentStatus ?? 'probation'),
+    employmentStatus: mapEmploymentStatus(row.employmentStatus ?? "probation"),
     okrSubmitted: asBool01(row.okrSubmitted),
     lateArrivalCount: row.lateArrivalCount ?? 0,
     benefits: [],
