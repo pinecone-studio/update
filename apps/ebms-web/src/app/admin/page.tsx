@@ -439,6 +439,7 @@ export default function HrDashboardPage() {
               </button>
             ))}
           </div>
+        </div>
 
         {error && <div className="mx-8 mb-4 shrink-0 rounded-lg border border-red-500/50 bg-red-500/20 px-4 py-2 text-red-200">{error}</div>}
 
@@ -498,7 +499,7 @@ export default function HrDashboardPage() {
                             Signed contract uploaded
                           </span>
                         )}
-                        {hasSignedContract ? (
+                        {!needsSignature && req.contractTemplateUrl ? (
                           <a
                             href={`${apiBaseUrl}${req.contractTemplateUrl}`}
                             target="_blank"
@@ -524,7 +525,6 @@ export default function HrDashboardPage() {
                       </div>
                     </div>
                   </div>
-                </div>
               );
             })}
             </div>

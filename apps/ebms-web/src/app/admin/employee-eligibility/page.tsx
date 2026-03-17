@@ -87,49 +87,29 @@ function EmployeeEligibilityPageContent() {
         const data = await client.request<{ employees: EmployeeListItem[] }>(
           EMPLOYEES_QUERY,
         );
-    }, [search, employeeList]);
+        if (cancelled) return;
+        const rows: EmployeeRow[] = (data.employees ?? []).map((e) => ({
+          id: e.id ?? "",
+          name: e.name ?? "Unknown",
+          department: e.role ?? e.employmentStatus ?? "—",
+        }));
+        setEmployeeList(rows);
+      } catch {
+        if (!cancelled) {
+          setEmployeeList([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-    const getInitials = (name: string) =>
-        name
-            .split(" ")
-            .map((part) => part[0])
-            .join("")
-            .slice(0, 2)
-            .toUpperCase();
-
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                await ensureValidActiveUserProfile();
-                const client = getClient();
-                const data =
-                    await client.request<{ employees: EmployeeListItem[] }>(
-                        EMPLOYEES_QUERY,
-                    );
-                if (cancelled) return;
-                const rows: EmployeeRow[] = (data.employees ?? []).map((e) => ({
-                    id: e.id ?? "",
-                    name: e.name ?? "Unknown",
-                    department: e.role ?? e.employmentStatus ?? "—",
-                }));
-                setEmployeeList(rows);
-            } catch {
-                if (!cancelled) {
-                    setEmployeeList([]);
-                }
-            } finally {
-                if (!cancelled) setLoading(false);
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    useEffect(() => {
-        setSearch(initialSearch);
-    }, [initialSearch]);
+  useEffect(() => {
+    setSearch(initialSearch);
+  }, [initialSearch]);
 
     if (loading) {
         return <EmployeeEligibilitySkeleton />;
@@ -219,26 +199,9 @@ function EmployeeEligibilityPageContent() {
                         ))
                     )}
                 </div>
-              </div>
-            </Link>
-          ))}
-          {filteredEmployees.length === 0 && (
-            <div className="flex items-center justify-center rounded-2xl border border-white/50 h-[402px] flex-col gap-3.5  text-center">
-              <button className="w-[87px] h-[87px] flex items-center justify-center bg-[#20194D80]/50 rounded-full">
-                <SearchIcon />
-              </button>
-              <p className="text-[28px] font-normal text-slate-500 dark:text-[#9FB0CF]">
-                No employees found.
-              </p>
-              <p className="text-[19px] font-normal text-slate-500 dark:text-[#9FB0CF]">
-                Try adjusting your search
-              </p>
-            </div>
-          )}
+            </section>
         </div>
-      </section>
-    </div>
-  );
+    );
 }
 
 export default function EmployeeEligibilityPage() {
