@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql';
 import type { Ctx } from '../context';
-import { requireEmployeeId, requireHROrAdminOrFinance } from '../context';
+import { requireEmployeeId, requireHR, requireHROrAdminOrFinance } from '../context';
 import { mapRequestStatus } from '../utils';
 import type { MutationResolvers } from '../../generated/graphql';
 import { getDb } from '../../../db/drizzle';
