@@ -4,12 +4,10 @@ import { AdminRouteGuard } from "@/app/_components/AdminRouteGuard";
 import { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 
-
 export const metadata: Metadata = {
-	title: 'EBMS — Admin Dashboard',
-	description: 'Pinequest S3 Ep1 — Employee Benefits Management System',
-  };
-  
+  title: "EBMS — Admin Dashboard",
+  description: "Pinequest S3 Ep1 — Employee Benefits Management System",
+};
 
 export default function HrAdminLayout({ children }: { children: ReactNode }) {
   return (
@@ -22,7 +20,7 @@ export default function HrAdminLayout({ children }: { children: ReactNode }) {
       </div>
       <AdminRouteGuard>
         <Header />
-        <section className="relative z-10 mx-auto flex min-h-0 flex-1 flex-col overflow-hidden w-full max-w-[1500px] p-4 sm:p-6 xl:p-8">
+        <section className="relative z-10 mx-auto flex min-h-0 flex-1 flex-col overflow-hidden w-full max-w-[1500px] sm:p-6 xl:p-8">
           {children}
         </section>
       </AdminRouteGuard>

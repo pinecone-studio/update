@@ -10,14 +10,20 @@ import {
   contracts,
   employees,
 } from "../../../db/schema";
-import { renderPinefitContractHtml, toBool01 } from "../../../contracts/renderPinefit";
+import {
+  renderPinefitContractHtml,
+  toBool01,
+} from "../../../contracts/renderPinefit";
 
 export const benefitRequestContractTemplate: NonNullable<
   QueryResolvers<Ctx>["benefitRequestContractTemplate"]
 > = async (_, args, ctx) => {
   const actorEmployeeId = requireEmployeeId(ctx);
   const actorRole = (ctx.role ?? "").toLowerCase();
-  const isHrOrAdminOrFinance = actorRole === "hr" || actorRole === "admin" || actorRole === "finance-manager";
+  const isHrOrAdminOrFinance =
+    actorRole === "hr" ||
+    actorRole === "admin" ||
+    actorRole === "finance-manager";
 
   const db = getDb(ctx.env);
   const rows = await db
@@ -47,7 +53,9 @@ export const benefitRequestContractTemplate: NonNullable<
 
   const row = rows[0];
   if (!row) {
-    throw new GraphQLError("Benefit request not found", { extensions: { code: "NOT_FOUND" } });
+    throw new GraphQLError("Benefit request not found", {
+      extensions: { code: "NOT_FOUND" },
+    });
   }
   if (!isHrOrAdminOrFinance && row.requestEmployeeId !== actorEmployeeId) {
     throw new GraphQLError("Forbidden", { extensions: { code: "FORBIDDEN" } });
@@ -55,9 +63,12 @@ export const benefitRequestContractTemplate: NonNullable<
 
   const requiresContract = toBool01(row.benefitRequiresContract);
   if (requiresContract && !row.contractId) {
-    throw new GraphQLError("Active contract is not configured for this benefit", {
-      extensions: { code: "CONFLICT" },
-    });
+    throw new GraphQLError(
+      "Active contract is not configured for this benefit",
+      {
+        extensions: { code: "CONFLICT" },
+      },
+    );
   }
 
   return {

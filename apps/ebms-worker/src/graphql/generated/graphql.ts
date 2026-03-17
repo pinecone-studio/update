@@ -77,6 +77,10 @@ export type BenefitEligibility = {
   __typename?: 'BenefitEligibility';
   benefit: Benefit;
   computedAt: Scalars['String']['output'];
+  overrideApplied: Scalars['Boolean']['output'];
+  overrideReason?: Maybe<Scalars['String']['output']>;
+  /** When status is PENDING: 'admin' or 'finance' — who must approve next */
+  pendingApprovalBy?: Maybe<Scalars['String']['output']>;
   rejectedReason?: Maybe<Scalars['String']['output']>;
   ruleEvaluations: Array<RuleEvaluation>;
   status: BenefitStatus;
@@ -367,6 +371,7 @@ export type QueryMyNotificationsArgs = {
 };
 
 export type RequestStatus =
+  | 'ADMIN_APPROVED'
   | 'APPROVED'
   | 'CANCELLED'
   | 'PENDING'
@@ -603,6 +608,9 @@ export type BenefitResolvers<ContextType = Ctx, ParentType extends ResolversPare
 export type BenefitEligibilityResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['BenefitEligibility'] = ResolversParentTypes['BenefitEligibility']> = {
   benefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType>;
   computedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  overrideApplied?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  overrideReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  pendingApprovalBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   rejectedReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ruleEvaluations?: Resolver<Array<ResolversTypes['RuleEvaluation']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['BenefitStatus'], ParentType, ContextType>;

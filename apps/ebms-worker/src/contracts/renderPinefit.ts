@@ -52,11 +52,14 @@ function escapeHtml(value: string): string {
 }
 
 function renderPinefitTemplate(ctx: ContractTemplateContext): string {
-  return pinefitTemplate.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key: string) => {
-    const raw = ctx[key as keyof ContractTemplateContext];
-    const value = raw == null ? "" : String(raw);
-    return escapeHtml(value);
-  });
+  return pinefitTemplate.replace(
+    /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
+    (_, key: string) => {
+      const raw = ctx[key as keyof ContractTemplateContext];
+      const value = raw == null ? "" : String(raw);
+      return escapeHtml(value);
+    },
+  );
 }
 
 function toDateOnly(value?: string | null): string {
@@ -83,10 +86,14 @@ export function renderPinefitContractHtml(row: PinefitTemplateData): string {
     paymentTerms: "Байгууллагын дотоод бодлогын дагуу",
     providerSigner: row.benefitVendorName ?? "Pinefit төлөөлөгч",
     providerRole: "Гэрээ хариуцсан менежер",
-    providerSignatureDate: toDateOnly(row.contractCreatedAt ?? row.requestCreatedAt),
+    providerSignatureDate: toDateOnly(
+      row.contractCreatedAt ?? row.requestCreatedAt,
+    ),
     clientSigner: row.employeeName ?? row.requestEmployeeId,
     clientId: row.employeeCode ?? row.requestEmployeeId,
-    signatureDate: toDateOnly(row.contractAcceptedAt ?? new Date().toISOString()),
+    signatureDate: toDateOnly(
+      row.contractAcceptedAt ?? new Date().toISOString(),
+    ),
     providerRegister: "Регистр оруулна",
     providerAddress: "Хаяг оруулна",
     clientAddress: "Хаяг оруулна",

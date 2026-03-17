@@ -1,3 +1,2 @@
-export * from './resolvers/index';
-export * from './schema/index';
-
+export * from "./resolvers/index";
+export * from "./schema/index";

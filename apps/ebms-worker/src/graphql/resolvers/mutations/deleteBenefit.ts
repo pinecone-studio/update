@@ -1,22 +1,25 @@
-import { GraphQLError } from 'graphql';
-import type { Ctx } from '../context';
-import { requireHR } from '../context';
-import { getDb } from '../../../db/drizzle';
-import { benefits as benefitsTable, eligibilityConfig } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { GraphQLError } from "graphql";
+import type { Ctx } from "../context";
+import { requireHR } from "../context";
+import { getDb } from "../../../db/drizzle";
+import {
+  benefits as benefitsTable,
+  eligibilityConfig,
+} from "../../../db/schema";
+import { eq } from "drizzle-orm";
 
 type DeleteBenefitArgs = { id: string };
 
 export const deleteBenefit = async (
   _: unknown,
   args: DeleteBenefitArgs,
-  ctx: Ctx
+  ctx: Ctx,
 ) => {
   requireHR(ctx);
   const id = args.id?.trim();
   if (!id) {
-    throw new GraphQLError('id is required', {
-      extensions: { code: 'BAD_USER_INPUT' },
+    throw new GraphQLError("id is required", {
+      extensions: { code: "BAD_USER_INPUT" },
     });
   }
 
@@ -29,8 +32,8 @@ export const deleteBenefit = async (
     .where(eq(benefitsTable.id, id))
     .limit(1);
   if (!existing[0]) {
-    throw new GraphQLError('Benefit not found', {
-      extensions: { code: 'NOT_FOUND' },
+    throw new GraphQLError("Benefit not found", {
+      extensions: { code: "NOT_FOUND" },
     });
   }
 

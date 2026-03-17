@@ -190,17 +190,12 @@ export function AddBenefitForm({
               htmlFor="s1-requires-contract"
               className="text-sm text-slate-600 dark:text-[#94A3B8]"
             >
-            Requires Vendor Contract
+              Requires Vendor Contract
             </label>
-          </div> 
+          </div>
           <div className="flex items-center gap-2">
-            <input
-              type="checkbox"         
-              className="rounded border-[#334155]"
-            />
-            <label
-              className="text-sm text-slate-600 dark:text-[#94A3B8]"
-            >
+            <input type="checkbox" className="rounded border-[#334155]" />
+            <label className="text-sm text-slate-600 dark:text-[#94A3B8]">
               Manager Pre-Approval
             </label>
           </div>

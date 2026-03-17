@@ -14,6 +14,7 @@ export const typeDefs = /* GraphQL */ `
 
   enum RequestStatus {
     PENDING
+    ADMIN_APPROVED
     APPROVED
     REJECTED
     CANCELLED
@@ -68,6 +69,7 @@ export const typeDefs = /* GraphQL */ `
     rejectedReason: String
     overrideApplied: Boolean!
     overrideReason: String
+    pendingApprovalBy: String
   }
 
   type RuleEvaluation {
@@ -267,7 +269,11 @@ export const typeDefs = /* GraphQL */ `
     # Employee-only:
     requestBenefit(input: BenefitRequestInput!): BenefitRequest!
     signBenefitContract(requestId: ID!): BenefitRequest!
-    confirmBenefitRequest(requestId: ID!, contractAccepted: Boolean!, rejectReason: String): BenefitRequest!
+    confirmBenefitRequest(
+      requestId: ID!
+      contractAccepted: Boolean!
+      rejectReason: String
+    ): BenefitRequest!
     cancelBenefitRequest(requestId: ID!): BenefitRequest!
     markNotificationRead(id: ID!): EmployeeNotification!
     markAllNotificationsRead: Boolean!
@@ -276,7 +282,12 @@ export const typeDefs = /* GraphQL */ `
     createBenefit(input: CreateBenefitInput!): Benefit!
     updateBenefit(input: UpdateBenefitInput!): Benefit!
     deleteBenefit(id: ID!): Boolean!
-    uploadAdminContract(input: UploadAdminContractInput!): UploadAdminContractPayload!
-    archiveBenefitContractPdf(requestId: ID!, html: String): ArchiveBenefitContractPdfPayload!
+    uploadAdminContract(
+      input: UploadAdminContractInput!
+    ): UploadAdminContractPayload!
+    archiveBenefitContractPdf(
+      requestId: ID!
+      html: String
+    ): ArchiveBenefitContractPdfPayload!
   }
 `;

@@ -1,12 +1,12 @@
-import { GraphQLClient, gql } from 'graphql-request';
-import type { BenefitFromCatalog, BenefitConfig } from './types';
-import { getActiveUserHeaders } from '@/app/_lib/activeUser';
+import { GraphQLClient, gql } from "graphql-request";
+import type { BenefitFromCatalog, BenefitConfig } from "./types";
+import { getActiveUserHeaders } from "@/app/_lib/activeUser";
 
 /** Worker-ийн суурь URL (localhost = local D1, workers.dev = Cloudflare remote D1) */
 function getBaseUrl(): string {
-  const env = process.env.NEXT_PUBLIC_API_URL || '';
-  const base = env.replace(/\/graphql\/?$/, '').trim();
-  return base || 'http://localhost:8787';
+  const env = process.env.NEXT_PUBLIC_API_URL || "";
+  const base = env.replace(/\/graphql\/?$/, "").trim();
+  return base || "http://localhost:8787";
 }
 
 export const GET_BENEFITS = gql`
@@ -78,15 +78,16 @@ export const DELETE_BENEFIT = gql`
 
 export function getClient(): GraphQLClient {
   const base = getBaseUrl();
-  const url = base.endsWith('/graphql') ? base : `${base}/graphql`;
+  const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
   return new GraphQLClient(url, {
-    headers: getActiveUserHeaders('admin'),
+    headers: getActiveUserHeaders("admin"),
   });
 }
 
 export function getApiErrorMessage(e: unknown): string {
-  if (e && typeof e === 'object' && 'response' in e) {
-    const res = (e as { response?: { errors?: Array<{ message?: string }> } }).response;
+  if (e && typeof e === "object" && "response" in e) {
+    const res = (e as { response?: { errors?: Array<{ message?: string }> } })
+      .response;
     const msg = res?.errors?.[0]?.message;
     if (msg) return msg;
   }
@@ -94,8 +95,12 @@ export function getApiErrorMessage(e: unknown): string {
   return String(e);
 }
 
-export async function fetchBenefits(client: GraphQLClient): Promise<BenefitFromCatalog[]> {
-  const res = await client.request<{ benefits: BenefitFromCatalog[] }>(GET_BENEFITS);
+export async function fetchBenefits(
+  client: GraphQLClient,
+): Promise<BenefitFromCatalog[]> {
+  const res = await client.request<{ benefits: BenefitFromCatalog[] }>(
+    GET_BENEFITS,
+  );
   return res.benefits ?? [];
 }
 
@@ -104,16 +109,18 @@ export async function fetchConfigAndAttributes(client: GraphQLClient): Promise<{
   attributes: string[];
 }> {
   const [configRes, attrsRes] = await Promise.all([
-    client.request<{ getEligibilityRuleConfig: { config: string } }>(GET_CONFIG),
+    client.request<{ getEligibilityRuleConfig: { config: string } }>(
+      GET_CONFIG,
+    ),
     client.request<{ getAvailableRuleAttributes: string[] }>(GET_ATTRIBUTES),
   ]);
-  const parsed = JSON.parse(configRes.getEligibilityRuleConfig.config || '{}');
+  const parsed = JSON.parse(configRes.getEligibilityRuleConfig.config || "{}");
   const attributes = attrsRes.getAvailableRuleAttributes ?? [
-    'employment_status',
-    'okr_submitted',
-    'late_arrival_count',
-    'responsibility_level',
-    'tenure',
+    "employment_status",
+    "okr_submitted",
+    "late_arrival_count",
+    "responsibility_level",
+    "tenure",
   ];
   return { config: parsed.benefits ?? {}, attributes };
 }
@@ -127,19 +134,21 @@ export async function updateBenefitInCatalog(
     category: string;
     subsidyPercent: number;
     requiresContract: boolean;
-  }
+  },
 ): Promise<BenefitFromCatalog> {
   const res = await client.request<{ updateBenefit: BenefitFromCatalog }>(
     UPDATE_BENEFIT,
-    { input }
+    { input },
   );
   return res.updateBenefit;
 }
 
 export async function deleteBenefitFromCatalog(
   client: GraphQLClient,
-  id: string
+  id: string,
 ): Promise<boolean> {
-  const res = await client.request<{ deleteBenefit: boolean }>(DELETE_BENEFIT, { id });
+  const res = await client.request<{ deleteBenefit: boolean }>(DELETE_BENEFIT, {
+    id,
+  });
   return Boolean(res.deleteBenefit);
 }

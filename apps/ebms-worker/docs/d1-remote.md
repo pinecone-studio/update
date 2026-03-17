@@ -4,10 +4,10 @@
 
 Add-benefit хуудас **аль API руу** request илгээж байгаагаас шалтгаална:
 
-| NEXT_PUBLIC_API_URL (ebms-web) | Юу болох вэ |
-|-------------------------------|-------------|
+| NEXT_PUBLIC_API_URL (ebms-web)              | Юу болох вэ                                                                                         |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `http://localhost:8787` эсвэл тохируулаагүй | Бүх өгөгдөл **орон нутгийн D1** руу орно (wrangler dev). Cloudflare dashboard-ийн D1-д харагдахгүй. |
-| `https://ebms-api.xxx.workers.dev` | Deploy хийсэн worker руу очино → **remote D1** руу бичигдэнэ. Dashboard дээр харагдана. |
+| `https://ebms-api.xxx.workers.dev`          | Deploy хийсэн worker руу очино → **remote D1** руу бичигдэнэ. Dashboard дээр харагдана.             |
 
 **Хийх зүйл:**
 
@@ -66,18 +66,18 @@ npm run db:migrate:config
 
 ## Алдаа гарвал
 
-| Алдаа | Шалтгаан | Зүйл хийх |
-|-------|----------|------------|
-| `Unknown database` / `database_id` | wrangler.toml дахь `database_id` энэ account-д байхгүй | Dashboard → D1 → Create database, дахиад wrangler.toml-д `database_id` засах |
-| `Authentication error` | Нэвтрээгүй эсвэл token дуусаагүй | `npm run login` дахин ажиллуулах |
-| `Failed query` / `no such table` (deploy дараа) | Remote дээр migration ажиллаагүй | `npm run db:migrate:remote` ажиллуулах |
+| Алдаа                                           | Шалтгаан                                               | Зүйл хийх                                                                    |
+| ----------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `Unknown database` / `database_id`              | wrangler.toml дахь `database_id` энэ account-д байхгүй | Dashboard → D1 → Create database, дахиад wrangler.toml-д `database_id` засах |
+| `Authentication error`                          | Нэвтрээгүй эсвэл token дуусаагүй                       | `npm run login` дахин ажиллуулах                                             |
+| `Failed query` / `no such table` (deploy дараа) | Remote дээр migration ажиллаагүй                       | `npm run db:migrate:remote` ажиллуулах                                       |
 
 ## Script-ууд (package.json)
 
-| Script | Юу хийх вэ |
-|--------|------------|
-| `db:migrate` | Remote: 0000_init.sql (бүх үндсэн хүснэгт) |
-| `db:migrate:config` | Remote: 0001_eligibility_config.sql |
-| `db:migrate:remote` | Дээр хоёрыг дараалан ажиллуулна |
-| `db:local` | Локал D1: init |
-| `db:local:config` | Локал D1: eligibility_config |
+| Script              | Юу хийх вэ                                 |
+| ------------------- | ------------------------------------------ |
+| `db:migrate`        | Remote: 0000_init.sql (бүх үндсэн хүснэгт) |
+| `db:migrate:config` | Remote: 0001_eligibility_config.sql        |
+| `db:migrate:remote` | Дээр хоёрыг дараалан ажиллуулна            |
+| `db:local`          | Локал D1: init                             |
+| `db:local:config`   | Локал D1: eligibility_config               |

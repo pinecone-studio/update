@@ -28,7 +28,9 @@
 		"db:local:employee-contract-uploaded-at": "node ./scripts/conditional-column-migration.mjs ebms-db --local benefit_requests employee_contract_uploaded_at ./drizzle/migrations/0005_employee_contract_uploaded_at.sql",
 		"db:local:feedback": "wrangler d1 execute ebms-db --local --file=./drizzle/migrations/0006_feedback.sql",
 		"db:local:feedback-closed-at": "node ./scripts/conditional-column-migration.mjs ebms-db --local feedback closed_at ./drizzle/migrations/0007_feedback_closed_at.sql",
-		"db:local:all": "npm run db:local && npm run db:local:config && npm run db:local:reject-reason && npm run db:local:benefit-description && npm run db:local:employee-contract-r2-key && npm run db:local:employee-contract-uploaded-at && npm run db:local:feedback && npm run db:local:feedback-closed-at"
+		"db:local:all": "npm run db:local && npm run db:local:config && npm run db:local:reject-reason && npm run db:local:benefit-description && npm run db:local:employee-contract-r2-key && npm run db:local:employee-contract-uploaded-at && npm run db:local:feedback && npm run db:local:feedback-closed-at",
+		"db:seed:employees": "wrangler d1 execute ebms-db --local --file=./drizzle/seed/employees.sql",
+		"db:seed:employees:remote": "wrangler d1 execute ebms-db --remote --file=./drizzle/seed/employees.sql"
 	},
 	"dependencies": {
 		"drizzle-orm": "^0.45.1",

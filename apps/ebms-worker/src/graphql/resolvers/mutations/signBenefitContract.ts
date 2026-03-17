@@ -13,7 +13,9 @@ export const signBenefitContract: NonNullable<
   const actorId = requireEmployeeId(ctx);
   const requestId = args.requestId;
   if (!requestId) {
-    throw new GraphQLError("requestId is required", { extensions: { code: "BAD_USER_INPUT" } });
+    throw new GraphQLError("requestId is required", {
+      extensions: { code: "BAD_USER_INPUT" },
+    });
   }
 
   const db = getDb(ctx.env);
@@ -38,7 +40,9 @@ export const signBenefitContract: NonNullable<
 
   const row = rows[0];
   if (!row) {
-    throw new GraphQLError("Request not found", { extensions: { code: "NOT_FOUND" } });
+    throw new GraphQLError("Request not found", {
+      extensions: { code: "NOT_FOUND" },
+    });
   }
   if (row.employeeId !== actorId) {
     throw new GraphQLError("Forbidden", { extensions: { code: "FORBIDDEN" } });
@@ -49,14 +53,20 @@ export const signBenefitContract: NonNullable<
     });
   }
   if (!asBool01(row.requiresContract)) {
-    throw new GraphQLError("This benefit does not require a contract signature", {
-      extensions: { code: "BAD_USER_INPUT" },
-    });
+    throw new GraphQLError(
+      "This benefit does not require a contract signature",
+      {
+        extensions: { code: "BAD_USER_INPUT" },
+      },
+    );
   }
   if (!row.activeContractId || !row.activeContractVersion) {
-    throw new GraphQLError("Active contract is not configured for this benefit", {
-      extensions: { code: "CONFLICT" },
-    });
+    throw new GraphQLError(
+      "Active contract is not configured for this benefit",
+      {
+        extensions: { code: "CONFLICT" },
+      },
+    );
   }
 
   const now = new Date().toISOString();

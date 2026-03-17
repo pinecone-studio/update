@@ -11,4 +11,3 @@ generates:
       contextType: ../resolvers/context#Ctx
       # We use plain JS objects for root resolvers (Yoga rootValue)
       resolverTypeWrapperSignature: "Promise<T> | T"
-
