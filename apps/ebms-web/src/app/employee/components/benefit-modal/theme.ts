@@ -25,6 +25,7 @@ export const MODAL_THEME: Record<
     rulePass: string;
     ruleFail: string;
     closeBtn: string;
+    footer: string;
   }
 > = {
   ACTIVE: {
@@ -36,9 +37,11 @@ export const MODAL_THEME: Record<
     section:
       "border-[#2e6f82]/55 bg-[linear-gradient(120deg,rgba(30,80,99,0.93)_0%,rgba(27,67,98,0.94)_52%,rgba(26,57,89,0.95)_100%)]",
     rulePass:
-      "border-[#00D492]/35 bg-[linear-gradient(120deg,rgba(10,93,99,0.94)_0%,rgba(11,73,91,0.94)_100%)]",
-    ruleFail: "border-[#ff6d8f]/35 bg-[#5d2840]/45",
+      "border-[#14989c]/45 bg-[linear-gradient(120deg,rgba(16,101,108,0.94)_0%,rgba(17,91,111,0.94)_100%)]",
+    ruleFail:
+      "border-[#b6546d]/40 bg-[linear-gradient(120deg,rgba(84,39,55,0.95)_0%,rgba(73,34,55,0.95)_100%)]",
     closeBtn: "border-white/15 bg-white/10 hover:bg-white/15",
+    footer: "border-white/10 bg-[#101a34]/85",
   },
   ELIGIBLE: {
     frame:
@@ -49,37 +52,41 @@ export const MODAL_THEME: Record<
     section:
       "border-[#5f74b8]/45 bg-[linear-gradient(120deg,rgba(58,76,141,0.88)_0%,rgba(62,65,137,0.88)_100%)]",
     rulePass:
-      "border-[#22c6b2]/45 bg-[linear-gradient(120deg,rgba(40,76,128,0.90)_0%,rgba(45,58,121,0.90)_100%)]",
-    ruleFail: "border-[#ff6d8f]/35 bg-[#5d2840]/45",
+      "border-[#14989c]/45 bg-[linear-gradient(120deg,rgba(16,101,108,0.94)_0%,rgba(17,91,111,0.94)_100%)]",
+    ruleFail:
+      "border-[#b6546d]/40 bg-[linear-gradient(120deg,rgba(84,39,55,0.95)_0%,rgba(73,34,55,0.95)_100%)]",
     closeBtn: "border-[#5a6fae] bg-[#303e68] hover:bg-[#394b7e]",
+    footer: "border-white/10 bg-[#101a34]/85",
   },
   PENDING: {
     frame:
       "border-[0.4px] border-[#FF9C2D80] shadow-[0_17.43px_34.85px_-8.36px_rgba(0,0,0,0.25)]",
     header:
       "bg-[linear-gradient(90deg,rgba(8,44,72,0.98)_0%,rgba(11,35,66,0.98)_52%,rgba(14,28,60,0.98)_100%)]",
-    body: "bg-[radial-gradient(circle_at_16%_22%,rgba(0,160,138,0.22),transparent_38%),radial-gradient(circle_at_68%_56%,rgba(11,149,201,0.18),transparent_42%),linear-gradient(120deg,rgba(4,62,73,0.96)_0%,rgba(9,54,83,0.95)_42%,rgba(12,36,66,0.97)_100%)]",
+    body: "bg-[radial-gradient(circle_at_18%_20%,rgba(255,180,72,0.18),transparent_34%),radial-gradient(circle_at_74%_58%,rgba(255,218,133,0.1),transparent_42%),linear-gradient(120deg,rgba(77,50,28,0.96)_0%,rgba(68,43,28,0.95)_42%,rgba(54,34,25,0.97)_100%)]",
     section:
-      "border-[#2e6f82]/55 bg-[linear-gradient(120deg,rgba(30,80,99,0.93)_0%,rgba(27,67,98,0.94)_52%,rgba(26,57,89,0.95)_100%)]",
+      "border-[#9c7240]/85 bg-[linear-gradient(120deg,rgba(108,72,41,0.93)_0%,rgba(94,62,39,0.94)_52%,rgba(79,52,35,0.95)_100%)]",
     rulePass:
-      "border-[#27c5ad]/45 bg-[linear-gradient(120deg,#215349_0%,#214B59_100%)]",
+      "border-[#14989c]/45 bg-[linear-gradient(120deg,rgba(16,101,108,0.94)_0%,rgba(17,91,111,0.94)_100%)]",
     ruleFail:
-      "border-[#FF637E66] bg-[linear-gradient(120deg,#74274D_0%,#611E66_100%)]",
-    closeBtn: "border-[#806643] bg-[#3f455a] hover:bg-[#4a5168]",
+      "border-[#b6546d]/40 bg-[linear-gradient(120deg,rgba(84,39,55,0.95)_0%,rgba(73,34,55,0.95)_100%)]",
+    closeBtn: "border-white/15 bg-white/10 hover:bg-white/15",
+    footer: "border-white/10 bg-[#101a34]/85",
   },
   LOCKED: {
-    frame:
-      "border-[0.4px] border-[#FF637E66] shadow-[0_17.43px_34.85px_-8.36px_rgba(0,0,0,0.25)]",
+      frame:
+      "border-[0.58px] border-[#00D49266] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]",
     header:
-      "bg-[linear-gradient(135deg,rgba(255,32,86,0.25)_0%,rgba(246,51,154,0.25)_50%,rgba(200,0,222,0.25)_100%),#0F172B]",
-    body: "bg-[linear-gradient(135deg,rgba(255,32,86,0.25)_0%,rgba(246,51,154,0.25)_50%,rgba(200,0,222,0.25)_100%),#0F172B]",
+      "bg-[linear-gradient(90deg,rgba(8,44,72,0.98)_0%,rgba(11,35,66,0.98)_52%,rgba(14,28,60,0.98)_100%)]",
+    body: "bg-[radial-gradient(circle_at_18%_18%,rgba(214,66,102,0.18),transparent_34%),radial-gradient(circle_at_78%_56%,rgba(188,58,120,0.12),transparent_42%),linear-gradient(120deg,rgba(75,35,49,0.96)_0%,rgba(64,31,56,0.95)_42%,rgba(48,25,52,0.97)_100%)]",
     section:
       "border-[#8d4b76]/50 bg-[linear-gradient(120deg,#5A2B55_0%,#47265D_100%)]",
     rulePass:
-      "border-[#27c5ad]/45 bg-[linear-gradient(120deg,#154F5F_0%,#214764_100%)]",
+      "border-[#14989c]/45 bg-[linear-gradient(120deg,rgba(16,101,108,0.94)_0%,rgba(17,91,111,0.94)_100%)]",
     ruleFail:
-      "border-[#FF637E66] bg-[linear-gradient(120deg,#74274D_0%,#611E66_100%)]",
-    closeBtn: "border-[#5b4563] bg-[#2d2d50] hover:bg-[#373760]",
+      "border-[#b6546d]/40 bg-[linear-gradient(120deg,rgba(84,39,55,0.95)_0%,rgba(73,34,55,0.95)_100%)]",
+    closeBtn: "border-white/15 bg-white/10 hover:bg-white/15",
+    footer: "border-white/10 bg-[#101a34]/85",
   },
   REJECTED: {
     frame:
@@ -88,9 +95,12 @@ export const MODAL_THEME: Record<
       "bg-[radial-gradient(circle_at_18%_32%,rgba(170,57,73,0.30),transparent_54%),linear-gradient(120deg,#2a1f4a_0%,#2f1e3f_100%)]",
     body: "bg-[radial-gradient(circle_at_24%_24%,rgba(173,64,87,0.24),transparent_48%),linear-gradient(135deg,#4b2337_0%,#3b1f58_100%)]",
     section: "border-white/12 bg-white/5",
-    rulePass: "border-[#4de7b5]/40 bg-[#0f5e58]/45",
-    ruleFail: "border-[#ff6d8f]/35 bg-[#652246]/50",
+    rulePass:
+      "border-[#14989c]/45 bg-[linear-gradient(120deg,rgba(16,101,108,0.94)_0%,rgba(17,91,111,0.94)_100%)]",
+    ruleFail:
+      "border-[#b6546d]/40 bg-[linear-gradient(120deg,rgba(84,39,55,0.95)_0%,rgba(73,34,55,0.95)_100%)]",
     closeBtn: "border-white/15 bg-white/10 hover:bg-white/15",
+    footer: "border-white/10 bg-[#101a34]/85",
   },
 };
 

@@ -135,7 +135,7 @@ export function useEmployeeDashboardData() {
       const confirmed = window.confirm(
         `Та "${benefit.name}" benefit-ийг хүсэхдээ итгэлтэй байна уу?`,
       );
-      if (!confirmed) return;
+      if (!confirmed) return false;
       try {
         await requestBenefit(benefit.benefitId);
         setBenefits((prev) =>
@@ -147,8 +147,10 @@ export function useEmployeeDashboardData() {
         );
         setStatusFilter("PENDING");
         await load({ silent: true });
+        return true;
       } catch (e) {
         alert(getApiErrorMessage(e));
+        return false;
       }
     },
     [load],

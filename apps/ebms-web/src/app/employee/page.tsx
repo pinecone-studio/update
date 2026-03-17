@@ -79,7 +79,7 @@ export default function EmployeeDashboardPage() {
       : `Showing ${filteredBenefits.length} ${statusFilter.toLowerCase()} benefits`;
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center px-4 py-5 sm:px-6 sm:py-6 lg:p-8">
+    <div className="flex min-h-screen w-full flex-col items-center px-0 py-2 sm:px-2 sm:py-4 lg:px-4 lg:py-6">
       <div className="flex w-full max-w-[1512px] min-w-0 flex-col">
         {loading ? (
           <EmployeeDashboardSkeleton benefitCount={benefits.length || 6} />
@@ -97,12 +97,12 @@ export default function EmployeeDashboardPage() {
               }
             />
 
-            <section className="mt-12 w-full sm:mt-16">
-              <div className="mb-6">
+            <section className="mt-8 w-full sm:mt-12 lg:mt-14">
+              <div className="mb-4 sm:mb-6">
                 <h2 className="text-[18px] font-semibold tracking-[-0.4px] text-white sm:text-[20px] sm:tracking-[-0.6px]">
                   {title}
                 </h2>
-                <p className="mt-1 text-[15px] text-white/45">{subtitle}</p>
+                <p className="mt-1 text-[14px] text-white/45 sm:text-[15px]">{subtitle}</p>
               </div>
 
               <BenefitPortfolio
