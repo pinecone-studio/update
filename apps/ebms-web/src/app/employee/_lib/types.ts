@@ -37,4 +37,6 @@ export type MyBenefitEligibility = {
   rejectedReason?: string | null;
   overrideApplied: boolean;
   overrideReason?: string | null;
+  /** When status is PENDING: "admin" or "finance" — who must approve next */
+  pendingApprovalBy?: string | null;
 };

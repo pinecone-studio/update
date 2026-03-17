@@ -80,6 +80,7 @@ export function mapMyBenefitsToCardProps(
       rejectReason,
       overrideApplied: item.overrideApplied ?? false,
       overrideReason: item.overrideReason ?? undefined,
+      pendingApprovalBy: item.pendingApprovalBy ?? undefined,
       eligibilityRules,
       icon,
       iconBgColor: "bg-[#334155]",

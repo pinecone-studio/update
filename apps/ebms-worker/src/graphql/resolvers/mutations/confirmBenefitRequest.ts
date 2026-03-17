@@ -64,8 +64,8 @@ export const confirmBenefitRequest: NonNullable<
     });
   }
   const currentStatus = (row.status ?? "").toLowerCase();
-  if (currentStatus !== "pending") {
-    throw new GraphQLError("Only pending requests can be reviewed", {
+  if (currentStatus !== "pending" && currentStatus !== "admin_approved") {
+    throw new GraphQLError("Only pending or admin-approved requests can be reviewed", {
       extensions: { code: "BAD_USER_INPUT" },
     });
   }
@@ -73,23 +73,44 @@ export const confirmBenefitRequest: NonNullable<
   const config = await getActiveEligibilityConfig(ctx.env);
   const needsFinanceApproval = Boolean(config?.[row.benefitId]?.financeCheck);
   const actorRole = (ctx.role ?? "").toLowerCase();
+
   if (needsFinanceApproval) {
-    if (!isFinanceRole(actorRole)) {
-      throw new GraphQLError(
-        "Forbidden: finance role required for this benefit approval",
-        {
-          extensions: { code: "FORBIDDEN" },
-        },
-      );
+    if (currentStatus === "pending") {
+      if (isFinanceRole(actorRole)) {
+        throw new GraphQLError(
+          "Forbidden: admin must approve first; finance approves after admin",
+          { extensions: { code: "FORBIDDEN" } },
+        );
+      }
+      requireHR(ctx);
+    } else {
+      if (!isFinanceRole(actorRole)) {
+        throw new GraphQLError(
+          "Forbidden: finance role required for final approval",
+          { extensions: { code: "FORBIDDEN" } },
+        );
+      }
     }
   } else {
+    if (currentStatus !== "pending") {
+      throw new GraphQLError("Invalid request status", {
+        extensions: { code: "BAD_USER_INPUT" },
+      });
+    }
     requireHR(ctx);
   }
 
   const requiresContract = row.requiresContract === 1;
 
   const now = new Date().toISOString();
-  const newStatus = contractAccepted ? "approved" : "rejected";
+  let newStatus: string;
+  if (!contractAccepted) {
+    newStatus = "rejected";
+  } else if (needsFinanceApproval && currentStatus === "pending") {
+    newStatus = "admin_approved";
+  } else {
+    newStatus = "approved";
+  }
   await db
     .update(benefitRequests)
     .set({
@@ -103,8 +124,8 @@ export const confirmBenefitRequest: NonNullable<
     })
     .where(eq(benefitRequests.id, requestId));
 
-  // When HR/admin approves a request, reflect it immediately in employee myBenefits as ACTIVE.
-  if (contractAccepted) {
+  // When fully approved (approved status), reflect in employee myBenefits as ACTIVE.
+  if (contractAccepted && newStatus === "approved") {
     const existingEligibility = await db
       .select({
         employeeId: benefitEligibility.employeeId,
@@ -154,25 +175,42 @@ export const confirmBenefitRequest: NonNullable<
 
   if (contractAccepted) {
     const contractFollowUpRequired = requiresContract;
-    await dispatchEmployeeNotification(ctx.env, {
-      employeeId: row.employeeId,
-      type: "REQUEST_STATUS",
-      tone: contractFollowUpRequired ? "warning" : "success",
-      dedupeKey: `request:${row.id}:approved`,
-      title: contractFollowUpRequired
-        ? "Benefit Approved: Upload Signed Contract"
-        : "Benefit Request Approved",
-      body: contractFollowUpRequired
-        ? `Your ${row.benefitName ?? "benefit"} request is APPROVED. Please sign manually and upload the signed contract PDF. Benefit will become ACTIVE after upload.`
-        : `Your ${row.benefitName ?? "benefit"} request has been APPROVED. Your benefit is now ACTIVE.`,
-      metadata: {
-        benefitId: row.benefitId,
-        requestId: row.id,
-        status: "APPROVED",
-        requiresContract: contractFollowUpRequired,
-        action: contractFollowUpRequired ? "UPLOAD_SIGNED_CONTRACT" : "NONE",
-      },
-    });
+    if (newStatus === "admin_approved") {
+      await dispatchEmployeeNotification(ctx.env, {
+        employeeId: row.employeeId,
+        type: "REQUEST_STATUS",
+        tone: "info",
+        dedupeKey: `request:${row.id}:admin_approved`,
+        title: "Admin Approved — Awaiting Finance",
+        body: `Your ${row.benefitName ?? "benefit"} request was approved by admin. It is now with finance for final approval.`,
+        metadata: {
+          benefitId: row.benefitId,
+          requestId: row.id,
+          status: "ADMIN_APPROVED",
+          action: "AWAITING_FINANCE",
+        },
+      });
+    } else {
+      await dispatchEmployeeNotification(ctx.env, {
+        employeeId: row.employeeId,
+        type: "REQUEST_STATUS",
+        tone: contractFollowUpRequired ? "warning" : "success",
+        dedupeKey: `request:${row.id}:approved`,
+        title: contractFollowUpRequired
+          ? "Benefit Approved: Upload Signed Contract"
+          : "Benefit Request Approved",
+        body: contractFollowUpRequired
+          ? `Your ${row.benefitName ?? "benefit"} request is APPROVED. Please sign manually and upload the signed contract PDF. Benefit will become ACTIVE after upload.`
+          : `Your ${row.benefitName ?? "benefit"} request has been APPROVED. Your benefit is now ACTIVE.`,
+        metadata: {
+          benefitId: row.benefitId,
+          requestId: row.id,
+          status: "APPROVED",
+          requiresContract: contractFollowUpRequired,
+          action: contractFollowUpRequired ? "UPLOAD_SIGNED_CONTRACT" : "NONE",
+        },
+      });
+    }
   } else {
     await dispatchEmployeeNotification(ctx.env, {
       employeeId: row.employeeId,
