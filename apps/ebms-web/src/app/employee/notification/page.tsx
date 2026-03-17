@@ -2,48 +2,23 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { gql } from "graphql-request";
+import { useEffect, useState, useCallback } from "react";
 import {
   HiOutlineBell,
   HiOutlineCheckCircle,
   HiOutlineClock,
-  HiOutlineMagnifyingGlass,
+  HiOutlineInformationCircle,
+  HiOutlineArrowUpRight,
 } from "react-icons/hi2";
 import { NotificationSkeleton } from "../components/NotificationSkeleton";
 import {
-  EmployeeNotificationItem,
+  fetchMyNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  formatRelativeTime,
+  getApiErrorMessage,
   type EmployeeNotification,
-} from "../components/EmployeeNotificationItem";
-import { getEmployeeClient, getApiErrorMessage } from "../_lib/api";
-
-const MY_NOTIFICATIONS_QUERY = gql`
-  query MyNotifications {
-    myNotifications(limit: 100) {
-      id
-      title
-      body
-      createdAt
-      tone
-      type
-      isRead
-      metadata
-    }
-  }
-`;
-
-function formatRelativeTime(iso: string): string {
-  const ts = new Date(iso).getTime();
-  if (Number.isNaN(ts)) return iso;
-  const diffMs = Date.now() - ts;
-  const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin} min ago`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour} hour ago`;
-  const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay} day ago`;
-}
+} from "../_lib/api";
 
 export default function NotificationPage() {
   const [loading, setLoading] = useState(true);
@@ -54,30 +29,24 @@ export default function NotificationPage() {
     "all" | "eligibility" | "request" | "warning"
   >("all");
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await getEmployeeClient().request<{
-          myNotifications: EmployeeNotification[];
-        }>(MY_NOTIFICATIONS_QUERY);
-        if (!cancelled) setNotifications(res.myNotifications ?? []);
-      } catch (e) {
-        if (!cancelled) {
-          setNotifications([]);
-          setError(getApiErrorMessage(e));
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const filteredNotifications = (
+    activeType === "all"
+      ? notifications
+      : notifications.filter((n) =>
+          activeType === "eligibility"
+            ? n.type === "ELIGIBILITY_CHANGE"
+            : activeType === "request"
+              ? n.type === "REQUEST_STATUS"
+              : n.type === "WARNING",
+        )
+  ).filter((n) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      n.title.toLowerCase().includes(q) ||
+      n.body.toLowerCase().includes(q)
+    );
+  });
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const todayCount = notifications.filter((n) => {
@@ -90,24 +59,23 @@ export default function NotificationPage() {
     );
   }).length;
 
-  const filteredNotifications = useMemo(() => {
-    const typeFiltered =
-      activeType === "all"
-        ? notifications
-        : notifications.filter((n) =>
-            activeType === "eligibility"
-              ? n.type === "ELIGIBILITY_CHANGE"
-              : activeType === "request"
-                ? n.type === "REQUEST_STATUS"
-                : n.type === "WARNING",
-          );
+  const loadNotifications = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const list = await fetchMyNotifications(100);
+      setNotifications(list);
+    } catch (e) {
+      setNotifications([]);
+      setError(getApiErrorMessage(e));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return typeFiltered;
-    return typeFiltered.filter(
-      (n) => n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q),
-    );
-  }, [activeType, notifications, searchTerm]);
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
 
   if (loading) {
     return (
@@ -120,11 +88,38 @@ export default function NotificationPage() {
   }
 
   return (
-    <div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 w-full min-h-screen dark:bg-[#0f172A] dark:text-white">
-      <div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
-        <div className="flex items-center gap-4">
-          <div className="w-[56px] h-[56px] bg-white rounded-2xl flex items-center justify-center">
-            <HiOutlineBell className="text-3xl text-blue-700" />
+    <div>
+      <div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 w-full min-h-screen dark:bg-[#0f172A] dark:text-white">
+        <div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-[56px] h-[56px] bg-white rounded-2xl flex items-center justify-center dark:bg-[#1A2333]">
+                <HiOutlineBell className="text-3xl text-blue-700 dark:text-blue-500" />
+              </div>
+              <div className="flex flex-col">
+                <p className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  Notifications
+                </p>
+                <p className="text-slate-600 text-sm dark:text-slate-300">
+                  Stay updated on your benefits and eligibility
+                </p>
+              </div>
+            </div>
+            {unreadCount > 0 && (
+              <button
+                onClick={async () => {
+                  try {
+                    await markAllNotificationsRead();
+                    await loadNotifications();
+                  } catch {
+                    // ignore
+                  }
+                }}
+                className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Mark all as read
+              </button>
+            )}
           </div>
           <div className="flex flex-col">
             <p className="text-2xl font-semibold text-slate-900 dark:text-white">
@@ -229,20 +224,95 @@ export default function NotificationPage() {
 
         {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
 
-        <div className="mt-5 space-y-3">
-          {filteredNotifications.map((item) => (
-            <EmployeeNotificationItem
-              key={item.id}
-              item={item}
-              relativeTime={formatRelativeTime(item.createdAt)}
-            />
-          ))}
+              return (
+                <div
+                  key={item.id}
+                  className={`rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md ${unreadClasses}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`flex-shrink-0 h-10 w-10 rounded-xl grid place-items-center ${toneClasses}`}
+                      >
+                        <HiOutlineInformationCircle className="text-lg" />
+                      </div>
+                      <div>
+                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-[#2A3A52] dark:bg-[#121A28] dark:text-slate-300">
+                          {item.type === "ELIGIBILITY_CHANGE"
+                            ? "Eligibility"
+                            : item.type === "REQUEST_STATUS"
+                              ? "Request"
+                              : "Warning"}
+                        </span>
+                        <p className="text-slate-900 text-sm font-semibold dark:text-white">
+                          {item.title}
+                        </p>
+                        <p className="text-slate-600 text-xs mt-1 dark:text-slate-300">
+                          {item.body}
+                        </p>
+                      </div>
+                    </div>
 
-          {filteredNotifications.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              Notifications олдсонгүй.
-            </p>
-          ) : null}
+                    <div className="flex flex-col items-end gap-2">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        {formatRelativeTime(item.createdAt)}
+                      </p>
+                      {actionHref ? (
+                        <Link
+                          href={actionHref}
+                          onClick={async () => {
+                            if (!item.isRead) {
+                              try {
+                                await markNotificationRead(item.id);
+                                setNotifications((prev) =>
+                                  prev.map((n) =>
+                                    n.id === item.id ? { ...n, isRead: true } : n,
+                                  ),
+                                );
+                              } catch {
+                                // ignore
+                              }
+                            }
+                          }}
+                          className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          Open
+                          <HiOutlineArrowUpRight className="text-sm" />
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!item.isRead) {
+                              try {
+                                await markNotificationRead(item.id);
+                                setNotifications((prev) =>
+                                  prev.map((n) =>
+                                    n.id === item.id ? { ...n, isRead: true } : n,
+                                  ),
+                                );
+                              } catch {
+                                // ignore
+                              }
+                            }
+                          }}
+                          className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          View Details
+                          <HiOutlineArrowUpRight className="text-sm" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {!loading && filteredNotifications.length === 0 ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                No notifications found.
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
