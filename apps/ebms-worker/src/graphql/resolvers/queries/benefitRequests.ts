@@ -23,7 +23,7 @@ export const benefitRequests: NonNullable<
 > = async (_, args, ctx) => {
   const actorId = requireEmployeeId(ctx);
   const role = (ctx.role ?? '').toLowerCase();
-  const isHrOrAdmin = role === 'hr' || role === 'admin';
+  const isHrOrAdminOrFinance = role === 'hr' || role === 'admin' || role === 'finance-manager';
   const db = getDb(ctx.env);
 
   const statusFilter = args.status
@@ -55,7 +55,7 @@ export const benefitRequests: NonNullable<
 
   return rows
     .filter((r) => {
-      if (isHrOrAdmin) {
+      if (isHrOrAdminOrFinance) {
         if (!statusFilter) return true;
         return (r.status ?? '').toLowerCase() === statusFilter;
       }

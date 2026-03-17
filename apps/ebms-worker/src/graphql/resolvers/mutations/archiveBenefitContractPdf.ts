@@ -9,7 +9,7 @@ import { benefitEligibility, benefitRequests, benefits, contracts, employees } f
 import { renderPinefitContractHtml, toBool01 } from "../../../contracts/renderPinefit";
 import { dispatchEmployeeNotification } from "../../../notifications/dispatcher";
 import { and } from "drizzle-orm";
-import { requireHR } from "../context";
+import { requireHROrAdminOrFinance } from "../context";
 
 function decodeBase64Pdf(input: string): Uint8Array {
   const b64 = input.trim();
@@ -96,9 +96,9 @@ export const archiveBenefitContractPdf: NonNullable<
 > = async (_, args, ctx) => {
   const actorEmployeeId = requireEmployeeId(ctx);
   const role = (ctx.role ?? "").toLowerCase();
-  const isHrOrAdmin = role === "hr" || role === "admin";
-  if (isHrOrAdmin) {
-    requireHR(ctx);
+  const isHrOrAdminOrFinance = role === "hr" || role === "admin" || role === "finance-manager";
+  if (isHrOrAdminOrFinance) {
+    requireHROrAdminOrFinance(ctx);
   }
   const db = getDb(ctx.env);
 
@@ -130,7 +130,7 @@ export const archiveBenefitContractPdf: NonNullable<
 
   const row = rows[0];
   if (!row) throw new GraphQLError("Benefit request not found", { extensions: { code: "NOT_FOUND" } });
-  if (!isHrOrAdmin && row.requestEmployeeId !== actorEmployeeId) {
+  if (!isHrOrAdminOrFinance && row.requestEmployeeId !== actorEmployeeId) {
     throw new GraphQLError("Forbidden: request does not belong to employee", {
       extensions: { code: "FORBIDDEN" },
     });

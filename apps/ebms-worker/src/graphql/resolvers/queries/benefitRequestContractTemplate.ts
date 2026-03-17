@@ -17,7 +17,7 @@ export const benefitRequestContractTemplate: NonNullable<
 > = async (_, args, ctx) => {
   const actorEmployeeId = requireEmployeeId(ctx);
   const actorRole = (ctx.role ?? "").toLowerCase();
-  const isHrOrAdmin = actorRole === "hr" || actorRole === "admin";
+  const isHrOrAdminOrFinance = actorRole === "hr" || actorRole === "admin" || actorRole === "finance-manager";
 
   const db = getDb(ctx.env);
   const rows = await db
@@ -49,7 +49,7 @@ export const benefitRequestContractTemplate: NonNullable<
   if (!row) {
     throw new GraphQLError("Benefit request not found", { extensions: { code: "NOT_FOUND" } });
   }
-  if (!isHrOrAdmin && row.requestEmployeeId !== actorEmployeeId) {
+  if (!isHrOrAdminOrFinance && row.requestEmployeeId !== actorEmployeeId) {
     throw new GraphQLError("Forbidden", { extensions: { code: "FORBIDDEN" } });
   }
 
