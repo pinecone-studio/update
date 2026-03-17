@@ -21,7 +21,7 @@ export default function FinanceLayout({ children }: { children: ReactNode }) {
       </div>
       <FinanceRouteGuard>
         <FinanceHeader />
-        <section className="relative z-10 mx-auto w-full max-w-[1512px] p-4 sm:p-6 xl:p-8">
+        <section className="relative z-10 mx-auto w-full max-w-[1512px] p-6 xl:p-8">
           {children}
         </section>
       </FinanceRouteGuard>
