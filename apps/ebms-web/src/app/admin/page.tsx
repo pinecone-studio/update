@@ -18,6 +18,7 @@ import {
   closeFeedback,
   type EscalatedFeedbackItem,
 } from "./_lib/api";
+import { ProfileIcon } from "@/app/icons/profile";
 
 const BENEFIT_REQUESTS_QUERY = gql`
   query BenefitRequests($status: RequestStatus) {
@@ -130,24 +131,6 @@ function getInitials(name: string | null | undefined): string {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
-
-function statusBadge(status: string) {
-  const styles: Record<string, string> = {
-    PENDING: "bg-amber-700/90 text-white",
-    APPROVED: "bg-emerald-800/90 text-white",
-    REJECTED: "bg-red-900/90 text-white",
-    CANCELLED: "bg-slate-600/90 text-slate-300",
-  };
-  const cls = styles[status] ?? "bg-slate-600/90 text-slate-300";
-  return (
-    <span
-      className={`inline-flex rounded-lg px-3 py-1 text-xs font-medium ${cls}`}
-    >
-      {status}
-    </span>
-  );
-}
-
 export default function HrDashboardPage() {
   const router = useRouter();
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
@@ -276,6 +259,14 @@ export default function HrDashboardPage() {
 
   const normalizedSearch = eligibilitySearch.trim().toLowerCase();
   const apiBaseUrl = getApiBaseUrl().replace(/\/$/, "");
+  const employeeIdToDepartment = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const e of employeesForSearch) {
+      if (e.id && e.department) map[e.id] = e.department;
+    }
+    return map;
+  }, [employeesForSearch]);
+
   const employeeSuggestions = useMemo(() => {
     if (!normalizedSearch) return [];
     return employeesForSearch
@@ -372,7 +363,7 @@ export default function HrDashboardPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-hidden">
-      <section className="grid min-h-0 flex-1 grid-cols-1 gap-8 lg:grid-cols-[auto_1fr] px-6 py-6 overflow-hidden">
+      <section className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-8 lg:grid-cols-[auto_1fr] lg:grid-rows-1 px-6 py-6 overflow-hidden">
         <div className="flex flex-col gap-8 lg:min-w-[454px]">
           {statCards.map((card) => (
             <article
@@ -381,8 +372,8 @@ export default function HrDashboardPage() {
               style={{
                 background:
                   card.key === "employees"
-                    ? "rgba(79, 39, 84, 0.5)"
-                    : "rgba(1, 40, 36, 0.3)",
+                    ? "rgba(225, 42, 251, 0.1)"
+                    : "rgba(1, 116, 138, 0.1)",
               }}
             >
               <div className="flex flex-1 flex-col justify-between gap-6">
@@ -414,115 +405,123 @@ export default function HrDashboardPage() {
         </div>
 
         <article
-          className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[#262626] bg-[#0128244D] sm:p-6 dark:border-[#262626]"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[rgba(38, 38, 38, 1)] bg-[rgba(13, 94, 85, 0.1)] sm:p-6 dark:border-[#262626]"
         >
-        <div className="mb-6 shrink-0 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between px-8 pt-11">
+        <div className="mb-4 shrink-0 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between px-6 pt-6">
           <h2 className="text-xl font-bold text-white">Employee Benefit Requests</h2>
-          <div className="flex flex-wrap gap-2">
-            {([
-              { value: "PENDING" as const, label: "Pending" },
-              { value: "APPROVED" as const, label: "Approved" },
-              { value: "REJECTED" as const, label: "Rejected" },
-              { value: undefined, label: "All" },
-            ] as const).map(({ value, label }) => (
-              <button
-                key={value ?? "all"}
-                type="button"
-                onClick={() => setStatusFilter(value)}
-                className={`rounded-xl px-4 text-[18px] py-2  font-medium transition ${
-                  statusFilter === value
-                    ? "bg-white text-black dark:bg-[#ffffff]"
-                    : "border border-white/50  text-white "
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+          <div className="rounded-2xl border border-white/30 overflow-hidden w-auto">
+            <div className="flex gap-1.5 w-[472px] h-[49px]">
+              {([
+                { value: "PENDING" as const, label: "Pending" },
+                { value: "APPROVED" as const, label: "Approved" },
+                { value: "REJECTED" as const, label: "Rejected" },
+                { value: undefined, label: "All" },
+              ] as const).map(({ value, label }) => (
+                <button
+                  key={value ?? "all"}
+                  type="button"
+                  onClick={() => setStatusFilter(value)}
+                  className={`shrink-0 rounded-2xl px-[22px] py-2.5  text-[20px] font-medium transition ${
+                    statusFilter === value
+                      ? "bg-slate-200 text-slate-800 dark:bg-slate-200 dark:text-slate-800"
+                      : "bg-transparent text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {error && <div className="mx-8 mb-4 shrink-0 rounded-lg border border-red-500/50 bg-red-500/20 px-4 py-2 text-red-200">{error}</div>}
+        {error && <div className="mx-8 mb-4 shrink-0 rounded-lg border border-red-500/50  px-4 py-2 text-red-200">{error}</div>}
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           {displayRequests.length === 0 ? (
             <p className="px-8 py-8 text-center text-slate-400 dark:text-[#A7B6D3]">No benefit requests found.</p>
           ) : (
-            <div className="space-y-4 px-8 pb-8">
+            <div className="divide-y divide-white/30 px-8 pb-8">
               {displayRequests.map((req) => {
               const status = (req.status || "PENDING").toUpperCase();
               const isLoading = actionLoadingId === req.id;
               const needsSignature = req.requiresContract && !req.contractAcceptedAt;
               const employeeName = req.employeeName ?? req.employeeId ?? "";
               const benefitText = req.benefitName ?? req.benefitId ?? "Benefit request";
+              const affiliation = employeeIdToDepartment[req.employeeId] ?? "";
 
                 return (
                   <div
                     key={req.id}
-                    className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-4 dark:border-[#2C4264] dark:bg-[#24364F]/30"
+                    className="flex items-center justify-between px-4 py-3"
                   >
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex min-w-0 flex-1 flex-col gap-3">
                       <span className="text-xs text-slate-400 dark:text-[#94A3B8]">
                         {formatRelativeTime(req.createdAt)}
                       </span>
-                      <div className="flex items-center gap-2">
-                        {statusBadge(status)}
-                        {status === "PENDING" ? (
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleApprove(req.id)}
-                              disabled={isLoading}
-                              className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {isLoading ? "..." : "Approve"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleReject(req.id)}
-                              disabled={isLoading}
-                              className="rounded-lg bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        ) : null}
+
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
+                          {getInitials(employeeName)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-white">
+                            {employeeName}
+                          </p>
+                          {affiliation ? (
+                            <p className="text-sm text-slate-400 dark:text-[#94A3B8]">
+                              {affiliation}
+                            </p>
+                          ) : null}
+                          <p className="mt-0.5 text-sm text-white dark:text-[#E2E8F0]">
+                            {benefitText}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    {status === "APPROVED" && req.requiresContract ? (
-                      <div className="mt-1 flex items-center gap-3 text-xs">
-                        {needsSignature ? (
-                          <span className="rounded-md border border-amber-400/40 bg-amber-500/10 px-2 py-1 text-amber-200">
-                            Await sign
-                          </span>
-                        ) : (
-                          <span className="rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-emerald-200">
-                            Signed contract uploaded
-                          </span>
-                        )}
-                        {!needsSignature && req.contractTemplateUrl ? (
-                          <a
-                            href={`${apiBaseUrl}${req.contractTemplateUrl}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-300 underline decoration-blue-300/40 underline-offset-4 hover:text-blue-200"
+                    <div className="flex shrink-0 flex-col items-end gap-3">
+                      {status === "PENDING" ? (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            disabled
+                            className="rounded-lg bg-[#8A5212] px-3 py-1.5 text-base font-medium h-[38px] w-[94px] text-[#ffffff]  transition disabled:cursor-not-allowed disabled:opacity-50"
                           >
-                            View signed contract
-                          </a>
-                        ) : null}
-                      </div>
-                    ) : null}
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
-                        {getInitials(employeeName)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-white">
-                          {employeeName}
-                        </p>
-                        <p className="mt-0.5 text-sm text-slate-400 dark:text-[#A7B6D3]">
-                          {benefitText}
-                        </p>
-                      </div>
+                            Pending
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(req.id)}
+                            disabled={isLoading}
+                            className="rounded-lg bg-[#0f5540]  h-[38px] w-[94px]  px-3 py-1.5 text-base font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {isLoading ? "..." : "Approve"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleReject(req.id)}
+                            disabled={isLoading}
+                            className="rounded-lg bg-[#851618] px-3 py-1.5 text-base font-medium h-[38px] w-[94px] text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : status === "APPROVED" ? (
+                        <button
+                        type="button"
+                        disabled={isLoading}
+                        className="rounded-lg bg-[#0f5540]  h-[28px] w-[84px]  px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center"
+                      >
+                      Approved
+                      </button>
+                      ) : status === "REJECTED" ? (
+                        <button
+                        type="button"
+                        disabled={isLoading}
+                        className="rounded-lg bg-[#851618] px-3 py-1.5 text-base font-medium h-[28px] w-[84px] text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center"
+                      >
+                        Reject
+                      </button>
+                      ) : null}
                     </div>
                   </div>
               );

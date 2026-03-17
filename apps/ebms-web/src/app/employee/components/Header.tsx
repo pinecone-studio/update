@@ -337,7 +337,7 @@ export const Header = () => {
             </select>
           </label>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
+            <div className="h-10 w-10 flex items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:text-white dark:hover:bg-[#0a121b]">
               <ThemeToggle />
             </div>
             <button
@@ -436,75 +436,6 @@ export const Header = () => {
                   </div>
                 )}
               </div>
-            </div>
-            <div className="relative" ref={profileRef}>
-              <button
-                onClick={() => {
-                  setProfileOpen(!profileOpen);
-                  setNotificationOpen(false);
-                }}
-                className="flex h-10 w-10 items-center justify-center rounded-full  text-sm font-semibold text-white "
-                aria-label="Profile"
-              >
-                <ProfileIcon />
-              </button>
-              {profileOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
-                  <div className="p-4 border-b border-slate-200 dark:border-[#243041]">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full  text-sm font-semibold text-white ">
-                        <ProfileIcon />
-                      </div>
-                      <div>
-                        <p className="text-slate-900 font-semibold dark:text-white">
-                          {me?.name ?? "—"}
-                        </p>
-                        <p className="text-slate-500 text-xs mt-1 dark:text-slate-500">
-                          {me?.id ?? "—"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <Link
-                      href="/admin"
-                      onClick={(e) => {
-                        handleAdminNavigate(e);
-                      }}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white ${!isAdminOrHrUser ? "opacity-60 cursor-not-allowed" : ""}`}
-                    >
-                      <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
-                      Admin
-                    </Link>
-                    <Link
-                      href="/finance"
-                      onClick={(e) => {
-                        handleFinanceNavigate(e);
-                      }}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white ${!isFinanceManagerUser ? "opacity-60 cursor-not-allowed" : ""}`}
-                    >
-                      <HiOutlineChartBar className="h-4 w-4" />
-                      Finance
-                    </Link>
-                    <Link
-                      href="/employee/myprofile"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
-                    >
-                      <HiOutlineUserCircle className="text-lg" />
-                      Profile
-                    </Link>
-                    <div className="my-2 h-px bg-slate-200 dark:bg-[#243041]" />
-                    <button
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition"
-                    >
-                      <HiOutlineArrowRightOnRectangle className="text-lg" />
-                      Sign out
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
             <div className="relative" ref={profileRef}>
 							<button
