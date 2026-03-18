@@ -31,6 +31,7 @@ export default function EmployeeDashboardPage() {
     setSelectedContractFileByRequestId,
     handleRequestBenefit,
     handleViewContract,
+    handleViewUploadedContract,
     handleUploadSignedContract,
   } = useEmployeeDashboardData();
 
@@ -127,6 +128,7 @@ export default function EmployeeDashboardPage() {
                 benefits={benefitsWithContractFlow}
                 onRequestBenefit={handleRequestBenefit}
                 onViewContract={handleViewContract}
+                onViewUploadedContract={handleViewUploadedContract}
               />
             </section>
           </>

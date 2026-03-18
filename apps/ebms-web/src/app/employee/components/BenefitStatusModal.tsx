@@ -15,6 +15,7 @@ interface BenefitStatusModalProps {
     benefit: BenefitCardProps,
   ) => boolean | void | Promise<boolean | void>;
   onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
+  onViewUploadedContract?: (requestId: string) => void | Promise<void>;
 }
 
 export function BenefitStatusModal({
@@ -22,6 +23,7 @@ export function BenefitStatusModal({
   onClose,
   onRequestBenefit,
   onViewContract,
+  onViewUploadedContract,
 }: BenefitStatusModalProps) {
   useEffect(() => {
     if (!benefit) return;
@@ -116,6 +118,7 @@ export function BenefitStatusModal({
                 }}
                 rules={rules}
                 onViewContract={onViewContract}
+                onViewUploadedContract={onViewUploadedContract}
               />
             </div>
           </div>

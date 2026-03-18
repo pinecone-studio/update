@@ -51,6 +51,7 @@ export type AuditEntry = {
   id: Scalars['ID']['output'];
   newStatus: Scalars['String']['output'];
   oldStatus?: Maybe<Scalars['String']['output']>;
+  ruleTraceJson?: Maybe<Scalars['String']['output']>;
   triggeredBy?: Maybe<Scalars['String']['output']>;
 };
 
@@ -84,6 +85,8 @@ export type BenefitEligibility = {
   rejectedReason?: Maybe<Scalars['String']['output']>;
   ruleEvaluations: Array<RuleEvaluation>;
   status: BenefitStatus;
+  /** When status is ACTIVE and contract was uploaded: request ID to view/download contract */
+  uploadedContractRequestId?: Maybe<Scalars['String']['output']>;
 };
 
 export type BenefitRequest = {
@@ -597,6 +600,7 @@ export type AuditEntryResolvers<ContextType = Ctx, ParentType extends ResolversP
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   newStatus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   oldStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  ruleTraceJson?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   triggeredBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
@@ -620,6 +624,7 @@ export type BenefitEligibilityResolvers<ContextType = Ctx, ParentType extends Re
   rejectedReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ruleEvaluations?: Resolver<Array<ResolversTypes['RuleEvaluation']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['BenefitStatus'], ParentType, ContextType>;
+  uploadedContractRequestId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
 export type BenefitRequestResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['BenefitRequest'] = ResolversParentTypes['BenefitRequest']> = {

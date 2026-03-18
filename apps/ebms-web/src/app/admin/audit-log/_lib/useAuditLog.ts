@@ -13,6 +13,7 @@ const AUDIT_LOG_QUERY = gql`
       benefitId
       oldStatus
       newStatus
+      ruleTraceJson
       computedAt
       triggeredBy
       createdAt
@@ -25,6 +26,7 @@ const EMPLOYEES_QUERY = gql`
     employees {
       id
       name
+      role
     }
   }
 `;
@@ -67,13 +69,14 @@ export function useAuditLog() {
               benefitId: string;
               oldStatus?: string | null;
               newStatus: string;
+              ruleTraceJson?: string | null;
               computedAt: string;
               triggeredBy?: string | null;
               createdAt?: string | null;
             }>;
           }>(AUDIT_LOG_QUERY),
           client.request<{
-            employees: Array<{ id: string; name?: string | null }>;
+            employees: Array<{ id: string; name?: string | null; role?: string | null }>;
           }>(EMPLOYEES_QUERY),
           client.request<{ benefits: Array<{ id: string; name: string }> }>(
             BENEFITS_QUERY,
@@ -88,6 +91,15 @@ export function useAuditLog() {
             e.name?.trim() || e.id,
           ]),
         );
+        const employeeRoleById = new Map(
+          (employeesRes.employees ?? []).map((e) => [e.id, e.role ?? ""]),
+        );
+        const formatPerformedBy = (id: string | null): string => {
+          if (!id || id === "system") return "System";
+          const name = employeeNameById.get(id) ?? id;
+          const role = employeeRoleById.get(id);
+          return role ? `${name} (${role})` : name;
+        };
         const benefitNameById = new Map(
           (benefitsRes.benefits ?? []).map((b) => [b.id, b.name]),
         );
@@ -97,24 +109,64 @@ export function useAuditLog() {
             item.newStatus ?? "LOCKED"
           ).toUpperCase() as AuditEntry["status"];
           const prev = (item.oldStatus ?? "").toUpperCase().trim();
-          const action = prev
-            ? `Status ${prev} -> ${nextStatus}`
-            : "Override Granted";
+          let trace: {
+            action?: string;
+            reason?: string;
+            override?: boolean;
+            overrideBy?: string;
+            approvedBy?: string;
+            rejectedBy?: string;
+            rejectReason?: string;
+            requestId?: string;
+          } = {};
+          try {
+            if (item.ruleTraceJson) trace = JSON.parse(item.ruleTraceJson);
+          } catch {
+            /* ignore */
+          }
+
+          let actionLabel: string;
+          let actionType: "HR Override" | "Request Approved" | "Request Rejected" | "Contract Uploaded";
+          let details = "";
+
+          if (trace.action === "request_approved") {
+            actionType = "Request Approved";
+            actionLabel = "Request Approved";
+            details = trace.reason ?? (trace.approvedBy ? `Approved by ${trace.approvedBy}` : "Benefit request approved.");
+          } else if (trace.action === "request_rejected") {
+            actionType = "Request Rejected";
+            actionLabel = "Request Rejected";
+            details = trace.rejectReason
+              ? `Reason: ${trace.rejectReason}`
+              : (trace.rejectedBy ? `Rejected by ${trace.rejectedBy}` : "Benefit request rejected.");
+          } else if (trace.action === "contract_uploaded") {
+            actionType = "Contract Uploaded";
+            actionLabel = "Contract Uploaded";
+            details = trace.reason ?? "Signed contract uploaded.";
+          } else {
+            actionType = "HR Override";
+            actionLabel = prev ? `HR Override: ${prev} → ${nextStatus}` : `HR Override: ${nextStatus}`;
+            details = trace.reason ?? (trace.overrideBy ? `Override by ${trace.overrideBy}` : "HR eligibility override.");
+          }
+
           return {
             id: item.id,
             timestamp: item.computedAt || item.createdAt || "",
-            action,
+            action: actionLabel,
+            actionType,
             status: nextStatus,
+            oldStatus: prev || undefined,
             employee: employeeNameById.get(item.employeeId) ?? item.employeeId,
             employeeId: item.employeeId,
             benefit: benefitNameById.get(item.benefitId) ?? item.benefitId,
-            performedBy: item.triggeredBy ?? "system",
-            details: prev
-              ? "Eligibility status updated."
-              : "Manual eligibility override recorded.",
-            reason: "",
+            performedBy: formatPerformedBy(item.triggeredBy ?? null),
+            performedById: item.triggeredBy ?? undefined,
+            details,
+            reason: trace.reason ?? trace.rejectReason ?? "",
             contractStartDate: "—",
             contractEndDate: "—",
+            uploadedContractRequestId:
+              trace.action === "contract_uploaded" ? trace.requestId : undefined,
           };
         });
 
@@ -134,11 +186,14 @@ export function useAuditLog() {
   }, []);
 
   const benefitOptions = useMemo(
-    () => Array.from(new Set(entries.map((entry) => entry.benefit))),
+    () => Array.from(new Set(entries.map((entry) => entry.benefit))).sort(),
     [entries],
   );
   const actionOptions = useMemo(
-    () => Array.from(new Set(entries.map((entry) => entry.action))),
+    () =>
+      ["HR Override", "Request Approved", "Request Rejected", "Contract Uploaded"].filter((a) =>
+        entries.some((e) => e.actionType === a),
+      ),
     [entries],
   );
 
@@ -155,7 +210,8 @@ export function useAuditLog() {
           entry.action.toLowerCase().includes(normalizedSearch) ||
           entry.status.toLowerCase().includes(normalizedSearch) ||
           entry.id.toLowerCase().includes(normalizedSearch) ||
-          entry.performedBy.toLowerCase().includes(normalizedSearch)
+          entry.performedBy.toLowerCase().includes(normalizedSearch) ||
+          (entry.performedById?.toLowerCase().includes(normalizedSearch) ?? false)
         )
       ) {
         return false;
@@ -165,7 +221,7 @@ export function useAuditLog() {
         return false;
       if (normalizedLogId && !entry.id.toLowerCase().includes(normalizedLogId))
         return false;
-      if (actionFilter !== "ALL" && entry.action !== actionFilter) return false;
+      if (actionFilter !== "ALL" && entry.actionType !== actionFilter) return false;
       if (statusFilter !== "ALL" && entry.status !== statusFilter) return false;
 
       if (!dateFrom && !dateTo) return true;

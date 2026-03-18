@@ -12,6 +12,7 @@ import {
   uploadSignedContractPdf,
   requestBenefit,
   openBenefitContractPreview,
+  openUploadedContract,
   getApiErrorMessage,
 } from "../_lib/api";
 import { mapMyBenefitsToCardProps } from "../_lib/mapBenefits";
@@ -166,6 +167,17 @@ export function useEmployeeDashboardData() {
     }
   }, []);
 
+  const handleViewUploadedContract = useCallback(
+    async (requestId: string) => {
+      try {
+        await openUploadedContract(requestId);
+      } catch (e) {
+        alert(getApiErrorMessage(e));
+      }
+    },
+    [],
+  );
+
   const handleUploadSignedContract = useCallback(
     async (requestId: string) => {
       const selected = selectedContractFileByRequestId[requestId];
@@ -245,6 +257,7 @@ export function useEmployeeDashboardData() {
     setSelectedContractFileByRequestId,
     handleRequestBenefit,
     handleViewContract,
+    handleViewUploadedContract,
     handleUploadSignedContract,
   };
 }
