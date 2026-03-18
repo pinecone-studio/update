@@ -1,27 +1,39 @@
 "use client";
 
 type NotificationStatsCardsProps = {
-  pendingPayments: number;
-  reimbursementCount: number;
+  pendingRequests: number;
+  unreadCount: number;
   todayCount: number;
   totalCount: number;
 };
 
 export function NotificationStatsCards({
-  pendingPayments,
-  reimbursementCount,
+  pendingRequests,
+  unreadCount,
   todayCount,
   totalCount,
 }: NotificationStatsCardsProps) {
   const cards = [
-    { label: "Pending Payments", value: pendingPayments, dot: "bg-blue-500" },
     {
-      label: "Reimbursement Requests",
-      value: reimbursementCount,
+      label: "Pending Requests",
+      value: pendingRequests,
+      dot: "bg-blue-500",
+    },
+    {
+      label: "Unread",
+      value: unreadCount,
       dot: "bg-purple-500",
     },
-    { label: "Today's Notifications", value: todayCount, dot: "bg-amber-500" },
-    { label: "Total Notifications", value: totalCount, dot: "bg-emerald-500" },
+    {
+      label: "Today's Notifications",
+      value: todayCount,
+      dot: "bg-amber-500",
+    },
+    {
+      label: "Total Notifications",
+      value: totalCount,
+      dot: "bg-emerald-500",
+    },
   ];
 
   return (
@@ -35,9 +47,7 @@ export function NotificationStatsCards({
             <p className="text-xs text-slate-500 dark:text-white">
               {card.label}
             </p>
-            <span
-              className={`h-2 w-2 rounded-full ${card.dot}`}
-            />
+            <span className={`h-2 w-2 rounded-full ${card.dot}`} />
           </div>
           <p className="text-xl font-semibold text-slate-900 dark:text-white">
             {card.value}

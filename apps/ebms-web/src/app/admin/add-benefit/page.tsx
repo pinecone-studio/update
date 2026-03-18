@@ -3,7 +3,6 @@
 import { AddBenefitSkeleton } from "./_components/AddBenefitSkeleton";
 import { BenefitsAndRuleHeader } from "./_components/BenefitsAndRuleHeader";
 import { BenefitsCatalogSection } from "./_components/BenefitsCatalogSection";
-import { AddBenefitModal } from "./_components/AddBenefitModal";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import type { BenefitFromCatalog, BenefitConfig } from "./_lib/types";
@@ -25,7 +24,6 @@ function BenefitsAndRulePageContent() {
   const [error, setError] = useState<string | null>(null);
   const [actionBusyId, setActionBusyId] = useState<string | null>(null);
   const [highlightBenefitId, setHighlightBenefitId] = useState<string | null>(null);
-  const [showAddBenefitModal, setShowAddBenefitModal] = useState(false);
 
   const loadAll = useCallback(async () => {
     setLoadingCatalog(true);
@@ -86,9 +84,13 @@ function BenefitsAndRulePageContent() {
     [router],
   );
 
+  const handleAddClick = useCallback(() => {
+    router.push("/admin/add-benefit/new");
+  }, [router]);
+
   return (
     <div className="p-8">
-      <BenefitsAndRuleHeader onAddClick={() => setShowAddBenefitModal(true)} />
+      <BenefitsAndRuleHeader onAddClick={handleAddClick} />
 
       <section className="mt-8">
         <BenefitsCatalogSection
@@ -102,10 +104,6 @@ function BenefitsAndRulePageContent() {
           onDelete={handleDelete}
         />
       </section>
-
-      {showAddBenefitModal && (
-        <AddBenefitModal onClose={() => setShowAddBenefitModal(false)} onSaved={loadAll} />
-      )}
     </div>
   );
 }

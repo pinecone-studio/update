@@ -131,9 +131,9 @@ export default function HrDashboardPage() {
   if (loading) return <AdminDashboardSkeleton />;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-hidden">
-      <section className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-8 px-6 py-6 overflow-hidden lg:grid-cols-[auto_1fr] lg:grid-rows-1">
-        <div className="flex flex-col gap-8 lg:min-w-[454px]">
+    <div className="flex min-h-min flex-1 flex-col gap-4 sm:gap-6 lg:gap-8">
+      <section className="grid min-h-min flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-4 sm:gap-6 lg:grid-cols-[auto_1fr] lg:grid-rows-1 lg:gap-8">
+        <div className="flex flex-col gap-4 sm:gap-6 lg:min-w-[320px] lg:gap-8 xl:min-w-[454px]">
           <DashboardStatCard
             keyType="employees"
             title="Total-Employees"

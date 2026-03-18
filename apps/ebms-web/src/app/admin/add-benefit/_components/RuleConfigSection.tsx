@@ -3,8 +3,8 @@
 import type { BenefitFromCatalog, BenefitConfig, Rule } from "../_lib/types";
 import { OPERATORS } from "../_lib/constants";
 
-const sectionClass =
-  "mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+const sectionBaseClass =
+  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
 const inputSm =
   "rounded border border-slate-300 bg-white px-2 py-1.5 text-slate-900 text-sm dark:border-[#334155] dark:bg-[#0F172A] dark:text-white";
 const selectClass =
@@ -44,6 +44,7 @@ type Props = {
   saveButtonLabel?: string;
   showCancelButton?: boolean;
   onCancel?: () => void;
+  noTopMargin?: boolean;
 };
 
 export function RuleConfigSection({
@@ -66,7 +67,9 @@ export function RuleConfigSection({
   saveButtonLabel = "Дүрмүүдийг хадгалах",
   showCancelButton = false,
   onCancel,
+  noTopMargin = false,
 }: Props) {
+  const sectionClass = noTopMargin ? sectionBaseClass : `mt-8 ${sectionBaseClass}`;
   const normalizedAttributes = Array.from(
     new Set(
       attributes.map((a) => (a === "attendance" ? "late_arrival_count" : a)),
@@ -295,7 +298,7 @@ export function RuleConfigSection({
                 type="button"
                 onClick={onSave}
                 disabled={saving || loadingConfig}
-                className="rounded-lg bg-[#0E6B4F] hover:bg-[#0d5f45] disabled:opacity-50 text-white px-4 py-2 font-medium"
+                className="rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] disabled:opacity-50 text-white px-4 py-2 font-medium"
               >
                 {saving ? "Хадгалж байна..." : saveButtonLabel}
               </button>

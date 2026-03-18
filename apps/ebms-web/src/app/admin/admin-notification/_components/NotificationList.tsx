@@ -2,32 +2,38 @@
 
 import { NotificationCard } from "./NotificationCard";
 
-type NotificationType =
-  | "payment_pending"
-  | "reimbursement"
-  | "payment_completed";
+export type AdminNotificationType =
+  | "request"
+  | "document"
+  | "eligibility"
+  | "warning"
+  | "system";
 
-export type NotificationItem = {
+export type AdminNotificationItem = {
   id: string;
   title: string;
   body: string;
   time: string;
-  type: NotificationType;
+  type: AdminNotificationType;
   group: "Today" | "Yesterday" | "Earlier";
   unread: boolean;
-  employee: string;
+  employeeName: string;
   benefit: string;
-  amount: string;
   actions: string[];
+  isPending?: boolean;
 };
 
 type NotificationListProps = {
-  notifications: NotificationItem[];
+  notifications: AdminNotificationItem[];
+  onMarkAsRead: (id: string) => void;
 };
 
 const GROUPS = ["Today", "Yesterday", "Earlier"] as const;
 
-export function NotificationList({ notifications }: NotificationListProps) {
+export function NotificationList({
+  notifications,
+  onMarkAsRead,
+}: NotificationListProps) {
   return (
     <section className="space-y-6">
       {GROUPS.map((group) => {
@@ -40,7 +46,11 @@ export function NotificationList({ notifications }: NotificationListProps) {
             </p>
             <div className="space-y-3">
               {items.map((item) => (
-                <NotificationCard key={item.id} item={item} />
+                <NotificationCard
+                  key={item.id}
+                  item={item}
+                  onMarkAsRead={onMarkAsRead}
+                />
               ))}
             </div>
           </div>

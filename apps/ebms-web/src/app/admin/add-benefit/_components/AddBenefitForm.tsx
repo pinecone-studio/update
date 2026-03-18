@@ -5,7 +5,7 @@ import type { AddBenefitFormState } from "../_lib/types";
 import { BENEFIT_SUGGESTIONS } from "../_lib/constants";
 
 const sectionClass =
-  "mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
 const inputClass =
   "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white";
 const labelClass = "block text-sm text-slate-600 mb-1 dark:text-[#94A3B8]";
@@ -75,7 +75,7 @@ export function AddBenefitForm({
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <label className={labelClass}>Нэр *</label>
           <input
@@ -146,7 +146,7 @@ export function AddBenefitForm({
             className={inputClass}
           />
         </div>
-        <div className="flex flex-wrap gap-4 ">
+        <div className="flex flex-wrap gap-4 md:col-span-2">
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -194,89 +194,24 @@ export function AddBenefitForm({
             </label>
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" className="rounded border-[#334155]" />
-            <label className="text-sm text-slate-600 dark:text-[#94A3B8]">
+            <input
+              type="checkbox"
+              id="s1-manager-approval"
+              checked={!!form.managerApproval}
+              onChange={(e) =>
+                onChange({ ...form, managerApproval: e.target.checked })
+              }
+              className="rounded border-[#334155]"
+            />
+            <label
+              htmlFor="s1-manager-approval"
+              className="text-sm text-slate-600 dark:text-[#94A3B8]"
+            >
               Manager Pre-Approval
             </label>
           </div>
         </div>
       </div>
-
-      {/* {form.requiresContract && (
-        <div className="mt-4 rounded-lg border border-slate-300 bg-white p-4 dark:border-[#334155] dark:bg-[#1E293B]">
-          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
-            Гэрээний мэдээлэл
-          </p>
-          <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className={labelClass}>Гэрээний дугаар *</label>
-              <input
-                type="text"
-                value={form.contractNumber}
-                onChange={(e) =>
-                  onChange({ ...form, contractNumber: e.target.value })
-                }
-                className={inputClass}
-                placeholder="жишээ: CNT-2026-001"
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Гэрээний нэр *</label>
-              <input
-                type="text"
-                value={form.contractName}
-                onChange={(e) =>
-                  onChange({ ...form, contractName: e.target.value })
-                }
-                className={inputClass}
-                placeholder="жишээ: PineFit Vendor Contract"
-              />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <label className={labelClass}>Гэрээ upload *</label>
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                if (objectUrlRef.current) {
-                  URL.revokeObjectURL(objectUrlRef.current);
-                }
-                const nextUrl = URL.createObjectURL(file);
-                objectUrlRef.current = nextUrl;
-                onChange({
-                  ...form,
-                  contractFileName: file.name,
-                  contractUrl: nextUrl,
-                });
-              }}
-              className="block w-full cursor-pointer rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-1.5 file:text-white hover:file:bg-blue-700 dark:border-[#334155] dark:bg-[#0F172A] dark:text-slate-200"
-            />
-          </div>
-
-          {form.contractUrl ? (
-            <div className="mt-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm dark:border-green-700/50 dark:bg-green-900/20">
-              <p className="text-green-700 dark:text-green-300">
-                Uploaded:{" "}
-                <span className="font-medium">
-                  {form.contractFileName || "Contract file"}
-                </span>
-              </p>
-              <a
-                href={form.contractUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 inline-block break-all text-blue-700 underline dark:text-blue-300"
-              >
-                {form.contractUrl}
-              </a>
-            </div> 
-          ) : null}
-        </div>
-      )} */}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {!hideSubmitButton && (
@@ -284,7 +219,7 @@ export function AddBenefitForm({
             type="button"
             onClick={onSubmit}
             disabled={creating}
-            className="rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] disabled:opacity-50 text-white px-4 py-2 font-medium"
+            className="rounded-lg bg-[#3B82F6] px-4 py-2 font-medium text-white hover:bg-[#2563EB] disabled:opacity-50"
           >
             {creating
               ? "Хадгалж байна..."

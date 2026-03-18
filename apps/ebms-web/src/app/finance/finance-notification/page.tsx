@@ -152,12 +152,12 @@ export default function FinanceNotificationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900 dark:bg-[#0f172A] dark:text-white" />
+      <div className="min-h-screen  px-4 py-6 text-slate-900 " />
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900 dark:bg-[#0f172A] dark:text-white">
+    <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white">
       <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6">
         <NotificationHeader />
         <NotificationStatsCards
