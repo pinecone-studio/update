@@ -56,7 +56,7 @@ export function AuditLogFilters({
   onClearAll,
 }: AuditLogFiltersProps) {
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+    <section className="rounded-3xl p-6 dark:border-[#2C4264] dark:bg-[#0F172A]">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="flex items-center gap-3 text-5 font-semibold text-slate-900 dark:text-white">
           <svg
@@ -127,61 +127,6 @@ export function AuditLogFilters({
             <SelectChevron />
           </div>
         </div>
-
-        <div className="space-y-2">
-          <label className="text-5 font-medium text-slate-900 dark:text-white">
-            Log ID
-          </label>
-          <input
-            type="text"
-            value={logIdFilter}
-            onChange={(e) => onLogIdFilterChange(e.target.value)}
-            placeholder="LOG-1001"
-            className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-5 font-medium text-slate-900 dark:text-white">
-            Date Range
-          </label>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => onDateFromChange(e.target.value)}
-              className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
-            />
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => onDateToChange(e.target.value)}
-              className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-5 font-medium text-slate-900 dark:text-white">
-            Action Type
-          </label>
-          <div className="relative">
-            <select
-              value={actionFilter}
-              onChange={(e) => onActionFilterChange(e.target.value)}
-              className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
-            >
-              <option value="ALL">All Actions</option>
-              {actionOptions.map((action) => (
-                <option key={action} value={action}>
-                  {action}
-                </option>
-              ))}
-            </select>
-            <SelectChevron />
-          </div>
-        </div>
-
         <div className="space-y-2">
           <label className="text-5 font-medium text-slate-900 dark:text-white">
             Status
@@ -206,6 +151,58 @@ export function AuditLogFilters({
             </select>
             <SelectChevron />
           </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-5 font-medium text-slate-900 dark:text-white">
+            Date Range
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => onDateFromChange(e.target.value)}
+              className="h-14 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+            />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => onDateToChange(e.target.value)}
+              className="h-14 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-5 font-medium text-slate-900 dark:text-white">
+            Action 
+          </label>
+          <div className="relative">
+            <select
+              value={actionFilter}
+              onChange={(e) => onActionFilterChange(e.target.value)}
+              className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+            >
+              <option value="ALL">All Actions</option>
+              {actionOptions.map((action) => (
+                <option key={action} value={action}>
+                  {action}
+                </option>
+              ))}
+            </select>
+            <SelectChevron />
+          </div>
+        </div>
+       <div className="space-y-2">
+          <label className="text-5 font-medium text-slate-900 dark:text-white">
+            Log ID
+          </label>
+          <input
+            type="text"
+            value={logIdFilter}
+            onChange={(e) => onLogIdFilterChange(e.target.value)}
+            placeholder="LOG-1001"
+            className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
+          />
         </div>
       </div>
     </section>

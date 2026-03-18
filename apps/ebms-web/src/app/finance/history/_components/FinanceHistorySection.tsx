@@ -2,75 +2,35 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
-import { HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi2";
 import { getFinanceClient, fetchBenefitRequests, fetchBenefits } from "../../_lib/api";
 import type { BenefitRequest } from "../../_lib/api";
-
-function formatBenefitDateTime(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString("mn-MN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function getRequestStatusLabel(status: BenefitRequest["status"]): string {
-  switch (status) {
-    case "APPROVED":
-      return "Баталгаажсан";
-    case "ADMIN_APPROVED":
-      return "Санхүүгийн баталгаажлага хүлээгдэж буй";
-    case "PENDING":
-      return "Хүлээгдэж буй";
-    case "REJECTED":
-      return "Татгалзсан";
-    case "CANCELLED":
-      return "Цуцлагдсан";
-    default:
-      return status;
-  }
-}
-
-function getRequestStatusStyles(status: BenefitRequest["status"]) {
-  switch (status) {
-    case "APPROVED":
-      return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400";
-    case "ADMIN_APPROVED":
-      return "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400";
-    case "PENDING":
-      return "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-400";
-    case "REJECTED":
-      return "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400";
-    case "CANCELLED":
-      return "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400";
-    default:
-      return "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400";
-  }
-}
+import { FinanceHistoryFilters } from "./FinanceHistoryFilters";
+import { FinanceHistoryTable } from "./FinanceHistoryTable";
+import { Skeleton } from "@/app/_components/Skeleton";
 
 export function FinanceHistorySection() {
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
   const [benefitNames, setBenefitNames] = useState<Record<string, string>>({});
-  const [benefitCategories, setBenefitCategories] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [requestIdFilter, setRequestIdFilter] = useState("");
+  const [benefitFilter, setBenefitFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | BenefitRequest["status"]
+  >("ALL");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   useOnUserSwitch(() => setRefreshKey((k) => k + 1));
 
   useEffect(() => {
     let cancelled = false;
     const client = getFinanceClient();
-    Promise.all([
-      fetchBenefitRequests(client),
-      fetchBenefits(client),
-    ])
+    Promise.all([fetchBenefitRequests(client), fetchBenefits(client)])
       .then(([reqs, benefits]) => {
         if (cancelled) return;
         const approvedOrRejected = reqs.filter(
@@ -78,16 +38,13 @@ export function FinanceHistorySection() {
         );
         setRequests(approvedOrRejected);
         const names: Record<string, string> = {};
-        const categories: Record<string, string> = {};
         benefits.forEach((b) => {
           names[b.id] = b.name;
-          categories[b.id] = b.category ?? "Other";
         });
         reqs.forEach((r) => {
           if (r.benefitName) names[r.benefitId] = r.benefitName;
         });
         setBenefitNames(names);
-        setBenefitCategories(categories);
       })
       .catch((e) => {
         if (!cancelled) {
@@ -105,55 +62,130 @@ export function FinanceHistorySection() {
   const getBenefitName = (benefitId: string) =>
     benefitNames[benefitId] ?? benefitId;
 
-  const getBenefitCategory = (benefitId: string) =>
-    benefitCategories[benefitId] ?? "Other";
-
-  const eventsByBenefit = new Map<string, BenefitRequest[]>();
-  requests.forEach((r) => {
-    const list = eventsByBenefit.get(r.benefitId) ?? [];
-    list.push(r);
-    eventsByBenefit.set(r.benefitId, list);
-  });
-
-  eventsByBenefit.forEach((list) => {
-    list.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-  });
-
-  const benefitIds = Array.from(eventsByBenefit.keys()).sort((a, b) => {
-    const aList = eventsByBenefit.get(a) ?? [];
-    const bList = eventsByBenefit.get(b) ?? [];
-    const aLatest = aList[0]?.createdAt ?? "";
-    const bLatest = bList[0]?.createdAt ?? "";
-    return new Date(bLatest).getTime() - new Date(aLatest).getTime();
-  });
-
-  const benefitsByCategory = benefitIds.reduce<Record<string, string[]>>(
-    (acc, benefitId) => {
-      const cat = getBenefitCategory(benefitId);
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(benefitId);
-      return acc;
-    },
-    {},
+  const benefitOptions = useMemo(
+    () =>
+      Array.from(new Set(requests.map((r) => getBenefitName(r.benefitId)))).sort(),
+    [requests, benefitNames],
   );
 
-  const categoryOrder = Array.from(new Set(benefitIds.map(getBenefitCategory)));
+  const filteredEntries = useMemo(() => {
+    return requests
+      .filter((entry) => {
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const normalizedRequestId = requestIdFilter.trim().toLowerCase();
+        const benefitName = getBenefitName(entry.benefitId);
+
+        if (
+          normalizedSearch &&
+          !(
+            (entry.employeeName ?? "").toLowerCase().includes(normalizedSearch) ||
+            entry.employeeId.toLowerCase().includes(normalizedSearch) ||
+            benefitName.toLowerCase().includes(normalizedSearch) ||
+            entry.status.toLowerCase().includes(normalizedSearch) ||
+            entry.id.toLowerCase().includes(normalizedSearch) ||
+            (entry.rejectReason ?? "")
+              .toLowerCase()
+              .includes(normalizedSearch)
+          )
+        ) {
+          return false;
+        }
+
+        if (benefitFilter !== "ALL" && benefitName !== benefitFilter)
+          return false;
+        if (
+          normalizedRequestId &&
+          !entry.id.toLowerCase().includes(normalizedRequestId)
+        )
+          return false;
+        if (statusFilter !== "ALL" && entry.status !== statusFilter)
+          return false;
+
+        if (!dateFrom && !dateTo) return true;
+        const entryDate = new Date(entry.createdAt);
+        if (Number.isNaN(entryDate.getTime())) return false;
+
+        if (dateFrom) {
+          const from = new Date(`${dateFrom}T00:00:00`);
+          if (entryDate < from) return false;
+        }
+        if (dateTo) {
+          const to = new Date(`${dateTo}T23:59:59`);
+          if (entryDate > to) return false;
+        }
+        return true;
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+  }, [
+    requests,
+    searchTerm,
+    requestIdFilter,
+    benefitFilter,
+    statusFilter,
+    dateFrom,
+    dateTo,
+    benefitNames,
+  ]);
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setRequestIdFilter("");
+    setBenefitFilter("ALL");
+    setStatusFilter("ALL");
+    setDateFrom("");
+    setDateTo("");
+  };
 
   if (loading) {
     return (
-      <div className="mt-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="mt-6 space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800"
-            />
-          ))}
-        </div>
+      <div className="space-y-6">
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+          <div className="mb-5 flex items-center justify-between">
+            <Skeleton className="h-6 w-20 rounded" />
+            <Skeleton className="h-9 w-24 rounded-xl" />
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-12 w-full rounded-2xl" />
+              </div>
+            ))}
+          </div>
+        </section>
+        <Skeleton className="h-4 w-48 rounded" />
+        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#112349]">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className="border-b border-slate-200 dark:border-[#2B405F]">
+                <tr>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                    <th key={i} className="px-4 py-4 sm:px-6">
+                      <Skeleton className="h-4 w-16 rounded" />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <tr
+                    key={i}
+                    className="border-b border-slate-200 last:border-b-0 dark:border-[#22395A]"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((j) => (
+                      <td key={j} className="px-4 py-5 sm:px-6">
+                        <Skeleton className="h-4 w-20 rounded" />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     );
   }
@@ -161,102 +193,33 @@ export function FinanceHistorySection() {
   if (error) {
     return (
       <div className="mt-6">
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </p>
       </div>
     );
   }
-
-  if (benefitIds.length === 0) {
-    return (
-      <div className="mt-6">
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 py-16 dark:border-slate-600">
-          <HiOutlineCheckCircle className="h-14 w-14 text-slate-300 dark:text-slate-500" />
-          <p className="text-slate-500 dark:text-slate-400">
-            No approved or rejected requests
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const isTwoCategories = categoryOrder.length === 2;
 
   return (
-    <div
-      className={`mt-6 flex flex-col gap-6 w-full max-w-[1500px] mx-auto`}
-    >
-      <div
-        className={
-          isTwoCategories
-            ? "grid grid-cols-1 sm:grid-cols-2 gap-6"
-            : "flex flex-col gap-6"
-        }
-      >
-      {categoryOrder.map((category) => (
-        <section key={category}>
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-            {category}
-          </h3>
-          <div className="flex flex-col gap-4">
-            {benefitsByCategory[category]?.map((benefitId) => {
-              const benefitRequests = eventsByBenefit.get(benefitId) ?? [];
-              const benefitName = getBenefitName(benefitId);
-              return (
-                <div
-                  key={benefitId}
-                  className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden"
-                >
-            <div className="border-b border-slate-200 px-4 py-3 dark:border-white/10">
-              <p className="font-semibold text-slate-900 dark:text-white">
-                {benefitName}
-              </p>
-            </div>
-            <ul className="divide-y divide-slate-200 dark:divide-white/10">
-              {benefitRequests.map((r) => {
-                const isNegative =
-                  r.status === "REJECTED" || r.status === "CANCELLED";
-                return (
-                  <li
-                    key={r.id}
-                    className="flex items-center gap-4 px-4 py-3"
-                  >
-                    <div
-                      className={`h-9 w-9 flex-shrink-0 rounded-lg flex items-center justify-center ${getRequestStatusStyles(r.status)}`}
-                    >
-                      {isNegative ? (
-                        <HiOutlineXCircle className="h-5 w-5" />
-                      ) : (
-                        <HiOutlineCheckCircle className="h-5 w-5" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">
-                        {r.employeeName ?? r.employeeId} ·{" "}
-                        {getRequestStatusLabel(r.status)}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Хүсэгдсэн: {formatBenefitDateTime(r.createdAt)}
-                        {r.contractAcceptedAt && (
-                          <> · Хаагдсан: {formatBenefitDateTime(r.contractAcceptedAt)}</>
-                        )}
-                      </p>
-                    </div>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${getRequestStatusStyles(r.status)}`}
-                    >
-                      {getRequestStatusLabel(r.status)}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        );
-      })}
-          </div>
-        </section>
-      ))}
-      </div>
+    <div className="space-y-6">
+      <FinanceHistoryFilters
+        searchTerm={searchTerm}
+        onSearchTermChange={setSearchTerm}
+        requestIdFilter={requestIdFilter}
+        onRequestIdFilterChange={setRequestIdFilter}
+        benefitFilter={benefitFilter}
+        onBenefitFilterChange={setBenefitFilter}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        dateFrom={dateFrom}
+        onDateFromChange={setDateFrom}
+        dateTo={dateTo}
+        onDateToChange={setDateTo}
+        benefitOptions={benefitOptions}
+        onClearAll={clearFilters}
+      />
+
+      <FinanceHistoryTable entries={filteredEntries} onError={setError} />
     </div>
   );
 }
