@@ -1,18 +1,14 @@
-/** @format */
-
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { NotificationHeader } from "./_components/NotificationHeader";
+import { NotificationStatsCards } from "./_components/NotificationStatsCards";
 import {
-  HiOutlineBell,
-  HiOutlineCheckCircle,
-  HiOutlineClock,
-  HiOutlineInformationCircle,
-  HiOutlineMagnifyingGlass,
-  HiOutlineArrowUpRight,
-} from "react-icons/hi2";
-import { NotificationSkeleton } from "../components/NotificationSkeleton";
-import { EmployeeNotificationItem } from "../components/EmployeeNotificationItem";
+  NotificationFilters,
+  type EmployeeTabKey,
+} from "./_components/NotificationFilters";
+import { NotificationSearchBar } from "./_components/NotificationSearchBar";
+import { NotificationList } from "./_components/NotificationList";
 import {
   fetchMyNotifications,
   markNotificationRead,
@@ -25,30 +21,10 @@ import {
 export default function NotificationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState<EmployeeTabKey>("all");
+  const [unreadOnly, setUnreadOnly] = useState(false);
   const [notifications, setNotifications] = useState<EmployeeNotification[]>([]);
-  const [activeType, setActiveType] = useState<
-    "all" | "eligibility" | "request" | "warning"
-  >("all");
-
-  const filteredNotifications = (
-    activeType === "all"
-      ? notifications
-      : notifications.filter((n) =>
-          activeType === "eligibility"
-            ? n.type === "ELIGIBILITY_CHANGE"
-            : activeType === "request"
-              ? n.type === "REQUEST_STATUS"
-              : n.type === "WARNING",
-        )
-  ).filter((n) => {
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      n.title.toLowerCase().includes(q) ||
-      n.body.toLowerCase().includes(q)
-    );
-  });
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const todayCount = notifications.filter((n) => {
@@ -60,6 +36,26 @@ export default function NotificationPage() {
       d.getDate() === now.getDate()
     );
   }).length;
+  const totalCount = notifications.length;
+
+  const filteredByTab = notifications.filter((n) => {
+    if (activeTab === "eligibility") return n.type === "ELIGIBILITY_CHANGE";
+    if (activeTab === "request") return n.type === "REQUEST_STATUS";
+    if (activeTab === "warning") return n.type === "WARNING";
+    return true;
+  });
+
+  const filteredByUnread = unreadOnly
+    ? filteredByTab.filter((n) => !n.isRead)
+    : filteredByTab;
+
+  const filteredNotifications = filteredByUnread.filter((n) => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      n.title.toLowerCase().includes(term) || n.body.toLowerCase().includes(term)
+    );
+  });
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);
@@ -75,179 +71,73 @@ export default function NotificationPage() {
     }
   }, []);
 
+  const handleMarkAsRead = useCallback(
+    async (id: string) => {
+      try {
+        await markNotificationRead(id);
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
+        );
+      } catch {
+        // ignore
+      }
+    },
+    [],
+  );
+
+  const handleMarkAllAsRead = useCallback(async () => {
+    try {
+      await markAllNotificationsRead();
+      await loadNotifications();
+    } catch {
+      // ignore
+    }
+  }, [loadNotifications]);
+
   useEffect(() => {
     loadNotifications();
   }, [loadNotifications]);
 
   if (loading) {
     return (
-      <div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 w-full min-h-screen dark:bg-[#0f172A] dark:text-white">
-        <div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
-          <NotificationSkeleton />
-        </div>
-      </div>
+      <div className="min-h-screen px-4 py-6 text-slate-900 " />
     );
   }
 
   return (
-    <div>
-      <div className="bg-slate-50 px-4 py-4 flex flex-col items-center gap-6 text-slate-900 w-full min-h-screen dark:bg-[#0f172A] dark:text-white">
-        <div className="flex flex-col gap-6 w-full max-w-[1500px] -mt-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-[56px] h-[56px] bg-white rounded-2xl flex items-center justify-center dark:bg-[#1A2333]">
-                <HiOutlineBell className="text-3xl text-blue-700 dark:text-blue-500" />
-              </div>
-              <div className="flex flex-col">
-                <p className="text-2xl font-semibold text-slate-900 dark:text-white">
-                  Notifications
-                </p>
-                <p className="text-slate-600 text-sm dark:text-slate-300">
-                  Stay updated on your benefits and eligibility
-                </p>
-              </div>
-            </div>
-            {unreadCount > 0 && (
-              <button
-                onClick={async () => {
-                  try {
-                    await markAllNotificationsRead();
-                    await loadNotifications();
-                  } catch {
-                    // ignore
-                  }
-                }}
-                className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                Mark all as read
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between dark:bg-[#1A2333] dark:border-[#243041]">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Unread</p>
-              <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                {unreadCount}
-              </p>
-            </div>
-            <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-blue-600 dark:bg-[#122033] dark:text-blue-500">
-              <HiOutlineBell className="text-lg" />
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between dark:bg-[#1A2333] dark:border-[#243041]">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Today</p>
-              <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                {todayCount}
-              </p>
-            </div>
-            <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-orange-500 dark:bg-[#122033] dark:text-orange-400">
-              <HiOutlineClock className="text-lg" />
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between dark:bg-[#1A2333] dark:border-[#243041]">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
-              <p className="text-slate-900 text-xl font-semibold dark:text-white">
-                {notifications.length}
-              </p>
-            </div>
-            <div className="h-8 w-8 rounded-full bg-slate-100 grid place-items-center text-green-600 dark:bg-[#122033] dark:text-green-400">
-              <HiOutlineCheckCircle className="text-lg" />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-          <button
-            onClick={() => setActiveType("all")}
-            className={`px-3 py-1.5 rounded-full border transition ${
-              activeType === "all"
-                ? "bg-slate-800 text-white border-slate-800 dark:bg-[#1A2333] dark:border-[#243041]"
-                : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-[#111A2A] dark:border-[#243041] dark:text-slate-200 dark:hover:bg-[#1A2333]"
-            }`}
-          >
-            All Notifications
-          </button>
-          <button
-            onClick={() => setActiveType("eligibility")}
-            className={`px-3 py-1.5 rounded-full border transition ${
-              activeType === "eligibility"
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-blue-50 border-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-300"
-            }`}
-          >
-            Eligibility
-          </button>
-          <button
-            onClick={() => setActiveType("request")}
-            className={`px-3 py-1.5 rounded-full border transition ${
-              activeType === "request"
-                ? "bg-emerald-600 text-white border-emerald-600"
-                : "bg-emerald-50 border-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-300"
-            }`}
-          >
-            Requests
-          </button>
-          <button
-            onClick={() => setActiveType("warning")}
-            className={`px-3 py-1.5 rounded-full border transition ${
-              activeType === "warning"
-                ? "bg-amber-500 text-white border-amber-500"
-                : "bg-amber-50 border-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300"
-            }`}
-          >
-            Warnings
-          </button>
-        </div>
-
-        <div className="mt-4 bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 dark:bg-[#1A2333] dark:border-[#243041]">
-          <HiOutlineMagnifyingGlass className="text-slate-500 dark:text-slate-400" />
-          <input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none dark:text-slate-200 dark:placeholder:text-slate-500"
-            placeholder="Search notifications..."
+    <div className="min-h-screen  px-4 py-6 text-slate-900 ">
+      <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6">
+        <NotificationHeader />
+        <NotificationStatsCards
+          unreadCount={unreadCount}
+          todayCount={todayCount}
+          totalCount={totalCount}
+        />
+        <NotificationFilters
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          unreadOnly={unreadOnly}
+          onUnreadToggle={() => setUnreadOnly((prev) => !prev)}
+        />
+        <NotificationSearchBar
+          search={search}
+          onSearchChange={setSearch}
+          onMarkAllAsRead={handleMarkAllAsRead}
+        />
+        {error && (
+          <p className="text-sm text-red-400">{error}</p>
+        )}
+        {filteredNotifications.length === 0 ? (
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            No notifications found.
+          </p>
+        ) : (
+          <NotificationList
+            notifications={filteredNotifications}
+            formatTime={formatRelativeTime}
+            onMarkAsRead={handleMarkAsRead}
           />
-        </div>
-
-        {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
-
-        <div className="mt-6 space-y-4">
-          {filteredNotifications.map((item) => (
-            <EmployeeNotificationItem
-              key={item.id}
-              item={item}
-              relativeTime={formatRelativeTime(item.createdAt)}
-              onMarkRead={
-                !item.isRead
-                  ? async () => {
-                      try {
-                        await markNotificationRead(item.id);
-                        setNotifications((prev) =>
-                          prev.map((n) =>
-                            n.id === item.id ? { ...n, isRead: true } : n,
-                          ),
-                        );
-                      } catch {
-                        // ignore
-                      }
-                    }
-                  : undefined
-              }
-            />
-          ))}
-          {filteredNotifications.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              No notifications found.
-            </p>
-          ) : null}
-        </div>
+        )}
       </div>
     </div>
   );

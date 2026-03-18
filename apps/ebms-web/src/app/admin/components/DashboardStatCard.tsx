@@ -22,15 +22,15 @@ export function DashboardStatCard({
 
   return (
     <article
-      className="flex h-[320px] w-[454px] flex-col rounded-2xl px-[54px] py-[48px] text-left shadow-lg ring-1 ring-white/10"
+      className="flex w-full min-h-[240px] flex-col rounded-2xl px-6 py-6 text-left shadow-lg ring-1 ring-white/10 sm:min-h-[280px] sm:px-8 sm:py-8 lg:h-[320px] lg:w-[454px] lg:px-[54px] lg:py-[48px]"
       style={{ background: bgStyle }}
     >
-      <div className="flex h-full flex-col">
-        <div className="flex items-center gap-10">
-          <div className="flex h-[64px] w-[64px] shrink-0 items-center justify-center">
+      <div className="flex flex-1 flex-col justify-between gap-4 sm:gap-6">
+        <div className="flex items-center gap-4 sm:gap-10">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/50 text-white sm:h-[64px] sm:w-[64px]">
             {icon}
           </div>
-          <p className="text-[24px] font-semibold text-[#FAFBFB]">{title}</p>
+          <p className="text-lg font-semibold text-[#FAFBFB] sm:text-[24px]">{title}</p>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <p className="text-[154px] font-normal leading-none text-[#EDF6FF]">{value}</p>

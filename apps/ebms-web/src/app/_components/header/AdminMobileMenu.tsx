@@ -44,7 +44,7 @@ export function AdminMobileMenu({
   if (!open) return null;
 
   return (
-    <div className="absolute left-0 top-16 w-full border-t border-slate-200 bg-white dark:border-[#24395C] dark:bg-[#1E293B] md:hidden">
+    <div className="absolute left-0 right-0 top-full z-50 w-full border-t border-slate-200 bg-white shadow-lg dark:border-[#24395C] dark:bg-[#1E293B] md:hidden">
       <nav className="flex flex-col gap-1 p-3 text-sm text-slate-600 dark:text-[#D1DBEF]">
         {navItems.map((item) => (
           <Link
@@ -112,7 +112,9 @@ export function AdminMobileMenu({
             >
               <HiOutlineBell className="text-sm" />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-[0_0_0_2px_rgba(10,18,27,0.95)] animate-pulse">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
               )}
             </button>
             <Link
