@@ -368,13 +368,13 @@ export default function AddBenefitsBuilderClient({
   ]);
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="flex max-h-[calc(100vh-9.5rem)] flex-col rounded-3xl border border-slate-200 bg-white p-3 sm:p-4 dark:border-[#2C4264] dark:bg-[#1E293B]">
+      <div className="mb-2 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-white sm:text-2xl">
             Add Benefits
           </h1>
-          <p className="mt-2 text-slate-600 dark:text-[#A7B6D3]">
+          <p className="mt-1 text-xs text-slate-600 dark:text-[#A7B6D3] sm:text-sm">
             Benefit шинээр нэмэх, мөн rule тохиргоо хийх хэсэг.
           </p>
         </div>
@@ -396,45 +396,53 @@ export default function AddBenefitsBuilderClient({
         )}
       </div>
 
-      <AddBenefitForm
-        form={form}
-        onChange={setForm}
-        onSubmit={() => {}}
-        creating={creating}
-        error={null}
-        message={null}
-        isEditMode={isEditMode}
-        hideSubmitButton
-      />
+      <div className="pb-4 sm:pb-5">
+        <div className="grid items-stretch grid-cols-1 gap-3 xl:grid-cols-[minmax(360px,1.12fr)_minmax(280px,0.88fr)]">
+          <AddBenefitForm
+            form={form}
+            onChange={setForm}
+            onSubmit={() => {}}
+            creating={creating}
+            error={null}
+            message={null}
+            isEditMode={isEditMode}
+            hideSubmitButton
+            className="mt-0 h-full !p-3.5"
+          />
 
-      {!isEditMode && !compactCreateMode && (
-        <BenefitCatalogTable
-          benefits={catalogBenefits}
-          loading={loadingCatalog}
-          onRefresh={loadCatalog}
-        />
-      )}
+          <div className="h-full">
+            {!isEditMode && !compactCreateMode && (
+              <BenefitCatalogTable
+                benefits={catalogBenefits}
+                loading={loadingCatalog}
+                onRefresh={loadCatalog}
+              />
+            )}
 
-      <RuleConfigSection
-        catalogBenefits={catalogBenefits}
-        selectedBenefitId={ruleTargetId}
-        onSelectBenefitId={setSelectedBenefitId}
-        rulesForSelected={rulesForSelected}
-        attributes={attributes}
-        onUpdateRule={updateRuleForSelected}
-        onAddRule={addRuleForSelected}
-        onRemoveRule={removeRuleForSelected}
-        onSave={handleSaveRules}
-        loadingCatalog={loadingCatalog}
-        loadingConfig={loadingConfig}
-        saving={saving}
-        error={error2}
-        message={message2}
-        hideBenefitSelector
-        showCancelButton={isEditMode}
-        onCancel={() => router.push("/admin/add-benefit")}
-        saveButtonLabel={isEditMode ? "Save" : "Benefit хадгалах"}
-      />
+            <RuleConfigSection
+              catalogBenefits={catalogBenefits}
+              selectedBenefitId={ruleTargetId}
+              onSelectBenefitId={setSelectedBenefitId}
+              rulesForSelected={rulesForSelected}
+              attributes={attributes}
+              onUpdateRule={updateRuleForSelected}
+              onAddRule={addRuleForSelected}
+              onRemoveRule={removeRuleForSelected}
+              onSave={handleSaveRules}
+              loadingCatalog={loadingCatalog}
+              loadingConfig={loadingConfig}
+              saving={saving}
+              error={error2}
+              message={message2}
+              hideBenefitSelector
+              showCancelButton={isEditMode}
+              onCancel={() => router.push("/admin/add-benefit")}
+              saveButtonLabel={isEditMode ? "Save" : "Benefit хадгалах"}
+              className="mt-0 h-full !p-3.5"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

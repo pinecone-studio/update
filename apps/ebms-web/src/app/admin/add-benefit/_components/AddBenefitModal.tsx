@@ -9,14 +9,14 @@ type AddBenefitModalProps = {
 
 export function AddBenefitModal({ onClose, onSaved }: AddBenefitModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-3 pb-8 pt-20 sm:px-4 sm:pb-10 sm:pt-24">
       <button
         type="button"
         aria-label="Close add benefit modal"
         onClick={onClose}
         className="absolute inset-0 bg-[#020B1FCC] backdrop-blur-md"
       />
-      <div className="relative z-10 max-h-[92vh] w-full max-w-6xl overflow-auto rounded-3xl">
+      <div className="relative z-10 max-h-[calc(100vh-9.5rem)] w-full max-w-[90vw] overflow-hidden rounded-3xl xl:max-w-6xl">
         <AddBenefitsBuilderClient
           inModal
           compactCreateMode
