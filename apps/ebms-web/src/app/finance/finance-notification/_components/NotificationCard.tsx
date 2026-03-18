@@ -9,17 +9,12 @@ import {
   HiOutlineXCircle,
 } from "react-icons/hi2";
 
-type NotificationType =
-  | "payment_pending"
-  | "reimbursement"
-  | "payment_completed";
-
 type NotificationItem = {
   id: string;
   title: string;
   body: string;
   time: string;
-  type: NotificationType;
+  type: string;
   group: "Today" | "Yesterday" | "Earlier";
   unread: boolean;
   employee: string;
@@ -41,8 +36,8 @@ export function NotificationCard({ item }: NotificationCardProps) {
         : "text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10";
 
   const unreadClasses = item.unread
-    ? "bg-white/90 border-slate-200 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:bg-[#1F2A3D] dark:border-[#2A3A52]"
-    : "bg-white border-slate-100 shadow-sm dark:bg-[#161F2F] dark:border-[#223044]";
+    ? "border-slate-200 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-white/20 dark:bg-white/5"
+    : "border-slate-100 shadow-sm dark:border-white/10 dark:bg-white/5";
 
   const CardIcon =
     item.type === "payment_pending"
@@ -64,11 +59,11 @@ export function NotificationCard({ item }: NotificationCardProps) {
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-[#2A3A52] dark:bg-[#121A28] dark:text-slate-300">
+              <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-white/20 dark:text-slate-300">
                 <HiOutlineUserCircle className="text-sm" />
                 {item.employee}
               </span>
-              <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-[#2A3A52] dark:bg-[#121A28] dark:text-slate-300">
+              <span className="rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-white/20 dark:text-slate-300">
                 {item.benefit}
               </span>
               {item.unread && (
@@ -101,7 +96,7 @@ export function NotificationCard({ item }: NotificationCardProps) {
             {item.actions.map((action) => (
               <button
                 key={action}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[12px] font-medium text-slate-700 transition hover:bg-slate-100 dark:border-[#243041] dark:bg-[#111A2A] dark:text-slate-200 dark:hover:bg-[#1A2333]"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-[12px] font-medium text-slate-700 transition hover:bg-slate-100 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
               >
                 {action}
                 <HiOutlineArrowUpRight className="text-sm" />

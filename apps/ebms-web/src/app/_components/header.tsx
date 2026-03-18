@@ -25,6 +25,7 @@ export function Header() {
     selectedUser,
     userOptions,
     unreadCount,
+    unclosedFeedbackCount,
     normalizedPath,
     notificationRef,
     profileRef,
@@ -39,36 +40,36 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-4 backdrop-blur-md ${GeistSans.className}`}
+      className={`sticky top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#0A121B]/95 px-3 backdrop-blur-md sm:px-4 ${GeistSans.className}`}
     >
-      <div className="mx-auto flex h-[72px] w-full max-w-[1500px] items-center justify-between gap-4">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1500px] items-center justify-between gap-2 sm:gap-4">
         <Link
           href="/admin"
           className="flex min-w-0 shrink-0 items-center gap-2 transition-opacity hover:opacity-90 sm:gap-3"
         >
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="EBMS Logo" className="h-10 w-auto" />
+            <img src="/logo.png" alt="EBMS Logo" className="h-8 w-auto sm:h-10" />
             <div className="leading-[24px]">
-              <p className="flex items-start justify-start text-[20px] font-semibold tracking-[0px] text-white dark:text-white">
+              <p className="flex items-start justify-start text-[18px] font-semibold tracking-[0px] text-white sm:text-[20px] dark:text-white">
                 UPDATE
               </p>
             </div>
           </div>
         </Link>
 
-        <nav className="hidden items-center md:flex">
+        <nav className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`inline-flex h-[46px] items-center gap-2 rounded-lg px-5 py-4 font-medium transition ${
+              className={`inline-flex h-[40px] items-center gap-2 rounded-lg px-5 py-4 font-medium transition ${
                 isActive(item.href)
                   ? "bg-[#151b1d] text-white hover:bg-[#151b1d] dark:bg-[#ffffff]/10 dark:hover:bg-[#ffffff]/10"
                   : "text-slate-400 hover:bg-[#ffffff]/10 hover:text-white dark:text-[#D1DBEF] dark:hover:bg-[#ffffff]/10 dark:hover:text-white"
               }`}
             >
               <span className="scale-[1.2x]">{item.icon}</span>
-              <span className="line-height-[120%] text-[18px] font-light text-[rgba(229,229,229,1)]">
+              <span className="line-height-[100%] text-[16px] font-light text-[rgba(229,229,229,1)]">
                 {item.label}
               </span>
             </Link>
@@ -114,7 +115,9 @@ export function Header() {
             >
               <HiOutlineBell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-red-500" />
+                <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-[0_0_0_2px_rgba(10,18,27,0.95)] animate-pulse">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
               )}
             </button>
             <AdminNotificationDropdown
@@ -134,12 +137,13 @@ export function Header() {
                 setProfileOpen((prev) => !prev);
                 setNotificationOpen(false);
               }}
+              unclosedFeedbackCount={unclosedFeedbackCount}
             />
           </div>
         </div>
       </div>
 
-      <div ref={mobileNotificationRef}>
+      <div ref={mobileNotificationRef} className="relative md:hidden">
         <AdminMobileMenu
           open={menuOpen}
           pathname={normalizedPath}
@@ -147,6 +151,7 @@ export function Header() {
           userOptions={userOptions}
           notifications={notifications}
           unreadCount={unreadCount}
+          unclosedFeedbackCount={unclosedFeedbackCount}
           notificationOpen={notificationOpen}
           onClose={() => setMenuOpen(false)}
           onSelectUser={handleUserChange}

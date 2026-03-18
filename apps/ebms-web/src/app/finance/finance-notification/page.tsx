@@ -9,6 +9,25 @@ import {
   NotificationList,
   type NotificationItem,
 } from "./_components/NotificationList";
+import {
+  fetchFinanceNotifications,
+  markFinanceNotificationRead,
+  markAllFinanceNotificationsRead,
+} from "../_lib/api";
+import { formatRelativeTime } from "../_lib/utils";
+
+function getGroupFromCreatedAt(iso: string): "Today" | "Yesterday" | "Earlier" {
+  const d = new Date(iso);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const notifDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.floor(
+    (today.getTime() - notifDate.getTime()) / 86400000,
+  );
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  return "Earlier";
+}
 
 const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
   {
@@ -98,8 +117,44 @@ export default function FinanceNotificationPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [search, setSearch] = useState("");
   const [unreadOnly, setUnreadOnly] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(
+    DEFAULT_NOTIFICATIONS,
+  );
 
-  const notifications = DEFAULT_NOTIFICATIONS;
+  useEffect(() => {
+    let cancelled = false;
+    fetchFinanceNotifications(100)
+      .then((items) => {
+        if (cancelled) return;
+        const mapped: NotificationItem[] = items.map((n) => {
+          const meta = (n.metadata ?? {}) as Record<string, unknown>;
+          return {
+            id: n.id,
+            title: n.title,
+            body: n.body,
+            time: formatRelativeTime(n.createdAt),
+            type: (n.type ?? "payment_pending") as NotificationItem["type"],
+            group: getGroupFromCreatedAt(n.createdAt),
+            unread: n.unread,
+            employee: (meta.employeeName as string) ?? "—",
+            benefit: (meta.benefitName as string) ?? "—",
+            amount: "—",
+            actions:
+              n.type === "payment_pending"
+                ? ["Approve Payment", "Reject Payment"]
+                : ["View Details"],
+          };
+        });
+        setNotifications(mapped.length > 0 ? mapped : DEFAULT_NOTIFICATIONS);
+      })
+      .catch(() => setNotifications(DEFAULT_NOTIFICATIONS))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const pendingPayments = useMemo(
     () => notifications.filter((n) => n.type === "payment_pending").length,
@@ -145,19 +200,15 @@ export default function FinanceNotificationPage() {
     [filteredByUnread, search]
   );
 
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(t);
-  }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900 dark:bg-[#0f172A] dark:text-white" />
+      <div className="min-h-screen  px-4 py-6 text-slate-900 " />
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900 dark:bg-[#0f172A] dark:text-white">
+    <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white">
       <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6">
         <NotificationHeader />
         <NotificationStatsCards

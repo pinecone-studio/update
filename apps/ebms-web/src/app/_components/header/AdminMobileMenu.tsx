@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { HiOutlineArrowTopRightOnSquare, HiOutlineBell } from "react-icons/hi2";
+import {
+  HiOutlineArrowTopRightOnSquare,
+  HiOutlineBell,
+  HiOutlineChatBubbleLeftRight,
+} from "react-icons/hi2";
 import { navItems } from "./admin-header-constants";
 import type { AdminNotification } from "./admin-header-constants";
 import type { SwitchUserOption } from "@/app/_lib/activeUser";
@@ -13,6 +17,7 @@ type AdminMobileMenuProps = {
   userOptions: SwitchUserOption[];
   notifications: AdminNotification[];
   unreadCount: number;
+  unclosedFeedbackCount?: number;
   notificationOpen: boolean;
   onClose: () => void;
   onSelectUser: (id: string) => void;
@@ -26,6 +31,7 @@ export function AdminMobileMenu({
   userOptions,
   notifications,
   unreadCount,
+  unclosedFeedbackCount = 0,
   notificationOpen,
   onClose,
   onSelectUser,
@@ -38,7 +44,7 @@ export function AdminMobileMenu({
   if (!open) return null;
 
   return (
-    <div className="absolute left-0 top-16 w-full border-t border-slate-200 bg-white dark:border-[#24395C] dark:bg-[#1E293B] md:hidden">
+    <div className="absolute left-0 right-0 top-full z-50 w-full border-t border-slate-200 bg-white shadow-lg dark:border-[#24395C] dark:bg-[#1E293B] md:hidden">
       <nav className="flex flex-col gap-1 p-3 text-sm text-slate-600 dark:text-[#D1DBEF]">
         {navItems.map((item) => (
           <Link
@@ -63,6 +69,21 @@ export function AdminMobileMenu({
         >
           <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
           Employee руу шилжих
+        </Link>
+        <Link
+          href="/admin/feedback"
+          onClick={onClose}
+          className="inline-flex items-center justify-between gap-2 rounded-lg px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
+        >
+          <span className="inline-flex items-center gap-2">
+            <HiOutlineChatBubbleLeftRight className="h-4 w-4" />
+            Employee Feedback
+          </span>
+          {unclosedFeedbackCount > 0 && (
+            <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-medium text-white">
+              {unclosedFeedbackCount > 9 ? "9+" : unclosedFeedbackCount}
+            </span>
+          )}
         </Link>
         <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
         <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
@@ -91,7 +112,9 @@ export function AdminMobileMenu({
             >
               <HiOutlineBell className="text-sm" />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
+                <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-[0_0_0_2px_rgba(10,18,27,0.95)] animate-pulse">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
               )}
             </button>
             <Link

@@ -6,6 +6,7 @@ import { FinanceDashboardSkeleton } from "./components/FinanceDashboardSkeleton"
 import { FinanceStatCard } from "./components/FinanceStatCard";
 import { FinanceStatCardModal } from "./components/FinanceStatCardModal";
 import { FinanceRequestsSection } from "./components/FinanceRequestsSection";
+import FinanceRightWidgets from "./components/FinanceRightWidgets";
 import { RejectRequestModal } from "./components/RejectRequestModal";
 import {
   confirmBenefitRequest,
@@ -128,17 +129,25 @@ export default function FinancePage() {
         ))}
       </section>
 
-      <FinanceRequestsSection
-        requests={visibleRequests}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        employees={employees}
-        benefitSubsidyMap={benefitSubsidyMap}
-        submittingRequestId={submittingRequestId}
-        onApprove={(id) => void handleDecision(id, true)}
-        onReject={handleRejectClick}
-        onViewTemplate={handleViewTemplate}
-      />
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <FinanceRequestsSection
+            requests={visibleRequests}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            employees={employees}
+            benefitSubsidyMap={benefitSubsidyMap}
+            submittingRequestId={submittingRequestId}
+            onApprove={(id) => void handleDecision(id, true)}
+            onReject={handleRejectClick}
+            onViewTemplate={handleViewTemplate}
+          />
+        </div>
+
+        <div className="lg:col-span-1">
+          <FinanceRightWidgets />
+        </div>
+      </section>
 
       {selectedCard && (
         <FinanceStatCardModal

@@ -13,6 +13,9 @@ import { getDb } from "./db/drizzle";
 import { employees } from "./db/schema";
 import adminContracts from "./routes/adminContracts";
 import contractsRoute from "./routes/contracts";
+import feedbackRoute from "./routes/feedback";
+import adminFeedback from "./routes/adminFeedback";
+import roleNotifications from "./routes/roleNotifications";
 
 type YogaContext = {
   env: Env;
@@ -54,7 +57,9 @@ app.get("/health", (c) =>
 
 app.route("/admin/contracts", adminContracts);
 app.route("/contracts", contractsRoute);
-
+app.route("/feedback", feedbackRoute);
+app.route("/admin/feedback", adminFeedback);
+app.route("/", roleNotifications);
 app.all("/graphql", async (c) => {
   const employeeId = c.req.header("x-employee-id") ?? null;
   let role: string | null = null;

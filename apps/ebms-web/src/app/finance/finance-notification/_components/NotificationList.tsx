@@ -5,7 +5,8 @@ import { NotificationCard } from "./NotificationCard";
 type NotificationType =
   | "payment_pending"
   | "reimbursement"
-  | "payment_completed";
+  | "payment_completed"
+  | string;
 
 export type NotificationItem = {
   id: string;
@@ -35,7 +36,7 @@ export function NotificationList({ notifications }: NotificationListProps) {
         if (items.length === 0) return null;
         return (
           <div key={group} className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-white/70">
               {group}
             </p>
             <div className="space-y-3">

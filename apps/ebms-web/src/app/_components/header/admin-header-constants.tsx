@@ -33,31 +33,46 @@ export const navItems: NavItem[] = [
 
 export const STORAGE_KEY = "ebms_admin_notifications";
 
-export const DEFAULT_NOTIFICATIONS = [
+export type AdminNotification = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  tone: "info" | "success" | "warning" | "neutral";
+  unread: boolean;
+  subtitle?: string;
+  actions?: ("review" | "view")[];
+};
+
+export const DEFAULT_NOTIFICATIONS: AdminNotification[] = [
   {
     id: "1",
-    title: "New Vendor Contract Uploaded",
+    title: "New vendor contract uploaded",
     body: "Vendor contract for Q2 2026 has been uploaded and is ready for review.",
-    time: "1 hour ago",
-    tone: "info" as const,
+    time: "1h ago",
+    tone: "info",
     unread: true,
+    subtitle: "Q2 2026 — Vendor contract",
+    actions: ["review"],
   },
   {
     id: "2",
-    title: "Eligibility Review Required",
+    title: "Eligibility review required",
     body: "5 employees reached 1 year tenure and require benefit eligibility review.",
-    time: "3 hours ago",
-    tone: "success" as const,
+    time: "3h ago",
+    tone: "success",
     unread: true,
+    subtitle: "5 employees — Benefit eligibility",
+    actions: ["review"],
   },
   {
     id: "3",
-    title: "Audit Log Export Ready",
+    title: "Audit log export ready",
     body: "Your audit log export is ready to download.",
-    time: "1 day ago",
-    tone: "neutral" as const,
+    time: "1d ago",
+    tone: "neutral",
     unread: false,
+    subtitle: "Export ready",
+    actions: ["view"],
   },
 ];
-
-export type AdminNotification = (typeof DEFAULT_NOTIFICATIONS)[number];

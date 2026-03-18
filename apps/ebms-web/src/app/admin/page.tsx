@@ -2,12 +2,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { HrTotalEmployeeIcon } from "../icons/hrTotalEmployee";
-import { HrActiveBenefitsIcon } from "../icons/hrActiveBenefits";
 import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import { DashboardStatCard } from "./components/DashboardStatCard";
 import { BenefitRequestsSection } from "./components/BenefitRequestsSection";
-import { getAdminClient, confirmBenefitRequest, getApiErrorMessage } from "./_lib/api";
+import {
+  getAdminClient,
+  confirmBenefitRequest,
+  getApiErrorMessage,
+} from "./_lib/api";
 import {
   fetchBenefitRequests,
   fetchDashboardStats,
@@ -20,7 +22,9 @@ export default function HrDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [activeBenefits, setActiveBenefits] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<string | undefined>("PENDING");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    "PENDING",
+  );
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [employeesForSearch, setEmployeesForSearch] = useState<
     Array<{ id: string; name: string; department: string }>
@@ -89,9 +93,10 @@ export default function HrDashboardPage() {
     () =>
       requests.filter(
         (req) =>
-          !statusFilter || (req.status || "PENDING").toUpperCase() === statusFilter
+          !statusFilter ||
+          (req.status || "PENDING").toUpperCase() === statusFilter,
       ),
-    [requests, statusFilter]
+    [requests, statusFilter],
   );
 
   const handleApprove = useCallback(async (requestId: string) => {
@@ -100,8 +105,8 @@ export default function HrDashboardPage() {
       await confirmBenefitRequest(getAdminClient(), requestId, true);
       setRequests((prev) =>
         prev.map((r) =>
-          r.id === requestId ? { ...r, status: "APPROVED" } : r
-        )
+          r.id === requestId ? { ...r, status: "APPROVED" } : r,
+        ),
       );
     } catch (e) {
       setError(getApiErrorMessage(e));
@@ -118,8 +123,8 @@ export default function HrDashboardPage() {
       await confirmBenefitRequest(getAdminClient(), requestId, false, reason);
       setRequests((prev) =>
         prev.map((r) =>
-          r.id === requestId ? { ...r, status: "REJECTED" } : r
-        )
+          r.id === requestId ? { ...r, status: "REJECTED" } : r,
+        ),
       );
     } catch (e) {
       setError(getApiErrorMessage(e));
@@ -131,20 +136,40 @@ export default function HrDashboardPage() {
   if (loading) return <AdminDashboardSkeleton />;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-hidden">
-      <section className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-8 px-6 py-6 overflow-hidden lg:grid-cols-[auto_1fr] lg:grid-rows-1">
-        <div className="flex flex-col gap-8 lg:min-w-[454px]">
+    <div className="flex min-h-min flex-1 flex-col gap-4 sm:gap-6 lg:gap-8">
+      <section className="grid min-h-min flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-4 sm:gap-6 lg:grid-cols-[auto_1fr] lg:grid-rows-1 lg:gap-8">
+        <div className="flex flex-col gap-4 sm:gap-6 lg:min-w-[320px] lg:gap-8 xl:min-w-[454px]">
           <DashboardStatCard
             keyType="employees"
             title="Total-Employees"
             value={String(totalEmployees)}
-            icon={<HrTotalEmployeeIcon />}
+            icon={
+              <div className="h-[60px] w-[60px] rounded-[12px] border-[2.2px] border-[#c8cfdf]/70 bg-[rgba(10,18,45,0.22)] p-[5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
+                <div className="h-full w-full overflow-hidden rounded-[6px] bg-white">
+                  <img
+                    src="/Total-employee.png"
+                    alt="Total employees"
+                    className="h-full w-full object-contain p-[3px]"
+                  />
+                </div>
+              </div>
+            }
           />
           <DashboardStatCard
             keyType="benefits"
             title="All-Benefits"
             value={String(activeBenefits)}
-            icon={<HrActiveBenefitsIcon />}
+            icon={
+              <div className="h-[60px] w-[60px] rounded-[12px] border-[2.2px] border-[#c8cfdf]/70 bg-[rgba(10,18,45,0.22)] p-[5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
+                <div className="h-full w-full overflow-hidden rounded-[6px] bg-white">
+                  <img
+                    src="/All-benefit.png"
+                    alt="All benefits"
+                    className="h-full w-full object-contain p-[3px]"
+                  />
+                </div>
+              </div>
+            }
           />
         </div>
 

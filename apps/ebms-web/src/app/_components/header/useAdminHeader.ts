@@ -8,10 +8,15 @@ import {
   type SwitchUserOption,
 } from "@/app/_lib/activeUser";
 import {
-  STORAGE_KEY,
   DEFAULT_NOTIFICATIONS,
   type AdminNotification,
 } from "./admin-header-constants";
+import {
+  fetchUnclosedFeedback,
+  fetchAdminNotifications,
+  markAllAdminNotificationsRead,
+} from "@/app/admin/_lib/api";
+import { formatRelativeTime } from "@/app/admin/_lib/utils";
 
 export function useAdminHeader(pathname: string) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,6 +39,7 @@ export function useAdminHeader(pathname: string) {
       role: (initialProfile.role || "employee").toLowerCase(),
     },
   ]);
+  const [unclosedFeedbackCount, setUnclosedFeedbackCount] = useState(0);
 
   const normalizedPath =
     pathname.endsWith("/") && pathname.length > 1
@@ -60,22 +66,27 @@ export function useAdminHeader(pathname: string) {
   }, []);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw) as AdminNotification[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setNotifications(parsed);
-        }
-      } catch {
-        // Ignore malformed storage.
-      }
-    }
+    let cancelled = false;
+    fetchAdminNotifications(50)
+      .then((items) => {
+        if (cancelled) return;
+        const mapped: AdminNotification[] = items.map((n) => ({
+          id: n.id,
+          title: n.title,
+          body: n.body,
+          time: formatRelativeTime(n.createdAt),
+          tone: (n.tone ?? "info") as AdminNotification["tone"],
+          unread: n.unread,
+        }));
+        setNotifications(mapped.length > 0 ? mapped : DEFAULT_NOTIFICATIONS);
+      })
+      .catch(() => {
+        if (!cancelled) setNotifications(DEFAULT_NOTIFICATIONS);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-  }, [notifications]);
 
   useEffect(() => {
     setSelectedUser(getActiveUserProfile());
@@ -104,6 +115,27 @@ export function useAdminHeader(pathname: string) {
     };
   }, [selectedUser.id]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const load = () =>
+      fetchUnclosedFeedback()
+        .then((items) => {
+          if (!cancelled) setUnclosedFeedbackCount(items.length);
+        })
+        .catch(() => {
+          if (!cancelled) setUnclosedFeedbackCount(0);
+        });
+    load();
+    const id = setInterval(load, 60000);
+    const onFeedbackMarkedRead = () => load();
+    window.addEventListener("ebms:feedback-marked-read", onFeedbackMarkedRead);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+      window.removeEventListener("ebms:feedback-marked-read", onFeedbackMarkedRead);
+    };
+  }, []);
+
   const handleUserChange = (value: string) => {
     const nextUser = userOptions.find((u) => u.id === value);
     if (!nextUser) return;
@@ -116,8 +148,14 @@ export function useAdminHeader(pathname: string) {
     setActiveUserProfile(profile);
   };
 
-  const setNotificationsRead = () =>
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  const setNotificationsRead = async () => {
+    try {
+      await markAllAdminNotificationsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    } catch {
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    }
+  };
 
   return {
     menuOpen,
@@ -130,6 +168,7 @@ export function useAdminHeader(pathname: string) {
     selectedUser,
     userOptions,
     unreadCount,
+    unclosedFeedbackCount,
     normalizedPath,
     notificationRef,
     profileRef,

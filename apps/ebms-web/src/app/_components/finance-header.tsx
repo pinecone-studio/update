@@ -24,6 +24,8 @@ export function FinanceHeader() {
     selectedUser,
     userOptions,
     unreadCount,
+    notifications,
+    handleMarkAllRead,
     normalizedPath,
     initials,
     notificationRef,
@@ -103,8 +105,10 @@ export function FinanceHeader() {
                 </button>
                 <FinanceNotificationDropdown
                   open={notificationOpen}
+                  notifications={notifications}
                   unreadCount={unreadCount}
                   onClose={() => setNotificationOpen(false)}
+                  onMarkAllRead={handleMarkAllRead}
                 />
               </div>
               <div ref={profileRef}>

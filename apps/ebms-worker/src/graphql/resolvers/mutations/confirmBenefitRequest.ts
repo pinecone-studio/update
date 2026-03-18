@@ -13,9 +13,11 @@ import {
   benefitRequests,
   benefits,
   contracts,
+  employees,
 } from "../../../db/schema";
 import { and, eq } from "drizzle-orm";
 import { dispatchEmployeeNotification } from "../../../notifications/dispatcher";
+import { dispatchRoleNotification } from "../../../notifications/roleDispatcher";
 import { getActiveEligibilityConfig } from "../../../eligibility/engine";
 
 function isFinanceRole(role: string | null | undefined): boolean {
@@ -188,6 +190,27 @@ export const confirmBenefitRequest: NonNullable<
           requestId: row.id,
           status: "ADMIN_APPROVED",
           action: "AWAITING_FINANCE",
+        },
+      });
+      const [empRow] = await db
+        .select({ name: employees.name, nameEng: employees.nameEng })
+        .from(employees)
+        .where(eq(employees.id, row.employeeId))
+        .limit(1);
+      const employeeName = empRow?.nameEng ?? empRow?.name ?? row.employeeId;
+
+      await dispatchRoleNotification(ctx.env, {
+        recipientRole: "finance",
+        title: "Payment Approval Required",
+        body: `${employeeName}'s ${row.benefitName ?? "benefit"} request requires finance approval.`,
+        type: "payment_pending",
+        tone: "info",
+        metadata: {
+          requestId: row.id,
+          employeeId: row.employeeId,
+          employeeName,
+          benefitId: row.benefitId,
+          benefitName: row.benefitName,
         },
       });
     } else {

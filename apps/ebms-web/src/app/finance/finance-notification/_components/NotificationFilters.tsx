@@ -24,8 +24,8 @@ export function NotificationFilters({
 
   const btnClass = (active: boolean) =>
     active
-      ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900"
-      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100 dark:border-[#243041] dark:bg-[#111A2A] dark:text-slate-200 dark:hover:bg-[#1A2333]";
+      ? "border-slate-900 text-white dark:border-white dark:text-white"
+      : "border-slate-200 text-slate-700 dark:border-white/20 dark:text-slate-200";
 
   return (
     <section className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">

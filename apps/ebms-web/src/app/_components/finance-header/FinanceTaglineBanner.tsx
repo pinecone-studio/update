@@ -32,7 +32,7 @@ export function FinanceTaglineBanner({
   return (
     <div className="relative flex w-full min-w-0 max-w-[650px] items-center gap-3">
       <div className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-white/10">
-        <p className="truncate px-12 text-center text-[16px] font-medium tracking-[-0.2px] text-[#CFD6D8] lg:px-16 lg:text-[18px]">
+        <p className="truncate whitespace-pre px-12 text-center text-[16px] font-light tracking-[-0.2px] text-[#CFD6D8] lg:px-16 lg:text-[18px]">
           {Taglines[currentIndex]}
         </p>
       </div>

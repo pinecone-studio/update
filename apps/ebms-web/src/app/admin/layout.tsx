@@ -20,7 +20,7 @@ export default function HrAdminLayout({ children }: { children: ReactNode }) {
       </div>
       <AdminRouteGuard>
         <Header />
-        <section className="relative z-10 mx-auto flex min-h-0 flex-1 flex-col overflow-y-auto w-full max-w-[1500px] sm:p-6 xl:p-8">
+        <section className="relative z-10 mx-auto flex min-h-0 flex-1 flex-col overflow-y-auto w-full max-w-[1500px] px-4 py-4 sm:p-6 xl:p-8">
           {children}
         </section>
       </AdminRouteGuard>

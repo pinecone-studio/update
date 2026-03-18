@@ -145,6 +145,19 @@ export const employeeNotifications = sqliteTable("employee_notifications", {
   createdAt: text("created_at").notNull(),
 });
 
+/** Role notifications (admin, finance, hr) — single table with recipient_role */
+export const roleNotifications = sqliteTable("role_notifications", {
+  id: text("id").primaryKey(),
+  recipientRole: text("recipient_role").notNull(),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  type: text("type").notNull(),
+  tone: text("tone").notNull().default("info"),
+  isRead: integer("is_read").notNull().default(0),
+  metadataJson: text("metadata_json"),
+  createdAt: text("created_at").notNull(),
+});
+
 /** Benefit feedback — employees create, vote; 3 votes before deadline → admin */
 export const feedback = sqliteTable("feedback", {
   id: text("id").primaryKey(),

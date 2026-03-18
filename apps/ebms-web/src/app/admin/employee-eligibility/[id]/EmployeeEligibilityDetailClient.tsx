@@ -10,12 +10,16 @@ import {
   getActiveUserHeaders,
 } from "@/app/_lib/activeUser";
 
-type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
+type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED";
 
 type EmployeeBenefit = {
   benefit: { id: string; name: string };
   status: BenefitStatus;
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
+  computedAt?: string | null;
+  overrideApplied?: boolean;
+  overrideReason?: string | null;
+  rejectedReason?: string | null;
 };
 
 type EmployeeDetail = {
@@ -60,6 +64,10 @@ const EMPLOYEE_QUERY = gql`
           passed
           reason
         }
+        computedAt
+        overrideApplied
+        overrideReason
+        rejectedReason
       }
     }
   }
@@ -88,6 +96,7 @@ const modalStatusOptions: BenefitStatus[] = [
   "PENDING",
   "ELIGIBLE",
   "LOCKED",
+  "REJECTED",
 ];
 
 const statusCopy: Record<BenefitStatus, string> = {
@@ -95,6 +104,7 @@ const statusCopy: Record<BenefitStatus, string> = {
   PENDING: "Pending",
   ELIGIBLE: "Eligible",
   LOCKED: "Locked",
+  REJECTED: "Rejected",
 };
 
 const statusButtonClass: Record<BenefitStatus, string> = {
@@ -145,23 +155,39 @@ function formatRoleLabel(value: string): string {
 }
 
 function inferReason(benefit: EmployeeBenefit): string {
-  return (
-    benefit.ruleEvaluations?.find((evaluation) => !evaluation.passed)?.reason ||
-    (benefit.status === "ELIGIBLE" || benefit.status === "ACTIVE"
-      ? "Meets all requirements"
-      : "Missing document")
-  );
+  if (benefit.overrideApplied && benefit.overrideReason?.trim()) {
+    return benefit.overrideReason.trim();
+  }
+  if (benefit.rejectedReason?.trim()) {
+    return benefit.rejectedReason.trim();
+  }
+  const failedRule = benefit.ruleEvaluations?.find((e) => !e.passed);
+  if (failedRule?.reason) return failedRule.reason;
+  if (benefit.status === "ELIGIBLE" || benefit.status === "ACTIVE") {
+    return "Meets all requirements";
+  }
+  return "See eligibility rules";
 }
 
-function inferLastDate(index: number): string {
-  const fallbackDates = [
-    "2025/01/22",
-    "2025/05/03",
-    "2025/04/02",
-    "2025/08/18",
-    "2025/09/29",
-  ];
-  return fallbackDates[index] ?? "2025/09/29";
+function formatComputedAt(computedAt: string | null | undefined): string {
+  if (!computedAt?.trim()) return "—";
+  try {
+    const d = new Date(computedAt);
+    if (Number.isNaN(d.getTime())) return computedAt;
+    const dateStr = d.toLocaleDateString("en-CA", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const timeStr = d.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    return `${dateStr} ${timeStr}`;
+  } catch {
+    return computedAt;
+  }
 }
 
 export default function EmployeeEligibilityDetailClient() {
@@ -360,12 +386,12 @@ export default function EmployeeEligibilityDetailClient() {
           id: emp.id ?? "",
           name: emp.name ?? "Unknown",
           role: formatRoleLabel(emp.role ?? emp.employmentStatus ?? "Employee"),
-          benefits: (emp.benefits ?? []).map((benefit, index) => ({
+          benefits: (emp.benefits ?? []).map((benefit) => ({
             benefitId: benefit.benefit?.id ?? "",
             name: benefit.benefit?.name ?? "Unknown",
             status: benefit.status,
             reason: inferReason(benefit),
-            lastDate: inferLastDate(index),
+            lastDate: formatComputedAt(benefit.computedAt),
             history: [],
           })),
         });
@@ -464,7 +490,7 @@ export default function EmployeeEligibilityDetailClient() {
                     <div className="pr-6 font-regular">{benefit.name}</div>
                     <div>{statusCopy[benefit.status]}</div>
                     <div className="pr-6 text-white/90">{benefit.reason}</div>
-                    <div>{benefit.lastDate} . 20:00pm</div>
+                    <div>{benefit.lastDate}</div>
                     <button
                       type="button"
                       onClick={() => openBenefitModal(key, benefit.status)}

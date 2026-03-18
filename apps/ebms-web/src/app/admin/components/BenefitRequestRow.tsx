@@ -24,12 +24,12 @@ export function BenefitRequestRow({
   const benefitText = request.benefitName ?? request.benefitId ?? "Benefit request";
 
   return (
-    <div className="flex items-center justify-between px-4 py-3">
+    <div className="flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-3">
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <span className="text-xs text-slate-400 dark:text-[#94A3B8]">
           {formatRelativeTime(request.createdAt)}
         </span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
             {getInitials(employeeName)}
           </div>
@@ -46,13 +46,13 @@ export function BenefitRequestRow({
           </div>
         </div>
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-3">
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
         {status === "PENDING" && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               disabled
-              className="h-[38px] w-[94px] rounded-lg bg-[#8A5212] px-3 py-1.5 text-base font-medium text-[#ffffff] transition disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-[38px] min-w-[80px] rounded-lg bg-[#8A5212] px-3 py-1.5 text-sm font-medium text-[#ffffff] transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-[94px] sm:text-base"
             >
               Pending
             </button>
@@ -60,7 +60,7 @@ export function BenefitRequestRow({
               type="button"
               onClick={() => onApprove(request.id)}
               disabled={isLoading}
-              className="h-[38px] w-[94px] rounded-lg bg-[#0f5540] px-3 py-1.5 text-base font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-[38px] min-w-[80px] rounded-lg bg-[#0f5540] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-[94px] sm:text-base"
             >
               {isLoading ? "..." : "Approve"}
             </button>
@@ -68,7 +68,7 @@ export function BenefitRequestRow({
               type="button"
               onClick={() => onReject(request.id)}
               disabled={isLoading}
-              className="h-[38px] w-[94px] rounded-lg bg-[#851618] px-3 py-1.5 text-base font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-[38px] min-w-[80px] rounded-lg bg-[#851618] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-[94px] sm:text-base"
             >
               Reject
             </button>
@@ -78,7 +78,7 @@ export function BenefitRequestRow({
           <button
             type="button"
             disabled={isLoading}
-            className="flex h-[28px] w-[84px] items-center justify-center rounded-lg bg-[#0f5540] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[28px] min-w-[80px] items-center justify-center rounded-lg bg-[#0f5540] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-[84px]"
           >
             Approved
           </button>
@@ -87,7 +87,7 @@ export function BenefitRequestRow({
           <button
             type="button"
             disabled={isLoading}
-            className="flex h-[28px] w-[84px] items-center justify-center rounded-lg bg-[#851618] px-3 py-1.5 text-base font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[28px] min-w-[80px] items-center justify-center rounded-lg bg-[#851618] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-[84px] sm:text-base"
           >
             Reject
           </button>

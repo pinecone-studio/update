@@ -1,11 +1,58 @@
 /** Дүрмийн operator-ууд (харьцуулалт) */
 export const OPERATORS = [
   { value: "eq", label: "Тэнцүү (eq)" },
+  { value: "ne", label: "Үлгаатай (ne)" },
   { value: "lt", label: "Бага (lt)" },
   { value: "lte", label: "Бага буюу тэнцүү (lte)" },
   { value: "gte", label: "Их буюу тэнцүү (gte)" },
   { value: "gt", label: "Их (gt)" },
 ] as const;
+
+/** String талбарууд (employment_status, role) — зөвхөн eq, ne */
+export const OPERATORS_STRING = [
+  { value: "eq", label: "Тэнцүү (eq)" },
+  { value: "ne", label: "Үлгаатай (ne)" },
+] as const;
+
+/** Role утгууд (employees.role) */
+export const ROLE_VALUES = [
+  "admin",
+  "employee",
+  "hr",
+  "finance",
+  "ux_engineer",
+] as const;
+
+/** Rule type солиход тохирох default value */
+export function getDefaultValueForRuleType(
+  type: string,
+): string | number | boolean {
+  switch (type) {
+    case "employment_status":
+      return "active";
+    case "okr_submitted":
+      return true;
+    case "responsibility_level":
+      return 1;
+    case "late_arrival_count":
+    case "attendance":
+      return 0;
+    case "tenure":
+      return 180;
+    case "role":
+      return "employee";
+    default:
+      return "active";
+  }
+}
+
+/** String талбар (employment_status, role) — operator eq эсвэл ne байх ёстой */
+export function getDefaultOperatorForRuleType(type: string): string {
+  if (type === "employment_status" || type === "role") {
+    return "eq";
+  }
+  return "eq";
+}
 
 /** Алдааны мессежүүд (нэг дор, тодорхой) */
 export const ERROR_MESSAGES = {
@@ -30,9 +77,11 @@ export const DEFAULT_FORM: AddBenefitFormState = {
   name: "",
   description: "",
   category: "wellness",
+  benefitType: "core",
   subsidyPercent: 0,
   financeCheck: false,
   requiresContract: false,
+  managerApproval: false,
   contractNumber: "",
   contractName: "",
   contractFileName: "",
@@ -45,9 +94,11 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
     name: "Gym Pinefit",
     description: "Gym membership reimbursement for employee wellness.",
     category: "Wellness",
+    benefitType: "core",
     subsidyPercent: 80,
     financeCheck: false,
     requiresContract: true,
+    managerApproval: false,
     contractNumber: "",
     contractName: "",
     contractFileName: "",
@@ -57,9 +108,11 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
     name: "Health Insurance",
     description: "Company-supported health insurance package.",
     category: "Health",
+    benefitType: "core",
     subsidyPercent: 100,
     financeCheck: false,
     requiresContract: true,
+    managerApproval: false,
     contractNumber: "",
     contractName: "",
     contractFileName: "",
@@ -69,9 +122,11 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
     name: "Laptop Allowance",
     description: "Allowance for purchasing or upgrading work laptop.",
     category: "Equipment",
+    benefitType: "core",
     subsidyPercent: 50,
     financeCheck: false,
     requiresContract: false,
+    managerApproval: false,
     contractNumber: "",
     contractName: "",
     contractFileName: "",
@@ -81,9 +136,11 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
     name: "Learning Budget",
     description: "Annual budget for courses, certifications, and learning.",
     category: "Career Development",
+    benefitType: "core",
     subsidyPercent: 60,
     financeCheck: false,
     requiresContract: false,
+    managerApproval: false,
     contractNumber: "",
     contractName: "",
     contractFileName: "",
@@ -93,9 +150,11 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
     name: "Flexible Hours",
     description: "Flexible working schedule option based on team policy.",
     category: "Flexibility",
+    benefitType: "core",
     subsidyPercent: 0,
     financeCheck: false,
     requiresContract: false,
+    managerApproval: false,
     contractNumber: "",
     contractName: "",
     contractFileName: "",
@@ -105,9 +164,11 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
     name: "Mental Health Support",
     description: "Counseling and mental health support benefit.",
     category: "Wellness",
+    benefitType: "core",
     subsidyPercent: 100,
     financeCheck: false,
     requiresContract: false,
+    managerApproval: false,
     contractNumber: "",
     contractName: "",
     contractFileName: "",
@@ -117,9 +178,11 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
     name: "Home Office Stipend",
     description: "Stipend for home office setup and equipment.",
     category: "Equipment",
+    benefitType: "core",
     subsidyPercent: 30,
     financeCheck: false,
     requiresContract: false,
+    managerApproval: false,
     contractNumber: "",
     contractName: "",
     contractFileName: "",
@@ -129,9 +192,11 @@ export const BENEFIT_SUGGESTIONS: AddBenefitFormState[] = [
     name: "Transport Allowance",
     description: "Monthly transport reimbursement support.",
     category: "Financial",
+    benefitType: "core",
     subsidyPercent: 40,
     financeCheck: false,
     requiresContract: false,
+    managerApproval: false,
     contractNumber: "",
     contractName: "",
     contractFileName: "",

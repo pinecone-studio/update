@@ -42,9 +42,13 @@ export default function AdminFeedbackPage() {
   }, []);
 
   const filteredItems = search.trim()
-    ? items.filter((i) =>
-        i.text.toLowerCase().includes(search.trim().toLowerCase()),
-      )
+    ? items.filter((i) => {
+        const term = search.trim().toLowerCase();
+        const textMatch = i.text.toLowerCase().includes(term);
+        const nameMatch =
+          i.employeeName?.toLowerCase().includes(term) ?? false;
+        return textMatch || nameMatch;
+      })
     : items;
 
   const handleClose = async (id: string) => {
@@ -56,6 +60,7 @@ export default function AdminFeedbackPage() {
           f.id === id ? { ...f, closedAt: new Date().toISOString() } : f,
         ),
       );
+      window.dispatchEvent(new CustomEvent("ebms:feedback-marked-read"));
     } catch (e) {
       setError(getApiErrorMessage(e));
     } finally {
@@ -116,19 +121,24 @@ export default function AdminFeedbackPage() {
               className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-5"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-full bg-[#122033] text-[#34D399]">
+                <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#122033] text-[#34D399]">
                     <HiOutlineCheckCircle className="text-lg" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-5 font-semibold text-white">
-                      {item.isAnonymous ? "Anonymous" : "Employee"} feedback
+                      {item.text}
                     </p>
-                    <p className="mt-2 text-5 text-[#A7B6D3]">{item.text}</p>
+                    <p className="mt-1 text-5 text-[#A7B6D3]">
+                      Sent by:{" "}
+                      {item.isAnonymous
+                        ? "Anonymous"
+                        : item.employeeName ?? "Employee"}
+                    </p>
                     <p className="mt-3 text-5 text-[#8192B3]">
                       {item.voteCount} votes · {formatDate(item.createdAt)}
                       {item.closedAt && (
-                        <> · Closed {formatDate(item.closedAt)}</>
+                        <> · Read {formatDate(item.closedAt)}</>
                       )}
                     </p>
                   </div>
@@ -140,7 +150,7 @@ export default function AdminFeedbackPage() {
                     disabled={closingId === item.id}
                     className="rounded-xl border border-[#4B5D83] bg-[#334160] px-4 py-2 text-5 text-[#D4DEEF] transition hover:bg-[#3A4A6C] disabled:opacity-50"
                   >
-                    {closingId === item.id ? "..." : "Close"}
+                    {closingId === item.id ? "..." : "Mark as read"}
                   </button>
                 )}
               </div>

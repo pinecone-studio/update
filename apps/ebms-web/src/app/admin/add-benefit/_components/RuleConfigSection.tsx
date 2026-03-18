@@ -1,10 +1,15 @@
 "use client";
 
 import type { BenefitFromCatalog, BenefitConfig, Rule } from "../_lib/types";
-import { OPERATORS } from "../_lib/constants";
+import {
+  OPERATORS,
+  OPERATORS_STRING,
+  ROLE_VALUES,
+  getDefaultValueForRuleType,
+} from "../_lib/constants";
 
-const sectionClass =
-  "mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+const sectionBaseClass =
+  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
 const inputSm =
   "rounded border border-slate-300 bg-white px-2 py-1.5 text-slate-900 text-sm dark:border-[#334155] dark:bg-[#0F172A] dark:text-white";
 const selectClass =
@@ -31,6 +36,7 @@ type Props = {
     field: keyof Rule,
     value: string | number | boolean,
   ) => void;
+  onRuleTypeChange?: (ruleIndex: number, newType: string) => void;
   onAddRule: () => void;
   onRemoveRule: (ruleIndex: number) => void;
   onSave: () => void;
@@ -44,6 +50,7 @@ type Props = {
   saveButtonLabel?: string;
   showCancelButton?: boolean;
   onCancel?: () => void;
+  noTopMargin?: boolean;
   className?: string;
 };
 
@@ -54,6 +61,7 @@ export function RuleConfigSection({
   rulesForSelected,
   attributes,
   onUpdateRule,
+  onRuleTypeChange,
   onAddRule,
   onRemoveRule,
   onSave,
@@ -67,8 +75,10 @@ export function RuleConfigSection({
   saveButtonLabel = "Дүрмүүдийг хадгалах",
   showCancelButton = false,
   onCancel,
+  noTopMargin = false,
   className = "",
 }: Props) {
+  const sectionClass = noTopMargin ? sectionBaseClass : `mt-8 ${sectionBaseClass}`;
   const normalizedAttributes = Array.from(
     new Set(
       attributes.map((a) => (a === "attendance" ? "late_arrival_count" : a)),
@@ -145,9 +155,14 @@ export function RuleConfigSection({
                     <>
                       <select
                         value={ruleType}
-                        onChange={(e) =>
-                          onUpdateRule(ri, "type", e.target.value)
-                        }
+                        onChange={(e) => {
+                          const newType = e.target.value;
+                          if (onRuleTypeChange) {
+                            onRuleTypeChange(ri, newType);
+                          } else {
+                            onUpdateRule(ri, "type", newType);
+                          }
+                        }}
                         className={inputSm}
                       >
                         {normalizedAttributes.map((a) => (
@@ -163,7 +178,11 @@ export function RuleConfigSection({
                         }
                         className={inputSm}
                       >
-                        {OPERATORS.map((o) => (
+                        {(ruleType === "employment_status" ||
+                        ruleType === "role"
+                          ? OPERATORS_STRING
+                          : OPERATORS
+                        ).map((o) => (
                           <option key={o.value} value={o.value}>
                             {o.label}
                           </option>
@@ -216,10 +235,17 @@ export function RuleConfigSection({
                           type="number"
                           min={0}
                           placeholder="Хоног"
-                          value={Number(rule.value ?? DEFAULT_TENURE_DAYS)}
-                          onChange={(e) =>
-                            onUpdateRule(ri, "value", Number(e.target.value))
-                          }
+                          value={Math.max(
+                            0,
+                            Math.floor(Number(rule.value ?? DEFAULT_TENURE_DAYS) || 0),
+                          )}
+                          onChange={(e) => {
+                            const v = Math.max(
+                              0,
+                              Math.floor(Number(e.target.value) || 0),
+                            );
+                            onUpdateRule(ri, "value", v);
+                          }}
                           className={`${inputSm} w-24`}
                         />
                       ) : rule.type === "okr_submitted" ? (
@@ -233,6 +259,20 @@ export function RuleConfigSection({
                           {OKR_SUBMITTED_VALUES.map((v) => (
                             <option key={v} value={v}>
                               {v}
+                            </option>
+                          ))}
+                        </select>
+                      ) : ruleType === "role" ? (
+                        <select
+                          value={String(rule.value ?? "employee").toLowerCase()}
+                          onChange={(e) =>
+                            onUpdateRule(ri, "value", e.target.value)
+                          }
+                          className={`${inputSm} w-36`}
+                        >
+                          {ROLE_VALUES.map((r) => (
+                            <option key={r} value={r}>
+                              {r}
                             </option>
                           ))}
                         </select>
@@ -303,7 +343,7 @@ export function RuleConfigSection({
                 type="button"
                 onClick={onSave}
                 disabled={saving || loadingConfig}
-                className="rounded-lg bg-[#0057AD] px-4 py-2 font-medium text-white hover:bg-[#2A74BC] disabled:opacity-50"
+                className="rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] disabled:opacity-50 text-white px-4 py-2 font-medium"
               >
                 {saving ? "Хадгалж байна..." : saveButtonLabel}
               </button>

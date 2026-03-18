@@ -7,6 +7,7 @@ import { and, eq, sql, lt } from "drizzle-orm";
 import type { Env } from "../types";
 import { getDb } from "../db/drizzle";
 import { feedback, feedbackVotes } from "../db/schema";
+import { dispatchRoleNotification } from "../notifications/roleDispatcher";
 
 const VOTING_DEADLINE_HOURS = 24;
 const VOTE_THRESHOLD = 3;
@@ -238,6 +239,14 @@ feedbackRoute.post("/:id/vote", async (c) => {
       .update(feedback)
       .set({ status: "ESCALATED" })
       .where(eq(feedback.id, id));
+    await dispatchRoleNotification(c.env, {
+      recipientRole: "admin",
+      title: "Feedback Escalated",
+      body: `Feedback reached ${VOTE_THRESHOLD} votes and requires review. "${(row.text ?? "").slice(0, 80)}${(row.text ?? "").length > 80 ? "…" : ""}"`,
+      type: "feedback_escalated",
+      tone: "info",
+      metadata: { feedbackId: id, benefitId: row.benefitId, voteCount },
+    });
   }
 
   return c.json({

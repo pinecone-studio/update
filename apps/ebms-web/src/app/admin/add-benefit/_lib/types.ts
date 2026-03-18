@@ -36,9 +36,11 @@ export type AddBenefitFormState = {
   name: string;
   description: string;
   category: string;
+  benefitType: string;
   subsidyPercent: number;
   financeCheck: boolean;
   requiresContract: boolean;
+  managerApproval: boolean;
   contractNumber: string;
   contractName: string;
   contractFileName: string;

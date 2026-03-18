@@ -9,7 +9,12 @@ import type {
   Rule,
   AddBenefitFormState,
 } from "../_lib/types";
-import { ERROR_MESSAGES, DEFAULT_FORM } from "../_lib/constants";
+import {
+  ERROR_MESSAGES,
+  DEFAULT_FORM,
+  getDefaultValueForRuleType,
+  getDefaultOperatorForRuleType,
+} from "../_lib/constants";
 import {
   getClient,
   getApiErrorMessage,
@@ -20,7 +25,6 @@ import {
   updateBenefitInCatalog,
 } from "../_lib/api";
 import { AddBenefitForm } from "../_components/AddBenefitForm";
-import { BenefitCatalogTable } from "../_components/BenefitCatalogTable";
 import { RuleConfigSection } from "../_components/RuleConfigSection";
 
 type AddBenefitsBuilderClientProps = {
@@ -86,6 +90,7 @@ export default function AddBenefitsBuilderClient({
       setConfig({});
       setAttributes([
         "employment_status",
+        "role",
         "okr_submitted",
         "late_arrival_count",
         "responsibility_level",
@@ -119,9 +124,11 @@ export default function AddBenefitsBuilderClient({
       name: target.name,
       description: target.description ?? "",
       category: target.category,
+      benefitType: "core",
       subsidyPercent: target.subsidyPercent,
       financeCheck: cfg?.financeCheck ?? false,
       requiresContract: target.requiresContract,
+      managerApproval: false,
       contractNumber: cfg?.contractNumber ?? "",
       contractName: cfg?.contractName ?? "",
       contractFileName: cfg?.contractFileName ?? "",
@@ -220,6 +227,37 @@ export default function AddBenefitsBuilderClient({
       });
     },
     [ruleTargetId],
+  );
+
+  const handleRuleTypeChange = useCallback(
+    (ruleIndex: number, newType: string) => {
+      if (!ruleTargetId) return;
+      const defaultValue = getDefaultValueForRuleType(newType);
+      const defaultOperator = getDefaultOperatorForRuleType(newType);
+      const isStringField = newType === "employment_status" || newType === "role";
+      setConfig((prev) => {
+        const benefit = prev[ruleTargetId] ?? {
+          name: isEditMode ? (selectedBenefit?.name ?? "") : form.name,
+          description: isEditMode
+            ? (selectedBenefit?.description ?? "")
+            : form.description,
+          category: isEditMode
+            ? (selectedBenefit?.category ?? "")
+            : form.category,
+          rules: [],
+        };
+        const rules = [...(benefit.rules ?? [])];
+        const existing = rules[ruleIndex] ?? {};
+        rules[ruleIndex] = {
+          ...existing,
+          type: newType,
+          value: defaultValue,
+          operator: isStringField ? defaultOperator : (existing.operator ?? "eq"),
+        };
+        return { ...prev, [ruleTargetId]: { ...benefit, rules } };
+      });
+    },
+    [ruleTargetId, isEditMode, selectedBenefit, form],
   );
 
   const handleSaveRules = useCallback(async () => {
@@ -396,52 +434,39 @@ export default function AddBenefitsBuilderClient({
         )}
       </div>
 
-      <div className="pb-4 sm:pb-5">
-        <div className="grid items-stretch grid-cols-1 gap-3 xl:grid-cols-[minmax(360px,1.12fr)_minmax(280px,0.88fr)]">
-          <AddBenefitForm
-            form={form}
-            onChange={setForm}
-            onSubmit={() => {}}
-            creating={creating}
-            error={null}
-            message={null}
-            isEditMode={isEditMode}
-            hideSubmitButton
-            className="mt-0 h-full !p-3.5"
-          />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <AddBenefitForm
+          form={form}
+          onChange={setForm}
+          onSubmit={() => {}}
+          creating={creating}
+          error={null}
+          message={null}
+          isEditMode={isEditMode}
+          hideSubmitButton
+        />
 
-          <div className="h-full">
-            {!isEditMode && !compactCreateMode && (
-              <BenefitCatalogTable
-                benefits={catalogBenefits}
-                loading={loadingCatalog}
-                onRefresh={loadCatalog}
-              />
-            )}
-
-            <RuleConfigSection
-              catalogBenefits={catalogBenefits}
-              selectedBenefitId={ruleTargetId}
-              onSelectBenefitId={setSelectedBenefitId}
-              rulesForSelected={rulesForSelected}
-              attributes={attributes}
-              onUpdateRule={updateRuleForSelected}
-              onAddRule={addRuleForSelected}
-              onRemoveRule={removeRuleForSelected}
-              onSave={handleSaveRules}
-              loadingCatalog={loadingCatalog}
-              loadingConfig={loadingConfig}
-              saving={saving}
-              error={error2}
-              message={message2}
-              hideBenefitSelector
-              showCancelButton={isEditMode}
-              onCancel={() => router.push("/admin/add-benefit")}
-              saveButtonLabel={isEditMode ? "Save" : "Benefit хадгалах"}
-              className="mt-0 h-full !p-3.5"
-            />
-          </div>
-        </div>
+        <RuleConfigSection
+          catalogBenefits={catalogBenefits}
+          selectedBenefitId={ruleTargetId}
+          onSelectBenefitId={setSelectedBenefitId}
+          rulesForSelected={rulesForSelected}
+          attributes={attributes}
+          onUpdateRule={updateRuleForSelected}
+          onAddRule={addRuleForSelected}
+          onRemoveRule={removeRuleForSelected}
+          onSave={handleSaveRules}
+          loadingCatalog={loadingCatalog}
+          loadingConfig={loadingConfig}
+          saving={saving}
+          error={error2}
+          message={message2}
+          hideBenefitSelector
+          showCancelButton={isEditMode}
+          onCancel={() => router.push("/admin/add-benefit")}
+          saveButtonLabel={isEditMode ? "Save" : "Benefit хадгалах"}
+          noTopMargin
+        />
       </div>
     </div>
   );
