@@ -13,6 +13,8 @@ export type SwitchUserOption = {
 };
 
 export const ACTIVE_USER_STORAGE_KEY = "ebms_selected_user_profile";
+/** Fired when active user profile changes (e.g. user switch). Listen to refetch user-specific data. */
+export const USER_SWITCHED_EVENT = "ebms:user-switched";
 const LEGACY_USER_ID_STORAGE_KEY = "ebms_selected_user";
 const DEFAULT_API_BASE_URL = "http://localhost:8787";
 
@@ -77,6 +79,7 @@ export function setActiveUserProfile(profile: ActiveUserProfile): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(ACTIVE_USER_STORAGE_KEY, JSON.stringify(profile));
   window.localStorage.setItem(LEGACY_USER_ID_STORAGE_KEY, profile.id);
+  window.dispatchEvent(new CustomEvent(USER_SWITCHED_EVENT, { detail: profile }));
 }
 
 export function getActiveUserHeaders(

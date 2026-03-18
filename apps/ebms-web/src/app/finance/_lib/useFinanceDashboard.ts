@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import {
   fetchBenefitRequests,
   fetchBenefits,
@@ -46,6 +47,8 @@ export function useFinanceDashboard() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useOnUserSwitch(loadData);
 
   const pendingRequests = useMemo(
     () =>

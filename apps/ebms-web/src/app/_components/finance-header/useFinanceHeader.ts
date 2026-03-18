@@ -7,6 +7,7 @@ import {
   type ActiveUserProfile,
   type SwitchUserOption,
 } from "@/app/_lib/activeUser";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import { Taglines, TAGLINE_INDEX_KEY, TAGLINE_LAST_CHANGE_KEY, TAGLINE_CHANGE_MS } from "./constants";
 import { fetchFinanceNotifications, markAllFinanceNotificationsRead } from "@/app/finance/_lib/api";
 import { formatRelativeTime } from "@/app/finance/_lib/utils";
@@ -32,6 +33,9 @@ export function useFinanceHeader(pathname: string) {
   const [notifications, setNotifications] = useState<
     Array<{ id: string; title: string; body: string; time: string; unread: boolean }>
   >([]);
+  const [notificationsRefreshKey, setNotificationsRefreshKey] = useState(0);
+
+  useOnUserSwitch(() => setNotificationsRefreshKey((k) => k + 1));
 
   const normalizedPath =
     pathname?.endsWith("/") && pathname.length > 1
@@ -62,7 +66,7 @@ export function useFinanceHeader(pathname: string) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [notificationsRefreshKey]);
 
   useEffect(() => {
     setSelectedUser(getActiveUserProfile());

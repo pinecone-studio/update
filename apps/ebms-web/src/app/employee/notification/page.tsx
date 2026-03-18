@@ -9,6 +9,7 @@ import {
 } from "./_components/NotificationFilters";
 import { NotificationSearchBar } from "./_components/NotificationSearchBar";
 import { NotificationList } from "./_components/NotificationList";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import {
   fetchMyNotifications,
   markNotificationRead,
@@ -97,6 +98,8 @@ export default function NotificationPage() {
   useEffect(() => {
     loadNotifications();
   }, [loadNotifications]);
+
+  useOnUserSwitch(loadNotifications);
 
   if (loading) {
     return <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white" />;

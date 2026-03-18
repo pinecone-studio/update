@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import { DashboardStatCard } from "./components/DashboardStatCard";
 import { BenefitRequestsSection } from "./components/BenefitRequestsSection";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import {
   getAdminClient,
   confirmBenefitRequest,
@@ -29,6 +30,9 @@ export default function HrDashboardPage() {
   const [employeesForSearch, setEmployeesForSearch] = useState<
     Array<{ id: string; name: string; department: string }>
   >([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useOnUserSwitch(() => setRefreshKey((k) => k + 1));
 
   useEffect(() => {
     let cancelled = false;
@@ -53,7 +57,7 @@ export default function HrDashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, [statusFilter]);
+  }, [statusFilter, refreshKey]);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,7 +83,7 @@ export default function HrDashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshKey]);
 
   const employeeIdToDepartment = useMemo(() => {
     const map: Record<string, string> = {};

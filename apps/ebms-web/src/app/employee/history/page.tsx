@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import { ProfileSkeleton } from "@/app/_components/ProfileSkeleton";
 import { fetchMe, getApiErrorMessage } from "../_lib/api";
 import {
@@ -17,6 +18,9 @@ export default function MyProfilePage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useOnUserSwitch(() => setRefreshKey((k) => k + 1));
 
   useEffect(() => {
     let cancelled = false;
@@ -41,7 +45,7 @@ export default function MyProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshKey]);
 
   const initials =
     me?.name
