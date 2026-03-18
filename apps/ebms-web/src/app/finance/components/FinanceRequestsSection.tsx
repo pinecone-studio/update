@@ -144,7 +144,13 @@ export function FinanceRequestsSection({
                     </td>
                     <td className="px-4 py-4 text-5 text-slate-500 dark:text-[#8FA3C5] sm:px-6 sm:py-5">
                       {request.createdAt
-                        ? new Date(request.createdAt).toLocaleDateString()
+                        ? new Date(request.createdAt).toLocaleString("mn-MN", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                         : "—"}
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 sm:px-6 sm:py-5">

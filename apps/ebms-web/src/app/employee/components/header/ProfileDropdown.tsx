@@ -10,6 +10,7 @@ import {
   HiOutlineUserCircle,
 } from "react-icons/hi2";
 import { ProfileIcon } from "@/app/icons/profile";
+import { HistoryIcon } from "@/app/icons/history";
 
 interface ProfileDropdownProps {
   open: boolean;
@@ -88,7 +89,7 @@ export function ProfileDropdown({
               onClick={onClose}
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
             >
-              <HiOutlineUserCircle className="text-lg" />
+              <HistoryIcon  />
               History
             </Link>
 
