@@ -25,6 +25,9 @@ export type MyBenefitEligibility = {
     subsidyPercent: number;
     requiresContract: boolean;
     vendorName?: string | null;
+    requestDeadline?: string | null;
+    usageLimitCount?: number;
+    usageLimitPeriod?: string | null;
     activeContract?: {
       id: string;
       expiryDate?: string | null;

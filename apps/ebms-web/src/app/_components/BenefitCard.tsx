@@ -116,6 +116,12 @@ export interface BenefitCardProps {
   requiresContract?: boolean;
   /** When ACTIVE and contract uploaded: request ID to view signed contract */
   uploadedContractRequestId?: string;
+  /** Хүсэлт илгээх хугацаа (ISO) — энэ өдрөөс хойш LOCKED */
+  requestDeadline?: string | null;
+  /** Хугацаанд хэдэн удаа ашиглах */
+  usageLimitCount?: number;
+  /** Хугацаа: month | year */
+  usageLimitPeriod?: string | null;
   status: BenefitStatus;
   /** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
   lockReason?: string;
@@ -142,6 +148,27 @@ export interface BenefitCardProps {
   compact?: boolean;
   variant?: "default" | "admin";
   hideStatusBadge?: boolean;
+}
+
+function formatRequestDeadline(iso?: string | null): string | undefined {
+  if (!iso?.trim()) return undefined;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return d.toLocaleDateString("mn-MN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatUsageLimit(
+  count?: number,
+  period?: string | null,
+): string | undefined {
+  if (count == null || count < 1) return undefined;
+  if (!period?.trim()) return undefined;
+  const p = period.toLowerCase() === "year" ? "жил" : "сар";
+  return `${count} удаа/${p}`;
 }
 
 function StatusBadge({ status }: { status: BenefitStatus }) {
@@ -184,6 +211,9 @@ export const BenefitCard = ({
   compact,
   variant = "default",
   hideStatusBadge = false,
+  requestDeadline,
+  usageLimitCount,
+  usageLimitPeriod,
 }: BenefitCardProps) => {
   const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[status];
   const theme = STATUS_CARD_STYLES[status];
@@ -200,6 +230,9 @@ export const BenefitCard = ({
       : status === "PENDING" && pendingApprovalBy === "admin"
         ? "Admin approval pending"
         : null;
+  const deadlineDisplay = formatRequestDeadline(requestDeadline);
+  const usageDisplay = formatUsageLimit(usageLimitCount, usageLimitPeriod);
+  const extraInfo = [deadlineDisplay, usageDisplay].filter(Boolean).join(" · ");
   const supportText =
     status === "LOCKED"
       ? normalizedLockReason || STATUS_MESSAGE[status]
@@ -395,6 +428,12 @@ export const BenefitCard = ({
                   <span className={labelClass}>Vendor</span>
                   <span className={valueClass}>{vendorDisplayName}</span>
                 </div>
+                {extraInfo ? (
+                  <div className="flex items-center justify-between border-b border-white/10 py-2.5">
+                    <span className={labelClass}>Хугацаа</span>
+                    <span className={valueClass}>{extraInfo}</span>
+                  </div>
+                ) : null}
                 <p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
                 {isAdminVariant && overrideApplied ? (
                   <p className="pt-2 text-xs text-amber-200/90">
@@ -423,6 +462,12 @@ export const BenefitCard = ({
                   <span className={labelClass}>Vendor</span>
                   <span className={valueClass}>{vendorDisplayName}</span>
                 </div>
+                {extraInfo ? (
+                  <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2">
+                    <span className={labelClass}>Хугацаа</span>
+                    <span className={valueClass}>{extraInfo}</span>
+                  </div>
+                ) : null}
                 <p className={`pt-4 ${bodyClass}`}>{supportText}</p>
                 {isAdminVariant && overrideApplied ? (
                   <p className="pt-2 text-xs text-amber-200/90">

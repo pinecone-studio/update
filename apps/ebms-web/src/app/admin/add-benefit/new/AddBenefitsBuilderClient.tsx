@@ -122,6 +122,13 @@ export default function AddBenefitsBuilderClient({
     const target = catalogBenefits.find((b) => b.id === benefitIdFromQuery);
     if (!target) return;
     const cfg = config[benefitIdFromQuery];
+    const deadline = target.requestDeadline?.trim();
+    const usagePeriod =
+      target.usageLimitPeriod?.toLowerCase() === "year"
+        ? "year"
+        : target.usageLimitPeriod?.toLowerCase() === "month"
+          ? "month"
+          : "";
     setForm({
       name: target.name,
       description: target.description ?? "",
@@ -140,6 +147,9 @@ export default function AddBenefitsBuilderClient({
       usagePeriod: Math.max(1, cfg?.usagePeriod ?? 1),
       usagePeriodUnit: cfg?.usagePeriodUnit ?? "day",
       usageLimit: Math.max(1, cfg?.usageLimit ?? 1),
+      requestDeadline: deadline || undefined,
+      usageLimitCount: target.usageLimitCount ?? 1,
+      usageLimitPeriod: usagePeriod as "month" | "year" | "",
     });
   }, [benefitIdFromQuery, catalogBenefits, config]);
 
@@ -313,6 +323,14 @@ export default function AddBenefitsBuilderClient({
       }
 
       if (isEditMode && benefitIdFromQuery) {
+        const reqDeadline = form.requestDeadline?.trim() || null;
+        const usageCount = form.usageLimitCount ?? 1;
+        const usagePeriodVal =
+          form.usageLimitPeriod === "month"
+            ? "month"
+            : form.usageLimitPeriod === "year"
+              ? "year"
+              : null;
         await updateBenefitInCatalog(getClient(), {
           id: benefitIdFromQuery,
           name,
@@ -320,6 +338,9 @@ export default function AddBenefitsBuilderClient({
           category,
           subsidyPercent: subsidy,
           requiresContract: form.requiresContract ?? false,
+          requestDeadline: reqDeadline,
+          usageLimitCount: usageCount,
+          usageLimitPeriod: usagePeriodVal,
         });
 
         payloadConfig = {
@@ -351,6 +372,14 @@ export default function AddBenefitsBuilderClient({
         };
       } else {
         setCreating(true);
+        const reqDeadline = form.requestDeadline?.trim() || null;
+        const usageCount = form.usageLimitCount ?? 1;
+        const usagePeriodVal =
+          form.usageLimitPeriod === "month"
+            ? "month"
+            : form.usageLimitPeriod === "year"
+              ? "year"
+              : null;
         const res = await getClient().request<{
           createBenefit: BenefitFromCatalog;
         }>(CREATE_BENEFIT, {
@@ -361,6 +390,9 @@ export default function AddBenefitsBuilderClient({
             subsidyPercent: subsidy,
             requiresContract: form.requiresContract ?? false,
             rules: [],
+            requestDeadline: reqDeadline,
+            usageLimitCount: usageCount,
+            usageLimitPeriod: usagePeriodVal,
           },
         });
 

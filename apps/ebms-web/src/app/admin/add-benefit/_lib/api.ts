@@ -18,6 +18,9 @@ export const GET_BENEFITS = gql`
       category
       subsidyPercent
       requiresContract
+      requestDeadline
+      usageLimitCount
+      usageLimitPeriod
     }
   }
 `;
@@ -66,6 +69,9 @@ export const UPDATE_BENEFIT = gql`
       category
       subsidyPercent
       requiresContract
+      requestDeadline
+      usageLimitCount
+      usageLimitPeriod
     }
   }
 `;
@@ -135,6 +141,9 @@ export async function updateBenefitInCatalog(
     category: string;
     subsidyPercent: number;
     requiresContract: boolean;
+    requestDeadline?: string | null;
+    usageLimitCount?: number | null;
+    usageLimitPeriod?: string | null;
   },
 ): Promise<BenefitFromCatalog> {
   const res = await client.request<{ updateBenefit: BenefitFromCatalog }>(
