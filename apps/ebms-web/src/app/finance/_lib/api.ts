@@ -220,3 +220,64 @@ export async function fetchBenefitRequestContractHtml(
   }>(BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY, { requestId });
   return res.benefitRequestContractTemplate.html;
 }
+
+// --- Finance notifications ---
+
+export type FinanceNotificationItem = {
+  id: string;
+  title: string;
+  body: string;
+  type: string;
+  tone: string;
+  unread: boolean;
+  createdAt: string;
+  metadata: Record<string, unknown> | null;
+};
+
+export async function fetchFinanceNotifications(
+  limit = 50,
+  unreadOnly = false,
+): Promise<FinanceNotificationItem[]> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (unreadOnly) params.set("unreadOnly", "true");
+  const res = await fetch(`${getBaseUrl()}/finance/notifications?${params}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...getActiveUserHeaders("finance"),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Failed to fetch notifications");
+  }
+  const json = await res.json();
+  return json.items ?? [];
+}
+
+export async function markFinanceNotificationRead(id: string): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/finance/notifications/${id}/read`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...getActiveUserHeaders("finance"),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Failed to mark as read");
+  }
+}
+
+export async function markAllFinanceNotificationsRead(): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/finance/notifications/read-all`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...getActiveUserHeaders("finance"),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Failed to mark all as read");
+  }
+}

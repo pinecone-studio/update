@@ -60,4 +60,11 @@ export const DEFAULT_NOTIFICATIONS = [
   },
 ];
 
-export type AdminNotification = (typeof DEFAULT_NOTIFICATIONS)[number];
+export type AdminNotification = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  tone: "info" | "success" | "warning" | "neutral";
+  unread: boolean;
+};

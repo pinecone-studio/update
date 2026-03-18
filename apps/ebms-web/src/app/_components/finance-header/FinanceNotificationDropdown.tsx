@@ -2,28 +2,52 @@
 
 import Link from "next/link";
 import { HiOutlineXMark } from "react-icons/hi2";
-import { FINANCE_NOTIFICATIONS } from "./constants";
+
+type FinanceNotificationItem = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  unread: boolean;
+};
 
 type FinanceNotificationDropdownProps = {
   open: boolean;
+  notifications: FinanceNotificationItem[];
   unreadCount: number;
   onClose: () => void;
+  onMarkAllRead?: () => void;
 };
 
 export function FinanceNotificationDropdown({
   open,
+  notifications,
   unreadCount,
   onClose,
+  onMarkAllRead,
 }: FinanceNotificationDropdownProps) {
-  const notifications = FINANCE_NOTIFICATIONS;
   if (!open) return null;
 
   return (
     <div className="absolute right-0 top-full z-50 mt-3 w-[360px] overflow-hidden rounded-2xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <div>
-          <p className="text-sm font-semibold text-white">Notifications</p>
-          <p className="text-xs text-white/60">{unreadCount} unread</p>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <div>
+            <p className="text-sm font-semibold text-white">Notifications</p>
+            <p className="text-xs text-white/60">{unreadCount} unread</p>
+          </div>
+          {unreadCount > 0 && onMarkAllRead && (
+            <button
+              type="button"
+              onClick={() => {
+                onMarkAllRead();
+                onClose();
+              }}
+              className="shrink-0 text-xs font-medium text-blue-400 hover:text-blue-300"
+            >
+              Mark all read
+            </button>
+          )}
         </div>
         <button
           onClick={onClose}
@@ -33,11 +57,14 @@ export function FinanceNotificationDropdown({
         </button>
       </div>
       <div className="max-h-[280px] space-y-2 overflow-y-auto px-3 py-3">
-        {notifications.slice(0, 5).map((item) => (
-          <Link
-            key={item.id}
-            href="/finance/finance-notification"
-            onClick={onClose}
+        {notifications.length === 0 ? (
+          <p className="px-3 py-4 text-xs text-white/50">No notifications.</p>
+        ) : (
+          notifications.slice(0, 5).map((item) => (
+            <Link
+              key={item.id}
+              href="/finance/finance-notification"
+              onClick={onClose}
             className="flex w-full gap-3 rounded-xl border border-transparent bg-white/5 p-3 text-left transition hover:border-white/10 hover:bg-white/10"
           >
             <span
@@ -53,7 +80,8 @@ export function FinanceNotificationDropdown({
               <p className="mt-2 text-[11px] text-white/40">{item.time}</p>
             </div>
           </Link>
-        ))}
+          ))
+        )}
       </div>
       <div className="border-t border-white/10 px-3 py-3">
         <Link

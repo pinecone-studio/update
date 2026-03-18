@@ -7,7 +7,9 @@ import {
   type ActiveUserProfile,
   type SwitchUserOption,
 } from "@/app/_lib/activeUser";
-import { Taglines, TAGLINE_INDEX_KEY, TAGLINE_LAST_CHANGE_KEY, TAGLINE_CHANGE_MS, FINANCE_NOTIFICATIONS } from "./constants";
+import { Taglines, TAGLINE_INDEX_KEY, TAGLINE_LAST_CHANGE_KEY, TAGLINE_CHANGE_MS } from "./constants";
+import { fetchFinanceNotifications, markAllFinanceNotificationsRead } from "@/app/finance/_lib/api";
+import { formatRelativeTime } from "@/app/finance/_lib/utils";
 
 export function useFinanceHeader(pathname: string) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,6 +29,9 @@ export function useFinanceHeader(pathname: string) {
   ]);
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const [notifications, setNotifications] = useState<
+    Array<{ id: string; title: string; body: string; time: string; unread: boolean }>
+  >([]);
 
   const normalizedPath =
     pathname?.endsWith("/") && pathname.length > 1
@@ -36,7 +41,28 @@ export function useFinanceHeader(pathname: string) {
   const unreadCount =
     normalizedPath.startsWith("/finance/finance-notification")
       ? 0
-      : FINANCE_NOTIFICATIONS.filter((n) => n.unread).length;
+      : notifications.filter((n) => n.unread).length;
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchFinanceNotifications(20)
+      .then((items) => {
+        if (cancelled) return;
+        setNotifications(
+          items.map((n) => ({
+            id: n.id,
+            title: n.title,
+            body: n.body,
+            time: formatRelativeTime(n.createdAt),
+            unread: n.unread,
+          })),
+        );
+      })
+      .catch(() => setNotifications([]));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     setSelectedUser(getActiveUserProfile());
@@ -109,6 +135,15 @@ export function useFinanceHeader(pathname: string) {
     .slice(0, 2)
     .toUpperCase();
 
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllFinanceNotificationsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    } catch {
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    }
+  };
+
   return {
     menuOpen,
     setMenuOpen,
@@ -121,6 +156,8 @@ export function useFinanceHeader(pathname: string) {
     selectedUser,
     userOptions,
     unreadCount,
+    notifications,
+    handleMarkAllRead,
     normalizedPath,
     initials,
     notificationRef,
