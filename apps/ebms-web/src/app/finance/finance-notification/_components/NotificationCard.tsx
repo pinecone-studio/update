@@ -9,17 +9,12 @@ import {
   HiOutlineXCircle,
 } from "react-icons/hi2";
 
-type NotificationType =
-  | "payment_pending"
-  | "reimbursement"
-  | "payment_completed";
-
 type NotificationItem = {
   id: string;
   title: string;
   body: string;
   time: string;
-  type: NotificationType;
+  type: string;
   group: "Today" | "Yesterday" | "Earlier";
   unread: boolean;
   employee: string;

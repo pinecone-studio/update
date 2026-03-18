@@ -12,13 +12,20 @@ import {
   HiOutlineUserCircle,
 } from "react-icons/hi2";
 import { useEffect, useMemo, useState } from "react";
+import {
+  fetchAdminNotifications,
+  markAdminNotificationRead,
+  markAllAdminNotificationsRead,
+} from "../_lib/api";
+import { formatRelativeTime } from "../_lib/utils";
 
 type NotificationType =
   | "request"
   | "document"
   | "eligibility"
   | "warning"
-  | "system";
+  | "system"
+  | string;
 
 type AdminNotification = {
   id: string;
@@ -34,7 +41,26 @@ type AdminNotification = {
   isPending?: boolean;
 };
 
-const STORAGE_KEY = "ebms_admin_notifications";
+function getGroupFromCreatedAt(iso: string): "Today" | "Yesterday" | "Earlier" {
+  const d = new Date(iso);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const notifDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.floor(
+    (today.getTime() - notifDate.getTime()) / 86400000,
+  );
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  return "Earlier";
+}
+
+function getActionsForType(type: string): string[] {
+  if (type === "request") return ["Review Request"];
+  if (type === "document") return ["Review Document"];
+  if (type === "eligibility") return ["View Employee"];
+  if (type === "warning") return ["View Details"];
+  return ["View Details"];
+}
 
 const DEFAULT_NOTIFICATIONS: AdminNotification[] = [
   {
@@ -148,6 +174,7 @@ export default function AdminNotificationPage() {
     | "unread"
   >("all");
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<AdminNotification[]>(
     DEFAULT_NOTIFICATIONS,
   );
@@ -186,33 +213,61 @@ export default function AdminNotificationPage() {
     });
   }, [notifications, activeTab, search]);
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-  };
-
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
-    );
-  };
-
-  useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw) as AdminNotification[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setNotifications(parsed);
-        }
-      } catch {
-        // Ignore malformed storage.
-      }
+  const markAllAsRead = async () => {
+    try {
+      await markAllAdminNotificationsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    } catch {
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
     }
-  }, []);
+  };
+
+  const markAsRead = async (id: string) => {
+    try {
+      await markAdminNotificationRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
+      );
+    } catch {
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
+      );
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-  }, [notifications]);
+    let cancelled = false;
+    fetchAdminNotifications(100)
+      .then((items) => {
+        if (cancelled) return;
+        const mapped: AdminNotification[] = items.map((n) => {
+          const meta = (n.metadata ?? {}) as Record<string, unknown>;
+          return {
+            id: n.id,
+            title: n.title,
+            body: n.body,
+            time: formatRelativeTime(n.createdAt),
+            type: n.type ?? "system",
+            group: getGroupFromCreatedAt(n.createdAt),
+            unread: n.unread,
+            employeeName: (meta.employeeName as string) ?? "—",
+            benefit: (meta.benefitName as string) ?? (meta.benefitId as string) ?? "—",
+            actions: getActionsForType(n.type ?? ""),
+            isPending: n.type === "request",
+          };
+        });
+        setNotifications(mapped.length > 0 ? mapped : DEFAULT_NOTIFICATIONS);
+      })
+      .catch(() => {
+        if (!cancelled) setNotifications(DEFAULT_NOTIFICATIONS);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const groups = ["Today", "Yesterday", "Earlier"] as const;
 
