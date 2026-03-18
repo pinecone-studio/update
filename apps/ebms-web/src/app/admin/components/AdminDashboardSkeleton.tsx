@@ -30,7 +30,7 @@ export function AdminDashboardSkeleton() {
         </div>
 
         {/* BenefitRequestsSection skeleton */}
-        <article className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[rgba(38, 38, 38, 1)] bg-[rgba(13, 94, 85, 0.1)] dark:border-[#262626] sm:p-6">
+        <article className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[rgba(38, 38, 38, 1)] bg-[rgba(13, 94, 85, 0.1)] dark:border-[#262626] sm:p-6 lg:h-[620px]">
           <div className="mb-4 flex shrink-0 flex-col gap-3 px-6 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <Skeleton className="h-7 w-56 rounded-md" />
             <div className="w-auto overflow-hidden rounded-2xl border border-white/30">

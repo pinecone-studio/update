@@ -20,10 +20,10 @@ export default function VendorContractsPage() {
             role="tab"
             aria-selected={activeTab === "employee"}
             onClick={() => setActiveTab("employee")}
-            className={`rounded-xl px-3 py-2 font-medium transition ${
+            className={`rounded-xl font-medium transition ${
               activeTab === "employee"
-                ? "text-[35px] text-white border-b border-white rounded-b-none"
-                : "text-[35px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
+                ? "text-[24px] text-white border-b border-[#2A9BFF] rounded-b-none"
+                : "text-[24px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
             }`}
           >
             Employee contract
@@ -35,8 +35,8 @@ export default function VendorContractsPage() {
             onClick={() => setActiveTab("vendor")}
             className={`rounded-xl px-3 py-2 font-medium transition ${
               activeTab === "vendor"
-                ? "text-[35px] text-white border-b border-white rounded-b-none"
-                : "text-[35px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
+                ? "text-[24px] text-white border-b border-[#2A9BFF] rounded-b-none"
+                : "text-[24px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
             }`}
           >
             Vendor contract

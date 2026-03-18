@@ -25,18 +25,20 @@ export function BenefitRequestRow({
 
   return (
     <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-3">
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <span className="text-[15px] text-slate-400 dark:text-[#94A3B8]">
-          {formatRelativeTime(request.createdAt)}
-        </span>
+      <div className="flex min-w-0 flex-1">
         <div className="flex items-start gap-3">
           <div className="flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(160deg,#6f65ff,#8b2fff)] text-[22px] font-semibold text-white">
             {getInitials(employeeName)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[20px] font-semibold leading-tight text-white">
-              {employeeName}
-            </p>
+            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+              <p className="text-[20px] font-semibold leading-tight text-white">
+                {employeeName}
+              </p>
+              <span className="text-[15px] text-slate-400 dark:text-[#94A3B8]">
+                {formatRelativeTime(request.createdAt)}
+              </span>
+            </div>
             <p className="mt-1 truncate text-[15px] leading-tight text-white/85 dark:text-[#E2E8F0]">
               {benefitText}
             </p>
@@ -49,7 +51,7 @@ export function BenefitRequestRow({
             <button
               type="button"
               disabled
-              className="h-[48px] min-w-[118px] rounded-xl border border-[#d6bf94]/80 bg-[linear-gradient(180deg,#98601a,#8a5212)] px-4 py-2 text-[14px] font-medium text-[#ffffff] transition disabled:cursor-not-allowed disabled:opacity-90"
+              className="h-[48px] min-w-[118px] rounded-xl border border-[#f0d58a]/85 bg-[linear-gradient(180deg,#c8892b,#a86714)] px-4 py-2 text-[14px] font-medium text-[#ffffff] transition disabled:cursor-not-allowed disabled:opacity-90"
             >
               Pending
             </button>
@@ -57,7 +59,7 @@ export function BenefitRequestRow({
               type="button"
               onClick={() => onApprove(request.id)}
               disabled={isLoading}
-              className="h-[48px] min-w-[118px] rounded-xl border border-[#2ba17e]/80 bg-[linear-gradient(180deg,#13866c,#0f6b59)] px-4 py-2 text-[14px] font-medium text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-[48px] min-w-[118px] rounded-xl border border-[#2ba17e]/80 bg-[#0f5540] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[#14684d] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "..." : "Approve"}
             </button>

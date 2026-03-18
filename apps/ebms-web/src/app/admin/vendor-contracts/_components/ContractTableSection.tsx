@@ -70,7 +70,7 @@ export function ContractTableSection({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search by contract name"
-              className="h-11 w-[368px] rounded-lg border bg-[#FFFFFF]/10 pl-12 pr-4 text-5 text-slate-200 placeholder:text-slate-200 outline-none dark:text-white dark:placeholder:text-[#FFFFFF80]/50"
+              className="h-11 w-[368px] rounded-lg border border-transparent bg-[#FFFFFF]/10 pl-12 pr-4 text-5 text-slate-200 placeholder:text-slate-200 outline-none focus:border-white/70 dark:text-white dark:placeholder:text-[#FFFFFF80]/50 dark:focus:border-white/50"
             />
           </div>
         </div>
