@@ -13,6 +13,13 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: "border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-600 dark:bg-slate-800/50 dark:text-slate-400",
 };
 
+function getStatusStyle(status: string) {
+  return (
+    STATUS_COLORS[status] ??
+    "border-slate-400 bg-slate-100 text-slate-700 dark:border-slate-500 dark:bg-slate-700/50 dark:text-slate-300"
+  );
+}
+
 function formatDateTime(raw: string) {
   const date = new Date(raw);
   if (Number.isNaN(date.getTime())) return raw;
@@ -48,22 +55,25 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
           <thead className="border-b border-slate-200 text-slate-500 dark:border-[#2B405F] dark:text-[#A7B6D3]">
             <tr>
               <th className="px-4 py-4 font-medium sm:px-6">№</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Date & Time</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Employee</th>
+              <th className="px-4 py-4 font-medium sm:px-6">Time</th>
+              <th className="px-4 py-4 font-medium sm:px-6">User</th>
               <th className="px-4 py-4 font-medium sm:px-6">Action</th>
               <th className="px-4 py-4 font-medium sm:px-6">Benefit</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Old → New Status</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Performed By</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Details</th>
+              <th className="px-4 py-4 font-medium sm:px-6">Result</th>
               <th className="px-4 py-4 font-medium sm:px-6">Contract</th>
               <th className="px-4 py-4 font-medium sm:px-6">Log ID</th>
             </tr>
           </thead>
           <tbody>
             {entries.map((entry, idx) => {
-              const statusChange = entry.oldStatus
-                ? `${entry.oldStatus} → ${entry.status}`
-                : entry.status;
+              let oldStatus = (entry.oldStatus ?? "").toUpperCase().trim();
+              if (!oldStatus) {
+                if (entry.status === "ACTIVE") oldStatus = "ELIGIBLE";
+                else if (entry.status === "ELIGIBLE") oldStatus = "PENDING";
+                else if (entry.status === "REJECTED") oldStatus = "PENDING";
+                else oldStatus = "LOCKED";
+              }
+              const newStatus = entry.status;
               return (
                 <tr
                   key={entry.id}
@@ -90,17 +100,21 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
                     {entry.benefit}
                   </td>
                   <td className="px-4 py-5 sm:px-6">
-                    <span
-                      className={`inline-flex rounded-xl border px-3 py-1 text-sm font-medium ${STATUS_COLORS[entry.status] ?? STATUS_COLORS.LOCKED}`}
-                    >
-                      {statusChange}
-                    </span>
-                  </td>
-                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">
-                    {entry.performedBy}
-                  </td>
-                  <td className="max-w-[200px] px-4 py-5 text-sm text-slate-600 dark:text-[#A7B6D3] sm:px-6">
-                    {entry.details || "—"}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex rounded-xl border px-3 py-1 text-xs font-medium ${getStatusStyle(oldStatus)}`}
+                      >
+                        {oldStatus}
+                      </span>
+                      <span className="text-slate-400 dark:text-[#6B7B9E]">
+                        →
+                      </span>
+                      <span
+                        className={`inline-flex rounded-xl border px-3 py-1 text-xs font-medium ${getStatusStyle(newStatus)}`}
+                      >
+                        {newStatus}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-4 py-5 sm:px-6">
                     {entry.uploadedContractRequestId ? (

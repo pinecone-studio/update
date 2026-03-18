@@ -32,9 +32,6 @@ export function AuditLogSkeleton() {
         </div>
       </section>
 
-      {/* "Showing X of Y entries" */}
-      <Skeleton className="h-4 w-48 rounded" />
-
       {/* Table - matches AuditLogTable */}
       <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#112349]">
         <div className="overflow-x-auto">
