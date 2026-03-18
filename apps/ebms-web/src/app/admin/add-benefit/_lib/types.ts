@@ -14,6 +14,12 @@ export type BenefitFromCatalog = {
   category: string;
   subsidyPercent: number;
   requiresContract: boolean;
+  /** ISO date — хүсэлт илгээх хугацаа дууссны дараа LOCKED */
+  requestDeadline?: string | null;
+  /** Хугацаанд хэдэн удаа ашиглах */
+  usageLimitCount?: number;
+  /** Хугацаа: month | year */
+  usageLimitPeriod?: string | null;
 };
 
 /** Benefit-ийн хүчинтэй хугацааны нэгж */
@@ -65,4 +71,10 @@ export type AddBenefitFormState = {
   usagePeriodUnit: ExpiryUnit;
   /** Тухайн хугацаанд хэдэн удаа ашиглах (жишээ: 1 удаа) */
   usageLimit: number;
+  /** Backend: ISO date — хүсэлт илгээх хугацаа (энэ өдрөөс хойш LOCKED) */
+  requestDeadline?: string;
+  /** Backend: хугацаанд хэдэн удаа ашиглах */
+  usageLimitCount?: number;
+  /** Backend: хугацаа — month | year */
+  usageLimitPeriod?: "month" | "year" | "";
 };

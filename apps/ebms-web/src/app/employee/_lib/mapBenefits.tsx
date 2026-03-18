@@ -58,6 +58,10 @@ export function mapMyBenefitsToCardProps(
 
     const uploadedContractRequestId = item.uploadedContractRequestId ?? undefined;
 
+    const requestDeadline = b.requestDeadline ?? undefined;
+    const usageLimitCount = b.usageLimitCount ?? undefined;
+    const usageLimitPeriod = b.usageLimitPeriod ?? undefined;
+
     return {
       benefitId: b.id,
       category: b.category ?? "Benefit",
@@ -78,6 +82,9 @@ export function mapMyBenefitsToCardProps(
       benefitEndDate,
       benefitStartDate,
       requiresContract: b.requiresContract ?? false,
+      requestDeadline,
+      usageLimitCount,
+      usageLimitPeriod,
       status: item.status as BenefitCardProps["status"],
       lockReason,
       rejectReason,

@@ -27,6 +27,9 @@ const ME_QUERY = gql`
           subsidyPercent
           requiresContract
           vendorName
+          requestDeadline
+          usageLimitCount
+          usageLimitPeriod
           activeContract {
             id
             expiryDate
@@ -61,6 +64,9 @@ const MY_BENEFITS_QUERY = gql`
         subsidyPercent
         requiresContract
         vendorName
+        requestDeadline
+        usageLimitCount
+        usageLimitPeriod
         activeContract {
           id
           expiryDate
@@ -69,16 +75,16 @@ const MY_BENEFITS_QUERY = gql`
       }
       status
       ruleEvaluations {
-          ruleType
-          passed
-          reason
-        }
-        computedAt
-        rejectedReason
-        overrideApplied
-        overrideReason
-        pendingApprovalBy
-        uploadedContractRequestId
+        ruleType
+        passed
+        reason
+      }
+      computedAt
+      rejectedReason
+      overrideApplied
+      overrideReason
+      pendingApprovalBy
+      uploadedContractRequestId
     }
   }
 `;

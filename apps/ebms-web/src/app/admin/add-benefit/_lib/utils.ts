@@ -69,3 +69,26 @@ export function formatUsagePeriod(
   const u = periodUnit ? UNIT_LABELS[periodUnit] ?? periodUnit : "day";
   return `${limit} time${limit === 1 ? "" : "s"} per ${period} ${u}${period === 1 ? "" : "s"}`;
 }
+
+/** Backend: requestDeadline display (ISO date → localized) */
+export function formatRequestDeadline(iso?: string | null): string | undefined {
+  if (!iso?.trim()) return undefined;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return d.toLocaleDateString("mn-MN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** Backend: usageLimitCount + usageLimitPeriod display */
+export function formatUsageLimit(
+  count?: number,
+  period?: string | null,
+): string | undefined {
+  if (count == null || count < 1) return undefined;
+  if (!period?.trim()) return `${count} удаа (хязгааргүй хугацаа)`;
+  const p = period.toLowerCase() === "year" ? "жил" : "сар";
+  return `${count} удаа/${p}`;
+}

@@ -91,6 +91,9 @@ export const DEFAULT_FORM: AddBenefitFormState = {
   usagePeriod: 1,
   usagePeriodUnit: "day",
   usageLimit: 1,
+  requestDeadline: undefined,
+  usageLimitCount: 1,
+  usageLimitPeriod: "",
 };
 
 /** Benefit санал болгох жишээнүүд — Suggest товч дархад field-үүдийг автоматаар бөглөнө */

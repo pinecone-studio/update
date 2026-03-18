@@ -158,8 +158,13 @@ export const updateBenefit = async (
     subsidyPercent,
     requiresContract,
     activeContractId: row.activeContractId ?? null,
-    requestDeadline: row.requestDeadline ?? null,
-    usageLimitCount: row.usageLimitCount ?? 1,
-    usageLimitPeriod: row.usageLimitPeriod ?? null,
+    requestDeadline:
+      requestDeadline !== undefined ? requestDeadline : (row.requestDeadline ?? null),
+    usageLimitCount:
+      usageLimitCount !== undefined ? usageLimitCount : (row.usageLimitCount ?? 1),
+    usageLimitPeriod:
+      usageLimitPeriod !== undefined
+        ? usageLimitPeriod
+        : (row.usageLimitPeriod ?? null),
   };
 };

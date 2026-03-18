@@ -374,6 +374,13 @@ export async function getBenefitEligibilityForEmployee(
         : row.eligibilityStatus === "active"
           ? "ACTIVE"
           : status;
+      if (
+        usagePeriod &&
+        !hasApprovedInPeriod &&
+        finalStatus === "ACTIVE"
+      ) {
+        finalStatus = status;
+      }
       if (usagePeriod && hasApprovedInPeriod && finalStatus !== "PENDING") {
         finalStatus = "ACTIVE";
       }
@@ -483,6 +490,9 @@ export async function getBenefitEligibilityForEmployee(
       : "ELIGIBLE";
     let status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED" =
       baseStatus;
+    if (usagePeriod && !hasApprovedInPeriod && status === "ACTIVE") {
+      status = "ELIGIBLE";
+    }
     if (usagePeriod && hasApprovedInPeriod && status !== "PENDING") {
       status = "ACTIVE";
     }
