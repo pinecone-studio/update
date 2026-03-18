@@ -112,6 +112,7 @@ const statusButtonClass: Record<BenefitStatus, string> = {
   PENDING: "border-[#ffffff]/50 bg-[#8a5212] text-white",
   ELIGIBLE: "border-[#ffffff]/50 bg-[#1a4a82] text-white",
   LOCKED: "border-[#ffffff]/50 bg-[#851618] text-white",
+  REJECTED: "border-[#ffffff]/50 bg-[#851618] text-white",
 };
 
 function getStatusSegmentClass(option: BenefitStatus, selected: boolean) {
