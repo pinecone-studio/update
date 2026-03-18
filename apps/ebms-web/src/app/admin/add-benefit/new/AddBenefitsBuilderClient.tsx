@@ -128,7 +128,9 @@ export default function AddBenefitsBuilderClient({
         ? "year"
         : target.usageLimitPeriod?.toLowerCase() === "month"
           ? "month"
-          : "";
+          : target.usageLimitPeriod?.toLowerCase() === "7days"
+            ? "7days"
+            : "";
     setForm({
       name: target.name,
       description: target.description ?? "",
@@ -142,14 +144,15 @@ export default function AddBenefitsBuilderClient({
       contractName: cfg?.contractName ?? "",
       contractFileName: cfg?.contractFileName ?? "",
       contractUrl: cfg?.contractUrl ?? "",
-      expiryDuration: cfg?.expiryDuration ?? 0,
-      expiryUnit: cfg?.expiryUnit ?? "month",
+      expiryDuration: cfg?.expiryDuration ?? 1,
+      expiryUnit: (cfg?.expiryUnit as "day" | "month" | "year") ?? "year",
       usagePeriod: Math.max(1, cfg?.usagePeriod ?? 1),
       usagePeriodUnit: cfg?.usagePeriodUnit ?? "day",
       usageLimit: Math.max(1, cfg?.usageLimit ?? 1),
       requestDeadline: deadline || undefined,
       usageLimitCount: target.usageLimitCount ?? 1,
-      usageLimitPeriod: usagePeriod as "month" | "year" | "",
+      usageLimitPeriod: usagePeriod as "7days" | "month" | "year" | "",
+      activeFromDate: cfg?.activeFromDate ?? undefined,
     });
   }, [benefitIdFromQuery, catalogBenefits, config]);
 
@@ -178,11 +181,12 @@ export default function AddBenefitsBuilderClient({
         contractName: form.contractName,
         contractFileName: form.contractFileName,
         contractUrl: form.contractUrl,
-        expiryDuration: form.expiryDuration ?? 0,
-        expiryUnit: form.expiryUnit ?? "month",
+        expiryDuration: form.expiryDuration ?? 1,
+        expiryUnit: form.expiryUnit ?? "year",
         usagePeriod: Math.max(1, form.usagePeriod ?? 1),
         usagePeriodUnit: form.usagePeriodUnit ?? "day",
         usageLimit: Math.max(1, form.usageLimit ?? 1),
+        activeFromDate: form.activeFromDate ?? undefined,
         rules: config[DRAFT_BENEFIT_ID]?.rules ?? [],
       };
 
@@ -330,7 +334,9 @@ export default function AddBenefitsBuilderClient({
             ? "month"
             : form.usageLimitPeriod === "year"
               ? "year"
-              : null;
+              : form.usageLimitPeriod === "7days"
+                ? "7days"
+                : null;
         await updateBenefitInCatalog(getClient(), {
           id: benefitIdFromQuery,
           name,
@@ -363,11 +369,12 @@ export default function AddBenefitsBuilderClient({
             contractName: form.contractName ?? "",
             contractFileName: form.contractFileName ?? "",
             contractUrl: form.contractUrl ?? "",
-            expiryDuration: form.expiryDuration ?? 0,
-            expiryUnit: form.expiryUnit ?? "month",
+            expiryDuration: form.expiryDuration ?? 1,
+            expiryUnit: form.expiryUnit ?? "year",
             usagePeriod: Math.max(1, form.usagePeriod ?? 1),
             usagePeriodUnit: form.usagePeriodUnit ?? "day",
             usageLimit: Math.max(1, form.usageLimit ?? 1),
+            activeFromDate: form.activeFromDate ?? undefined,
           },
         };
       } else {
@@ -379,7 +386,9 @@ export default function AddBenefitsBuilderClient({
             ? "month"
             : form.usageLimitPeriod === "year"
               ? "year"
-              : null;
+              : form.usageLimitPeriod === "7days"
+                ? "7days"
+                : null;
         const res = await getClient().request<{
           createBenefit: BenefitFromCatalog;
         }>(CREATE_BENEFIT, {
@@ -412,11 +421,12 @@ export default function AddBenefitsBuilderClient({
             contractName: form.contractName ?? "",
             contractFileName: form.contractFileName ?? "",
             contractUrl: form.contractUrl ?? "",
-            expiryDuration: form.expiryDuration ?? 0,
-            expiryUnit: form.expiryUnit ?? "month",
+            expiryDuration: form.expiryDuration ?? 1,
+            expiryUnit: form.expiryUnit ?? "year",
             usagePeriod: Math.max(1, form.usagePeriod ?? 1),
             usagePeriodUnit: form.usagePeriodUnit ?? "day",
             usageLimit: Math.max(1, form.usageLimit ?? 1),
+            activeFromDate: form.activeFromDate ?? undefined,
             rules: config[DRAFT_BENEFIT_ID]?.rules ?? [],
           },
         };
@@ -462,7 +472,7 @@ export default function AddBenefitsBuilderClient({
   ]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-[#2C4264] dark:bg-[#1E293B] pt-4">
       <div className="mb-3 flex shrink-0 items-start gap-4">
         {inModal ? (
           <button
@@ -485,7 +495,7 @@ export default function AddBenefitsBuilderClient({
         </h1>
       </div>
 
-      <div className="grid shrink-0 grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
+      <div className="grid shrink-0 grid-cols-1 gap-4 lg:grid-cols-[1fr_1fr]">
         <BasicInformationSection form={form} onChange={setForm} />
         <BenefitConfigCard form={form} onChange={setForm} />
       </div>

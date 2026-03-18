@@ -403,7 +403,7 @@ export default function EmployeeEligibilityDetailClient() {
   if (!id) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center text-white/70">
-        Ажилтан олдсонгүй.
+        Employee not found.
       </div>
     );
   }
@@ -420,7 +420,7 @@ export default function EmployeeEligibilityDetailClient() {
   if (!employee) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center text-white/70">
-        Ажилтан олдсонгүй.
+        Employee not found.
       </div>
     );
   }
@@ -507,7 +507,7 @@ export default function EmployeeEligibilityDetailClient() {
 
               {employee.benefits.length === 0 && (
                 <div className="py-12 text-center text-[18px] text-white/58">
-                  Benefit мэдээлэл олдсонгүй.
+                  Benefit information not found.
                 </div>
               )}
             </div>

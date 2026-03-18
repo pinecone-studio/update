@@ -18,7 +18,7 @@ export type BenefitFromCatalog = {
   requestDeadline?: string | null;
   /** Хугацаанд хэдэн удаа ашиглах */
   usageLimitCount?: number;
-  /** Хугацаа: month | year */
+  /** Хугацаа: 7days | month | year */
   usageLimitPeriod?: string | null;
 };
 
@@ -45,6 +45,8 @@ export type BenefitConfig = {
   usagePeriodUnit?: ExpiryUnit;
   /** Тухайн хугацаанд хэдэн удаа ашиглах (жишээ: 1 удаа) */
   usageLimit?: number;
+  /** ISO date — энэ өдрөөс эхлэн UNLOCKED */
+  activeFromDate?: string;
   rules: Rule[];
 };
 
@@ -75,6 +77,8 @@ export type AddBenefitFormState = {
   requestDeadline?: string;
   /** Backend: хугацаанд хэдэн удаа ашиглах */
   usageLimitCount?: number;
-  /** Backend: хугацаа — month | year */
-  usageLimitPeriod?: "month" | "year" | "";
+  /** Backend: хугацаа — 7days | month | year */
+  usageLimitPeriod?: "7days" | "month" | "year" | "";
+  /** Config: энэ өдрөөс эхлэн UNLOCKED (идэвхтэй болох огноо) */
+  activeFromDate?: string;
 };

@@ -83,11 +83,11 @@ export function AdminBenefitCard({
             <span className="font-medium text-[#FFFFFF]/70 text-[14px] ">{vendorDisplay}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Хүсэлт хугацаа:</span>
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Active period:</span>
             <span className="font-medium text-[#FFFFFF]/70">{validityPeriodDisplay ?? "—"}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Ашиглалт:</span>
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Employee usage:</span>
             <span className="font-medium text-[#FFFFFF]/70">{usagePeriodDisplay ?? "—"}</span>
           </div>
           <div className="flex items-center gap-2">

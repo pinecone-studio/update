@@ -6,7 +6,7 @@ import { AddBenefitSkeleton } from "./AddBenefitSkeleton";
 import {
   getBenefitTone,
   getVendorDisplay,
-  formatRequestDeadline,
+  formatValidityPeriod,
   formatUsageLimit,
 } from "../_lib/utils";
 import type { BenefitFromCatalog, BenefitConfig } from "../_lib/types";
@@ -59,8 +59,9 @@ export function BenefitsCatalogSection({
         const vendorDisplay = getVendorDisplay(benefit.name);
         const ruleSummary =
           ruleCount > 0 ? `${ruleCount} rule configured` : "";
-        const requestDeadlineDisplay = formatRequestDeadline(
-          benefit.requestDeadline,
+        const activePeriodDisplay = formatValidityPeriod(
+          cfg?.expiryDuration,
+          cfg?.expiryUnit,
         );
         const usageLimitDisplay = formatUsageLimit(
           benefit.usageLimitCount ?? 1,
@@ -75,7 +76,7 @@ export function BenefitsCatalogSection({
             subsidyPercent={benefit.subsidyPercent}
             vendorDisplay={vendorDisplay}
             ruleSummary={ruleSummary}
-            validityPeriodDisplay={requestDeadlineDisplay}
+            validityPeriodDisplay={activePeriodDisplay}
             usagePeriodDisplay={usageLimitDisplay}
             financeApproval={cfg?.financeCheck}
             vendorContract={cfg?.requiresContract}

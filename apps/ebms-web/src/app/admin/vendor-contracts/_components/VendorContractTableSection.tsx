@@ -56,19 +56,19 @@ export function VendorContractTableSection({
                 №
               </th>
               <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">
-                Гэрээний дугаар
+                Contract number
               </th>
               <th className="px-5 py-4 text-left text-[18px] font-normal text-slate-600 dark:text-[#A7B6D3]">
-                Гэрээний нэр
+                Contract name
               </th>
               <th className="px-5 py-4 text-left text-[18px] font-normal dark:text-[#A7B6D3]">
-                Эхлэх хугацаа
+                Start date
               </th>
               <th className="px-5 py-4 text-left text-[18px] font-normal dark:text-[#A7B6D3]">
-                Дуусах хугацаа
+                End date
               </th>
               <th className="px-5 py-4 text-left text-[18px] font-normal dark:text-[#A7B6D3]">
-                Гэрээний URL
+                Contract URL
               </th>
             </tr>
           </thead>
@@ -108,7 +108,7 @@ export function VendorContractTableSection({
                   colSpan={6}
                   className="px-5 py-6 text-center text-5 text-slate-600 dark:text-[#A7B6D3]"
                 >
-                  Contract олдсонгүй.
+                  Contract not found.
                 </td>
               </tr>
             )}

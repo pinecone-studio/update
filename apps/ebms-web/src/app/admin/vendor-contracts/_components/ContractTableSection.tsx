@@ -40,7 +40,7 @@ export function ContractTableSection({
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <select
-            aria-label="Ажилтанаар шүүх"
+            aria-label="Filter by employee"
             value={filterByEmployeeId}
             onChange={(e) => onFilterByEmployeeChange(e.target.value)}
             className="h-11 min-w-[94px] rounded-lg border border-slate-20 bg-[#FFFFFF]/10 px-3 text-5 text-slate-900 outline-none dark:text-white"
@@ -134,7 +134,7 @@ export function ContractTableSection({
                   colSpan={6}
                   className="px-5 py-6 text-center text-5 text-slate-600 dark:text-[#A7B6D3]"
                 >
-                  Contract олдсонгүй.
+                  Contract not found.
                 </td>
               </tr>
             )}

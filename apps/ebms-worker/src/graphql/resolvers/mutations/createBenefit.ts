@@ -38,12 +38,15 @@ export const createBenefit: NonNullable<
   const requiresContract = input.requiresContract ?? false;
   const requestDeadline = input.requestDeadline?.trim() || null;
   const usageLimitCount = Math.max(1, input.usageLimitCount ?? 1);
+  const rawPeriod = input.usageLimitPeriod?.toLowerCase().trim();
   const usageLimitPeriod =
-    input.usageLimitPeriod?.toLowerCase().trim() === "year"
+    rawPeriod === "year"
       ? "year"
-      : input.usageLimitPeriod?.toLowerCase().trim() === "month"
+      : rawPeriod === "month"
         ? "month"
-        : null;
+        : rawPeriod === "7days"
+          ? "7days"
+          : null;
 
   let benefitId: string;
   try {
