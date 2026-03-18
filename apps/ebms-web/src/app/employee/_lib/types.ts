@@ -39,4 +39,6 @@ export type MyBenefitEligibility = {
   overrideReason?: string | null;
   /** When status is PENDING: "admin" or "finance" — who must approve next */
   pendingApprovalBy?: string | null;
+  /** When status is ACTIVE and contract was uploaded: request ID to view/download */
+  uploadedContractRequestId?: string | null;
 };

@@ -53,6 +53,7 @@ interface BenefitModalDetailsProps {
   };
   rules: EligibilityRule[];
   onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
+  onViewUploadedContract?: (requestId: string) => void | Promise<void>;
 }
 
 export function BenefitModalDetails({
@@ -60,6 +61,7 @@ export function BenefitModalDetails({
   theme,
   rules,
   onViewContract,
+  onViewUploadedContract,
 }: BenefitModalDetailsProps) {
   const vendor = (benefit.vendorDetails ?? "").trim() || "Pinecone";
   const subsidy = benefit.subsidyPercentage
@@ -138,6 +140,29 @@ export function BenefitModalDetails({
           </p>
         )}
       </SectionCard>
+
+      {benefit.status === "ACTIVE" &&
+        benefit.uploadedContractRequestId &&
+        benefit.requiresContract && (
+          <SectionCard
+            theme={theme.section}
+            icon={<FiFileText size={18} />}
+            title="UPLOADED CONTRACT"
+            className="min-h-[78px]"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                if (onViewUploadedContract && benefit.uploadedContractRequestId) {
+                  void onViewUploadedContract(benefit.uploadedContractRequestId);
+                }
+              }}
+              className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-[#4EA1FF] hover:text-[#7ABEFF]"
+            >
+              View uploaded contract <FiExternalLink size={20} />
+            </button>
+          </SectionCard>
+        )}
 
       {benefit.status === "ACTIVE" &&
         (benefit.benefitStartDate || benefit.benefitEndDate) && (

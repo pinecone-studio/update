@@ -48,6 +48,8 @@ export type BenefitEligibilityRow = {
   overrideReason?: string | null;
   /** When status is PENDING: "admin" or "finance" — who must approve next */
   pendingApprovalBy?: string | null;
+  /** When status is ACTIVE and contract uploaded: request ID for view/download */
+  uploadedContractRequestId?: string | null;
 };
 
 export async function getBenefitEligibilityForEmployee(
@@ -57,7 +59,7 @@ export async function getBenefitEligibilityForEmployee(
   const db = getDb(env);
   const now = new Date().toISOString();
 
-  const [config, employee, pendingRequestRows, rejectedRequestRows] =
+  const [config, employee, pendingRequestRows, rejectedRequestRows, approvedWithContractRows] =
     await Promise.all([
       getActiveEligibilityConfig(env),
       getEmployeeForEligibility(env, employeeId),
@@ -86,7 +88,27 @@ export async function getBenefitEligibilityForEmployee(
           ),
         )
         .orderBy(desc(benefitRequests.createdAt)),
+      db
+        .select({
+          id: benefitRequests.id,
+          benefitId: benefitRequests.benefitId,
+          employeeContractR2Key: benefitRequests.employeeContractR2Key,
+        })
+        .from(benefitRequests)
+        .where(
+          and(
+            eq(benefitRequests.employeeId, employeeId),
+            eq(benefitRequests.status, "approved"),
+          ),
+        ),
     ]);
+
+  const uploadedContractByBenefit = new Map<string, string>();
+  for (const r of approvedWithContractRows) {
+    if (r.employeeContractR2Key) {
+      uploadedContractByBenefit.set(r.benefitId, r.id);
+    }
+  }
 
   if (employee) {
     await safeDispatch(async () => {
@@ -206,6 +228,11 @@ export async function getBenefitEligibilityForEmployee(
               : "admin")
           : null;
 
+      const uploadedContractRequestId =
+        finalStatus === "ACTIVE" && asBool01(row.benefitRequiresContract)
+          ? (uploadedContractByBenefit.get(row.benefitId) ?? null)
+          : null;
+
       results.push({
         benefit: {
           id: row.benefitId,
@@ -238,6 +265,7 @@ export async function getBenefitEligibilityForEmployee(
           ? (row.overrideReason ?? "HR override")
           : null,
         pendingApprovalBy,
+        uploadedContractRequestId,
       });
       continue;
     }
@@ -286,6 +314,11 @@ export async function getBenefitEligibilityForEmployee(
             : "admin")
         : null;
 
+    const uploadedContractRequestId =
+      status === "ACTIVE" && asBool01(row.benefitRequiresContract)
+        ? (uploadedContractByBenefit.get(row.benefitId) ?? null)
+        : null;
+
     results.push({
       benefit: {
         id: row.benefitId,
@@ -309,6 +342,7 @@ export async function getBenefitEligibilityForEmployee(
         ? (row.overrideReason ?? "HR override")
         : null,
       pendingApprovalBy,
+      uploadedContractRequestId,
     });
   }
 

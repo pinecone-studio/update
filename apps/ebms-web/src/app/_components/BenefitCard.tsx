@@ -114,6 +114,8 @@ export interface BenefitCardProps {
   benefitStartDate?: string | null;
   /** If true, employee must accept vendor contract before requesting */
   requiresContract?: boolean;
+  /** When ACTIVE and contract uploaded: request ID to view signed contract */
+  uploadedContractRequestId?: string;
   status: BenefitStatus;
   /** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
   lockReason?: string;

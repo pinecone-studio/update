@@ -14,6 +14,26 @@ export function getApiBaseUrl(): string {
   return getBaseUrl();
 }
 
+/** Open uploaded employee contract PDF in new tab (admin view, any request) */
+export async function openAdminContractByRequestId(
+  requestId: string,
+): Promise<void> {
+  const base = getApiBaseUrl().replace(/\/$/, "");
+  const url = `${base}/admin/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
+  const headers = getActiveUserHeaders("admin");
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error(msg || `Failed to load contract (${res.status})`);
+  }
+  const blob = await res.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const target = window.open(objectUrl, "_blank", "noopener,noreferrer");
+  if (!target)
+    throw new Error("Popup blocked. Please allow popups and try again.");
+  URL.revokeObjectURL(objectUrl);
+}
+
 export function getAdminClient(): GraphQLClient {
   const base = getBaseUrl();
   const url = base.endsWith("/graphql") ? base : `${base}/graphql`;

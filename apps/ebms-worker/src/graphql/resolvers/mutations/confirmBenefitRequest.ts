@@ -13,6 +13,7 @@ import {
   benefitRequests,
   benefits,
   contracts,
+  eligibilityAudit,
   employees,
 } from "../../../db/schema";
 import { and, eq } from "drizzle-orm";
@@ -131,6 +132,7 @@ export const confirmBenefitRequest: NonNullable<
     const existingEligibility = await db
       .select({
         employeeId: benefitEligibility.employeeId,
+        status: benefitEligibility.status,
       })
       .from(benefitEligibility)
       .where(
@@ -145,6 +147,8 @@ export const confirmBenefitRequest: NonNullable<
     const nextOverrideReason = requiresContract
       ? `Approved by ${needsFinanceApproval ? "finance" : "admin/hr"} - awaiting signed contract upload`
       : `Approved by ${needsFinanceApproval ? "finance" : "admin/hr"}`;
+
+    const prevEligibilityStatus = existingEligibility[0]?.status ?? null;
 
     if (existingEligibility[0]) {
       await db
@@ -173,6 +177,24 @@ export const confirmBenefitRequest: NonNullable<
         overrideExpiresAt: null,
       });
     }
+
+    await db.insert(eligibilityAudit).values({
+      id: crypto.randomUUID(),
+      employeeId: row.employeeId,
+      benefitId: row.benefitId,
+      oldStatus: prevEligibilityStatus,
+      newStatus: nextEligibilityStatus,
+      ruleTraceJson: JSON.stringify({
+        action: "request_approved",
+        requestId,
+        approvedBy: actorId,
+        needsFinanceApproval,
+        reason: nextOverrideReason,
+      }),
+      triggeredBy: actorId,
+      computedAt: now,
+      createdAt: now,
+    });
   }
 
   if (contractAccepted) {
@@ -235,6 +257,23 @@ export const confirmBenefitRequest: NonNullable<
       });
     }
   } else {
+    await db.insert(eligibilityAudit).values({
+      id: crypto.randomUUID(),
+      employeeId: row.employeeId,
+      benefitId: row.benefitId,
+      oldStatus: "pending",
+      newStatus: "rejected",
+      ruleTraceJson: JSON.stringify({
+        action: "request_rejected",
+        requestId,
+        rejectedBy: actorId,
+        rejectReason: rejectReason ?? null,
+      }),
+      triggeredBy: actorId,
+      computedAt: now,
+      createdAt: now,
+    });
+
     await dispatchEmployeeNotification(ctx.env, {
       employeeId: row.employeeId,
       type: "REQUEST_STATUS",

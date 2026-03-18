@@ -70,6 +70,7 @@ export const typeDefs = /* GraphQL */ `
     overrideApplied: Boolean!
     overrideReason: String
     pendingApprovalBy: String
+    uploadedContractRequestId: String
   }
 
   type RuleEvaluation {
@@ -186,16 +187,17 @@ export const typeDefs = /* GraphQL */ `
     to: String
   }
 
-  type AuditEntry {
-    id: ID!
-    employeeId: ID!
-    benefitId: ID!
-    oldStatus: String
-    newStatus: String!
-    computedAt: String!
-    triggeredBy: String
-    createdAt: String!
-  }
+type AuditEntry {
+  id: ID!
+  employeeId: ID!
+  benefitId: ID!
+  oldStatus: String
+  newStatus: String!
+  ruleTraceJson: String
+  computedAt: String!
+  triggeredBy: String
+  createdAt: String!
+}
 
   type EmployeeNotification {
     id: ID!

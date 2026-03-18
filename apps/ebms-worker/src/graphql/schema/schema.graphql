@@ -68,6 +68,8 @@ type BenefitEligibility {
   overrideReason: String
   """When status is PENDING: 'admin' or 'finance' — who must approve next"""
   pendingApprovalBy: String
+  """When status is ACTIVE and contract was uploaded: request ID to view/download contract"""
+  uploadedContractRequestId: String
 }
 
 type RuleEvaluation {
@@ -192,6 +194,7 @@ type AuditEntry {
   benefitId: ID!
   oldStatus: String
   newStatus: String!
+  ruleTraceJson: String
   computedAt: String!
   triggeredBy: String
   createdAt: String!
