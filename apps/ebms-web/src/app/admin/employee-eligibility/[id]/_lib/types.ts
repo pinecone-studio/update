@@ -1,9 +1,18 @@
-export type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
+export type BenefitStatus =
+  | "ACTIVE"
+  | "ELIGIBLE"
+  | "LOCKED"
+  | "PENDING"
+  | "REJECTED";
 
 export type EmployeeBenefit = {
   benefit: { id: string; name: string };
   status: BenefitStatus;
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
+  computedAt?: string | null;
+  overrideApplied?: boolean;
+  overrideReason?: string | null;
+  rejectedReason?: string | null;
 };
 
 export type EmployeeDetail = {
