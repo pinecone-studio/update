@@ -12,6 +12,11 @@ type AdminBenefitCardProps = {
   subsidyPercent: number;
   vendorDisplay: string;
   ruleSummary: string;
+  validityPeriodDisplay?: string;
+  usagePeriodDisplay?: string;
+  financeApproval?: boolean;
+  vendorContract?: boolean;
+  managerApproval?: boolean;
   icon: ReactNode;
   iconBgClass?: string;
   iconColorClass?: string;
@@ -28,6 +33,11 @@ export function AdminBenefitCard({
   subsidyPercent,
   vendorDisplay,
   ruleSummary,
+  validityPeriodDisplay,
+  usagePeriodDisplay,
+  financeApproval,
+  vendorContract,
+  managerApproval,
   icon,
   iconBgClass = "bg-slate-500/20",
   iconColorClass = "text-slate-300",
@@ -43,7 +53,7 @@ export function AdminBenefitCard({
   return (
     <div
       id={`benefit-card-${id}`}
-      className={`flex h-[267px] flex-col rounded-xl border-t border-white/40 transition ${
+      className={`flex h-[310px] flex-col rounded-xl border-t border-white/40 transition ${
         isHighlighted
           ? "ring-2 ring-[#2A8BFF]"
           : ""
@@ -71,6 +81,26 @@ export function AdminBenefitCard({
           <div className="flex items-center gap-2">
             <span className="text-[14px] font-normal text-[#FFFFFF]/40">Vendor:</span>
             <span className="font-medium text-[#FFFFFF]/70 text-[14px] ">{vendorDisplay}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Validity Period:</span>
+            <span className="font-medium text-[#FFFFFF]/70">{validityPeriodDisplay ?? "—"}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Usage Frequency:</span>
+            <span className="font-medium text-[#FFFFFF]/70">{usagePeriodDisplay ?? "—"}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Approval:</span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {[
+                financeApproval && "Finance",
+                vendorContract && "Vendor Contract",
+                managerApproval && "Manager",
+              ]
+                .filter(Boolean)
+                .join(", ") || "—"}
+            </span>
           </div>
           <div>
             <span className="text-slate-400">Rule:</span>

@@ -57,6 +57,7 @@ function getRequestStatusStyles(status: BenefitRequest["status"]) {
 export function FinanceHistorySection() {
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
   const [benefitNames, setBenefitNames] = useState<Record<string, string>>({});
+  const [benefitCategories, setBenefitCategories] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -77,13 +78,16 @@ export function FinanceHistorySection() {
         );
         setRequests(approvedOrRejected);
         const names: Record<string, string> = {};
+        const categories: Record<string, string> = {};
         benefits.forEach((b) => {
           names[b.id] = b.name;
+          categories[b.id] = b.category ?? "Other";
         });
         reqs.forEach((r) => {
           if (r.benefitName) names[r.benefitId] = r.benefitName;
         });
         setBenefitNames(names);
+        setBenefitCategories(categories);
       })
       .catch((e) => {
         if (!cancelled) {
@@ -100,6 +104,9 @@ export function FinanceHistorySection() {
 
   const getBenefitName = (benefitId: string) =>
     benefitNames[benefitId] ?? benefitId;
+
+  const getBenefitCategory = (benefitId: string) =>
+    benefitCategories[benefitId] ?? "Other";
 
   const eventsByBenefit = new Map<string, BenefitRequest[]>();
   requests.forEach((r) => {
@@ -122,6 +129,18 @@ export function FinanceHistorySection() {
     const bLatest = bList[0]?.createdAt ?? "";
     return new Date(bLatest).getTime() - new Date(aLatest).getTime();
   });
+
+  const benefitsByCategory = benefitIds.reduce<Record<string, string[]>>(
+    (acc, benefitId) => {
+      const cat = getBenefitCategory(benefitId);
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(benefitId);
+      return acc;
+    },
+    {},
+  );
+
+  const categoryOrder = Array.from(new Set(benefitIds.map(getBenefitCategory)));
 
   if (loading) {
     return (
@@ -160,22 +179,39 @@ export function FinanceHistorySection() {
     );
   }
 
+  const isTwoCategories = categoryOrder.length === 2;
+
   return (
-    <div className="mt-6 space-y-6">
-      {benefitIds.map((benefitId) => {
-        const benefitRequests = eventsByBenefit.get(benefitId) ?? [];
-        const benefitName = getBenefitName(benefitId);
-        return (
-          <div
-            key={benefitId}
-            className="rounded-xl border border-slate-200 bg-white dark:border-[#243041] dark:bg-[#1A2333] overflow-hidden"
-          >
-            <div className="border-b border-slate-200 px-4 py-3 dark:border-[#243041]">
+    <div
+      className={`mt-6 flex flex-col gap-6 w-full max-w-[1500px] mx-auto`}
+    >
+      <div
+        className={
+          isTwoCategories
+            ? "grid grid-cols-1 sm:grid-cols-2 gap-6"
+            : "flex flex-col gap-6"
+        }
+      >
+      {categoryOrder.map((category) => (
+        <section key={category}>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+            {category}
+          </h3>
+          <div className="flex flex-col gap-4">
+            {benefitsByCategory[category]?.map((benefitId) => {
+              const benefitRequests = eventsByBenefit.get(benefitId) ?? [];
+              const benefitName = getBenefitName(benefitId);
+              return (
+                <div
+                  key={benefitId}
+                  className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden"
+                >
+            <div className="border-b border-slate-200 px-4 py-3 dark:border-white/10">
               <p className="font-semibold text-slate-900 dark:text-white">
                 {benefitName}
               </p>
             </div>
-            <ul className="divide-y divide-slate-200 dark:divide-[#243041]">
+            <ul className="divide-y divide-slate-200 dark:divide-white/10">
               {benefitRequests.map((r) => {
                 const isNegative =
                   r.status === "REJECTED" || r.status === "CANCELLED";
@@ -194,19 +230,16 @@ export function FinanceHistorySection() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-slate-900 dark:text-white">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">
                         {r.employeeName ?? r.employeeId} ·{" "}
                         {getRequestStatusLabel(r.status)}
                       </p>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 space-y-0.5 mt-0.5">
-                        <p>Хүсэгдсэн: {formatBenefitDateTime(r.createdAt)}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Хүсэгдсэн: {formatBenefitDateTime(r.createdAt)}
                         {r.contractAcceptedAt && (
-                          <p>
-                            Хаагдсан:{" "}
-                            {formatBenefitDateTime(r.contractAcceptedAt)}
-                          </p>
+                          <> · Хаагдсан: {formatBenefitDateTime(r.contractAcceptedAt)}</>
                         )}
-                      </div>
+                      </p>
                     </div>
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-medium ${getRequestStatusStyles(r.status)}`}
@@ -220,6 +253,10 @@ export function FinanceHistorySection() {
           </div>
         );
       })}
+          </div>
+        </section>
+      ))}
+      </div>
     </div>
   );
 }

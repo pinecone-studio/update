@@ -110,7 +110,7 @@ export function Header() {
                 setNotificationOpen((prev) => !prev);
                 setProfileOpen(false);
               }}
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-slate-600 dark:text-[#D1DBEF]"
               aria-label="Notifications"
             >
               <HiOutlineBell className="h-5 w-5" />

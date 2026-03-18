@@ -3,7 +3,12 @@
 import { HrActiveBenefitsIcon } from "@/app/icons/hrActiveBenefits";
 import { AdminBenefitCard } from "./AdminBenefitCard";
 import { AddBenefitSkeleton } from "./AddBenefitSkeleton";
-import { getBenefitTone, getVendorDisplay } from "../_lib/utils";
+import {
+  getBenefitTone,
+  getVendorDisplay,
+  formatValidityPeriod,
+  formatUsagePeriod,
+} from "../_lib/utils";
 import type { BenefitFromCatalog, BenefitConfig } from "../_lib/types";
 
 type BenefitsCatalogSectionProps = {
@@ -48,11 +53,21 @@ export function BenefitsCatalogSection({
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {catalogBenefits.map((benefit) => {
-        const ruleCount = config[benefit.id]?.rules?.length ?? 0;
+        const cfg = config[benefit.id];
+        const ruleCount = cfg?.rules?.length ?? 0;
         const tone = getBenefitTone(benefit.category);
         const vendorDisplay = getVendorDisplay(benefit.name);
         const ruleSummary =
           ruleCount > 0 ? `${ruleCount} rule configured` : "";
+        const validityPeriodDisplay = formatValidityPeriod(
+          cfg?.expiryDuration,
+          cfg?.expiryUnit,
+        );
+        const usagePeriodDisplay = formatUsagePeriod(
+          cfg?.usagePeriod,
+          cfg?.usagePeriodUnit,
+          cfg?.usageLimit,
+        );
         return (
           <AdminBenefitCard
             key={benefit.id}
@@ -62,6 +77,11 @@ export function BenefitsCatalogSection({
             subsidyPercent={benefit.subsidyPercent}
             vendorDisplay={vendorDisplay}
             ruleSummary={ruleSummary}
+            validityPeriodDisplay={validityPeriodDisplay}
+            usagePeriodDisplay={usagePeriodDisplay}
+            financeApproval={cfg?.financeCheck}
+            vendorContract={cfg?.requiresContract}
+            managerApproval={cfg?.managerApproval}
             icon={<HrActiveBenefitsIcon />}
             iconBgClass={tone.iconBg}
             iconColorClass={tone.iconColor}

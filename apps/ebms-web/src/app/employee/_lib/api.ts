@@ -119,6 +119,7 @@ const BENEFITS_QUERY = gql`
     benefits {
       id
       name
+      category
     }
   }
 `;
@@ -273,9 +274,11 @@ export async function fetchMyAuditLog(filters?: {
   return res.myAuditLog ?? [];
 }
 
-export async function fetchBenefits(): Promise<{ id: string; name: string }[]> {
+export async function fetchBenefits(): Promise<
+  { id: string; name: string; category: string }[]
+> {
   const res = await getEmployeeClient().request<{
-    benefits: { id: string; name: string }[];
+    benefits: { id: string; name: string; category: string }[];
   }>(BENEFITS_QUERY);
   return res.benefits ?? [];
 }
