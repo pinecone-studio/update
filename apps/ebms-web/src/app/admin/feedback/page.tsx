@@ -60,6 +60,7 @@ export default function AdminFeedbackPage() {
           f.id === id ? { ...f, closedAt: new Date().toISOString() } : f,
         ),
       );
+      window.dispatchEvent(new CustomEvent("ebms:feedback-marked-read"));
     } catch (e) {
       setError(getApiErrorMessage(e));
     } finally {

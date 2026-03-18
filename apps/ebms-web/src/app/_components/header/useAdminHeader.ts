@@ -12,6 +12,7 @@ import {
   DEFAULT_NOTIFICATIONS,
   type AdminNotification,
 } from "./admin-header-constants";
+import { fetchUnclosedFeedback } from "@/app/admin/_lib/api";
 
 export function useAdminHeader(pathname: string) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,6 +35,7 @@ export function useAdminHeader(pathname: string) {
       role: (initialProfile.role || "employee").toLowerCase(),
     },
   ]);
+  const [unclosedFeedbackCount, setUnclosedFeedbackCount] = useState(0);
 
   const normalizedPath =
     pathname.endsWith("/") && pathname.length > 1
@@ -104,6 +106,27 @@ export function useAdminHeader(pathname: string) {
     };
   }, [selectedUser.id]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const load = () =>
+      fetchUnclosedFeedback()
+        .then((items) => {
+          if (!cancelled) setUnclosedFeedbackCount(items.length);
+        })
+        .catch(() => {
+          if (!cancelled) setUnclosedFeedbackCount(0);
+        });
+    load();
+    const id = setInterval(load, 60000);
+    const onFeedbackMarkedRead = () => load();
+    window.addEventListener("ebms:feedback-marked-read", onFeedbackMarkedRead);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+      window.removeEventListener("ebms:feedback-marked-read", onFeedbackMarkedRead);
+    };
+  }, []);
+
   const handleUserChange = (value: string) => {
     const nextUser = userOptions.find((u) => u.id === value);
     if (!nextUser) return;
@@ -130,6 +153,7 @@ export function useAdminHeader(pathname: string) {
     selectedUser,
     userOptions,
     unreadCount,
+    unclosedFeedbackCount,
     normalizedPath,
     notificationRef,
     profileRef,

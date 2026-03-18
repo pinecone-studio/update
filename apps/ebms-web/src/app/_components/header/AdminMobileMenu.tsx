@@ -17,6 +17,7 @@ type AdminMobileMenuProps = {
   userOptions: SwitchUserOption[];
   notifications: AdminNotification[];
   unreadCount: number;
+  unclosedFeedbackCount?: number;
   notificationOpen: boolean;
   onClose: () => void;
   onSelectUser: (id: string) => void;
@@ -30,6 +31,7 @@ export function AdminMobileMenu({
   userOptions,
   notifications,
   unreadCount,
+  unclosedFeedbackCount = 0,
   notificationOpen,
   onClose,
   onSelectUser,
@@ -71,10 +73,17 @@ export function AdminMobileMenu({
         <Link
           href="/admin/feedback"
           onClick={onClose}
-          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
+          className="inline-flex items-center justify-between gap-2 rounded-lg px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
         >
-          <HiOutlineChatBubbleLeftRight className="h-4 w-4" />
-          Employee Feedback
+          <span className="inline-flex items-center gap-2">
+            <HiOutlineChatBubbleLeftRight className="h-4 w-4" />
+            Employee Feedback
+          </span>
+          {unclosedFeedbackCount > 0 && (
+            <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-medium text-white">
+              {unclosedFeedbackCount > 9 ? "9+" : unclosedFeedbackCount}
+            </span>
+          )}
         </Link>
         <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
         <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
