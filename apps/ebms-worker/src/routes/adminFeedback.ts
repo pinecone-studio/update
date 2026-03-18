@@ -6,7 +6,7 @@ import { Hono } from "hono";
 import { and, eq, sql, isNull } from "drizzle-orm";
 import type { Env } from "../types";
 import { getDb } from "../db/drizzle";
-import { feedback, feedbackVotes } from "../db/schema";
+import { feedback, feedbackVotes, employees } from "../db/schema";
 
 const adminFeedback = new Hono<{ Bindings: Env }>();
 
@@ -35,14 +35,18 @@ adminFeedback.get("/", async (c) => {
     .select({
       id: feedback.id,
       text: feedback.text,
+      employeeId: feedback.employeeId,
       benefitId: feedback.benefitId,
       isAnonymous: feedback.isAnonymous,
       status: feedback.status,
       createdAt: feedback.createdAt,
       votingEndsAt: feedback.votingEndsAt,
       closedAt: feedback.closedAt,
+      employeeName: employees.name,
+      employeeNameEng: employees.nameEng,
     })
     .from(feedback)
+    .leftJoin(employees, eq(feedback.employeeId, employees.id))
     .where(whereClause)
     .orderBy(sql`${feedback.createdAt} DESC`);
 
@@ -58,17 +62,25 @@ adminFeedback.get("/", async (c) => {
     voteCounts.map((v) => [v.feedbackId, Number(v.count)]),
   );
 
-  const items = rows.map((r) => ({
-    id: r.id,
-    text: r.text,
-    benefitId: r.benefitId ?? null,
-    isAnonymous: Boolean(r.isAnonymous),
-    status: r.status,
-    createdAt: r.createdAt,
-    votingEndsAt: r.votingEndsAt,
-    closedAt: r.closedAt ?? null,
-    voteCount: voteMap.get(r.id) ?? 0,
-  }));
+  const items = rows.map((r) => {
+    const isAnon = Boolean(r.isAnonymous);
+    const employeeName =
+      !isAnon && r.employeeId
+        ? (r.employeeNameEng ?? r.employeeName ?? r.employeeId)
+        : null;
+    return {
+      id: r.id,
+      text: r.text,
+      benefitId: r.benefitId ?? null,
+      isAnonymous: isAnon,
+      employeeName,
+      status: r.status,
+      createdAt: r.createdAt,
+      votingEndsAt: r.votingEndsAt,
+      closedAt: r.closedAt ?? null,
+      voteCount: voteMap.get(r.id) ?? 0,
+    };
+  });
 
   return c.json({ items });
 });

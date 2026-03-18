@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { HiOutlineArrowTopRightOnSquare, HiOutlineBell } from "react-icons/hi2";
+import {
+  HiOutlineArrowTopRightOnSquare,
+  HiOutlineBell,
+  HiOutlineChatBubbleLeftRight,
+} from "react-icons/hi2";
 import { navItems } from "./admin-header-constants";
 import type { AdminNotification } from "./admin-header-constants";
 import type { SwitchUserOption } from "@/app/_lib/activeUser";
@@ -63,6 +67,14 @@ export function AdminMobileMenu({
         >
           <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
           Employee руу шилжих
+        </Link>
+        <Link
+          href="/admin/feedback"
+          onClick={onClose}
+          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
+        >
+          <HiOutlineChatBubbleLeftRight className="h-4 w-4" />
+          Employee Feedback
         </Link>
         <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
         <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
