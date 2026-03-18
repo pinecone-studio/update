@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineArrowTopRightOnSquare,
+  HiOutlineChatBubbleLeftRight,
   HiOutlineUserCircle,
 } from "react-icons/hi2";
 import { ProfileIcon } from "@/app/icons/profile";
@@ -56,6 +57,14 @@ export function AdminProfileDropdown({
             >
               <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
               Employee
+            </Link>
+            <Link
+              href="/admin/feedback"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+              onClick={onClose}
+            >
+              <HiOutlineChatBubbleLeftRight className="h-4 w-4" />
+              Employee Feedback
             </Link>
             <Link
               href="/admin/profile"

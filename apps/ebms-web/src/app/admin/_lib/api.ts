@@ -127,6 +127,7 @@ export type EscalatedFeedbackItem = {
   text: string;
   benefitId: string | null;
   isAnonymous: boolean;
+  employeeName: string | null;
   status: string;
   createdAt: string;
   votingEndsAt: string;

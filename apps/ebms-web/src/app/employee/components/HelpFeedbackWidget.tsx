@@ -2,9 +2,16 @@
 
 "use client";
 
-import { useCallback, useState } from "react";
-import { FiCheck, FiHelpCircle, FiMessageCircle, FiSend } from "react-icons/fi";
+import { useCallback, useEffect, useState } from "react";
+import { FiCheck, FiHelpCircle, FiMessageCircle, FiSend, FiThumbsUp, FiTrash2 } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
+import {
+  createFeedback,
+  deleteFeedback,
+  fetchFeedbackList,
+  voteFeedback,
+  type FeedbackItem,
+} from "../_lib/api";
 
 const FAQ_RESPONSES: Record<string, string> = {
   request:
@@ -41,8 +48,15 @@ export function HelpFeedbackWidget() {
   const [open, setOpen] = useState(false);
   const [panelTab, setPanelTab] = useState<"ask" | "feedback">("ask");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackAnonymous, setFeedbackAnonymous] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
+  const [feedbackList, setFeedbackList] = useState<FeedbackItem[]>([]);
+  const [feedbackListLoading, setFeedbackListLoading] = useState(false);
+  const [votingId, setVotingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showAddFeedback, setShowAddFeedback] = useState(false);
   const [chatQuestion, setChatQuestion] = useState("");
   const [chatMessages, setChatMessages] = useState<
     { role: "user" | "assistant"; text: string }[]
@@ -53,17 +67,73 @@ export function HelpFeedbackWidget() {
     },
   ]);
 
+  const loadFeedbackList = useCallback(async () => {
+    setFeedbackListLoading(true);
+    try {
+      const items = await fetchFeedbackList();
+      setFeedbackList(items);
+    } catch {
+      setFeedbackList([]);
+    } finally {
+      setFeedbackListLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open && panelTab === "feedback") {
+      loadFeedbackList();
+    }
+  }, [open, panelTab, loadFeedbackList]);
+
   const handleFeedbackSubmit = useCallback(async () => {
     if (!feedbackMessage.trim()) return;
     setFeedbackSubmitting(true);
+    setFeedbackError(null);
     try {
-      await new Promise((r) => setTimeout(r, 500));
+      await createFeedback({
+        text: feedbackMessage.trim(),
+        isAnonymous: feedbackAnonymous,
+      });
       setFeedbackSubmitted(true);
       setFeedbackMessage("");
+      loadFeedbackList();
+    } catch (e) {
+      setFeedbackError(e instanceof Error ? e.message : "Failed to submit feedback");
     } finally {
       setFeedbackSubmitting(false);
     }
-  }, [feedbackMessage]);
+  }, [feedbackMessage, feedbackAnonymous, loadFeedbackList]);
+
+  const handleVote = useCallback(
+    async (feedbackId: string) => {
+      setVotingId(feedbackId);
+      try {
+        await voteFeedback(feedbackId);
+        loadFeedbackList();
+      } catch {
+        // Silently fail - user can retry
+      } finally {
+        setVotingId(null);
+      }
+    },
+    [loadFeedbackList]
+  );
+
+  const handleDelete = useCallback(
+    async (feedbackId: string) => {
+      if (!window.confirm("Delete this feedback? This cannot be undone.")) return;
+      setDeletingId(feedbackId);
+      try {
+        await deleteFeedback(feedbackId);
+        loadFeedbackList();
+      } catch {
+        // Silently fail - user can retry
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [loadFeedbackList]
+  );
 
   const handleAskSubmit = useCallback(() => {
     if (!chatQuestion.trim()) return;
@@ -199,7 +269,7 @@ export function HelpFeedbackWidget() {
                   Thank you for your feedback!
                 </p>
                 <p className="mt-1 text-sm text-slate-600 dark:text-[#99A1AF]">
-                  We appreciate you taking the time to share your thoughts.
+                  Other employees can vote on it. At 3 votes it goes to admin.
                 </p>
                 <button
                   type="button"
@@ -210,31 +280,150 @@ export function HelpFeedbackWidget() {
                 </button>
               </div>
             ) : (
-              <div className="flex min-h-0 flex-col gap-3">
-                <p className="flex-shrink-0 text-sm text-slate-600 dark:text-[#94A3B8]">
-                  Share your thoughts to help us improve the benefits experience.
-                </p>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-[#E2E8F0]">
-                    Your feedback
-                  </label>
-                  <textarea
-                    value={feedbackMessage}
-                    onChange={(e) => setFeedbackMessage(e.target.value)}
-                    placeholder="Tell us what we can improve..."
-                    rows={4}
-                    className="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-[#2196F3] focus:outline-none focus:ring-1 focus:ring-[#2196F3] dark:border-slate-600 dark:bg-[#0f172a] dark:text-white dark:placeholder:text-slate-500"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleFeedbackSubmit}
-                  disabled={!feedbackMessage.trim() || feedbackSubmitting}
-                  className="flex w-full flex-shrink-0 items-center justify-center gap-2 rounded-lg bg-[#2196F3] px-5 py-2.5 font-medium text-white transition-colors hover:bg-[#1976D2] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <FiMessageCircle size={18} />
-                  {feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
-                </button>
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                {(() => {
+                  const openFeedback = feedbackList.filter((f) => f.status === "OPEN");
+                  const hasOpenFeedback = openFeedback.length > 0;
+                  const showVoteOnly = hasOpenFeedback && !showAddFeedback;
+
+                  return (
+                    <>
+                      {/* Vote section — only shown when there are open feedback items */}
+                      {hasOpenFeedback && (
+                        <div
+                          className={`min-h-0 overflow-y-auto ${
+                            showVoteOnly ? "flex-1" : "flex-shrink-0 border-b border-slate-200 dark:border-slate-700"
+                          }`}
+                        >
+                          <p className="mb-2 text-sm font-medium text-slate-700 dark:text-[#E2E8F0]">
+                            Vote on feedback from others
+                          </p>
+                          {feedbackListLoading ? (
+                            <p className="text-sm text-slate-500">Loading...</p>
+                          ) : (
+                            <ul className="space-y-2 pb-3">
+                            {openFeedback.map((item) => (
+                              <li
+                                key={item.id}
+                                className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-600 dark:bg-[#1E293B]"
+                              >
+                                <p className="text-sm text-slate-900 dark:text-white">
+                                  {item.text}
+                                </p>
+                                <div className="mt-2 flex items-center justify-between gap-2">
+                                  <span className="text-xs text-slate-500">
+                                    {item.voteCount} votes
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    {item.isCreator && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDelete(item.id)}
+                                        disabled={deletingId === item.id}
+                                        className="flex items-center gap-1 rounded px-2 py-1 text-xs text-red-500 hover:bg-red-500/10 disabled:opacity-50"
+                                        title="Delete your feedback"
+                                      >
+                                        <FiTrash2 size={12} />
+                                        {deletingId === item.id ? "..." : "Delete"}
+                                      </button>
+                                    )}
+                                    {!item.hasVoted && !item.isCreator && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleVote(item.id)}
+                                        disabled={votingId === item.id}
+                                        className="flex items-center gap-1 rounded px-2 py-1 text-xs text-[#2196F3] hover:bg-[#2196F3]/10 disabled:opacity-50"
+                                      >
+                                        <FiThumbsUp size={14} />
+                                        {votingId === item.id ? "..." : "Vote"}
+                                      </button>
+                                    )}
+                                    {item.hasVoted && !item.isCreator && (
+                                      <span className="text-xs text-[#4CAF50]">
+                                        Voted
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Feedback input — hidden when votes exist (unless Add clicked) */}
+                      {(!hasOpenFeedback || showAddFeedback) && (
+                        <div className="flex-shrink-0 flex flex-col gap-3 pt-3">
+                          {hasOpenFeedback && (
+                            <button
+                              type="button"
+                              onClick={() => setShowAddFeedback(false)}
+                              className="self-start text-xs text-slate-500 hover:text-slate-700 dark:hover:text-[#94A3B8]"
+                            >
+                              ← Back to votes
+                            </button>
+                          )}
+                          <p className="text-sm text-slate-600 dark:text-[#94A3B8]">
+                            Share your thoughts. 3 votes → admin.
+                          </p>
+                          <div>
+                            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-[#E2E8F0]">
+                              Your feedback
+                            </label>
+                            <textarea
+                              value={feedbackMessage}
+                              onChange={(e) => setFeedbackMessage(e.target.value)}
+                              placeholder="Tell us what we can improve..."
+                              rows={3}
+                              className="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-[#2196F3] focus:outline-none focus:ring-1 focus:ring-[#2196F3] dark:border-slate-600 dark:bg-[#0f172a] dark:text-white dark:placeholder:text-slate-500"
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="feedback-anonymous"
+                              checked={feedbackAnonymous}
+                              onChange={(e) => setFeedbackAnonymous(e.target.checked)}
+                              className="h-4 w-4 rounded border-slate-300 text-[#2196F3] focus:ring-[#2196F3]"
+                            />
+                            <label
+                              htmlFor="feedback-anonymous"
+                              className="text-sm text-slate-600 dark:text-[#94A3B8]"
+                            >
+                              Post anonymously
+                            </label>
+                          </div>
+                          {feedbackError && (
+                            <p className="text-sm text-red-500">{feedbackError}</p>
+                          )}
+                          <button
+                            type="button"
+                            onClick={handleFeedbackSubmit}
+                            disabled={!feedbackMessage.trim() || feedbackSubmitting}
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#2196F3] px-5 py-2.5 font-medium text-white transition-colors hover:bg-[#1976D2] disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <FiMessageCircle size={18} />
+                            {feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Add feedback link — when vote-only mode */}
+                      {hasOpenFeedback && !showAddFeedback && (
+                        <div className="flex-shrink-0 border-t border-slate-200 pt-3 dark:border-slate-700">
+                          <button
+                            type="button"
+                            onClick={() => setShowAddFeedback(true)}
+                            className="text-sm text-[#2196F3] hover:text-[#1976D2] dark:text-[#60A5FA]"
+                          >
+                            Add your feedback
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>
