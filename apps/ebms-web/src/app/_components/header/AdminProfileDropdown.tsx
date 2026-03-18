@@ -78,14 +78,6 @@ export function AdminProfileDropdown({
                 </span>
               )}
             </Link>
-            <Link
-              href="/admin/profile"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
-              onClick={onClose}
-            >
-              <HiOutlineUserCircle className="h-4 w-4" />
-              Profile
-            </Link>
             <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
             <button
               type="button"
