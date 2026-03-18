@@ -256,6 +256,7 @@ export const typeDefs = /* GraphQL */ `
     employee(id: ID!): Employee
     employees(department: String, employmentStatus: String): [Employee!]!
     auditLog(filters: AuditFilters!): [AuditEntry!]!
+    myAuditLog(filters: AuditFilters!): [AuditEntry!]!
     benefitRequests(status: RequestStatus): [BenefitRequest!]!
     benefitRequestContractTemplate(requestId: ID!): ContractTemplate!
     benefitContractPreview(benefitId: ID!): ContractPreview!

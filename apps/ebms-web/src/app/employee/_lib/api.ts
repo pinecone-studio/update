@@ -89,9 +89,34 @@ const BENEFIT_REQUESTS_QUERY = gql`
       benefitId
       status
       createdAt
+      contractAcceptedAt
       benefitName
       requiresContract
       contractTemplateUrl
+    }
+  }
+`;
+
+const MY_AUDIT_LOG_QUERY = gql`
+  query MyAuditLog($filters: AuditFilters!) {
+    myAuditLog(filters: $filters) {
+      id
+      employeeId
+      benefitId
+      oldStatus
+      newStatus
+      computedAt
+      triggeredBy
+      createdAt
+    }
+  }
+`;
+
+const BENEFITS_QUERY = gql`
+  query Benefits {
+    benefits {
+      id
+      name
     }
   }
 `;
@@ -204,8 +229,9 @@ export type MyBenefitRequest = {
   id: string;
   employeeId: string;
   benefitId: string;
-  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+  status: "PENDING" | "ADMIN_APPROVED" | "APPROVED" | "REJECTED" | "CANCELLED";
   createdAt: string;
+  contractAcceptedAt?: string | null;
   benefitName?: string | null;
   requiresContract: boolean;
   contractTemplateUrl?: string | null;
@@ -221,6 +247,35 @@ export async function fetchMyBenefitRequests(
     ...r,
     contractTemplateUrl: toAbsoluteApiUrl(r.contractTemplateUrl),
   }));
+}
+
+export type AuditEntry = {
+  id: string;
+  employeeId: string;
+  benefitId: string;
+  oldStatus: string | null;
+  newStatus: string;
+  computedAt: string;
+  triggeredBy: string | null;
+  createdAt: string;
+};
+
+export async function fetchMyAuditLog(filters?: {
+  benefitId?: string;
+  from?: string;
+  to?: string;
+}): Promise<AuditEntry[]> {
+  const res = await getEmployeeClient().request<{
+    myAuditLog: AuditEntry[];
+  }>(MY_AUDIT_LOG_QUERY, { filters: filters ?? {} });
+  return res.myAuditLog ?? [];
+}
+
+export async function fetchBenefits(): Promise<{ id: string; name: string }[]> {
+  const res = await getEmployeeClient().request<{
+    benefits: { id: string; name: string }[];
+  }>(BENEFITS_QUERY);
+  return res.benefits ?? [];
 }
 
 export async function requestBenefit(benefitId: string): Promise<{

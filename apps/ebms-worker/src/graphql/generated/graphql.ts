@@ -318,6 +318,7 @@ export type Query = {
   getEligibilityRuleConfig: EligibilityRuleConfig;
   health: Health;
   me: Employee;
+  myAuditLog: Array<AuditEntry>;
   myBenefits: Array<BenefitEligibility>;
   myNotifications: Array<EmployeeNotification>;
   userOptions: Array<SwitchUserOption>;
@@ -362,6 +363,11 @@ export type QueryEmployeeArgs = {
 export type QueryEmployeesArgs = {
   department?: InputMaybe<Scalars['String']['input']>;
   employmentStatus?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMyAuditLogArgs = {
+  filters: AuditFilters;
 };
 
 
@@ -719,6 +725,7 @@ export type QueryResolvers<ContextType = Ctx, ParentType extends ResolversParent
   getEligibilityRuleConfig?: Resolver<ResolversTypes['EligibilityRuleConfig'], ParentType, ContextType>;
   health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
   me?: Resolver<ResolversTypes['Employee'], ParentType, ContextType>;
+  myAuditLog?: Resolver<Array<ResolversTypes['AuditEntry']>, ParentType, ContextType, RequireFields<QueryMyAuditLogArgs, 'filters'>>;
   myBenefits?: Resolver<Array<ResolversTypes['BenefitEligibility']>, ParentType, ContextType>;
   myNotifications?: Resolver<Array<ResolversTypes['EmployeeNotification']>, ParentType, ContextType, Partial<QueryMyNotificationsArgs>>;
   userOptions?: Resolver<Array<ResolversTypes['SwitchUserOption']>, ParentType, ContextType>;
