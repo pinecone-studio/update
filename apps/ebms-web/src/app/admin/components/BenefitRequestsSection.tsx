@@ -32,7 +32,7 @@ export function BenefitRequestsSection({
   onReject,
 }: BenefitRequestsSectionProps) {
   return (
-    <article className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[rgba(38, 38, 38, 1)] bg-[rgba(13, 94, 85, 0.1)] sm:p-6 dark:border-[#262626]">
+    <article className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-[rgba(38,38,38,1)] bg-[rgba(13,94,85,0.1)] sm:p-6 lg:h-[672px] lg:flex-none lg:self-start dark:border-[#262626]">
       <div className="mb-4 flex shrink-0 flex-col gap-3 px-6 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <h2 className="text-xl font-bold text-white">
           Employee Benefit Requests
