@@ -141,14 +141,14 @@ export default function HrDashboardPage() {
 
   return (
     <div className="flex min-h-min flex-1 flex-col gap-4 sm:gap-6 lg:gap-8">
-      <section className="grid min-h-min flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-4 sm:gap-6 lg:grid-cols-[auto_1fr] lg:grid-rows-1 lg:gap-8">
+      <section className="grid min-h-min flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-4 sm:gap-6 lg:h-[672px] lg:grid-cols-[auto_1fr] lg:grid-rows-1 lg:items-stretch lg:gap-8">
         <div className="flex flex-col gap-4 sm:gap-6 lg:min-w-[320px] lg:gap-8 xl:min-w-[454px]">
           <DashboardStatCard
             keyType="employees"
             title="Total-Employees"
             value={String(totalEmployees)}
             icon={
-              <div className="h-[60px] w-[60px] rounded-[12px] border-[2.2px] border-[#c8cfdf]/70 bg-[rgba(10,18,45,0.22)] p-[5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
+              <div className="h-[60px] w-[60px] rounded-[12px] bg-[rgba(10,18,45,0.22)] p-[5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
                 <div className="h-full w-full overflow-hidden rounded-[6px] bg-white">
                   <img
                     src="/Total-employee.png"
@@ -164,7 +164,7 @@ export default function HrDashboardPage() {
             title="All-Benefits"
             value={String(activeBenefits)}
             icon={
-              <div className="h-[60px] w-[60px] rounded-[12px] border-[2.2px] border-[#c8cfdf]/70 bg-[rgba(10,18,45,0.22)] p-[5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
+              <div className="h-[60px] w-[60px] rounded-[12px] bg-[rgba(10,18,45,0.22)] p-[5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
                 <div className="h-full w-full overflow-hidden rounded-[6px] bg-white">
                   <img
                     src="/All-benefit.png"

@@ -32,7 +32,7 @@ export function BenefitRequestsSection({
   onReject,
 }: BenefitRequestsSectionProps) {
   return (
-    <article className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[rgba(38, 38, 38, 1)] bg-[rgba(13, 94, 85, 0.1)] p-4 sm:rounded-[24px] sm:p-6 dark:border-[#262626]">
+    <article className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-[rgba(38, 38, 38, 1)] bg-[rgba(13, 94, 85, 0.1)] p-4 sm:rounded-[24px] sm:p-6 dark:border-[#262626]">
       <div className="mb-4 flex shrink-0 flex-col gap-3 px-4 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6 sm:pt-6">
         <h2 className="text-lg font-bold text-white sm:text-xl">
           Employee Benefit Requests
@@ -44,7 +44,7 @@ export function BenefitRequestsSection({
                 key={value ?? "all"}
                 type="button"
                 onClick={() => onStatusFilterChange(value)}
-                className={`shrink-0 rounded-2xl px-[22px] py-2.5 text-[20px] font-medium transition ${
+                className={`shrink-0 rounded-2xl px-[22px] py-2.5 text-[16px] font-medium transition ${
                   statusFilter === value
                     ? "bg-slate-200 text-slate-800 dark:bg-slate-200 dark:text-slate-800"
                     : "bg-transparent text-white"
@@ -63,7 +63,7 @@ export function BenefitRequestsSection({
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto pr-1">
         {requests.length === 0 ? (
           <p className="px-4 py-8 text-center text-slate-400 sm:px-8 dark:text-[#A7B6D3]">
             No benefit requests found.
