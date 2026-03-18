@@ -10,6 +10,7 @@ import {
   benefitRequests,
   benefits,
   contracts,
+  eligibilityAudit,
   employees,
 } from "../../../db/schema";
 import {
@@ -200,7 +201,10 @@ export const archiveBenefitContractPdf: NonNullable<
     .where(eq(benefitRequests.id, args.requestId));
 
   const existingEligibility = await db
-    .select({ employeeId: benefitEligibility.employeeId })
+    .select({
+      employeeId: benefitEligibility.employeeId,
+      status: benefitEligibility.status,
+    })
     .from(benefitEligibility)
     .where(
       and(
@@ -209,6 +213,8 @@ export const archiveBenefitContractPdf: NonNullable<
       ),
     )
     .limit(1);
+  const prevEligibilityStatus = existingEligibility[0]?.status ?? null;
+
   if (existingEligibility[0]) {
     await db
       .update(benefitEligibility)
@@ -236,6 +242,23 @@ export const archiveBenefitContractPdf: NonNullable<
       overrideExpiresAt: null,
     });
   }
+
+  await db.insert(eligibilityAudit).values({
+    id: crypto.randomUUID(),
+    employeeId: row.requestEmployeeId,
+    benefitId: row.benefitId,
+    oldStatus: prevEligibilityStatus,
+    newStatus: "active",
+    ruleTraceJson: JSON.stringify({
+      action: "contract_uploaded",
+      requestId: args.requestId,
+      uploadedBy: actorEmployeeId,
+      reason: "Signed contract uploaded",
+    }),
+    triggeredBy: actorEmployeeId,
+    computedAt: uploadedAt,
+    createdAt: uploadedAt,
+  });
 
   await dispatchEmployeeNotification(ctx.env, {
     employeeId: row.requestEmployeeId,

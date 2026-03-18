@@ -15,6 +15,8 @@ interface BenefitPortfolioProps {
     benefit: BenefitCardProps,
   ) => boolean | void | Promise<boolean | void>;
   onViewContract?: (benefit: BenefitCardProps) => void | Promise<void>;
+  /** When provided, called when user clicks "View uploaded contract" on ACTIVE benefit */
+  onViewUploadedContract?: (requestId: string) => void | Promise<void>;
   /** Use single column layout (e.g. for sidebar) */
   compact?: boolean;
 }
@@ -23,6 +25,7 @@ export function BenefitPortfolio({
   benefits,
   onRequestBenefit,
   onViewContract,
+  onViewUploadedContract,
   compact,
 }: BenefitPortfolioProps) {
   const [selectedBenefit, setSelectedBenefit] =
@@ -93,6 +96,7 @@ export function BenefitPortfolio({
         }}
         onRequestBenefit={onRequestBenefit ? handleRequestBenefit : undefined}
         onViewContract={onViewContract}
+        onViewUploadedContract={onViewUploadedContract}
       />
       {successBenefit ? (
         <BenefitRequestSuccessModal

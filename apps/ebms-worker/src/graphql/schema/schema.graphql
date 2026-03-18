@@ -68,6 +68,8 @@ type BenefitEligibility {
   overrideReason: String
   """When status is PENDING: 'admin' or 'finance' — who must approve next"""
   pendingApprovalBy: String
+  """When status is ACTIVE and contract was uploaded: request ID to view/download contract"""
+  uploadedContractRequestId: String
 }
 
 type RuleEvaluation {
@@ -85,6 +87,12 @@ type Benefit {
   requiresContract: Boolean!
   vendorName: String
   activeContract: Contract
+  """ISO date — after this benefit becomes LOCKED for everyone"""
+  requestDeadline: String
+  """Max uses per period (default 1)"""
+  usageLimitCount: Int!
+  """Period for usage limit: month | year"""
+  usageLimitPeriod: String
 }
 
 type Contract {
@@ -192,6 +200,7 @@ type AuditEntry {
   benefitId: ID!
   oldStatus: String
   newStatus: String!
+  ruleTraceJson: String
   computedAt: String!
   triggeredBy: String
   createdAt: String!
@@ -234,6 +243,12 @@ input CreateBenefitInput {
   subsidyPercent: Int
   requiresContract: Boolean
   rules: [EligibilityRuleInput!]
+  """ISO date — after this benefit becomes LOCKED"""
+  requestDeadline: String
+  """Max uses per period (default 1)"""
+  usageLimitCount: Int
+  """Period: month | year"""
+  usageLimitPeriod: String
 }
 
 input UpdateBenefitInput {
@@ -243,6 +258,9 @@ input UpdateBenefitInput {
   category: String!
   subsidyPercent: Int!
   requiresContract: Boolean!
+  requestDeadline: String
+  usageLimitCount: Int
+  usageLimitPeriod: String
 }
 
 # ─── Eligibility Rule Config (HR) ────────────────────────────────

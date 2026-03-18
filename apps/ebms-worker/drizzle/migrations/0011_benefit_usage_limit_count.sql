@@ -1,0 +1,1 @@
+ALTER TABLE benefits ADD COLUMN usage_limit_count INTEGER NOT NULL DEFAULT 1;

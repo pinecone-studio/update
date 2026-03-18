@@ -4,7 +4,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
-import { ensureValidActiveUserProfile } from "@/app/_lib/activeUser";
+import {
+  ensureValidActiveUserProfile,
+} from "@/app/_lib/activeUser";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import {
   fetchMe,
   fetchMyBenefits,
@@ -12,6 +15,7 @@ import {
   uploadSignedContractPdf,
   requestBenefit,
   openBenefitContractPreview,
+  openUploadedContract,
   getApiErrorMessage,
 } from "../_lib/api";
 import { mapMyBenefitsToCardProps } from "../_lib/mapBenefits";
@@ -119,6 +123,8 @@ export function useEmployeeDashboardData() {
     void load();
   }, [load]);
 
+  useOnUserSwitch(load);
+
   useEffect(() => {
     const onVisibility = () => {
       if (document.visibilityState === "visible") {
@@ -165,6 +171,17 @@ export function useEmployeeDashboardData() {
       alert(getApiErrorMessage(e));
     }
   }, []);
+
+  const handleViewUploadedContract = useCallback(
+    async (requestId: string) => {
+      try {
+        await openUploadedContract(requestId);
+      } catch (e) {
+        alert(getApiErrorMessage(e));
+      }
+    },
+    [],
+  );
 
   const handleUploadSignedContract = useCallback(
     async (requestId: string) => {
@@ -245,6 +262,7 @@ export function useEmployeeDashboardData() {
     setSelectedContractFileByRequestId,
     handleRequestBenefit,
     handleViewContract,
+    handleViewUploadedContract,
     handleUploadSignedContract,
   };
 }

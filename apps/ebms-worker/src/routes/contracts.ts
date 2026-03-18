@@ -10,6 +10,44 @@ import {
 
 const contractsRoute = new Hono<{ Bindings: Env }>();
 
+/** GET /contracts/employee-requests/:requestId/file — employee views their uploaded signed contract */
+contractsRoute.get("/employee-requests/:requestId/file", async (c) => {
+  const requestId = c.req.param("requestId");
+  const actorEmployeeId = c.req.header("x-employee-id");
+  if (!actorEmployeeId) {
+    return c.json({ error: "Unauthorized: missing x-employee-id header" }, 401);
+  }
+
+  const db = getDb(c.env);
+  const rows = await db
+    .select({
+      id: benefitRequests.id,
+      employeeId: benefitRequests.employeeId,
+      r2ObjectKey: benefitRequests.employeeContractR2Key,
+    })
+    .from(benefitRequests)
+    .where(eq(benefitRequests.id, requestId))
+    .limit(1);
+  const row = rows[0];
+  if (!row || !row.r2ObjectKey) {
+    return c.json({ error: "Contract not found" }, 404);
+  }
+  if (row.employeeId !== actorEmployeeId) {
+    return c.json({ error: "Forbidden: contract does not belong to you" }, 403);
+  }
+
+  const object = await c.env.CONTRACTS.get(row.r2ObjectKey);
+  if (!object) {
+    return c.json({ error: "Contract file not found" }, 404);
+  }
+  const bytes = await object.arrayBuffer();
+  const filename = row.r2ObjectKey.split("/").pop() || `${requestId}.pdf`;
+  return c.body(bytes, 200, {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `inline; filename="${filename}"`,
+  });
+});
+
 // Legacy HTML endpoint kept for existing contractTemplateUrl links.
 contractsRoute.get("/requests/:requestId/template", async (c) => {
   const requestId = c.req.param("requestId");

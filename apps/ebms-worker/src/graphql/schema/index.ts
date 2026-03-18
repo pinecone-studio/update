@@ -70,6 +70,7 @@ export const typeDefs = /* GraphQL */ `
     overrideApplied: Boolean!
     overrideReason: String
     pendingApprovalBy: String
+    uploadedContractRequestId: String
   }
 
   type RuleEvaluation {
@@ -87,6 +88,12 @@ export const typeDefs = /* GraphQL */ `
     requiresContract: Boolean!
     vendorName: String
     activeContract: Contract
+    """ISO date — after this benefit becomes LOCKED for everyone"""
+    requestDeadline: String
+    """Max uses per period (default 1)"""
+    usageLimitCount: Int!
+    """Period for usage limit: month | year"""
+    usageLimitPeriod: String
   }
 
   type Contract {
@@ -186,16 +193,17 @@ export const typeDefs = /* GraphQL */ `
     to: String
   }
 
-  type AuditEntry {
-    id: ID!
-    employeeId: ID!
-    benefitId: ID!
-    oldStatus: String
-    newStatus: String!
-    computedAt: String!
-    triggeredBy: String
-    createdAt: String!
-  }
+type AuditEntry {
+  id: ID!
+  employeeId: ID!
+  benefitId: ID!
+  oldStatus: String
+  newStatus: String!
+  ruleTraceJson: String
+  computedAt: String!
+  triggeredBy: String
+  createdAt: String!
+}
 
   type EmployeeNotification {
     id: ID!
@@ -232,6 +240,12 @@ export const typeDefs = /* GraphQL */ `
     subsidyPercent: Int
     requiresContract: Boolean
     rules: [EligibilityRuleInput!]
+    """ISO date — after this benefit becomes LOCKED"""
+    requestDeadline: String
+    """Max uses per period (default 1)"""
+    usageLimitCount: Int
+    """Period: month | year"""
+    usageLimitPeriod: String
   }
 
   input UpdateBenefitInput {
@@ -241,6 +255,9 @@ export const typeDefs = /* GraphQL */ `
     category: String!
     subsidyPercent: Int!
     requiresContract: Boolean!
+    requestDeadline: String
+    usageLimitCount: Int
+    usageLimitPeriod: String
   }
 
   type EligibilityRuleConfig {

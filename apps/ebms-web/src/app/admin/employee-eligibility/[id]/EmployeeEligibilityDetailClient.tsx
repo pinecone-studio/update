@@ -10,7 +10,7 @@ import {
   getActiveUserHeaders,
 } from "@/app/_lib/activeUser";
 
-type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED";
+type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
 type EmployeeBenefit = {
   benefit: { id: string; name: string };
@@ -19,7 +19,6 @@ type EmployeeBenefit = {
   computedAt?: string | null;
   overrideApplied?: boolean;
   overrideReason?: string | null;
-  rejectedReason?: string | null;
 };
 
 type EmployeeDetail = {
@@ -67,7 +66,6 @@ const EMPLOYEE_QUERY = gql`
         computedAt
         overrideApplied
         overrideReason
-        rejectedReason
       }
     }
   }
@@ -96,7 +94,6 @@ const modalStatusOptions: BenefitStatus[] = [
   "PENDING",
   "ELIGIBLE",
   "LOCKED",
-  "REJECTED",
 ];
 
 const statusCopy: Record<BenefitStatus, string> = {
@@ -104,7 +101,6 @@ const statusCopy: Record<BenefitStatus, string> = {
   PENDING: "Pending",
   ELIGIBLE: "Eligible",
   LOCKED: "Locked",
-  REJECTED: "Rejected",
 };
 
 const statusButtonClass: Record<BenefitStatus, string> = {
@@ -112,7 +108,6 @@ const statusButtonClass: Record<BenefitStatus, string> = {
   PENDING: "border-[#ffffff]/50 bg-[#8a5212] text-white",
   ELIGIBLE: "border-[#ffffff]/50 bg-[#1a4a82] text-white",
   LOCKED: "border-[#ffffff]/50 bg-[#851618] text-white",
-  REJECTED: "border-[#ffffff]/50 bg-[#851618] text-white",
 };
 
 function getStatusSegmentClass(option: BenefitStatus, selected: boolean) {
@@ -158,9 +153,6 @@ function formatRoleLabel(value: string): string {
 function inferReason(benefit: EmployeeBenefit): string {
   if (benefit.overrideApplied && benefit.overrideReason?.trim()) {
     return benefit.overrideReason.trim();
-  }
-  if (benefit.rejectedReason?.trim()) {
-    return benefit.rejectedReason.trim();
   }
   const failedRule = benefit.ruleEvaluations?.find((e) => !e.passed);
   if (failedRule?.reason) return failedRule.reason;
@@ -461,7 +453,7 @@ export default function EmployeeEligibilityDetailClient() {
               <h1 className="text-[42px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
                 {employee.name}
               </h1>
-              <p className="mt-[8px] text-[27px] font-light text-[#9AA8AB80] tracking-[-0.02em] text-white/48">
+              <p className="mt-[8px] text-[26px] font-light text-[#9AA8AB80] tracking-[-0.02em] text-white/48">
                 Role
                 <span className="text-[#9AA8AB] font-light">
                   : {employee.role}
@@ -588,7 +580,7 @@ export default function EmployeeEligibilityDetailClient() {
                 e.target.style.height = `${Math.max(e.target.scrollHeight, 112)}px`;
               }}
               placeholder="Comment..."
-              className="mt-[10px] min-h-[179px] w-full resize-none overflow-hidden rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[18px] text-[18px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
+              className="mt-[10px] min-h-[179px] w-[836px] resize-none overflow-hidden rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[18px] text-[18px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
             />
 
             {activeError && (
@@ -605,7 +597,7 @@ export default function EmployeeEligibilityDetailClient() {
               <button
                 type="button"
                 onClick={closeBenefitModal}
-                className="h-[46px] w-34 rounded-[10px] bg-[#C3C3C3] px-[20px] py-[10px]  text-[16px] font-ligth text-[#16346E] transition hover:bg-[#D1D1D1]"
+                className="h-[46px] w-[136px] rounded-[10px] bg-[#E5E5E5] px-[20px] py-[10px]  text-[16px] font-ligth text-[#122459] transition hover:bg-[#D1D1D1]"
               >
                 Cancel
               </button>
@@ -619,9 +611,9 @@ export default function EmployeeEligibilityDetailClient() {
                   )
                 }
                 disabled={activeSaving}
-                className="h-[46px] w-50 rounded-[10px] bg-[#1a83ed] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#2A74BC] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-[46px] w-[200px] rounded-[10px] bg-[#1a83ed] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#2A74BC] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {activeSaving ? "Saving..." : "Save"}
+                {activeSaving ? "Saving..." : "Save changes"}
               </button>
             </div>
           </div>

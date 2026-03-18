@@ -92,7 +92,7 @@ export const overrideEligibility: NonNullable<
     id: auditId,
     employeeId,
     benefitId,
-    oldStatus: null,
+    oldStatus: prevStatus || null,
     newStatus: statusLower,
     ruleTraceJson: JSON.stringify({ override: true, reason, overrideBy }),
     triggeredBy: overrideBy,

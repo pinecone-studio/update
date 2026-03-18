@@ -56,6 +56,8 @@ export function mapMyBenefitsToCardProps(
       b.activeContract?.effectiveDate ??
       (item.status === "ACTIVE" ? "2025-01-15" : undefined);
 
+    const uploadedContractRequestId = item.uploadedContractRequestId ?? undefined;
+
     return {
       benefitId: b.id,
       category: b.category ?? "Benefit",
@@ -72,6 +74,7 @@ export function mapMyBenefitsToCardProps(
         ? eligibilityRules.map((r) => r.rule).join(", ")
         : "See eligibility details.",
       contractLink: undefined,
+      uploadedContractRequestId,
       benefitEndDate,
       benefitStartDate,
       requiresContract: b.requiresContract ?? false,

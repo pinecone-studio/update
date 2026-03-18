@@ -7,6 +7,7 @@ import {
   type ActiveUserProfile,
   type SwitchUserOption,
 } from "@/app/_lib/activeUser";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import {
   DEFAULT_NOTIFICATIONS,
   type AdminNotification,
@@ -65,6 +66,10 @@ export function useAdminHeader(pathname: string) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [notificationsRefreshKey, setNotificationsRefreshKey] = useState(0);
+
+  useOnUserSwitch(() => setNotificationsRefreshKey((k) => k + 1));
+
   useEffect(() => {
     let cancelled = false;
     fetchAdminNotifications(50)
@@ -86,7 +91,7 @@ export function useAdminHeader(pathname: string) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [notificationsRefreshKey]);
 
   useEffect(() => {
     setSelectedUser(getActiveUserProfile());

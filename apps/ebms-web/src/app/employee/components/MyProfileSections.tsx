@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { HiOutlineArrowLeft, HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi2";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import {
   fetchMyBenefitRequests,
   fetchMyAuditLog,
@@ -145,6 +146,9 @@ export function BenefitHistorySection() {
   const [benefitCategories, setBenefitCategories] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useOnUserSwitch(() => setRefreshKey((k) => k + 1));
 
   useEffect(() => {
     let cancelled = false;
@@ -180,7 +184,7 @@ export function BenefitHistorySection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshKey]);
 
   const getBenefitName = (benefitId: string) =>
     benefitNames[benefitId] ?? benefitId;
