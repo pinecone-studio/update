@@ -36,6 +36,14 @@ export const createBenefit: NonNullable<
   const now = new Date().toISOString();
   const subsidyPercent = input.subsidyPercent ?? 0;
   const requiresContract = input.requiresContract ?? false;
+  const requestDeadline = input.requestDeadline?.trim() || null;
+  const usageLimitCount = Math.max(1, input.usageLimitCount ?? 1);
+  const usageLimitPeriod =
+    input.usageLimitPeriod?.toLowerCase().trim() === "year"
+      ? "year"
+      : input.usageLimitPeriod?.toLowerCase().trim() === "month"
+        ? "month"
+        : null;
 
   let benefitId: string;
   try {
@@ -80,6 +88,9 @@ export const createBenefit: NonNullable<
       subsidyPercent,
       requiresContract: requiresContract ? 1 : 0,
       isActive: 1,
+      requestDeadline,
+      usageLimitCount,
+      usageLimitPeriod,
       createdAt: now,
       updatedAt: now,
     });
@@ -173,5 +184,8 @@ export const createBenefit: NonNullable<
     subsidyPercent,
     requiresContract,
     activeContractId: null,
+    requestDeadline,
+    usageLimitCount,
+    usageLimitPeriod,
   };
 };

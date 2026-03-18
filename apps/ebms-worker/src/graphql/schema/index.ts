@@ -88,6 +88,12 @@ export const typeDefs = /* GraphQL */ `
     requiresContract: Boolean!
     vendorName: String
     activeContract: Contract
+    """ISO date — after this benefit becomes LOCKED for everyone"""
+    requestDeadline: String
+    """Max uses per period (default 1)"""
+    usageLimitCount: Int!
+    """Period for usage limit: month | year"""
+    usageLimitPeriod: String
   }
 
   type Contract {
@@ -234,6 +240,12 @@ type AuditEntry {
     subsidyPercent: Int
     requiresContract: Boolean
     rules: [EligibilityRuleInput!]
+    """ISO date — after this benefit becomes LOCKED"""
+    requestDeadline: String
+    """Max uses per period (default 1)"""
+    usageLimitCount: Int
+    """Period: month | year"""
+    usageLimitPeriod: String
   }
 
   input UpdateBenefitInput {
@@ -243,6 +255,9 @@ type AuditEntry {
     category: String!
     subsidyPercent: Int!
     requiresContract: Boolean!
+    requestDeadline: String
+    usageLimitCount: Int
+    usageLimitPeriod: String
   }
 
   type EligibilityRuleConfig {

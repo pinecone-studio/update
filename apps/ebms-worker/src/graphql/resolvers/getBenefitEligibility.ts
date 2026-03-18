@@ -39,6 +39,9 @@ export type BenefitEligibilityRow = {
     requiresContract: boolean;
     vendorName: string | null;
     activeContractId: string | null;
+    requestDeadline?: string | null;
+    usageLimitCount: number;
+    usageLimitPeriod?: string | null;
   };
   status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED";
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
@@ -59,54 +62,91 @@ export async function getBenefitEligibilityForEmployee(
   const db = getDb(env);
   const now = new Date().toISOString();
 
-  const [config, employee, pendingRequestRows, rejectedRequestRows, approvedWithContractRows] =
-    await Promise.all([
-      getActiveEligibilityConfig(env),
-      getEmployeeForEligibility(env, employeeId),
-      db
-        .select({
-          benefitId: benefitRequests.benefitId,
-          requestStatus: benefitRequests.status,
-        })
-        .from(benefitRequests)
-        .where(
-          and(
-            eq(benefitRequests.employeeId, employeeId),
-            inArray(benefitRequests.status, ["pending", "admin_approved"]),
-          ),
+  const [
+    config,
+    employee,
+    pendingRequestRows,
+    rejectedRequestRows,
+    approvedWithContractRows,
+    approvedRequestsForUsage,
+  ] = await Promise.all([
+    getActiveEligibilityConfig(env),
+    getEmployeeForEligibility(env, employeeId),
+    db
+      .select({
+        benefitId: benefitRequests.benefitId,
+        requestStatus: benefitRequests.status,
+      })
+      .from(benefitRequests)
+      .where(
+        and(
+          eq(benefitRequests.employeeId, employeeId),
+          inArray(benefitRequests.status, ["pending", "admin_approved"]),
         ),
-      db
-        .select({
-          benefitId: benefitRequests.benefitId,
-          rejectReason: benefitRequests.rejectReason,
-        })
-        .from(benefitRequests)
-        .where(
-          and(
-            eq(benefitRequests.employeeId, employeeId),
-            eq(benefitRequests.status, "rejected"),
-          ),
-        )
-        .orderBy(desc(benefitRequests.createdAt)),
-      db
-        .select({
-          id: benefitRequests.id,
-          benefitId: benefitRequests.benefitId,
-          employeeContractR2Key: benefitRequests.employeeContractR2Key,
-        })
-        .from(benefitRequests)
-        .where(
-          and(
-            eq(benefitRequests.employeeId, employeeId),
-            eq(benefitRequests.status, "approved"),
-          ),
+      ),
+    db
+      .select({
+        benefitId: benefitRequests.benefitId,
+        rejectReason: benefitRequests.rejectReason,
+      })
+      .from(benefitRequests)
+      .where(
+        and(
+          eq(benefitRequests.employeeId, employeeId),
+          eq(benefitRequests.status, "rejected"),
         ),
-    ]);
+      )
+      .orderBy(desc(benefitRequests.createdAt)),
+    db
+      .select({
+        id: benefitRequests.id,
+        benefitId: benefitRequests.benefitId,
+        employeeContractR2Key: benefitRequests.employeeContractR2Key,
+      })
+      .from(benefitRequests)
+      .where(
+        and(
+          eq(benefitRequests.employeeId, employeeId),
+          eq(benefitRequests.status, "approved"),
+        ),
+      ),
+    db
+      .select({
+        benefitId: benefitRequests.benefitId,
+        updatedAt: benefitRequests.updatedAt,
+      })
+      .from(benefitRequests)
+      .where(
+        and(
+          eq(benefitRequests.employeeId, employeeId),
+          eq(benefitRequests.status, "approved"),
+        ),
+      ),
+  ]);
 
   const uploadedContractByBenefit = new Map<string, string>();
   for (const r of approvedWithContractRows) {
     if (r.employeeContractR2Key) {
       uploadedContractByBenefit.set(r.benefitId, r.id);
+    }
+  }
+
+  const nowDate = new Date();
+  const currentYear = nowDate.getFullYear();
+  const currentMonth = nowDate.getMonth();
+  const approvedInMonthByBenefit = new Map<string, number>();
+  const approvedInYearByBenefit = new Map<string, number>();
+  for (const r of approvedRequestsForUsage) {
+    const updatedAt = r.updatedAt ?? "";
+    const d = new Date(updatedAt);
+    if (Number.isNaN(d.getTime())) continue;
+    if (d.getFullYear() === currentYear && d.getMonth() === currentMonth) {
+      const prev = approvedInMonthByBenefit.get(r.benefitId) ?? 0;
+      approvedInMonthByBenefit.set(r.benefitId, prev + 1);
+    }
+    if (d.getFullYear() === currentYear) {
+      const prev = approvedInYearByBenefit.get(r.benefitId) ?? 0;
+      approvedInYearByBenefit.set(r.benefitId, prev + 1);
     }
   }
 
@@ -148,6 +188,9 @@ export async function getBenefitEligibilityForEmployee(
       benefitRequiresContract: benefitsTable.requiresContract,
       benefitVendorName: benefitsTable.vendorName,
       benefitActiveContractId: benefitsTable.activeContractId,
+      benefitRequestDeadline: benefitsTable.requestDeadline,
+      benefitUsageLimitCount: benefitsTable.usageLimitCount,
+      benefitUsageLimitPeriod: benefitsTable.usageLimitPeriod,
       eligibilityStatus: benefitEligibility.status,
       ruleEvaluationJson: benefitEligibility.ruleEvaluationJson,
       computedAt: benefitEligibility.computedAt,
@@ -188,13 +231,71 @@ export async function getBenefitEligibilityForEmployee(
     return "LOCKED";
   }
 
+  function isRequestDeadlinePassed(deadline: string | null): boolean {
+    if (!deadline?.trim()) return false;
+    const d = new Date(deadline);
+    if (Number.isNaN(d.getTime())) return false;
+    return d.getTime() < Date.now();
+  }
+
+  function hasApprovedInCurrentPeriod(
+    benefitId: string,
+    period: string | null,
+  ): boolean {
+    if (!period) return false;
+    const count =
+      period === "year"
+        ? approvedInYearByBenefit.get(benefitId) ?? 0
+        : approvedInMonthByBenefit.get(benefitId) ?? 0;
+    return count >= 1;
+  }
+
   const results: BenefitEligibilityRow[] = [];
   for (const row of rows) {
+    if (isRequestDeadlinePassed(row.benefitRequestDeadline ?? null)) {
+      results.push({
+        benefit: {
+          id: row.benefitId,
+          name: row.benefitName,
+          description:
+            row.benefitDescription ?? `${row.benefitCategory} benefit`,
+          category: row.benefitCategory,
+          subsidyPercent: row.benefitSubsidyPercent ?? 0,
+          requiresContract: asBool01(row.benefitRequiresContract),
+          vendorName: row.benefitVendorName ?? null,
+          activeContractId: row.benefitActiveContractId ?? null,
+          requestDeadline: row.benefitRequestDeadline ?? null,
+          usageLimitCount: row.benefitUsageLimitCount ?? 1,
+          usageLimitPeriod: row.benefitUsageLimitPeriod ?? null,
+        },
+        status: "LOCKED",
+        ruleEvaluations: [
+          {
+            ruleType: "request_deadline",
+            passed: false,
+            reason: "Хүсэлт илгээх хугацаа дууссан",
+          },
+        ],
+        computedAt: now,
+        rejectedReason: null,
+        overrideApplied: false,
+        overrideReason: null,
+        pendingApprovalBy: null,
+        uploadedContractRequestId: null,
+      });
+      continue;
+    }
+
     const benefitConfig = config?.[row.benefitId];
     const rules = benefitConfig?.rules;
     const overrideActive = isOverrideActive(
       row.overrideBy ?? null,
       row.overrideExpiresAt ?? null,
+    );
+    const usagePeriod = row.benefitUsageLimitPeriod ?? null;
+    const hasApprovedInPeriod = hasApprovedInCurrentPeriod(
+      row.benefitId,
+      usagePeriod,
     );
 
     if (rules?.length && employee) {
@@ -209,6 +310,9 @@ export async function getBenefitEligibilityForEmployee(
         : row.eligibilityStatus === "active"
           ? "ACTIVE"
           : status;
+      if (usagePeriod && hasApprovedInPeriod && finalStatus !== "PENDING") {
+        finalStatus = "ACTIVE";
+      }
       if (finalStatus === "ELIGIBLE" && pendingBenefitIds.has(row.benefitId)) {
         finalStatus = "PENDING";
       }
@@ -244,6 +348,9 @@ export async function getBenefitEligibilityForEmployee(
           requiresContract: asBool01(row.benefitRequiresContract),
           vendorName: row.benefitVendorName ?? null,
           activeContractId: row.benefitActiveContractId ?? null,
+          requestDeadline: row.benefitRequestDeadline ?? null,
+          usageLimitCount: row.benefitUsageLimitCount ?? 1,
+          usageLimitPeriod: row.benefitUsageLimitPeriod ?? null,
         },
         status: finalStatus,
         ruleEvaluations: overrideActive
@@ -295,6 +402,9 @@ export async function getBenefitEligibilityForEmployee(
       : "ELIGIBLE";
     let status: "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING" | "REJECTED" =
       baseStatus;
+    if (usagePeriod && hasApprovedInPeriod && status !== "PENDING") {
+      status = "ACTIVE";
+    }
     if (status === "ELIGIBLE" && pendingBenefitIds.has(row.benefitId)) {
       status = "PENDING";
     }
@@ -329,6 +439,9 @@ export async function getBenefitEligibilityForEmployee(
         requiresContract: asBool01(row.benefitRequiresContract),
         vendorName: row.benefitVendorName ?? null,
         activeContractId: row.benefitActiveContractId ?? null,
+        requestDeadline: row.benefitRequestDeadline ?? null,
+        usageLimitCount: row.benefitUsageLimitCount ?? 1,
+        usageLimitPeriod: row.benefitUsageLimitPeriod ?? null,
       },
       status,
       ruleEvaluations,
