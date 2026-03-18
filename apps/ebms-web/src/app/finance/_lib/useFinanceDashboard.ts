@@ -68,6 +68,13 @@ export function useFinanceDashboard() {
     }).length;
   }, [requests]);
 
+  const rejectedRequests = useMemo(
+    () =>
+      requests.filter((r) => (r.status ?? "").toUpperCase() === "REJECTED")
+        .length,
+    [requests]
+  );
+
   const totalAllocated = useMemo(
     () =>
       requests
@@ -76,7 +83,10 @@ export function useFinanceDashboard() {
     [requests, benefitSubsidyMap]
   );
 
-  const remainingBudgetEstimate = Math.max(0, 100 - totalAllocated);
+  const totalBudgetInMillions = 50;
+  const allocatedBudgetInMillions = Number(
+    ((totalAllocated / 100) * totalBudgetInMillions).toFixed(1)
+  );
 
   const statCards: StatCard[] = useMemo(
     () => [
@@ -84,7 +94,10 @@ export function useFinanceDashboard() {
         key: "pending",
         value: String(pendingRequests.length),
         title: "Pending Requests",
-        note: "Requires attention",
+        note:
+          pendingRequests.length === 0
+            ? "All requests are processed"
+            : "Requires attention",
         tone: "yellow",
         icon: "!",
       },
@@ -97,27 +110,30 @@ export function useFinanceDashboard() {
         icon: "check",
       },
       {
-        key: "allocated",
-        value: `${totalAllocated}%`,
-        title: "Total Budget Allocated",
-        note: "From approved benefit subsidies",
-        tone: "blue",
-        icon: "wallet",
+        key: "rejected",
+        value: String(rejectedRequests),
+        title: "Rejected Requests",
+        note:
+          rejectedRequests === 0 ? "No rejected requests" : "Needs attention",
+        tone: "purple",
+        icon: "!",
       },
       {
-        key: "remaining",
-        value: `${remainingBudgetEstimate}%`,
-        title: "Remaining Budget",
-        note: "Estimated from configured subsidies",
-        tone: "purple",
-        icon: "trend",
+        key: "budget",
+        value: `₮${allocatedBudgetInMillions}M / ₮${totalBudgetInMillions}M`,
+        title: "Budget",
+        note: `${totalAllocated}% this month`,
+        tone: "blue",
+        icon: "wallet",
       },
     ],
     [
       pendingRequests.length,
       approvedThisMonth,
+      rejectedRequests,
       totalAllocated,
-      remainingBudgetEstimate,
+      allocatedBudgetInMillions,
+      totalBudgetInMillions,
     ]
   );
 

@@ -47,10 +47,10 @@ export const MODAL_THEME: Record<
     frame:
       "border-[0.41px] border-[#51A2FF66] shadow-[0_17.92px_35.85px_-8.6px_rgba(0,0,0,0.25)]",
     header:
-      "bg-[linear-gradient(135deg,rgba(43,127,255,0.25)_0%,rgba(97,95,255,0.25)_50%,rgba(152,16,250,0.25)_100%),rgba(15,23,43,0.95)]",
-    body: "bg-[linear-gradient(135deg,rgba(43,127,255,0.25)_0%,rgba(97,95,255,0.25)_50%,rgba(152,16,250,0.25)_100%),rgba(15,23,43,0.95)]",
+      "bg-[radial-gradient(circle_at_18%_16%,rgba(168,117,255,0.18),transparent_46%),radial-gradient(circle_at_78%_72%,rgba(90,128,255,0.14),transparent_48%),linear-gradient(135deg,rgba(53,41,112,0.62)_0%,rgba(42,34,104,0.56)_52%,rgba(35,29,96,0.52)_100%)]",
+    body: "bg-[radial-gradient(circle_at_18%_16%,rgba(168,117,255,0.15),transparent_50%),radial-gradient(circle_at_76%_70%,rgba(90,128,255,0.12),transparent_50%),linear-gradient(135deg,rgba(53,41,112,0.56)_0%,rgba(42,34,104,0.50)_52%,rgba(35,29,96,0.46)_100%)]",
     section:
-      "border-[#5f74b8]/45 bg-[linear-gradient(120deg,rgba(58,76,141,0.88)_0%,rgba(62,65,137,0.88)_100%)]",
+      "border-[rgba(122,139,201,0.45)] bg-[linear-gradient(120deg,rgba(82,82,154,0.38)_0%,rgba(77,72,147,0.34)_52%,rgba(72,66,141,0.30)_100%)]",
     rulePass:
       "border-[#14989c]/45 bg-[linear-gradient(120deg,rgba(16,101,108,0.94)_0%,rgba(17,91,111,0.94)_100%)]",
     ruleFail:
