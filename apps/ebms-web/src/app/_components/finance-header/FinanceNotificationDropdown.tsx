@@ -99,7 +99,7 @@ export function FinanceNotificationDropdown({
           ))
         )}
       </div>
-      <div className="border-t border-white/10 px-3 py-3">
+      <div className="flex items-center justify-between border-t border-white/10 px-3 py-3">
         <Link
           href="/finance/finance-notification"
           onClick={onClose}
@@ -107,6 +107,18 @@ export function FinanceNotificationDropdown({
         >
           View all →
         </Link>
+        {unreadCount > 0 && onMarkAllRead && (
+          <button
+            type="button"
+            onClick={() => {
+              onMarkAllRead();
+              onClose();
+            }}
+            className="text-xs font-medium text-white/60 transition hover:text-white"
+          >
+            Mark all as read
+          </button>
+        )}
       </div>
     </div>
   );
