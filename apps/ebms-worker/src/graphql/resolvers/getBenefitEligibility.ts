@@ -10,6 +10,8 @@ import {
   benefits as benefitsTable,
   benefitEligibility,
   benefitRequests,
+  contracts,
+  eligibilityAudit,
 } from "../../db/schema";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { asBool01, mapBenefitStatus, safeJsonParse } from "./utils";
@@ -197,6 +199,7 @@ export async function getBenefitEligibilityForEmployee(
       overrideBy: benefitEligibility.overrideBy,
       overrideReason: benefitEligibility.overrideReason,
       overrideExpiresAt: benefitEligibility.overrideExpiresAt,
+      contractExpiryDate: contracts.expiryDate,
     })
     .from(benefitsTable)
     .leftJoin(
@@ -206,6 +209,7 @@ export async function getBenefitEligibilityForEmployee(
         eq(benefitEligibility.employeeId, employeeId),
       ),
     )
+    .leftJoin(contracts, eq(benefitsTable.activeContractId, contracts.id))
     .where(eq(benefitsTable.isActive, 1))
     .orderBy(benefitsTable.category, benefitsTable.name);
 
@@ -236,6 +240,66 @@ export async function getBenefitEligibilityForEmployee(
     const d = new Date(deadline);
     if (Number.isNaN(d.getTime())) return false;
     return d.getTime() < Date.now();
+  }
+
+  function isContractExpired(expiryDate: string | null | undefined): boolean {
+    if (!expiryDate?.trim()) return false;
+    const d = new Date(expiryDate);
+    if (Number.isNaN(d.getTime())) return false;
+    return d.getTime() < Date.now();
+  }
+
+  async function writeContractExpiredAudit(
+    benefitId: string,
+    prevStatus: string,
+  ): Promise<void> {
+    try {
+      const existing = await db
+        .select({ status: benefitEligibility.status })
+        .from(benefitEligibility)
+        .where(
+          and(
+            eq(benefitEligibility.employeeId, employeeId),
+            eq(benefitEligibility.benefitId, benefitId),
+          ),
+        )
+        .limit(1);
+      if (existing[0]?.status?.toLowerCase() !== "active") return;
+
+      await db
+        .update(benefitEligibility)
+        .set({
+          status: "locked",
+          computedAt: now,
+          ruleEvaluationJson: JSON.stringify([
+            { ruleType: "contract_expired", passed: false, reason: "Гэрээний хугацаа дууссан" },
+          ]),
+        })
+        .where(
+          and(
+            eq(benefitEligibility.employeeId, employeeId),
+            eq(benefitEligibility.benefitId, benefitId),
+          ),
+        );
+
+      await db.insert(eligibilityAudit).values({
+        id: crypto.randomUUID(),
+        employeeId,
+        benefitId,
+        oldStatus: prevStatus,
+        newStatus: "locked",
+        ruleTraceJson: JSON.stringify({
+          action: "contract_expired",
+          reason: "Гэрээний хугацаа дууссан",
+          triggeredBy: "system",
+        }),
+        triggeredBy: "system",
+        computedAt: now,
+        createdAt: now,
+      });
+    } catch (err) {
+      console.error("Failed to write contract-expired audit:", err);
+    }
   }
 
   function hasApprovedInCurrentPeriod(
@@ -332,6 +396,15 @@ export async function getBenefitEligibilityForEmployee(
               : "admin")
           : null;
 
+      const contractExpired =
+        finalStatus === "ACTIVE" &&
+        asBool01(row.benefitRequiresContract) &&
+        isContractExpired(row.contractExpiryDate);
+      if (contractExpired) {
+        finalStatus = "LOCKED";
+        void writeContractExpiredAudit(row.benefitId, "active");
+      }
+
       const uploadedContractRequestId =
         finalStatus === "ACTIVE" && asBool01(row.benefitRequiresContract)
           ? (uploadedContractByBenefit.get(row.benefitId) ?? null)
@@ -353,7 +426,15 @@ export async function getBenefitEligibilityForEmployee(
           usageLimitPeriod: row.benefitUsageLimitPeriod ?? null,
         },
         status: finalStatus,
-        ruleEvaluations: overrideActive
+        ruleEvaluations: contractExpired
+          ? [
+              {
+                ruleType: "contract_expired",
+                passed: false,
+                reason: "Гэрээний хугацаа дууссан",
+              },
+            ]
+          : overrideActive
           ? [
               {
                 ruleType: "override",
@@ -424,6 +505,15 @@ export async function getBenefitEligibilityForEmployee(
             : "admin")
         : null;
 
+    const contractExpiredNoRules =
+      status === "ACTIVE" &&
+      asBool01(row.benefitRequiresContract) &&
+      isContractExpired(row.contractExpiryDate);
+    if (contractExpiredNoRules) {
+      status = "LOCKED";
+      void writeContractExpiredAudit(row.benefitId, "active");
+    }
+
     const uploadedContractRequestId =
       status === "ACTIVE" && asBool01(row.benefitRequiresContract)
         ? (uploadedContractByBenefit.get(row.benefitId) ?? null)
@@ -444,7 +534,15 @@ export async function getBenefitEligibilityForEmployee(
         usageLimitPeriod: row.benefitUsageLimitPeriod ?? null,
       },
       status,
-      ruleEvaluations,
+      ruleEvaluations: contractExpiredNoRules
+        ? [
+            {
+              ruleType: "contract_expired",
+              passed: false,
+              reason: "Гэрээний хугацаа дууссан",
+            },
+          ]
+        : ruleEvaluations,
       computedAt: row.computedAt ?? now,
       rejectedReason:
         status === "REJECTED"
