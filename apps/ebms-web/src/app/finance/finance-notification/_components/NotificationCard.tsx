@@ -25,9 +25,10 @@ type NotificationItem = {
 
 type NotificationCardProps = {
   item: NotificationItem;
+  onMarkAsRead?: (id: string) => void;
 };
 
-export function NotificationCard({ item }: NotificationCardProps) {
+export function NotificationCard({ item, onMarkAsRead }: NotificationCardProps) {
   const toneClasses =
     item.type === "payment_pending"
       ? "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-500/10"
@@ -106,6 +107,14 @@ export function NotificationCard({ item }: NotificationCardProps) {
               <button className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[12px] font-medium text-red-600 transition hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
                 Reject Payment
                 <HiOutlineXCircle className="text-sm" />
+              </button>
+            )}
+            {item.unread && onMarkAsRead && (
+              <button
+                onClick={() => onMarkAsRead(item.id)}
+                className="rounded-xl border border-transparent px-3 py-2 text-[12px] text-slate-500 transition hover:text-slate-700 dark:text-slate-400 dark:hover:text-white"
+              >
+                Mark as Read
               </button>
             )}
           </div>

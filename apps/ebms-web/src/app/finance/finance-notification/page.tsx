@@ -200,6 +200,27 @@ export default function FinanceNotificationPage() {
     [filteredByUnread, search]
   );
 
+  const markAllAsRead = async () => {
+    try {
+      await markAllFinanceNotificationsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    } catch {
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    }
+  };
+
+  const markAsRead = async (id: string) => {
+    try {
+      await markFinanceNotificationRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
+      );
+    } catch {
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -223,8 +244,15 @@ export default function FinanceNotificationPage() {
           unreadOnly={unreadOnly}
           onUnreadToggle={() => setUnreadOnly((prev) => !prev)}
         />
-        <NotificationSearchBar search={search} onSearchChange={setSearch} />
-        <NotificationList notifications={filteredNotifications} />
+        <NotificationSearchBar
+          search={search}
+          onSearchChange={setSearch}
+          onMarkAllAsRead={markAllAsRead}
+        />
+        <NotificationList
+          notifications={filteredNotifications}
+          onMarkAsRead={markAsRead}
+        />
       </div>
     </div>
   );

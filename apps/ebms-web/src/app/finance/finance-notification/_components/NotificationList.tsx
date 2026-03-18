@@ -24,11 +24,15 @@ export type NotificationItem = {
 
 type NotificationListProps = {
   notifications: NotificationItem[];
+  onMarkAsRead?: (id: string) => void;
 };
 
 const GROUPS = ["Today", "Yesterday", "Earlier"] as const;
 
-export function NotificationList({ notifications }: NotificationListProps) {
+export function NotificationList({
+  notifications,
+  onMarkAsRead,
+}: NotificationListProps) {
   return (
     <section className="space-y-6">
       {GROUPS.map((group) => {
@@ -41,7 +45,11 @@ export function NotificationList({ notifications }: NotificationListProps) {
             </p>
             <div className="space-y-3">
               {items.map((item) => (
-                <NotificationCard key={item.id} item={item} />
+                <NotificationCard
+                  key={item.id}
+                  item={item}
+                  onMarkAsRead={onMarkAsRead}
+                />
               ))}
             </div>
           </div>
