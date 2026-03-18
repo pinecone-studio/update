@@ -84,12 +84,12 @@ export function ProfileDropdown({
             </Link>
 
             <Link
-              href="/employee/myprofile"
+              href="/employee/history"
               onClick={onClose}
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
             >
               <HiOutlineUserCircle className="text-lg" />
-              Profile
+              History
             </Link>
 
             <div className="my-2 h-px bg-slate-200 dark:bg-[#243041]" />

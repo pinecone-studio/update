@@ -6,6 +6,7 @@ export * from "./myNotifications";
 export * from "./employee";
 export * from "./employees";
 export * from "./auditLog";
+export * from "./myAuditLog";
 export * from "./benefitRequests";
 export * from "./benefitRequestContractTemplate";
 export * from "./benefitContractPreview";

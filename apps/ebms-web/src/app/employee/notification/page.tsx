@@ -99,13 +99,11 @@ export default function NotificationPage() {
   }, [loadNotifications]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen px-4 py-6 text-slate-900 " />
-    );
+    return <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white" />;
   }
 
   return (
-    <div className="min-h-screen  px-4 py-6 text-slate-900 ">
+    <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white">
       <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6">
         <NotificationHeader />
         <NotificationStatsCards

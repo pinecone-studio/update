@@ -4,15 +4,11 @@ import { useEffect, useState } from "react";
 import { ProfileSkeleton } from "@/app/_components/ProfileSkeleton";
 import { fetchMe, getApiErrorMessage } from "../_lib/api";
 import {
+  BenefitHistorySection,
   MyProfileHeader,
-  MyProfileTabs,
-  PersonalInfoTab,
-  PlaceholderTab,
-  type TabKey,
 } from "../components/MyProfileSections";
 
 export default function MyProfilePage() {
-  const [activeTab, setActiveTab] = useState<TabKey>("personal");
   const [me, setMe] = useState<{
     id: string;
     name: string;
@@ -71,15 +67,9 @@ export default function MyProfilePage() {
         <div className="max-w-[1500px] mx-auto">
           <MyProfileHeader me={me} error={error} initials={initials} />
 
-          <MyProfileTabs activeTab={activeTab} onChange={setActiveTab} />
-
-          {activeTab === "personal" ? <PersonalInfoTab me={me} /> : null}
-          {activeTab === "performance" ? (
-            <PlaceholderTab text="Performance & Benefits content coming soon" />
-          ) : null}
-          {activeTab === "security" ? (
-            <PlaceholderTab text="Security settings coming soon" />
-          ) : null}
+          <div className="mt-8">
+            <BenefitHistorySection />
+          </div>
         </div>
       </div>
     </div>
