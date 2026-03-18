@@ -38,29 +38,29 @@ export function BenefitStatusModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(8,10,20,0.50)] px-6 backdrop-blur-[4px]">
-      <div className="h-[599px] w-full max-w-[900px] rounded-[30px] border-white/18 bg-[#1F2744]/[0.98] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.58)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(8,10,20,0.26)] px-6 backdrop-blur-[2px]">
+      <div className="h-[520px] w-full max-w-[760px] rounded-[30px] border border-white/12 bg-[rgba(31,39,68,0.60)] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.34)] backdrop-blur-[10px]">
         <div>
-          <h2 className="text-[31px] font-normal tracking-[-0.03em] text-white">
+          <h2 className="text-[26px] font-normal tracking-[-0.03em] text-white">
             {benefit.name}
           </h2>
-          <p className="mt-[2px] text-[18px] text-white/45">
+          <p className="mt-[1px] text-[18px] text-white/45">
             Edit benefit status
           </p>
         </div>
 
         <div className="mt-[22px] grid grid-cols-[1.04fr_1.62fr] gap-[12px]">
-          <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] px-[22px] py-[14px]">
-            <p className="text-[34px] font-normal leading-[1.05] tracking-[-0.03em] text-white">
+          <div className="rounded-[16px] border border-white/8 bg-white/[0.02] px-[22px] py-[14px]">
+            <p className="text-[24px] font-normal leading-[1.05] tracking-[-0.03em] text-white">
               {employeeName}
             </p>
-            <p className="mt-[4px] text-[20px] text-white/63">
+            <p className="mt-[4px] text-[16px] text-white/63">
               {employeeRole}
             </p>
           </div>
 
-          <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] p-[20px]">
-            <div className="grid grid-cols-3 gap-[12px]">
+          <div className="rounded-[16px] border border-white/8 bg-white/[0.02] p-[20px]">
+            <div className="grid grid-cols-4 gap-[12px]">
               {modalStatusOptions.map((option) => {
                 const selected = draftStatus === option;
                 return (
@@ -79,7 +79,7 @@ export function BenefitStatusModal({
           </div>
         </div>
 
-        <label className="mt-[42px] block pl-[24px] text-[14px] text-white/50">
+        <label className="mt-2 block pl-[24px] text-[14px] text-white/50">
           *Reason for change (optional)
         </label>
         <textarea
@@ -87,7 +87,7 @@ export function BenefitStatusModal({
           value={draftReason}
           onChange={(e) => onDraftReasonChange(e.target.value)}
           placeholder="Comment..."
-          className="mt-[10px] h-[192px] w-full rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[20px] text-[23px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
+          className="mt-2 h-[120px] w-full rounded-[22px] border border-white/8 bg-white/[0.02] px-[24px] py-[20px] text-[23px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
         />
 
         {error && (
@@ -114,7 +114,7 @@ export function BenefitStatusModal({
             disabled={saving}
             className="h-[46px] w-50 rounded-[10px] bg-[#0868CB] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#0B76E4] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving ? "Saving..." : "Save changes"}
+            {saving ? "Saving..." : "Save"}
           </button>
         </div>
       </div>

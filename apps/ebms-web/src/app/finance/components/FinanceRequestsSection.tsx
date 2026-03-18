@@ -50,7 +50,7 @@ export function FinanceRequestsSection({
   onViewTemplate,
 }: FinanceRequestsSectionProps) {
   return (
-    <section className="h-full overflow-hidden rounded-3xl border border-[rgba(63,91,138,0.62)] bg-[radial-gradient(circle_at_18%_8%,rgba(72,97,205,0.10),transparent_48%),linear-gradient(155deg,rgba(29,28,87,0.62),rgba(28,47,103,0.58))] backdrop-blur-[2px]">
+    <section className="h-full overflow-hidden rounded-3xl border border-[rgba(63,91,138,0.44)] bg-[radial-gradient(circle_at_18%_8%,rgba(72,97,205,0.06),transparent_48%),linear-gradient(155deg,rgba(29,28,87,0.28),rgba(28,47,103,0.24))] backdrop-blur-[1px]">
       <div className="flex flex-col gap-4 border-b border-[#2B405F] px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6 sm:py-5">
         <h2 className="text-[20px] font-semibold leading-tight text-white">
           Financial Benefit Requests
@@ -78,12 +78,6 @@ export function FinanceRequestsSection({
               )
             </button>
           ))}
-          <button
-            type="button"
-            className="rounded-xl border border-[#3A4F78] px-3 py-2 text-[15px] font-medium leading-tight text-[#B7C4DD]"
-          >
-            ({statusCounts.ALL}) ˅
-          </button>
         </div>
       </div>
 

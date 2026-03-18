@@ -7,7 +7,7 @@ export function getStatusSegmentClass(option: BenefitStatus, selected: boolean) 
   const base =
     "inline-flex h-[58px] items-center justify-center rounded-[8px] border text-[18px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9BFF]/70";
   if (selected) return `${base} ${statusButtonClass[option]}`;
-  return `${base} border-white/10 bg-[rgba(255,255,255,0.03)] text-white`;
+  return `${base} border-white/10 bg-[rgba(255,255,255,0.03)] text-white hover:border-[#2A9BFF] hover:bg-[rgba(42,155,255,0.22)]`;
 }
 
 export function getClient(): GraphQLClient {
