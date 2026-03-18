@@ -9,6 +9,7 @@ import {
   employees as employeesTable,
 } from "../db/schema";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { dispatchRoleNotification } from "../notifications/roleDispatcher";
 
 const adminContracts = new Hono<{ Bindings: Env }>();
 
@@ -412,6 +413,15 @@ adminContracts.post("/upload", async (c) => {
     .update(benefitsTable)
     .set({ activeContractId: contractId, updatedAt: now })
     .where(eq(benefitsTable.id, benefitId));
+
+  await dispatchRoleNotification(c.env, {
+    recipientRole: "admin",
+    title: "New Vendor Contract Uploaded",
+    body: `Vendor contract for ${benefitRow.vendorName ?? benefitId} (v${version}) has been uploaded and is ready for review.`,
+    type: "document",
+    tone: "info",
+    metadata: { contractId, benefitId, vendorName, version },
+  });
 
   return c.json({
     ok: true,
