@@ -580,7 +580,7 @@ export default function EmployeeEligibilityDetailClient() {
                   )
                 }
                 disabled={activeSaving}
-                className="h-[46px] w-50 rounded-[10px] bg-[#6d1297] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#0B76E4] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-[46px] w-50 rounded-[10px] bg-[#1a83ed] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#2A74BC] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {activeSaving ? "Saving..." : "Save"}
               </button>
