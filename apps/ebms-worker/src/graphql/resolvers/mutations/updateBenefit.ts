@@ -16,6 +16,9 @@ type UpdateBenefitArgs = {
     category: string;
     subsidyPercent: number;
     requiresContract: boolean;
+    requestDeadline?: string | null;
+    usageLimitCount?: number | null;
+    usageLimitPeriod?: string | null;
   };
 };
 
@@ -32,6 +35,18 @@ export const updateBenefit = async (
   const category = input.category?.trim();
   const subsidyPercent = input.subsidyPercent;
   const requiresContract = input.requiresContract;
+  const requestDeadline =
+    input.requestDeadline !== undefined ? (input.requestDeadline?.trim() || null) : undefined;
+  const usageLimitCount =
+    input.usageLimitCount != null ? Math.max(1, input.usageLimitCount) : undefined;
+  const usageLimitPeriod =
+    input.usageLimitPeriod !== undefined
+      ? (input.usageLimitPeriod?.toLowerCase().trim() === "year"
+          ? "year"
+          : input.usageLimitPeriod?.toLowerCase().trim() === "month"
+            ? "month"
+            : null)
+      : undefined;
 
   if (!id || !name || !category) {
     throw new GraphQLError("id, name and category are required", {
@@ -51,6 +66,9 @@ export const updateBenefit = async (
     .select({
       id: benefitsTable.id,
       activeContractId: benefitsTable.activeContractId,
+      requestDeadline: benefitsTable.requestDeadline,
+      usageLimitCount: benefitsTable.usageLimitCount,
+      usageLimitPeriod: benefitsTable.usageLimitPeriod,
     })
     .from(benefitsTable)
     .where(eq(benefitsTable.id, id))
@@ -61,17 +79,19 @@ export const updateBenefit = async (
     });
   }
 
-  await db
-    .update(benefitsTable)
-    .set({
-      name,
-      description,
-      category,
-      subsidyPercent,
-      requiresContract: requiresContract ? 1 : 0,
-      updatedAt: now,
-    })
-    .where(eq(benefitsTable.id, id));
+  const setObj = {
+    name,
+    description,
+    category,
+    subsidyPercent,
+    requiresContract: requiresContract ? 1 : 0,
+    updatedAt: now,
+    ...(requestDeadline !== undefined && { requestDeadline }),
+    ...(usageLimitCount !== undefined && { usageLimitCount }),
+    ...(usageLimitPeriod !== undefined && { usageLimitPeriod }),
+  };
+
+  await db.update(benefitsTable).set(setObj).where(eq(benefitsTable.id, id));
 
   // Keep eligibility config metadata in sync with catalog edits.
   try {
@@ -129,6 +149,7 @@ export const updateBenefit = async (
     // Do not fail catalog edit if config table/data is unavailable.
   }
 
+  const row = rows[0];
   return {
     id,
     name,
@@ -136,6 +157,9 @@ export const updateBenefit = async (
     category,
     subsidyPercent,
     requiresContract,
-    activeContractId: rows[0].activeContractId ?? null,
+    activeContractId: row.activeContractId ?? null,
+    requestDeadline: row.requestDeadline ?? null,
+    usageLimitCount: row.usageLimitCount ?? 1,
+    usageLimitPeriod: row.usageLimitPeriod ?? null,
   };
 };

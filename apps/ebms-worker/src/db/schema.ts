@@ -38,6 +38,12 @@ export const benefits = sqliteTable("benefits", {
   requiresContract: integer("requires_contract").notNull().default(0),
   activeContractId: text("active_contract_id"),
   isActive: integer("is_active").notNull().default(1),
+  /** ISO date — after this date benefit becomes LOCKED for everyone */
+  requestDeadline: text("request_deadline"),
+  /** Max times employee can use this benefit per period (default 1) */
+  usageLimitCount: integer("usage_limit_count").notNull().default(1),
+  /** Period for usage limit: "month" | "year" */
+  usageLimitPeriod: text("usage_limit_period"),
   createdAt: text("created_at").default(""),
   updatedAt: text("updated_at").default(""),
 });
@@ -145,19 +151,6 @@ export const employeeNotifications = sqliteTable("employee_notifications", {
   createdAt: text("created_at").notNull(),
 });
 
-/** Role notifications (admin, finance, hr) — single table with recipient_role */
-export const roleNotifications = sqliteTable("role_notifications", {
-  id: text("id").primaryKey(),
-  recipientRole: text("recipient_role").notNull(),
-  title: text("title").notNull(),
-  body: text("body").notNull(),
-  type: text("type").notNull(),
-  tone: text("tone").notNull().default("info"),
-  isRead: integer("is_read").notNull().default(0),
-  metadataJson: text("metadata_json"),
-  createdAt: text("created_at").notNull(),
-});
-
 /** Benefit feedback — employees create, vote; 3 votes before deadline → admin */
 export const feedback = sqliteTable("feedback", {
   id: text("id").primaryKey(),
@@ -180,3 +173,16 @@ export const feedbackVotes = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.feedbackId, t.employeeId] })],
 );
+
+/** Role notifications (admin, finance) */
+export const roleNotifications = sqliteTable("role_notifications", {
+  id: text("id").primaryKey(),
+  recipientRole: text("recipient_role").notNull(),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  type: text("type").notNull(),
+  tone: text("tone").notNull().default("info"),
+  isRead: integer("is_read").notNull().default(0),
+  metadataJson: text("metadata_json"),
+  createdAt: text("created_at").notNull(),
+});

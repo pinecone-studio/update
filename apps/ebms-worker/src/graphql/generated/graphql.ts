@@ -69,8 +69,14 @@ export type Benefit = {
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  /** ISO date — after this benefit becomes LOCKED for everyone */
+  requestDeadline?: Maybe<Scalars['String']['output']>;
   requiresContract: Scalars['Boolean']['output'];
   subsidyPercent: Scalars['Int']['output'];
+  /** Max uses per period (default 1) */
+  usageLimitCount: Scalars['Int']['output'];
+  /** Period for usage limit: month | year */
+  usageLimitPeriod?: Maybe<Scalars['String']['output']>;
   vendorName?: Maybe<Scalars['String']['output']>;
 };
 
@@ -149,9 +155,15 @@ export type CreateBenefitInput = {
   category: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  /** ISO date — after this benefit becomes LOCKED */
+  requestDeadline?: InputMaybe<Scalars['String']['input']>;
   requiresContract?: InputMaybe<Scalars['Boolean']['input']>;
   rules?: InputMaybe<Array<EligibilityRuleInput>>;
   subsidyPercent?: InputMaybe<Scalars['Int']['input']>;
+  /** Max uses per period (default 1) */
+  usageLimitCount?: InputMaybe<Scalars['Int']['input']>;
+  /** Period: month | year */
+  usageLimitPeriod?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type EligibilityRuleConfig = {
@@ -405,8 +417,11 @@ export type UpdateBenefitInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name: Scalars['String']['input'];
+  requestDeadline?: InputMaybe<Scalars['String']['input']>;
   requiresContract: Scalars['Boolean']['input'];
   subsidyPercent: Scalars['Int']['input'];
+  usageLimitCount?: InputMaybe<Scalars['Int']['input']>;
+  usageLimitPeriod?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UploadAdminContractInput = {
@@ -610,8 +625,11 @@ export type BenefitResolvers<ContextType = Ctx, ParentType extends ResolversPare
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requestDeadline?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   requiresContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   subsidyPercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  usageLimitCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  usageLimitPeriod?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   vendorName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 

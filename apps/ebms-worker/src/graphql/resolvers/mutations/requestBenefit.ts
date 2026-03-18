@@ -33,6 +33,9 @@ export const requestBenefit: NonNullable<
       name: benefitsTable.name,
       requiresContract: benefitsTable.requiresContract,
       activeContractId: benefitsTable.activeContractId,
+      requestDeadline: benefitsTable.requestDeadline,
+      usageLimitCount: benefitsTable.usageLimitCount,
+      usageLimitPeriod: benefitsTable.usageLimitPeriod,
     })
     .from(benefitsTable)
     .where(and(eq(benefitsTable.id, benefitId), eq(benefitsTable.isActive, 1)))
@@ -43,6 +46,48 @@ export const requestBenefit: NonNullable<
       extensions: { code: "NOT_FOUND" },
     });
   }
+
+  const deadline = benefit.requestDeadline?.trim();
+  if (deadline) {
+    const d = new Date(deadline);
+    if (!Number.isNaN(d.getTime()) && d.getTime() < Date.now()) {
+      throw new GraphQLError("Хүсэлт илгээх хугацаа дууссан", {
+        extensions: { code: "BAD_USER_INPUT" },
+      });
+    }
+  }
+
+  const period = benefit.usageLimitPeriod?.toLowerCase().trim();
+  const limit = benefit.usageLimitCount ?? 1;
+  if (period === "month" || period === "year") {
+    const approvedRows = await db
+      .select({ updatedAt: benefitRequests.updatedAt })
+      .from(benefitRequests)
+      .where(
+        and(
+          eq(benefitRequests.employeeId, employeeId),
+          eq(benefitRequests.benefitId, benefitId),
+          eq(benefitRequests.status, "approved"),
+        ),
+      );
+    const nowDate = new Date();
+    const currentYear = nowDate.getFullYear();
+    const currentMonth = nowDate.getMonth();
+    const inPeriod = approvedRows.filter((r) => {
+      const d = new Date(r.updatedAt ?? "");
+      if (Number.isNaN(d.getTime())) return false;
+      if (period === "month")
+        return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+      return d.getFullYear() === currentYear;
+    });
+    if (inPeriod.length >= limit) {
+      throw new GraphQLError(
+        `Та энэ хугацаанд ${limit} удаа ашигласан. Дараагийн хугацаанд дахин хүсэлт илгээнэ үү.`,
+        { extensions: { code: "BAD_USER_INPUT" } },
+      );
+    }
+  }
+
   const requiresContract = asBool01(benefit.requiresContract);
 
   const id = crypto.randomUUID();
