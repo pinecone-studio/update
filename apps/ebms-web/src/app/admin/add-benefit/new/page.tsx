@@ -4,8 +4,10 @@ import { AddBenefitsBuilderSkeleton } from "./AddBenefitsBuilderSkeleton";
 
 export default function AddBenefitsBuilderPage() {
   return (
-    <Suspense fallback={<AddBenefitsBuilderSkeleton />}>
-      <AddBenefitsBuilderClient />
-    </Suspense>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <Suspense fallback={<AddBenefitsBuilderSkeleton />}>
+        <AddBenefitsBuilderClient />
+      </Suspense>
+    </div>
   );
 }

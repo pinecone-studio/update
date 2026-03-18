@@ -2,8 +2,9 @@
 
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi2";
+import { HiOutlineArrowLeft, HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi2";
 import {
   fetchMyBenefitRequests,
   fetchMyAuditLog,
@@ -29,6 +30,14 @@ export function MyProfileHeader({
 }) {
   return (
     <>
+    <div>
+      <Link
+        href="/employee"
+        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white mb-4"
+      >
+        <HiOutlineArrowLeft className="h-4 w-4" />
+       Back
+      </Link>
       <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My History</h1>
       <p className="text-slate-600 text-sm mt-1 dark:text-slate-400">
         History
@@ -45,6 +54,7 @@ export function MyProfileHeader({
           </h2>
           <p className="text-slate-600 text-sm dark:text-slate-400">{me?.role ?? "—"}</p>
         </div>
+      </div>
       </div>
     </>
   );
@@ -132,6 +142,7 @@ export function BenefitHistorySection() {
   const [requests, setRequests] = useState<MyBenefitRequest[]>([]);
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
   const [benefitNames, setBenefitNames] = useState<Record<string, string>>({});
+  const [benefitCategories, setBenefitCategories] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -147,13 +158,16 @@ export function BenefitHistorySection() {
         setRequests(reqs);
         setAuditEntries(audit);
         const names: Record<string, string> = {};
+        const categories: Record<string, string> = {};
         benefits.forEach((b) => {
           names[b.id] = b.name;
+          categories[b.id] = b.category ?? "Other";
         });
         reqs.forEach((r) => {
           if (r.benefitName) names[r.benefitId] = r.benefitName;
         });
         setBenefitNames(names);
+        setBenefitCategories(categories);
       })
       .catch((e) => {
         if (!cancelled) {
@@ -170,6 +184,9 @@ export function BenefitHistorySection() {
 
   const getBenefitName = (benefitId: string) =>
     benefitNames[benefitId] ?? benefitId;
+
+  const getBenefitCategory = (benefitId: string) =>
+    benefitCategories[benefitId] ?? "Other";
 
   const eventsByBenefit = new Map<string, BenefitHistoryEvent[]>();
   requests.forEach((r) => {
@@ -206,6 +223,18 @@ export function BenefitHistorySection() {
     const bLatest = bEvents[0]?.date ?? "";
     return new Date(bLatest).getTime() - new Date(aLatest).getTime();
   });
+
+  const benefitsByCategory = benefitIds.reduce<Record<string, string[]>>(
+    (acc, benefitId) => {
+      const cat = getBenefitCategory(benefitId);
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(benefitId);
+      return acc;
+    },
+    {},
+  );
+
+  const categoryOrder = Array.from(new Set(benefitIds.map(getBenefitCategory)));
 
   if (loading) {
     return (
@@ -244,22 +273,39 @@ export function BenefitHistorySection() {
     );
   }
 
+  const isTwoCategories = categoryOrder.length === 2;
+
   return (
-    <div className="mt-6 space-y-6">
-      {benefitIds.map((benefitId) => {
-        const events = eventsByBenefit.get(benefitId) ?? [];
-        const benefitName = getBenefitName(benefitId);
-        return (
-          <div
-            key={benefitId}
-            className="rounded-xl border border-slate-200 bg-white dark:border-[#243041] dark:bg-[#1A2333] overflow-hidden"
-          >
-            <div className="border-b border-slate-200 px-4 py-3 dark:border-[#243041]">
+    <div
+      className={`mt-6 flex flex-col gap-6 w-full max-w-[1500px] mx-auto`}
+    >
+      <div
+        className={
+          isTwoCategories
+            ? "grid grid-cols-1 sm:grid-cols-2 gap-6"
+            : "flex flex-col gap-6"
+        }
+      >
+      {categoryOrder.map((category) => (
+        <section key={category}>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+            {category}
+          </h3>
+          <div className="flex flex-col gap-4">
+            {benefitsByCategory[category]?.map((benefitId) => {
+              const events = eventsByBenefit.get(benefitId) ?? [];
+              const benefitName = getBenefitName(benefitId);
+              return (
+                <div
+                  key={benefitId}
+                  className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden"
+                >
+            <div className="border-b border-slate-200 px-4 py-3 dark:border-white/10">
               <p className="font-semibold text-slate-900 dark:text-white">
                 {benefitName}
               </p>
             </div>
-            <ul className="divide-y divide-slate-200 dark:divide-[#243041]">
+            <ul className="divide-y divide-slate-200 dark:divide-white/10">
               {events.map((ev) => {
                 if (ev.type === "request") {
                   const isNegative =
@@ -280,15 +326,15 @@ export function BenefitHistorySection() {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm text-slate-900 dark:text-white">
+                        <p className="text-sm font-medium text-slate-900 dark:text-white">
                           {getRequestStatusLabel(ev.request.status)}
                         </p>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 space-y-0.5 mt-0.5">
-                          <p>Хүсэгдсэн: {formatBenefitDateTime(ev.request.createdAt)}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          Хүсэгдсэн: {formatBenefitDateTime(ev.request.createdAt)}
                           {ev.request.contractAcceptedAt && (
-                            <p>Хаагдсан: {formatBenefitDateTime(ev.request.contractAcceptedAt)}</p>
+                            <> · Хаагдсан: {formatBenefitDateTime(ev.request.contractAcceptedAt)}</>
                           )}
-                        </div>
+                        </p>
                       </div>
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-medium ${getRequestStatusStyles(ev.request.status)}`}
@@ -342,6 +388,10 @@ export function BenefitHistorySection() {
           </div>
         );
       })}
+          </div>
+        </section>
+      ))}
+      </div>
     </div>
   );
 }

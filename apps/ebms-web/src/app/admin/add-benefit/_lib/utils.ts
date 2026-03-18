@@ -40,3 +40,32 @@ export function getVendorDisplay(name: string): string {
     ? name.split(/ — | - /).pop() ?? "Pinecone"
     : "Pinecone";
 }
+
+const UNIT_LABELS: Record<string, string> = {
+  day: "day",
+  month: "month",
+  year: "year",
+};
+
+/** Validity period display string */
+export function formatValidityPeriod(
+  duration?: number,
+  unit?: string,
+): string | undefined {
+  if (duration == null) return undefined;
+  if (duration === 0) return "Unlimited";
+  const u = unit ? UNIT_LABELS[unit] ?? unit : "month";
+  return `${duration} ${u}${duration === 1 ? "" : "s"}`;
+}
+
+/** Usage frequency display string (e.g., "1 time per 7 days") */
+export function formatUsagePeriod(
+  period?: number,
+  periodUnit?: string,
+  limit?: number,
+): string | undefined {
+  if (period == null || limit == null || period < 1 || limit < 1)
+    return undefined;
+  const u = periodUnit ? UNIT_LABELS[periodUnit] ?? periodUnit : "day";
+  return `${limit} time${limit === 1 ? "" : "s"} per ${period} ${u}${period === 1 ? "" : "s"}`;
+}

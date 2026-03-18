@@ -16,6 +16,9 @@ export type BenefitFromCatalog = {
   requiresContract: boolean;
 };
 
+/** Benefit-ийн хүчинтэй хугацааны нэгж */
+export type ExpiryUnit = "day" | "month" | "year";
+
 /** Eligibility config доторх benefit-ийн бүтэц (дүрмүүдтэй) */
 export type BenefitConfig = {
   name: string;
@@ -24,10 +27,18 @@ export type BenefitConfig = {
   subsidyPercent?: number;
   financeCheck?: boolean;
   requiresContract?: boolean;
+  managerApproval?: boolean;
   contractNumber?: string;
   contractName?: string;
   contractFileName?: string;
   contractUrl?: string;
+  expiryDuration?: number;
+  expiryUnit?: ExpiryUnit;
+  /** Ажилтан хэдэн хугацаанд ашиглах эрхтэй (жишээ: 7 хоног) */
+  usagePeriod?: number;
+  usagePeriodUnit?: ExpiryUnit;
+  /** Тухайн хугацаанд хэдэн удаа ашиглах (жишээ: 1 удаа) */
+  usageLimit?: number;
   rules: Rule[];
 };
 
@@ -45,4 +56,13 @@ export type AddBenefitFormState = {
   contractName: string;
   contractFileName: string;
   contractUrl: string;
+  /** Хүчинтэй хугацаа (тоо) */
+  expiryDuration: number;
+  /** Хүчинтэй хугацааны нэгж: day, month, year */
+  expiryUnit: ExpiryUnit;
+  /** Ажилтан хэдэн хугацаанд ашиглах (жишээ: 7 хоног) */
+  usagePeriod: number;
+  usagePeriodUnit: ExpiryUnit;
+  /** Тухайн хугацаанд хэдэн удаа ашиглах (жишээ: 1 удаа) */
+  usageLimit: number;
 };

@@ -93,7 +93,7 @@ export function FinanceHeader() {
                     setNotificationOpen((p) => !p);
                     setProfileOpen(false);
                   }}
-                  className="relative grid h-10 w-10 place-items-center rounded-full border border-slate-200 ring-1 ring-transparent transition hover:bg-slate-200 dark:border-[#334155] dark:hover:bg-white/10"
+                  className="relative grid h-10 w-10 place-items-center rounded-full border border-slate-200 ring-1 ring-transparent dark:border-[#334155]"
                   aria-label="Notifications"
                 >
                   <HiOutlineBell className="h-5 w-5 text-sm" />
