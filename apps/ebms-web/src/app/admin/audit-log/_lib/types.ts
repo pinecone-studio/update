@@ -2,7 +2,8 @@ export type AuditActionType =
   | "HR Override"
   | "Request Approved"
   | "Request Rejected"
-  | "Contract Uploaded";
+  | "Contract Uploaded"
+  | "Contract Expired";
 
 export type AuditEntry = {
   id: string;

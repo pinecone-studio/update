@@ -130,7 +130,7 @@ export function useAuditLog() {
           }
 
           let actionLabel: string;
-          let actionType: "HR Override" | "Request Approved" | "Request Rejected" | "Contract Uploaded";
+          let actionType: "HR Override" | "Request Approved" | "Request Rejected" | "Contract Uploaded" | "Contract Expired";
           let details = "";
 
           if (trace.action === "request_approved") {
@@ -147,6 +147,10 @@ export function useAuditLog() {
             actionType = "Contract Uploaded";
             actionLabel = "Contract Uploaded";
             details = trace.reason ?? "Signed contract uploaded.";
+          } else if (trace.action === "contract_expired") {
+            actionType = "Contract Expired";
+            actionLabel = "Contract Expired";
+            details = trace.reason ?? "Гэрээний хугацаа дууссан";
           } else {
             actionType = "HR Override";
             actionLabel = prev ? `HR Override: ${prev} → ${nextStatus}` : `HR Override: ${nextStatus}`;
@@ -195,7 +199,7 @@ export function useAuditLog() {
   );
   const actionOptions = useMemo(
     () =>
-      ["HR Override", "Request Approved", "Request Rejected", "Contract Uploaded"].filter((a) =>
+      ["HR Override", "Request Approved", "Request Rejected", "Contract Uploaded", "Contract Expired"].filter((a) =>
         entries.some((e) => e.actionType === a),
       ),
     [entries],
