@@ -18,6 +18,7 @@ export const statusCopy: Record<BenefitStatus, string> = {
   PENDING: "Pending",
   ELIGIBLE: "Eligible",
   LOCKED: "Locked",
+  REJECTED: "Rejected",
 };
 
 export const statusButtonClass: Record<BenefitStatus, string> = {
@@ -28,5 +29,7 @@ export const statusButtonClass: Record<BenefitStatus, string> = {
   ELIGIBLE:
     "border-[#36527C] bg-[linear-gradient(180deg,rgba(41,63,101,0.95),rgba(33,51,82,0.95))] text-white",
   LOCKED:
+    "border-[#5E3849] bg-[linear-gradient(180deg,rgba(81,42,57,0.95),rgba(63,34,45,0.95))] text-white",
+  REJECTED:
     "border-[#5E3849] bg-[linear-gradient(180deg,rgba(81,42,57,0.95),rgba(63,34,45,0.95))] text-white",
 };

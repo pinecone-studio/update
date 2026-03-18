@@ -42,21 +42,37 @@ export function formatRoleLabel(value: string): string {
 }
 
 export function inferReason(benefit: EmployeeBenefit): string {
-  return (
-    benefit.ruleEvaluations?.find((evaluation) => !evaluation.passed)?.reason ||
-    (benefit.status === "ELIGIBLE" || benefit.status === "ACTIVE"
-      ? "Meets all requirements"
-      : "Missing document")
-  );
+  if (benefit.overrideApplied && benefit.overrideReason?.trim()) {
+    return benefit.overrideReason.trim();
+  }
+  if (benefit.rejectedReason?.trim()) {
+    return benefit.rejectedReason.trim();
+  }
+  const failedRule = benefit.ruleEvaluations?.find((e) => !e.passed);
+  if (failedRule?.reason) return failedRule.reason;
+  if (benefit.status === "ELIGIBLE" || benefit.status === "ACTIVE") {
+    return "Meets all requirements";
+  }
+  return "See eligibility rules";
 }
 
-export function inferLastDate(index: number): string {
-  const fallbackDates = [
-    "2025/01/22",
-    "2025/05/03",
-    "2025/04/02",
-    "2025/08/18",
-    "2025/09/29",
-  ];
-  return fallbackDates[index] ?? "2025/09/29";
+export function formatComputedAt(computedAt: string | null | undefined): string {
+  if (!computedAt?.trim()) return "—";
+  try {
+    const d = new Date(computedAt);
+    if (Number.isNaN(d.getTime())) return computedAt;
+    const dateStr = d.toLocaleDateString("en-CA", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const timeStr = d.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    return `${dateStr} ${timeStr}`;
+  } catch {
+    return computedAt;
+  }
 }
