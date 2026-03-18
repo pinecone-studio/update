@@ -9,7 +9,12 @@ import type {
   Rule,
   AddBenefitFormState,
 } from "../_lib/types";
-import { ERROR_MESSAGES, DEFAULT_FORM } from "../_lib/constants";
+import {
+  ERROR_MESSAGES,
+  DEFAULT_FORM,
+  getDefaultValueForRuleType,
+  getDefaultOperatorForRuleType,
+} from "../_lib/constants";
 import {
   getClient,
   getApiErrorMessage,
@@ -86,6 +91,7 @@ export default function AddBenefitsBuilderClient({
       setConfig({});
       setAttributes([
         "employment_status",
+        "role",
         "okr_submitted",
         "late_arrival_count",
         "responsibility_level",
@@ -220,6 +226,37 @@ export default function AddBenefitsBuilderClient({
       });
     },
     [ruleTargetId],
+  );
+
+  const handleRuleTypeChange = useCallback(
+    (ruleIndex: number, newType: string) => {
+      if (!ruleTargetId) return;
+      const defaultValue = getDefaultValueForRuleType(newType);
+      const defaultOperator = getDefaultOperatorForRuleType(newType);
+      const isStringField = newType === "employment_status" || newType === "role";
+      setConfig((prev) => {
+        const benefit = prev[ruleTargetId] ?? {
+          name: isEditMode ? (selectedBenefit?.name ?? "") : form.name,
+          description: isEditMode
+            ? (selectedBenefit?.description ?? "")
+            : form.description,
+          category: isEditMode
+            ? (selectedBenefit?.category ?? "")
+            : form.category,
+          rules: [],
+        };
+        const rules = [...(benefit.rules ?? [])];
+        const existing = rules[ruleIndex] ?? {};
+        rules[ruleIndex] = {
+          ...existing,
+          type: newType,
+          value: defaultValue,
+          operator: isStringField ? defaultOperator : (existing.operator ?? "eq"),
+        };
+        return { ...prev, [ruleTargetId]: { ...benefit, rules } };
+      });
+    },
+    [ruleTargetId, isEditMode, selectedBenefit, form],
   );
 
   const handleSaveRules = useCallback(async () => {
@@ -426,6 +463,7 @@ export default function AddBenefitsBuilderClient({
               rulesForSelected={rulesForSelected}
               attributes={attributes}
               onUpdateRule={updateRuleForSelected}
+              onRuleTypeChange={handleRuleTypeChange}
               onAddRule={addRuleForSelected}
               onRemoveRule={removeRuleForSelected}
               onSave={handleSaveRules}
