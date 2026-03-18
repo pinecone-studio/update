@@ -59,7 +59,7 @@ export const requestBenefit: NonNullable<
 
   const period = benefit.usageLimitPeriod?.toLowerCase().trim();
   const limit = benefit.usageLimitCount ?? 1;
-  if (period === "month" || period === "year") {
+  if (period === "month" || period === "year" || period === "7days") {
     const approvedRows = await db
       .select({ updatedAt: benefitRequests.updatedAt })
       .from(benefitRequests)
@@ -73,9 +73,12 @@ export const requestBenefit: NonNullable<
     const nowDate = new Date();
     const currentYear = nowDate.getFullYear();
     const currentMonth = nowDate.getMonth();
+    const sevenDaysAgo = new Date(nowDate);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const inPeriod = approvedRows.filter((r) => {
       const d = new Date(r.updatedAt ?? "");
       if (Number.isNaN(d.getTime())) return false;
+      if (period === "7days") return d.getTime() >= sevenDaysAgo.getTime();
       if (period === "month")
         return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
       return d.getFullYear() === currentYear;

@@ -136,8 +136,11 @@ export async function getBenefitEligibilityForEmployee(
   const nowDate = new Date();
   const currentYear = nowDate.getFullYear();
   const currentMonth = nowDate.getMonth();
+  const sevenDaysAgo = new Date(nowDate);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const approvedInMonthByBenefit = new Map<string, number>();
   const approvedInYearByBenefit = new Map<string, number>();
+  const approvedIn7DaysByBenefit = new Map<string, number>();
   for (const r of approvedRequestsForUsage) {
     const updatedAt = r.updatedAt ?? "";
     const d = new Date(updatedAt);
@@ -149,6 +152,10 @@ export async function getBenefitEligibilityForEmployee(
     if (d.getFullYear() === currentYear) {
       const prev = approvedInYearByBenefit.get(r.benefitId) ?? 0;
       approvedInYearByBenefit.set(r.benefitId, prev + 1);
+    }
+    if (d.getTime() >= sevenDaysAgo.getTime()) {
+      const prev = approvedIn7DaysByBenefit.get(r.benefitId) ?? 0;
+      approvedIn7DaysByBenefit.set(r.benefitId, prev + 1);
     }
   }
 
@@ -310,7 +317,9 @@ export async function getBenefitEligibilityForEmployee(
     const count =
       period === "year"
         ? approvedInYearByBenefit.get(benefitId) ?? 0
-        : approvedInMonthByBenefit.get(benefitId) ?? 0;
+        : period === "7days"
+          ? approvedIn7DaysByBenefit.get(benefitId) ?? 0
+          : approvedInMonthByBenefit.get(benefitId) ?? 0;
     return count >= 1;
   }
 

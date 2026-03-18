@@ -39,13 +39,16 @@ export const updateBenefit = async (
     input.requestDeadline !== undefined ? (input.requestDeadline?.trim() || null) : undefined;
   const usageLimitCount =
     input.usageLimitCount != null ? Math.max(1, input.usageLimitCount) : undefined;
+  const rawPeriod = input.usageLimitPeriod?.toLowerCase().trim();
   const usageLimitPeriod =
     input.usageLimitPeriod !== undefined
-      ? (input.usageLimitPeriod?.toLowerCase().trim() === "year"
+      ? (rawPeriod === "year"
           ? "year"
-          : input.usageLimitPeriod?.toLowerCase().trim() === "month"
+          : rawPeriod === "month"
             ? "month"
-            : null)
+            : rawPeriod === "7days"
+              ? "7days"
+              : null)
       : undefined;
 
   if (!id || !name || !category) {

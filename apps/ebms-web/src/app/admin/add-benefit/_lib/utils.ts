@@ -89,6 +89,11 @@ export function formatUsageLimit(
 ): string | undefined {
   if (count == null || count < 1) return undefined;
   if (!period?.trim()) return `${count} удаа (хязгааргүй хугацаа)`;
-  const p = period.toLowerCase() === "year" ? "жил" : "сар";
-  return `${count} удаа/${p}`;
+  const p =
+    period.toLowerCase() === "year"
+      ? "year"
+      : period.toLowerCase() === "7days"
+        ? "7 days"
+        : "month";
+  return `${count} per ${p}`;
 }

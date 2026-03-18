@@ -56,6 +56,9 @@ export const CREATE_BENEFIT = gql`
       category
       subsidyPercent
       requiresContract
+      requestDeadline
+      usageLimitCount
+      usageLimitPeriod
     }
   }
 `;

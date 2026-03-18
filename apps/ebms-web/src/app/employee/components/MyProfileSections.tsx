@@ -270,7 +270,7 @@ export function BenefitHistorySection() {
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 py-16 dark:border-slate-600">
           <HiOutlineCheckCircle className="h-14 w-14 text-slate-300 dark:text-slate-500" />
           <p className="text-slate-500 dark:text-slate-400">
-            Одоогоор тэтгэмжийн түүх байхгүй байна
+            No benefit history at the moment
           </p>
         </div>
       </div>

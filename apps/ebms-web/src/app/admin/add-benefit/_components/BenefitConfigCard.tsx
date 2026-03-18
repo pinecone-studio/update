@@ -1,6 +1,6 @@
 "use client";
 
-import type { AddBenefitFormState, ExpiryUnit } from "../_lib/types";
+import type { AddBenefitFormState } from "../_lib/types";
 
 const cardClass =
   "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
@@ -17,16 +17,17 @@ const CATEGORY_OPTIONS = [
   { value: "flexibility", label: "Flexibility" },
 ];
 
-const EXPIRY_UNIT_OPTIONS: { value: ExpiryUnit; label: string }[] = [
-  { value: "day", label: "Day" },
-  { value: "month", label: "Month" },
-  { value: "year", label: "Year" },
+const ACTIVE_PERIOD_UNITS: { value: "day" | "month" | "year"; label: string }[] = [
+  { value: "day", label: "day" },
+  { value: "month", label: "month" },
+  { value: "year", label: "year" },
 ];
 
-const USAGE_PERIOD_OPTIONS = [
-  { value: "", label: "—" },
-  { value: "month", label: "Month" },
-  { value: "year", label: "Year" },
+const EMPLOYEE_USAGE_PERIODS: { value: "7days" | "month" | "year" | ""; label: string }[] = [
+  { value: "", label: "— No limit" },
+  { value: "7days", label: "7 days" },
+  { value: "month", label: "month" },
+  { value: "year", label: "year" },
 ];
 
 type Props = {
@@ -42,8 +43,8 @@ export function BenefitConfigCard({ form, onChange }: Props) {
       <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
         Benefit Configuration
       </h2>
-      <div className="mt-3 flex flex-col gap-6">
-        <div className="flex flex-col gap-6">
+      <div className="mt-3 flex flex-row gap-6">
+        <div className="flex flex-col gap-4">
           <div className="max-w-[180px]">
             <label className={labelClass}>Category</label>
             <select
@@ -83,67 +84,88 @@ export function BenefitConfigCard({ form, onChange }: Props) {
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <h3 className="text-sm font-medium text-slate-600 dark:text-[#94A3B8]">
-            Хугацаа ба ашиглалт (Backend)
-          </h3>
-          <div className="flex flex-wrap items-center gap-4">
-            <div>
-              <label className={labelClass}>Хүсэлт илгээх хугацаа (энэ өдрөөс хойш LOCKED)</label>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
+              <label className={labelClass}>
+                Request Deadline 
+              </label>
               <input
                 type="date"
                 value={form.requestDeadline ?? ""}
                 onChange={(e) =>
-                  onChange({
-                    ...form,
-                    requestDeadline: e.target.value ?? undefined,
-                  })
+                  onChange({ ...form, requestDeadline: e.target.value || undefined })
                 }
-                className={`${inputBase} w-full`}
-              />
-              <p className="mt-1 text-xs text-slate-500 dark:text-[#94A3B8]">
-                Хоосон бол хязгааргүй
-              </p>
-            </div>
-            <div>
-              <label className={labelClass}>Хугацаанд хэдэн удаа ашиглах</label>
-              <input
-                type="number"
-                min={1}
-                max={999}
-                value={form.usageLimitCount ?? 1}
-                onChange={(e) =>
-                  onChange({
-                    ...form,
-                    usageLimitCount: Math.max(1, Number(e.target.value) || 1),
-                  })
-                }
-                className={`${inputBase} w-20`}
+                className={`${inputBase} w-40 max-w-full`}
               />
             </div>
-            <div>
-              <label className={labelClass}>Хугацаа: month | year</label>
-              <select
-                value={form.usageLimitPeriod ?? ""}
-                onChange={(e) =>
-                  onChange({
-                    ...form,
-                    usageLimitPeriod: (e.target.value || "") as "month" | "year" | "",
-                  })
-                }
-                className={`${inputBase} w-28`}
-              >
-                {USAGE_PERIOD_OPTIONS.map(({ value, label }) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-xs text-slate-500 dark:text-[#94A3B8]">
-                Хоосон бол хязгааргүй
-              </p>
+            <div className="flex flex-col gap-1">
+              <label className={labelClass}>Active Period </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={999}
+                  value={form.expiryDuration ?? 1}
+                  onChange={(e) =>
+                    onChange({
+                      ...form,
+                      expiryDuration: Math.max(1, Number(e.target.value) || 1),
+                    })
+                  }
+                  className={`${inputBase} w-16`}
+                />
+                <select
+                  value={form.expiryUnit ?? "year"}
+                  onChange={(e) =>
+                    onChange({
+                      ...form,
+                      expiryUnit: e.target.value as "day" | "month" | "year",
+                    })
+                  }
+                  className={`${inputBase} w-24`}
+                >
+                  {ACTIVE_PERIOD_UNITS.map(({ value, label }) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
+        <div className="flex flex-col gap-1">
+              <label className={labelClass}>Employee Usage </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={999}
+                  value={form.usageLimitCount ?? 1}
+                  onChange={(e) =>
+                    onChange({
+                      ...form,
+                      usageLimitCount: Math.max(1, Number(e.target.value) || 1),
+                    })
+                  }
+                  disabled={!form.usageLimitPeriod}
+                  className={`${inputBase} w-16 disabled:opacity-50 disabled:cursor-not-allowed`}
+                />
+                <span className="text-sm text-slate-500 dark:text-slate-400">per</span>
+                <select
+                  value={form.usageLimitPeriod ?? ""}
+                  onChange={(e) =>
+                    onChange({
+                      ...form,
+                      usageLimitPeriod: (e.target.value || "") as "7days" | "month" | "year" | "",
+                    })
+                  }
+                  className={`${inputBase} w-24`}
+                >
+                  {EMPLOYEE_USAGE_PERIODS.map(({ value, label }) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
+            </div> 
       </div>
     </section>
   );
