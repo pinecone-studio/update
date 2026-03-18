@@ -7,10 +7,11 @@ export const statusOptions: BenefitStatus[] = [
   "LOCKED",
 ];
 
-export const modalStatusOptions: Array<Exclude<BenefitStatus, "LOCKED">> = [
+export const modalStatusOptions: BenefitStatus[] = [
   "ACTIVE",
   "PENDING",
   "ELIGIBLE",
+  "LOCKED",
 ];
 
 export const statusCopy: Record<BenefitStatus, string> = {
@@ -25,7 +26,7 @@ export const statusButtonClass: Record<BenefitStatus, string> = {
   ACTIVE:
     "border-[#365C70] bg-[linear-gradient(180deg,rgba(30,60,79,0.95),rgba(24,47,63,0.95))] text-white",
   PENDING:
-    "border-[#48405D] bg-[linear-gradient(180deg,rgba(52,48,73,0.95),rgba(42,38,60,0.95))] text-white",
+    "border-[#D6A743] bg-[linear-gradient(180deg,rgba(120,88,29,0.92),rgba(97,69,24,0.92))] text-white",
   ELIGIBLE:
     "border-[#36527C] bg-[linear-gradient(180deg,rgba(41,63,101,0.95),rgba(33,51,82,0.95))] text-white",
   LOCKED:

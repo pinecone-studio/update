@@ -9,11 +9,26 @@ import {
   ensureValidActiveUserProfile,
   getActiveUserHeaders,
 } from "@/app/_lib/activeUser";
+import { BenefitStatusModal } from "./_components/BenefitStatusModal";
 
-type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
+type BenefitStatus =
+  | "ACTIVE"
+  | "ELIGIBLE"
+  | "LOCKED"
+  | "PENDING"
+  | "REJECTED";
 
 type EmployeeBenefit = {
-  benefit: { id: string; name: string };
+  benefit: {
+    id: string;
+    name: string;
+    subsidyPercent?: number | null;
+    vendorName?: string | null;
+    activeContract?: {
+      effectiveDate?: string | null;
+      expiryDate?: string | null;
+    } | null;
+  };
   status: BenefitStatus;
   ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
   computedAt?: string | null;
@@ -42,6 +57,13 @@ type BenefitRow = {
   status: BenefitStatus;
   reason: string;
   lastDate: string;
+  subsidyPercent?: number | null;
+  vendorName?: string | null;
+  effectiveDate?: string | null;
+  expiryDate?: string | null;
+  ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
+  overrideApplied?: boolean;
+  overrideReason?: string | null;
   history: BenefitHistoryEntry[];
 };
 
@@ -56,6 +78,12 @@ const EMPLOYEE_QUERY = gql`
         benefit {
           id
           name
+          subsidyPercent
+          vendorName
+          activeContract {
+            effectiveDate
+            expiryDate
+          }
         }
         status
         ruleEvaluations {
@@ -101,6 +129,7 @@ const statusCopy: Record<BenefitStatus, string> = {
   PENDING: "Pending",
   ELIGIBLE: "Eligible",
   LOCKED: "Locked",
+  REJECTED: "Rejected",
 };
 
 const statusButtonClass: Record<BenefitStatus, string> = {
@@ -108,6 +137,7 @@ const statusButtonClass: Record<BenefitStatus, string> = {
   PENDING: "border-[#ffffff]/50 bg-[#8a5212] text-white",
   ELIGIBLE: "border-[#ffffff]/50 bg-[#1a4a82] text-white",
   LOCKED: "border-[#ffffff]/50 bg-[#851618] text-white",
+  REJECTED: "border-[#ffffff]/50 bg-[#7d2338] text-white",
 };
 
 function getStatusSegmentClass(option: BenefitStatus, selected: boolean) {
@@ -183,6 +213,58 @@ function formatComputedAt(computedAt: string | null | undefined): string {
   }
 }
 
+function getModalStatusMeta(status: BenefitStatus) {
+  switch (status) {
+    case "ACTIVE":
+      return {
+        label: "Active",
+        message: "Benefit is currently active",
+        icon: "check" as const,
+        accent: "bg-[#2B8A69]",
+        panel:
+          "border-[rgba(65,140,122,0.55)] bg-[linear-gradient(135deg,rgba(36,107,95,0.42)_0%,rgba(32,83,98,0.28)_100%)]",
+      };
+    case "ELIGIBLE":
+      return {
+        label: "Eligible",
+        message: "All requirements satisfied",
+        icon: "check" as const,
+        accent: "bg-[#2B8A69]",
+        panel:
+          "border-[rgba(90,132,196,0.55)] bg-[linear-gradient(135deg,rgba(48,82,133,0.40)_0%,rgba(45,68,122,0.28)_100%)]",
+      };
+    case "LOCKED":
+      return {
+        label: "Locked",
+        message: "Eligibility requirements not satisfied",
+        icon: "x" as const,
+        accent: "bg-[#8B4762]",
+        panel:
+          "border-[rgba(146,90,118,0.60)] bg-[linear-gradient(135deg,rgba(97,52,93,0.34)_0%,rgba(78,45,95,0.24)_100%)]",
+      };
+    default:
+      return {
+        label: "Pending",
+        message: "Request is under review",
+        icon: "clock" as const,
+        accent: "bg-[#8C6437]",
+        panel:
+          "border-[rgba(146,120,96,0.60)] bg-[linear-gradient(135deg,rgba(124,86,54,0.34)_0%,rgba(90,66,54,0.26)_100%)]",
+      };
+  }
+}
+
+function formatStatusDate(value: string | null | undefined): string {
+  if (!value?.trim() || value === "—") return "—";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default function EmployeeEligibilityDetailClient() {
   const reasonTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const params = useParams();
@@ -222,6 +304,26 @@ export default function EmployeeEligibilityDetailClient() {
   const activeDraftStatus = activeBenefit
     ? (draftStatusByKey[activeBenefitKey ?? ""] ?? activeBenefit.status)
     : "ACTIVE";
+  const activeStatusMeta = getModalStatusMeta(activeDraftStatus);
+  const activeRuleRows = activeBenefit
+    ? activeBenefit.ruleEvaluations.length > 0
+      ? activeBenefit.ruleEvaluations.map((rule) => ({
+          title:
+            rule.ruleType
+              .replace(/_/g, " ")
+              .replace(/\b\w/g, (char) => char.toUpperCase()) ||
+            "Eligibility Rule",
+          passed: rule.passed,
+          detail: rule.reason,
+        }))
+      : [
+          {
+            title: activeBenefit.reason,
+            passed: activeBenefit.status !== "LOCKED",
+            detail: activeBenefit.overrideReason ?? "",
+          },
+        ]
+    : [];
   const activeDraftReason = activeBenefitKey
     ? (draftReasonByKey[activeBenefitKey] ?? "")
     : "";
@@ -385,6 +487,13 @@ export default function EmployeeEligibilityDetailClient() {
             status: benefit.status,
             reason: inferReason(benefit),
             lastDate: formatComputedAt(benefit.computedAt),
+            subsidyPercent: benefit.benefit?.subsidyPercent ?? null,
+            vendorName: benefit.benefit?.vendorName ?? null,
+            effectiveDate: benefit.benefit?.activeContract?.effectiveDate ?? null,
+            expiryDate: benefit.benefit?.activeContract?.expiryDate ?? null,
+            ruleEvaluations: benefit.ruleEvaluations ?? [],
+            overrideApplied: benefit.overrideApplied ?? false,
+            overrideReason: benefit.overrideReason ?? null,
             history: [],
           })),
         });
@@ -439,7 +548,7 @@ export default function EmployeeEligibilityDetailClient() {
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
-                className="h-7 w-7"
+                className="h-5 w-5"
                 stroke="currentColor"
                 strokeWidth="2.2"
                 strokeLinecap="round"
@@ -516,108 +625,37 @@ export default function EmployeeEligibilityDetailClient() {
       </div>
 
       {activeBenefit && activeBenefitKey && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(8,10,20,0.50)] px-6 backdrop-blur-[4px]">
-          <div className="h-[550px] w-full max-w-[900px] rounded-[30px]  border-white/18 bg-[#1F2744]/[0.98] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.58)]">
-            <div>
-              <h2 className="text-[28px] font-normal tracking-[-0.03em] text-[#FFFFFF]">
-                {activeBenefit.name}
-              </h2>
-              <p className="text-[18px] font-light text-white/45">
-                Edit benefit status
-              </p>
-            </div>
-
-            <div className="mt-[22px] grid grid-cols-[1.04fr_1.62fr] gap-[12px]">
-              <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] px-[22px] py-[14px]">
-                <p className="text-[31px] text-[#B1B1B1] font-normal leading-[1.05] tracking-[-0.03em]">
-                  {employee.name}
-                </p>
-                <p className="mt-[4px] text-[18px] text-[#B1B1B1] font-light text-white/63">
-                  {employee.role}
-                </p>
-              </div>
-
-              <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] p-[20px]">
-                <div className="grid grid-cols-3 gap-[10px]">
-                  {modalStatusOptions
-                    .filter((option) => option !== activeBenefit.status)
-                    .map((option) => {
-                      const selected = activeDraftStatus === option;
-                      return (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() =>
-                            setDraftStatusByKey((prev) => ({
-                              ...prev,
-                              [activeBenefitKey]: option,
-                            }))
-                          }
-                          className={getStatusSegmentClass(option, selected)}
-                          aria-pressed={selected}
-                        >
-                          {statusCopy[option]}
-                        </button>
-                      );
-                    })}
-                </div>
-              </div>
-            </div>
-
-            <label className="mt-[20px] block pl-[24px] text-[13px] text-white/50">
-              *Reason for change (optional)
-            </label>
-            <textarea
-              ref={reasonTextareaRef}
-              rows={6}
-              value={activeDraftReason}
-              onChange={(e) => {
-                setDraftReasonByKey((prev) => ({
-                  ...prev,
-                  [activeBenefitKey]: e.target.value,
-                }));
-                e.target.style.height = "0px";
-                e.target.style.height = `${Math.max(e.target.scrollHeight, 112)}px`;
-              }}
-              placeholder="Comment..."
-              className="mt-[10px] min-h-[179px] w-[836px] resize-none overflow-hidden rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[18px] text-[18px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
-            />
-
-            {activeError && (
-              <p className="mt-3 text-sm text-red-300">{activeError}</p>
-            )}
-
-            {activeSavedReason && !activeError && (
-              <p className="mt-3 text-sm text-white/48">
-                Last saved reason: {activeSavedReason}
-              </p>
-            )}
-
-            <div className="mt-[16px] flex justify-end gap-[20px]">
-              <button
-                type="button"
-                onClick={closeBenefitModal}
-                className="h-[46px] w-[136px] rounded-[10px] bg-[#E5E5E5] px-[20px] py-[10px]  text-[16px] font-ligth text-[#122459] transition hover:bg-[#D1D1D1]"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  void handleSaveStatus(
-                    activeBenefit.benefitId,
-                    activeBenefitKey,
-                    activeBenefit.reason,
-                  )
-                }
-                disabled={activeSaving}
-                className="h-[46px] w-[200px] rounded-[10px] bg-[#1a83ed] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#2A74BC] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {activeSaving ? "Saving..." : "Save changes"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <BenefitStatusModal
+          open={true}
+          benefit={activeBenefit}
+          employeeName={employee.name}
+          employeeRole={employee.role}
+          draftStatus={activeDraftStatus}
+          draftReason={activeDraftReason}
+          error={activeError}
+          savedReason={activeSavedReason}
+          saving={activeSaving}
+          onDraftStatusChange={(status) =>
+            setDraftStatusByKey((prev) => ({
+              ...prev,
+              [activeBenefitKey]: status,
+            }))
+          }
+          onDraftReasonChange={(reason) =>
+            setDraftReasonByKey((prev) => ({
+              ...prev,
+              [activeBenefitKey]: reason,
+            }))
+          }
+          onClose={closeBenefitModal}
+          onSave={() =>
+            void handleSaveStatus(
+              activeBenefit.benefitId,
+              activeBenefitKey,
+              activeBenefit.reason,
+            )
+          }
+        />
       )}
     </>
   );

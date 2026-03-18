@@ -41,8 +41,16 @@ export default function FinancePage() {
   const [rejectionReason, setRejectionReason] = useState("");
 
   const selectedCard = useMemo(
-    () => statCards.find((card) => card.key === selectedCardKey) ?? null,
+    () =>
+      statCards
+        .filter((card) => card.key !== "budget")
+        .find((card) => card.key === selectedCardKey) ?? null,
     [selectedCardKey, statCards]
+  );
+
+  const visibleStatCards = useMemo(
+    () => statCards.filter((card) => card.key !== "budget"),
+    [statCards]
   );
 
   const visibleRequests = useMemo(
@@ -136,35 +144,35 @@ export default function FinancePage() {
         </p>
       )}
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((card) => (
-          <FinanceStatCard
-            key={card.key}
-            card={card}
-            onClick={() => setSelectedCardKey(card.key)}
-          />
-        ))}
-      </section>
-
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch">
-        <div className="lg:col-span-2 lg:h-full">
-          <FinanceRequestsSection
-            requests={visibleRequests}
-            statusCounts={statusCounts}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            employees={employees}
-            benefitSubsidyMap={benefitSubsidyMap}
-            submittingRequestId={submittingRequestId}
-            onApprove={(id) => void handleDecision(id, true)}
-            onReject={handleRejectClick}
-            onViewTemplate={handleViewTemplate}
-          />
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-stretch">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {visibleStatCards.map((card) => (
+            <FinanceStatCard
+              key={card.key}
+              card={card}
+              onClick={() => setSelectedCardKey(card.key)}
+            />
+          ))}
         </div>
 
-        <div className="lg:col-span-1 lg:h-full">
+        <div className="xl:h-full">
           <FinanceRightWidgets />
         </div>
+      </section>
+
+      <section>
+        <FinanceRequestsSection
+          requests={visibleRequests}
+          statusCounts={statusCounts}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          employees={employees}
+          benefitSubsidyMap={benefitSubsidyMap}
+          submittingRequestId={submittingRequestId}
+          onApprove={(id) => void handleDecision(id, true)}
+          onReject={handleRejectClick}
+          onViewTemplate={handleViewTemplate}
+        />
       </section>
 
       {selectedCard && (

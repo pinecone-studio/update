@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import { BenefitModalDetails } from "./benefit-modal/BenefitModalDetails";
-import { MODAL_THEME, STATUS_BADGE, getRules } from "./benefit-modal/theme";
+import { MODAL_THEME, getRules } from "./benefit-modal/theme";
 
 interface BenefitStatusModalProps {
   benefit: BenefitCardProps | null;
@@ -51,13 +51,6 @@ export function BenefitStatusModal({
     onClose();
   };
 
-  const dialogSizeClass =
-    benefit.status === "ACTIVE" || benefit.status === "PENDING"
-      ? "max-h-[92vh] max-w-[calc(100vw-24px)] rounded-[20px] sm:max-w-[500px]"
-      : benefit.status === "ELIGIBLE"
-        ? "max-h-[92vh] max-w-[calc(100vw-24px)] rounded-[17.21px] sm:max-w-[500px]"
-        : "max-h-[92vh] max-w-[calc(100vw-24px)] rounded-[16.73px] sm:max-w-[500px]";
-
   return (
     <div
       className="fixed inset-0 z-[100] bg-[rgba(15,23,43,0.55)] backdrop-blur-md"
@@ -68,7 +61,7 @@ export function BenefitStatusModal({
     >
       <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
         <div
-          className={`relative flex w-full flex-col overflow-hidden border ${dialogSizeClass} ${theme.frame}`}
+          className={`relative flex w-full max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-[22px] border sm:max-w-[500px] ${theme.frame}`}
           onClick={(e) => e.stopPropagation()}
         >
           <div
@@ -113,6 +106,7 @@ export function BenefitStatusModal({
                 benefit={benefit}
                 theme={{
                   section: theme.section,
+                  summary: theme.summary,
                   rulePass: theme.rulePass,
                   ruleFail: theme.ruleFail,
                 }}
