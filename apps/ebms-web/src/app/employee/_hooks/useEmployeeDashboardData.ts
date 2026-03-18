@@ -4,7 +4,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { BenefitCardProps } from "@/app/_components/BenefitCard";
-import { ensureValidActiveUserProfile } from "@/app/_lib/activeUser";
+import {
+  ensureValidActiveUserProfile,
+} from "@/app/_lib/activeUser";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import {
   fetchMe,
   fetchMyBenefits,
@@ -119,6 +122,8 @@ export function useEmployeeDashboardData() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useOnUserSwitch(load);
 
   useEffect(() => {
     const onVisibility = () => {

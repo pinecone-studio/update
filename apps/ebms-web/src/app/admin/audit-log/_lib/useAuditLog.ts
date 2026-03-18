@@ -2,6 +2,7 @@
 
 import { gql } from "graphql-request";
 import { useEffect, useMemo, useState } from "react";
+import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import { getAdminClient, getApiErrorMessage } from "../../_lib/api";
 import type { AuditEntry } from "./types";
 
@@ -53,6 +54,9 @@ export function useAuditLog() {
   const [actionFilter, setActionFilter] = useState<string>("ALL");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useOnUserSwitch(() => setRefreshKey((k) => k + 1));
 
   useEffect(() => {
     let cancelled = false;
@@ -183,7 +187,7 @@ export function useAuditLog() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshKey]);
 
   const benefitOptions = useMemo(
     () => Array.from(new Set(entries.map((entry) => entry.benefit))).sort(),
