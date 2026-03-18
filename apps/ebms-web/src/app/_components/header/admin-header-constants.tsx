@@ -38,7 +38,7 @@ export type AdminNotification = {
   title: string;
   body: string;
   time: string;
-  tone: "info" | "success" | "neutral";
+  tone: "info" | "success" | "warning" | "neutral";
   unread: boolean;
   subtitle?: string;
   actions?: ("review" | "view")[];
@@ -76,12 +76,3 @@ export const DEFAULT_NOTIFICATIONS: AdminNotification[] = [
     actions: ["view"],
   },
 ];
-
-export type AdminNotification = {
-  id: string;
-  title: string;
-  body: string;
-  time: string;
-  tone: "info" | "success" | "warning" | "neutral";
-  unread: boolean;
-};
