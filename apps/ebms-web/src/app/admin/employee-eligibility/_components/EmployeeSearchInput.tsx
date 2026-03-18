@@ -7,7 +7,7 @@ type EmployeeSearchInputProps = {
 
 export function EmployeeSearchInput({ value, onChange }: EmployeeSearchInputProps) {
   return (
-    <section className="rounded-2xl bg-white p-6 dark:border-[#2C4264] dark:bg-[#20194D80]/50">
+    <section>
       <div className="relative">
         <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
           <svg

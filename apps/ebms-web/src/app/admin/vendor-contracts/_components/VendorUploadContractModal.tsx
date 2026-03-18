@@ -19,7 +19,8 @@ type VendorUploadContractModalProps = {
 
 function validatePdf(file: File): string | null {
   if (file.type !== "application/pdf") return "PDF only";
-  if (file.size > MAX_PDF_SIZE_MB * 1024 * 1024) return `Max ${MAX_PDF_SIZE_MB}MB`;
+  if (file.size > MAX_PDF_SIZE_MB * 1024 * 1024)
+    return `Max ${MAX_PDF_SIZE_MB}MB`;
   return null;
 }
 
@@ -66,10 +67,10 @@ export function VendorUploadContractModal({
         className="absolute inset-0 bg-white/25 backdrop-blur-md dark:bg-black/30 dark:backdrop-blur-lg"
       />
       <section
-        className="relative z-10 flex w-[900px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[28.63px] border bg-[#1A2037]"
+        className="relative z-10 flex w-[900px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[28.63px] border bg-[rgba(53,41,99,0.44)] backdrop-blur-[16px]"
         style={{
           borderWidth: "0.72px",
-          borderColor: "rgba(158, 158, 158, 0.5)",
+          borderColor: "rgba(185, 189, 255, 0.24)",
           padding: "40px 32px",
           gap: "24px",
         }}
@@ -98,7 +99,7 @@ export function VendorUploadContractModal({
                   value={selectedBenefitId}
                   onChange={(e) => onBenefitChange(e.target.value)}
                   disabled={benefitsLoading || benefitOptions.length === 0}
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8] disabled:opacity-60"
+                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] disabled:opacity-60"
                 >
                   <option value="">
                     {benefitsLoading ? "Loading..." : "— Select benefit —"}
@@ -116,39 +117,47 @@ export function VendorUploadContractModal({
                   name="version"
                   required
                   placeholder="vendor-2026.1"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
                 />
               </div>
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">Vendor Name (optional)</label>
+                <label className="text-5 text-[#A7B6D3]">
+                  Vendor Name (optional)
+                </label>
                 <input
                   name="vendorName"
                   placeholder="PineFit"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white placeholder:text-[#8595B6] outline-none focus:border-[#4B6FA8]"
+                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
                 />
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-4">
-            <h3 className="text-5 font-medium text-[#A7B6D3]">Contract Details</h3>
+            <h3 className="text-5 font-medium text-[#A7B6D3]">
+              Contract Details
+            </h3>
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">Effective Date (optional)</label>
+                <label className="text-5 text-[#A7B6D3]">
+                  Effective Date (optional)
+                </label>
                 <input
                   name="effectiveDate"
                   type="date"
                   placeholder="yyyy-mm-dd"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8] [color-scheme:dark]"
+                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] [color-scheme:dark]"
                 />
               </div>
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">Expiry Date (optional)</label>
+                <label className="text-5 text-[#A7B6D3]">
+                  Expiry Date (optional)
+                </label>
                 <input
                   name="expiryDate"
                   type="date"
                   placeholder="yyyy-mm-dd"
-                  className="h-11 rounded-xl border border-[#324A70] bg-[#0F172A] px-3 text-5 text-white outline-none focus:border-[#4B6FA8] [color-scheme:dark]"
+                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] [color-scheme:dark]"
                 />
               </div>
             </div>
@@ -175,10 +184,10 @@ export function VendorUploadContractModal({
               }
               className={`flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-4 transition-colors ${
                 isDragging
-                  ? "border-[#4B6FA8] bg-[#24364F]/50"
+                  ? "border-[#B18CFF] bg-[rgba(93,63,155,0.26)]"
                   : pdfError
                     ? "border-red-500"
-                    : "border-[#324A70]"
+                    : "border-[#6F5AA8] bg-[rgba(31,22,57,0.32)]"
               }`}
             >
               <input
@@ -219,9 +228,7 @@ export function VendorUploadContractModal({
               {pdfFile && (
                 <p className="text-5 text-green-400">{pdfFile.name}</p>
               )}
-              {pdfError && (
-                <p className="text-5 text-red-400">{pdfError}</p>
-              )}
+              {pdfError && <p className="text-5 text-red-400">{pdfError}</p>}
             </div>
           </div>
 
@@ -229,14 +236,14 @@ export function VendorUploadContractModal({
             <button
               type="button"
               onClick={handleClose}
-              className="h-13 w-[172px] rounded-lg bg-[#B0B0B0] text-[20px] font-normal text-[#122459]"
+              className="h-13 w-[70px] rounded-lg bg-[#B0B0B0] px-2 text-[20px] font-normal text-[#122459]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={uploading || !pdfFile}
-              className="inline-flex h-13 w-[172px] items-center justify-center rounded-lg bg-[#0057AD] px-5 text-[20px] font-normal text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-13 w-[70px] items-center justify-center rounded-lg bg-[#0057AD] px-2 text-[20px] font-normal text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:bg-[#0057AD] disabled:text-white"
             >
               {uploading ? "Saving..." : "Save"}
             </button>

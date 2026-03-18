@@ -24,14 +24,14 @@ type EmployeeListSectionProps = {
 
 export function EmployeeListSection({ employees }: EmployeeListSectionProps) {
   return (
-    <section className="flex h-[450px] flex-col overflow-hidden rounded-3xl dark:bg-[#20194D80]/50">
+    <section className="flex h-[500px] flex-col overflow-hidden rounded-3xl dark:bg-[#20194D80]/50">
       <div className="grid grid-cols-[40px_1fr_1fr_auto] items-center gap-4 border-b border-white/10 px-6 py-4 text-left text-sm font-medium text-slate-500 dark:border-[#2C4264] dark:bg-[#60587B4D] dark:text-[#93A4C3]">
         <span>#</span>
         <span>Employee</span>
         <span>Role</span>
         <span>Action</span>
       </div>
-      <div className="min-h-0 flex-1 space-y-1 overflow-x-hidden overflow-y-auto overscroll-contain px-6 pb-6">
+      <div className="min-h-0 flex-1 space-y-1 overflow-x-hidden overflow-y-auto overscroll-contain px-6 pb-10">
         {employees.length === 0 ? (
           <div className="flex h-[350px] flex-col items-center justify-center gap-3.5 rounded-2xl border border-white/50 text-center">
             <div className="flex h-[87px] w-[87px] items-center justify-center rounded-full bg-[#20194D80]/50">
