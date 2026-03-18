@@ -41,6 +41,8 @@ type AdminNotification = {
   isPending?: boolean;
 };
 
+const STORAGE_KEY = "ebms_admin_notifications";
+
 function getGroupFromCreatedAt(iso: string): "Today" | "Yesterday" | "Earlier" {
   const d = new Date(iso);
   const now = new Date();
@@ -264,23 +266,20 @@ export default function AdminNotificationPage() {
     return () => clearTimeout(t);
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen px-4 py-6 text-slate-900 " />
-    );
-  }
+  useEffect(() => {
     let cancelled = false;
     fetchAdminNotifications(100)
       .then((items) => {
         if (cancelled) return;
-        const mapped: AdminNotification[] = items.map((n) => {
+        const mapped: AdminNotificationItem[] = items.map((n) => {
           const meta = (n.metadata ?? {}) as Record<string, unknown>;
+          const type = (n.type ?? "system") as AdminNotificationItem["type"];
           return {
             id: n.id,
             title: n.title,
             body: n.body,
             time: formatRelativeTime(n.createdAt),
-            type: n.type ?? "system",
+            type,
             group: getGroupFromCreatedAt(n.createdAt),
             unread: n.unread,
             employeeName: (meta.employeeName as string) ?? "—",
@@ -301,6 +300,12 @@ export default function AdminNotificationPage() {
       cancelled = true;
     };
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white" />
+    );
+  }
 
   const groups = ["Today", "Yesterday", "Earlier"] as const;
 

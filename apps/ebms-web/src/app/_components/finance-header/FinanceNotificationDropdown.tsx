@@ -2,11 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import {
-  FINANCE_NOTIFICATIONS,
-  type FinanceNotificationItem,
-} from "./constants";
-import { HiOutlineXMark } from "react-icons/hi2";
 
 type FinanceNotificationItem = {
   id: string;
@@ -41,7 +36,6 @@ export function FinanceNotificationDropdown({
   onMarkAllRead,
 }: FinanceNotificationDropdownProps) {
   const [filter, setFilter] = useState<"unread" | "all">("unread");
-  const notifications = FINANCE_NOTIFICATIONS;
   const filtered =
     filter === "unread"
       ? notifications.filter((n) => n.unread)
@@ -79,10 +73,10 @@ export function FinanceNotificationDropdown({
         </div>
       </div>
       <div className="max-h-[280px] space-y-2 overflow-y-auto px-3 py-3">
-        {notifications.length === 0 ? (
+        {filtered.length === 0 ? (
           <p className="px-3 py-4 text-xs text-white/50">No notifications.</p>
         ) : (
-          notifications.slice(0, 5).map((item) => (
+          filtered.slice(0, 5).map((item) => (
             <Link
               key={item.id}
               href="/finance/finance-notification"
