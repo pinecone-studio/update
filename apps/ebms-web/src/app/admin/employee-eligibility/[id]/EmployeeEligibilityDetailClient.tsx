@@ -9,7 +9,6 @@ import {
   ensureValidActiveUserProfile,
   getActiveUserHeaders,
 } from "@/app/_lib/activeUser";
-import { BackIcon } from "@/app/icons/back";
 
 type BenefitStatus = "ACTIVE" | "ELIGIBLE" | "LOCKED" | "PENDING";
 
@@ -99,21 +98,19 @@ const statusCopy: Record<BenefitStatus, string> = {
 };
 
 const statusButtonClass: Record<BenefitStatus, string> = {
-  ACTIVE:
-    "border-[#365C70] bg-[linear-gradient(180deg,rgba(30,60,79,0.95),rgba(24,47,63,0.95))] text-white",
-  PENDING:
-    "border-[#48405D] bg-[linear-gradient(180deg,rgba(52,48,73,0.95),rgba(42,38,60,0.95))] text-white",
-  ELIGIBLE:
-    "border-[#36527C] bg-[linear-gradient(180deg,rgba(41,63,101,0.95),rgba(33,51,82,0.95))] text-white",
-  LOCKED:
-    "border-[#5E3849] bg-[linear-gradient(180deg,rgba(81,42,57,0.95),rgba(63,34,45,0.95))] text-white",
+  ACTIVE: "border-[#ffffff]/10 bg-[#0f5540] text-white",
+  PENDING: "border-[#ffffff]/50 bg-[#8a5212] text-white",
+  ELIGIBLE: "border-[#ffffff]/50 bg-[#1a4a82] text-white",
+  LOCKED: "border-[#ffffff]/50 bg-[#851618] text-white",
 };
 
 function getStatusSegmentClass(option: BenefitStatus, selected: boolean) {
   const base =
-    "inline-flex h-[54px] items-center justify-center rounded-[8px] border text-[16px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9BFF]/70";
-  if (selected) return `${base} ${statusButtonClass[option]}`;
-  return `${base} border-white/10 bg-[rgba(255,255,255,0.03)] text-white`;
+    "inline-flex h-[54px] items-center justify-center rounded-[8px] border text-[16px] font-medium transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9BFF]/70";
+  if (selected) {
+    return `${base} ${statusButtonClass[option]} hover:brightness-110 hover:saturate-125`;
+  }
+  return `${base} border-white/10 bg-[rgba(255,255,255,0.03)] text-white hover:border-[#4D78B8] hover:bg-[rgba(38,87,165,0.34)]`;
 }
 
 function getClient(): GraphQLClient {
@@ -413,28 +410,41 @@ export default function EmployeeEligibilityDetailClient() {
     <>
       <div className="min-h-[80vh] px-[28px] pb-12 pt-[34px] text-white">
         <div className="mx-auto max-w-[1512px]">
-          <div className="mb-[42px] flex items-start gap-[22px] justify-between">
+          <div className="mb-[42px] flex items-start gap-[22px]">
             <button
               type="button"
               onClick={() => router.push("/admin/employee-eligibility")}
               aria-label="Back"
-              className="mt-[6px] inline-flex h-[74px] w-[74px] items-center justify-center rounded-[16px]  border-[#35527A] bg-[#FFFFFF1A] text-white/88 transition hover:bg-[rgba(40,58,92,0.92)]"
+              className="mt-[6px] inline-flex h-[64px] w-[64px] items-center justify-center rounded-[16px] bg-[#FFFFFF1A] text-white/88 transition hover:bg-[rgba(40,58,92,0.92)]"
             >
-              <BackIcon />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="h-7 w-7"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 6L9 12L15 18" />
+              </svg>
             </button>
 
-            <div className=" flex flex-col justify-end">
-              <h1 className="text-[12px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
+            <div className="ml-auto flex flex-col items-end text-right">
+              <h1 className="text-[42px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
                 {employee.name}
               </h1>
-              <p className="mt-[12px] text-[27px] font-normal text-[#9AA8AB80] tracking-[-0.02em] text-white/48">
-                Role <span className="text-[#9AA8AB]">: {employee.role}</span>
+              <p className="mt-[8px] text-[27px] font-light text-[#9AA8AB80] tracking-[-0.02em] text-white/48">
+                Role
+                <span className="text-[#9AA8AB] font-light">
+                  : {employee.role}
+                </span>
               </p>
             </div>
           </div>
 
           <section className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,rgba(36,24,56,0.78),rgba(22,15,39,0.54))] shadow-[0_18px_70px_rgba(5,3,16,0.34)] backdrop-blur-[3px]">
-            <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-[20px] py-[22px] text-[20px] text-white/50">
+            <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-[20px] py-[20px] text-[17px] text-white/50">
               <div>Benefit</div>
               <div>Status</div>
               <div>Reason</div>
@@ -449,16 +459,16 @@ export default function EmployeeEligibilityDetailClient() {
                 return (
                   <div
                     key={benefit.benefitId || benefit.name}
-                    className="grid min-h-[72px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-white/14 text-[18px] text-white/92 last:border-b-0"
+                    className="grid min-h-[68px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b font-light text-sm border-white/14 text-[16px] text-white/92 last:border-b-0"
                   >
-                    <div className="pr-6 font-medium">{benefit.name}</div>
+                    <div className="pr-6 font-regular">{benefit.name}</div>
                     <div>{statusCopy[benefit.status]}</div>
                     <div className="pr-6 text-white/90">{benefit.reason}</div>
                     <div>{benefit.lastDate} . 20:00pm</div>
                     <button
                       type="button"
                       onClick={() => openBenefitModal(key, benefit.status)}
-                      className="inline-flex items-center gap-[10px] text-[18px] font-medium text-[#1E78FF] transition hover:text-[#56A5FF]"
+                      className="inline-flex items-center gap-[10px] text-[16px] font-medium text-[#1E78FF] transition hover:text-[#56A5FF]"
                     >
                       <span>Fix</span>
                       <svg
@@ -488,47 +498,49 @@ export default function EmployeeEligibilityDetailClient() {
 
       {activeBenefit && activeBenefitKey && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(8,10,20,0.50)] px-6 backdrop-blur-[4px]">
-          <div className="h-[480px] w-full max-w-[700px] rounded-[30px]  border-white/18 bg-[#1F2744]/[0.98] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.58)]">
+          <div className="h-[550px] w-full max-w-[900px] rounded-[30px]  border-white/18 bg-[#1F2744]/[0.98] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.58)]">
             <div>
-              <h2 className="text-[22px] font-normal tracking-[-0.03em] text-white">
+              <h2 className="text-[28px] font-normal tracking-[-0.03em] text-[#FFFFFF]">
                 {activeBenefit.name}
               </h2>
-              <p className="mt-[2px] text-[16px] text-white/45">
+              <p className="text-[18px] font-light text-white/45">
                 Edit benefit status
               </p>
             </div>
 
             <div className="mt-[22px] grid grid-cols-[1.04fr_1.62fr] gap-[12px]">
               <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] px-[22px] py-[14px]">
-                <p className="text-[20px] font-normal leading-[1.05] tracking-[-0.03em] text-white">
+                <p className="text-[31px] text-[#B1B1B1] font-normal leading-[1.05] tracking-[-0.03em]">
                   {employee.name}
                 </p>
-                <p className="mt-[4px] text-[12px] text-white/63">
+                <p className="mt-[4px] text-[18px] text-[#B1B1B1] font-light text-white/63">
                   {employee.role}
                 </p>
               </div>
 
               <div className="rounded-[16px] border border-white/10 bg-[#0B102B1A] p-[20px]">
-                <div className="grid grid-cols-4 gap-[10px]">
-                  {modalStatusOptions.map((option) => {
-                    const selected = activeDraftStatus === option;
-                    return (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() =>
-                          setDraftStatusByKey((prev) => ({
-                            ...prev,
-                            [activeBenefitKey]: option,
-                          }))
-                        }
-                        className={getStatusSegmentClass(option, selected)}
-                        aria-pressed={selected}
-                      >
-                        {statusCopy[option]}
-                      </button>
-                    );
-                  })}
+                <div className="grid grid-cols-3 gap-[10px]">
+                  {modalStatusOptions
+                    .filter((option) => option !== activeBenefit.status)
+                    .map((option) => {
+                      const selected = activeDraftStatus === option;
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() =>
+                            setDraftStatusByKey((prev) => ({
+                              ...prev,
+                              [activeBenefitKey]: option,
+                            }))
+                          }
+                          className={getStatusSegmentClass(option, selected)}
+                          aria-pressed={selected}
+                        >
+                          {statusCopy[option]}
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             </div>
@@ -549,7 +561,7 @@ export default function EmployeeEligibilityDetailClient() {
                 e.target.style.height = `${Math.max(e.target.scrollHeight, 112)}px`;
               }}
               placeholder="Comment..."
-              className="mt-[10px] min-h-[50px] w-full resize-none overflow-hidden rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[18px] text-[18px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
+              className="mt-[10px] min-h-[179px] w-full resize-none overflow-hidden rounded-[22px] border border-white/10 bg-[#0B102B1A] px-[24px] py-[18px] text-[18px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
             />
 
             {activeError && (
