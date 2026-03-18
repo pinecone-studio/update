@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchMe, fetchMyNotifications, formatRelativeTime } from "@/app/employee/_lib/api";
+import {
+  fetchMe,
+  fetchMyNotifications,
+  formatRelativeTime,
+  markAllNotificationsRead,
+} from "@/app/employee/_lib/api";
 import {
   fetchSwitchUserOptions,
   getInitialUserProfile,
@@ -207,6 +212,17 @@ export function useEmployeeHeader() {
     [isFinanceManagerUser]
   );
 
+  const handleMarkAllNotificationsRead = useCallback(async () => {
+    try {
+      await markAllNotificationsRead();
+      setNotifications((prev) =>
+        prev.map((n) => ({ ...n, unread: false }))
+      );
+    } catch {
+      // Keep UI unchanged on error
+    }
+  }, []);
+
   return {
     menuOpen,
     setMenuOpen,
@@ -227,5 +243,6 @@ export function useEmployeeHeader() {
     isFinanceManagerUser,
     handleAdminNavigate,
     handleFinanceNavigate,
+    handleMarkAllNotificationsRead,
   };
 }

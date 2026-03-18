@@ -7,58 +7,62 @@ import { Skeleton } from "@/app/_components/Skeleton";
 export function AuditLogSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Header with Export button */}
+      {/* Header - matches AuditLogHeader */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <Skeleton className="h-7 w-48" />
-          <Skeleton className="h-4 w-80 mt-3" />
+          <Skeleton className="h-6 w-40 rounded" />
+          <Skeleton className="mt-3 h-4 w-80 rounded" />
         </div>
         <Skeleton className="h-12 w-36 rounded-2xl" />
       </div>
 
-      {/* Filters section */}
+      {/* Filters - matches AuditLogFilters */}
       <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
         <div className="mb-5 flex items-center justify-between">
-          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-6 w-20 rounded" />
           <Skeleton className="h-9 w-24 rounded-xl" />
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="space-y-2">
-              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-24 rounded" />
               <Skeleton className="h-14 w-full rounded-2xl" />
             </div>
           ))}
         </div>
       </section>
 
-      <Skeleton className="h-4 w-48" />
+      {/* "Showing X of Y entries" */}
+      <Skeleton className="h-4 w-48 rounded" />
 
-      {/* Audit Trail section - entry cards */}
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
-        <Skeleton className="h-6 w-32 mb-5" />
-        <div className="space-y-5">
-          {[1, 2, 3].map((i) => (
-            <article
-              key={i}
-              className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-[#324A70] dark:bg-[#23324C]"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-6 w-28 rounded-xl" />
-                </div>
-                <Skeleton className="h-4 w-20" />
-              </div>
-              <Skeleton className="h-4 w-48 mt-3" />
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Skeleton className="h-16 w-full rounded-2xl" />
-                <Skeleton className="h-16 w-full rounded-2xl" />
-              </div>
-              <Skeleton className="h-16 w-full rounded-2xl mt-4" />
-              <Skeleton className="h-20 w-full rounded-2xl mt-4" />
-            </article>
-          ))}
+      {/* Table - matches AuditLogTable */}
+      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#112349]">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-5">
+            <thead className="border-b border-slate-200 dark:border-[#2B405F]">
+              <tr>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                  <th key={i} className="px-4 py-4 sm:px-6">
+                    <Skeleton className="h-4 w-16 rounded" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <tr
+                  key={i}
+                  className="border-b border-slate-200 last:border-b-0 dark:border-[#22395A]"
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((j) => (
+                    <td key={j} className="px-4 py-5 sm:px-6">
+                      <Skeleton className="h-4 w-20 rounded" />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>

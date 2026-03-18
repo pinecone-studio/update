@@ -33,6 +33,7 @@ export const Header = () => {
     isFinanceManagerUser,
     handleAdminNavigate,
     handleFinanceNavigate,
+    handleMarkAllNotificationsRead,
   } = useEmployeeHeader();
 
   const unreadCount = pathname?.startsWith("/employee/notification")
@@ -114,6 +115,7 @@ export const Header = () => {
                   notifications={notifications}
                   unreadCount={unreadCount}
                   onClose={() => setNotificationOpen(false)}
+                  onMarkAllRead={handleMarkAllNotificationsRead}
                 />
               </div>
               <div ref={profileRef}>

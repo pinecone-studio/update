@@ -23,6 +23,7 @@ type NotificationDropdownProps = {
   notifications: HeaderNotification[];
   unreadCount: number;
   onClose: () => void;
+  onMarkAllRead?: () => void;
 };
 
 export function NotificationDropdown({
@@ -30,6 +31,7 @@ export function NotificationDropdown({
   notifications,
   unreadCount,
   onClose,
+  onMarkAllRead,
 }: NotificationDropdownProps) {
   if (!open) return null;
 
@@ -40,12 +42,26 @@ export function NotificationDropdown({
           <p className="text-sm font-semibold text-white">Notifications</p>
           <p className="text-xs text-white/60">{unreadCount} unread</p>
         </div>
-        <button
-          onClick={onClose}
-          className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/60 transition hover:border-white/20 hover:text-white"
-        >
-          <HiXMark className="text-base" />
-        </button>
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && onMarkAllRead && (
+            <button
+              type="button"
+              onClick={() => {
+                onMarkAllRead();
+                onClose();
+              }}
+              className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/90 transition hover:border-white/30 hover:bg-white/10"
+            >
+              Mark as read
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/60 transition hover:border-white/20 hover:text-white"
+          >
+            <HiXMark className="text-base" />
+          </button>
+        </div>
       </div>
       <div className="max-h-[280px] space-y-2 overflow-y-auto px-3 py-3">
         {notifications.length === 0 ? (
