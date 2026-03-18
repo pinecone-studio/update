@@ -55,6 +55,23 @@ export default function FinancePage() {
     [requests, statusFilter]
   );
 
+  const statusCounts = useMemo(() => {
+    const counts = {
+      ADMIN_APPROVED: 0,
+      APPROVED: 0,
+      REJECTED: 0,
+      ALL: requests.length,
+    };
+
+    for (const request of requests) {
+      const status = (request.status || "PENDING").toUpperCase();
+      if (status === "ADMIN_APPROVED") counts.ADMIN_APPROVED += 1;
+      if (status === "APPROVED") counts.APPROVED += 1;
+      if (status === "REJECTED") counts.REJECTED += 1;
+    }
+    return counts;
+  }, [requests]);
+
   const handleDecision = useCallback(
     async (
       requestId: string,
@@ -129,10 +146,11 @@ export default function FinancePage() {
         ))}
       </section>
 
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch">
+        <div className="lg:col-span-2 lg:h-full">
           <FinanceRequestsSection
             requests={visibleRequests}
+            statusCounts={statusCounts}
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
             employees={employees}
@@ -144,7 +162,7 @@ export default function FinancePage() {
           />
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 lg:h-full">
           <FinanceRightWidgets />
         </div>
       </section>

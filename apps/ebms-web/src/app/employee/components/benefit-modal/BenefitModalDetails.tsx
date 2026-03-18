@@ -31,7 +31,7 @@ function SectionCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border px-[16px] pb-[10px] pt-[14px] ${theme} ${className ?? ""}`}
+      className={`rounded-2xl border px-[16px] pb-[10px] pt-[14px] backdrop-blur-[1.5px] ${theme} ${className ?? ""}`}
     >
       <div className="mb-1.5 flex items-center gap-2.5 text-white/55">
         <span className="shrink-0">{icon}</span>
