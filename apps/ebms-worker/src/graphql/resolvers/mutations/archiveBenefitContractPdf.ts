@@ -17,6 +17,7 @@ import {
   toBool01,
 } from "../../../contracts/renderPinefit";
 import { dispatchEmployeeNotification } from "../../../notifications/dispatcher";
+import { dispatchRoleNotification } from "../../../notifications/roleDispatcher";
 import { and } from "drizzle-orm";
 import { requireHROrAdminOrFinance } from "../context";
 
@@ -248,6 +249,19 @@ export const archiveBenefitContractPdf: NonNullable<
       benefitId: row.benefitId,
       status: "ACTIVE",
       uploadedBy: actorEmployeeId,
+    },
+  });
+
+  await dispatchRoleNotification(ctx.env, {
+    recipientRole: "admin",
+    title: "Employee Contract Uploaded",
+    body: `${row.employeeName ?? row.requestEmployeeId} uploaded a signed contract for ${row.benefitName ?? "benefit"}.`,
+    type: "document",
+    tone: "info",
+    metadata: {
+      requestId: args.requestId,
+      employeeId: row.requestEmployeeId,
+      benefitId: row.benefitId,
     },
   });
 

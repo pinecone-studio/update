@@ -9,7 +9,12 @@ import type {
   Rule,
   AddBenefitFormState,
 } from "../_lib/types";
-import { ERROR_MESSAGES, DEFAULT_FORM } from "../_lib/constants";
+import {
+  ERROR_MESSAGES,
+  DEFAULT_FORM,
+  getDefaultValueForRuleType,
+  getDefaultOperatorForRuleType,
+} from "../_lib/constants";
 import {
   getClient,
   getApiErrorMessage,
@@ -85,6 +90,7 @@ export default function AddBenefitsBuilderClient({
       setConfig({});
       setAttributes([
         "employment_status",
+        "role",
         "okr_submitted",
         "late_arrival_count",
         "responsibility_level",
@@ -221,6 +227,37 @@ export default function AddBenefitsBuilderClient({
       });
     },
     [ruleTargetId],
+  );
+
+  const handleRuleTypeChange = useCallback(
+    (ruleIndex: number, newType: string) => {
+      if (!ruleTargetId) return;
+      const defaultValue = getDefaultValueForRuleType(newType);
+      const defaultOperator = getDefaultOperatorForRuleType(newType);
+      const isStringField = newType === "employment_status" || newType === "role";
+      setConfig((prev) => {
+        const benefit = prev[ruleTargetId] ?? {
+          name: isEditMode ? (selectedBenefit?.name ?? "") : form.name,
+          description: isEditMode
+            ? (selectedBenefit?.description ?? "")
+            : form.description,
+          category: isEditMode
+            ? (selectedBenefit?.category ?? "")
+            : form.category,
+          rules: [],
+        };
+        const rules = [...(benefit.rules ?? [])];
+        const existing = rules[ruleIndex] ?? {};
+        rules[ruleIndex] = {
+          ...existing,
+          type: newType,
+          value: defaultValue,
+          operator: isStringField ? defaultOperator : (existing.operator ?? "eq"),
+        };
+        return { ...prev, [ruleTargetId]: { ...benefit, rules } };
+      });
+    },
+    [ruleTargetId, isEditMode, selectedBenefit, form],
   );
 
   const handleSaveRules = useCallback(async () => {
@@ -369,13 +406,13 @@ export default function AddBenefitsBuilderClient({
   ]);
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="flex max-h-[calc(100vh-9.5rem)] flex-col rounded-3xl border border-slate-200 bg-white p-3 sm:p-4 dark:border-[#2C4264] dark:bg-[#1E293B]">
+      <div className="mb-2 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-white sm:text-2xl">
             Add Benefits
           </h1>
-          <p className="mt-2 text-slate-600 dark:text-[#A7B6D3]">
+          <p className="mt-1 text-xs text-slate-600 dark:text-[#A7B6D3] sm:text-sm">
             Benefit шинээр нэмэх, мөн rule тохиргоо хийх хэсэг.
           </p>
         </div>

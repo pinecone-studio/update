@@ -117,6 +117,7 @@ export async function fetchConfigAndAttributes(client: GraphQLClient): Promise<{
   const parsed = JSON.parse(configRes.getEligibilityRuleConfig.config || "{}");
   const attributes = attrsRes.getAvailableRuleAttributes ?? [
     "employment_status",
+    "role",
     "okr_submitted",
     "late_arrival_count",
     "responsibility_level",

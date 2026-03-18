@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineArrowTopRightOnSquare,
+  HiOutlineChatBubbleLeftRight,
   HiOutlineUserCircle,
 } from "react-icons/hi2";
 import { ProfileIcon } from "@/app/icons/profile";
@@ -13,6 +14,7 @@ type AdminProfileDropdownProps = {
   selectedUser: { name?: string; id: string };
   onClose: () => void;
   onToggle: () => void;
+  unclosedFeedbackCount?: number;
 };
 
 export function AdminProfileDropdown({
@@ -20,16 +22,20 @@ export function AdminProfileDropdown({
   selectedUser,
   onClose,
   onToggle,
+  unclosedFeedbackCount = 0,
 }: AdminProfileDropdownProps) {
   return (
     <div className="relative">
       <button
         type="button"
         onClick={onToggle}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-sm font-semibold text-white"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-sm font-semibold text-white"
         aria-label="Profile"
       >
         <ProfileIcon />
+        {unclosedFeedbackCount > 0 && (
+          <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-red-500" />
+        )}
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
@@ -56,6 +62,21 @@ export function AdminProfileDropdown({
             >
               <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
               Employee
+            </Link>
+            <Link
+              href="/admin/feedback"
+              className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+              onClick={onClose}
+            >
+              <span className="flex items-center gap-2">
+                <HiOutlineChatBubbleLeftRight className="h-4 w-4" />
+                Employee Feedback
+              </span>
+              {unclosedFeedbackCount > 0 && (
+                <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-medium text-white">
+                  {unclosedFeedbackCount > 9 ? "9+" : unclosedFeedbackCount}
+                </span>
+              )}
             </Link>
             <Link
               href="/admin/profile"

@@ -32,6 +32,7 @@ const EMPLOYEE_FIELD_MAP: Record<string, keyof typeof employees.$inferSelect> =
     attendance: "lateArrivalCount",
     responsibility_level: "responsibilityLevel",
     tenure: "tenureDays" as keyof typeof employees.$inferSelect,
+    role: "role",
   };
 
 function calculateTenureDays(hireDate?: string | null): number {
@@ -51,6 +52,13 @@ function compare(op: string, actual: unknown, expected: unknown): boolean {
     if (typeof actual === "boolean" && typeof expected === "boolean")
       return actual === expected;
     return String(actual).toLowerCase() === String(expected).toLowerCase();
+  }
+  if (op === "ne") {
+    if (typeof actual === "number" && typeof expected === "number")
+      return actual !== expected;
+    if (typeof actual === "boolean" && typeof expected === "boolean")
+      return actual !== expected;
+    return String(actual).toLowerCase() !== String(expected).toLowerCase();
   }
   const a = Number(actual);
   const b = Number(expected);
@@ -145,6 +153,7 @@ export async function getEmployeeForEligibility(
   const rows = await db
     .select({
       employmentStatus: employees.employmentStatus,
+      role: employees.role,
       okrSubmitted: employees.okrSubmitted,
       lateArrivalCount: employees.lateArrivalCount,
       responsibilityLevel: employees.responsibilityLevel,
@@ -157,6 +166,7 @@ export async function getEmployeeForEligibility(
   if (!row) return null;
   return {
     employmentStatus: row.employmentStatus ?? "",
+    role: row.role ?? "",
     okrSubmitted: Number(row.okrSubmitted ?? 0) > 0,
     lateArrivalCount: row.lateArrivalCount ?? 0,
     responsibilityLevel: row.responsibilityLevel ?? 0,

@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useRouter } from "next/navigation";
 
 type DashboardStatCardProps = {
   keyType: "employees" | "benefits";
@@ -16,19 +15,10 @@ export function DashboardStatCard({
   value,
   icon,
 }: DashboardStatCardProps) {
-  const router = useRouter();
   const bgStyle =
     keyType === "employees"
       ? "rgba(225, 42, 251, 0.1)"
       : "rgba(1, 116, 138, 0.1)";
-  const btnStyle =
-    keyType === "employees"
-      ? "rgba(79, 39, 84, 0.5)"
-      : "rgba(1, 40, 36, 0.3)";
-  const href =
-    keyType === "employees"
-      ? "/admin/employee-eligibility"
-      : "/admin/add-benefit";
 
   return (
     <article
@@ -42,18 +32,8 @@ export function DashboardStatCard({
           </div>
           <p className="text-lg font-semibold text-[#FAFBFB] sm:text-[24px]">{title}</p>
         </div>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
-          <button
-            type="button"
-            onClick={() => router.push(href)}
-            className="shrink-0 self-start rounded-lg border border-white/50 px-6 py-2 text-lg font-medium text-[#F2F3F3] transition hover:bg-[#4F2754]/70 sm:px-10 sm:py-2.5 sm:text-[24px]"
-            style={{ background: btnStyle }}
-          >
-            Manage
-          </button>
-          <p className="text-6xl font-normal leading-none text-[#EDF6FF] sm:text-8xl lg:text-[154px]">
-            {value}
-          </p>
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-[154px] font-normal leading-none text-[#EDF6FF]">{value}</p>
         </div>
       </div>
     </article>

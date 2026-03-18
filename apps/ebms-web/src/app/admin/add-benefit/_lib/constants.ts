@@ -1,11 +1,58 @@
 /** Дүрмийн operator-ууд (харьцуулалт) */
 export const OPERATORS = [
   { value: "eq", label: "Тэнцүү (eq)" },
+  { value: "ne", label: "Үлгаатай (ne)" },
   { value: "lt", label: "Бага (lt)" },
   { value: "lte", label: "Бага буюу тэнцүү (lte)" },
   { value: "gte", label: "Их буюу тэнцүү (gte)" },
   { value: "gt", label: "Их (gt)" },
 ] as const;
+
+/** String талбарууд (employment_status, role) — зөвхөн eq, ne */
+export const OPERATORS_STRING = [
+  { value: "eq", label: "Тэнцүү (eq)" },
+  { value: "ne", label: "Үлгаатай (ne)" },
+] as const;
+
+/** Role утгууд (employees.role) */
+export const ROLE_VALUES = [
+  "admin",
+  "employee",
+  "hr",
+  "finance",
+  "ux_engineer",
+] as const;
+
+/** Rule type солиход тохирох default value */
+export function getDefaultValueForRuleType(
+  type: string,
+): string | number | boolean {
+  switch (type) {
+    case "employment_status":
+      return "active";
+    case "okr_submitted":
+      return true;
+    case "responsibility_level":
+      return 1;
+    case "late_arrival_count":
+    case "attendance":
+      return 0;
+    case "tenure":
+      return 180;
+    case "role":
+      return "employee";
+    default:
+      return "active";
+  }
+}
+
+/** String талбар (employment_status, role) — operator eq эсвэл ne байх ёстой */
+export function getDefaultOperatorForRuleType(type: string): string {
+  if (type === "employment_status" || type === "role") {
+    return "eq";
+  }
+  return "eq";
+}
 
 /** Алдааны мессежүүд (нэг дор, тодорхой) */
 export const ERROR_MESSAGES = {

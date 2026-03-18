@@ -27,6 +27,7 @@ type Props = {
   message: string | null;
   isEditMode?: boolean;
   hideSubmitButton?: boolean;
+  className?: string;
 };
 
 export function AddBenefitForm({
@@ -38,6 +39,7 @@ export function AddBenefitForm({
   message,
   isEditMode = false,
   hideSubmitButton = false,
+  className = "",
 }: Props) {
   const objectUrlRef = useRef<string | null>(null);
   const normalizedCategory = (form.category ?? "").trim().toLowerCase();
@@ -54,11 +56,11 @@ export function AddBenefitForm({
   }, []);
 
   return (
-    <section className={sectionClass}>
-      <h2 className="text-xl font-medium text-slate-900 dark:text-white">
+    <section className={`${sectionClass} ${className}`.trim()}>
+      <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
         {isEditMode ? "1. Benefit засварлах" : "1. Benefit нэмэх"}
       </h2>
-      <p className="mt-1 text-sm text-slate-600 dark:text-[#94A3B8]">
+      <p className="mt-1 text-xs text-slate-600 dark:text-[#94A3B8] sm:text-sm">
         {isEditMode
           ? "Нэр, ангилал, хөнгөлөлтийн хувийг засварлаад хадгална."
           : "Нэр, ангилал, хөнгөлөлтөө оруулаад доорх хэсэгт дүрмээ нэмнэ. Доорх Save товчоор benefit болон дүрмийг хамт хадгална."}
@@ -82,7 +84,7 @@ export function AddBenefitForm({
             type="text"
             value={form.name}
             onChange={(e) => onChange({ ...form, name: e.target.value })}
-            className={inputClass}
+            className={`${inputClass} py-1.5`}
             placeholder="жишээ: Gym Pinefit"
           />
         </div>
@@ -91,8 +93,8 @@ export function AddBenefitForm({
           <textarea
             value={form.description}
             onChange={(e) => onChange({ ...form, description: e.target.value })}
-            className={inputClass}
-            rows={3}
+            className={`${inputClass} py-1.5`}
+            rows={2}
             placeholder="Benefit-ийн дэлгэрэнгүй тайлбар"
           />
         </div>
@@ -111,7 +113,7 @@ export function AddBenefitForm({
               }
               onChange({ ...form, category: value });
             }}
-            className={inputClass}
+            className={`${inputClass} py-1.5`}
           >
             {CATEGORY_OPTIONS.map((category) => (
               <option key={category} value={category}>
@@ -125,7 +127,7 @@ export function AddBenefitForm({
               type="text"
               value={form.category}
               onChange={(e) => onChange({ ...form, category: e.target.value })}
-              className={`${inputClass} mt-2`}
+              className={`${inputClass} mt-2 py-1.5`}
               placeholder="Бусад ангилал бичнэ үү"
             />
           )}
@@ -143,10 +145,10 @@ export function AddBenefitForm({
                 subsidyPercent: e.target.value ? Number(e.target.value) : 0,
               })
             }
-            className={inputClass}
+            className={`${inputClass} py-1.5`}
           />
         </div>
-        <div className="flex flex-wrap gap-4 md:col-span-2">
+        <div className="md:col-span-2 flex flex-wrap gap-x-4 gap-y-1.5">
           <div className="flex items-center gap-2">
             <input
               type="checkbox"

@@ -39,6 +39,7 @@ export const getAvailableRuleAttributes: NonNullable<
   requireHR(ctx);
   return [
     "employment_status",
+    "role",
     "okr_submitted",
     "late_arrival_count",
     "responsibility_level",

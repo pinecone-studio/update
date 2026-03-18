@@ -6,11 +6,22 @@ import {
   FINANCE_NOTIFICATIONS,
   type FinanceNotificationItem,
 } from "./constants";
+import { HiOutlineXMark } from "react-icons/hi2";
+
+type FinanceNotificationItem = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  unread: boolean;
+};
 
 type FinanceNotificationDropdownProps = {
   open: boolean;
+  notifications: FinanceNotificationItem[];
   unreadCount: number;
   onClose: () => void;
+  onMarkAllRead?: () => void;
 };
 
 function NotificationDot({ item }: { item: FinanceNotificationItem }) {
@@ -24,8 +35,10 @@ function NotificationDot({ item }: { item: FinanceNotificationItem }) {
 
 export function FinanceNotificationDropdown({
   open,
+  notifications,
   unreadCount,
   onClose,
+  onMarkAllRead,
 }: FinanceNotificationDropdownProps) {
   const [filter, setFilter] = useState<"unread" | "all">("unread");
   const notifications = FINANCE_NOTIFICATIONS;
@@ -65,32 +78,30 @@ export function FinanceNotificationDropdown({
           </button>
         </div>
       </div>
-      <div className="max-h-[320px] space-y-2 overflow-y-auto px-3 py-3">
-        {filtered.length === 0 ? (
-          <p className="py-6 text-center text-xs text-white/50">
-            No notifications
-          </p>
+      <div className="max-h-[280px] space-y-2 overflow-y-auto px-3 py-3">
+        {notifications.length === 0 ? (
+          <p className="px-3 py-4 text-xs text-white/50">No notifications.</p>
         ) : (
-          filtered.slice(0, 5).map((item) => (
-            <div
+          notifications.slice(0, 5).map((item) => (
+            <Link
               key={item.id}
-              className="rounded-xl border border-white/5 bg-white/5 p-3"
-            >
-              <div className="flex gap-3">
-                <NotificationDot item={item} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold text-white">
-                      {item.title}
-                    </p>
-                    <p className="flex-shrink-0 text-[11px] text-white/40">
-                      {item.time}
-                    </p>
-                  </div>
-                  <p className="mt-0.5 text-xs text-white/60">{item.subtitle}</p>
-                </div>
-              </div>
+              href="/finance/finance-notification"
+              onClick={onClose}
+            className="flex w-full gap-3 rounded-xl border border-transparent bg-white/5 p-3 text-left transition hover:border-white/10 hover:bg-white/10"
+          >
+            <span
+              className={`mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full ${
+                item.unread ? "bg-red-500" : "bg-slate-300"
+              }`}
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-white">{item.title}</p>
+              <p className="mt-1 line-clamp-2 text-xs text-white/60">
+                {item.body}
+              </p>
+              <p className="mt-2 text-[11px] text-white/40">{item.time}</p>
             </div>
+          </Link>
           ))
         )}
       </div>

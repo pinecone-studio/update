@@ -25,6 +25,7 @@ export function Header() {
     selectedUser,
     userOptions,
     unreadCount,
+    unclosedFeedbackCount,
     normalizedPath,
     notificationRef,
     profileRef,
@@ -136,6 +137,7 @@ export function Header() {
                 setProfileOpen((prev) => !prev);
                 setNotificationOpen(false);
               }}
+              unclosedFeedbackCount={unclosedFeedbackCount}
             />
           </div>
         </div>
@@ -149,6 +151,7 @@ export function Header() {
           userOptions={userOptions}
           notifications={notifications}
           unreadCount={unreadCount}
+          unclosedFeedbackCount={unclosedFeedbackCount}
           notificationOpen={notificationOpen}
           onClose={() => setMenuOpen(false)}
           onSelectUser={handleUserChange}

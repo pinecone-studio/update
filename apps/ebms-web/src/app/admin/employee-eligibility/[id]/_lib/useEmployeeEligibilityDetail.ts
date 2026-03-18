@@ -7,9 +7,9 @@ import { ensureValidActiveUserProfile } from "@/app/_lib/activeUser";
 import type { BenefitRow, BenefitStatus, EmployeeDetail } from "./types";
 import {
   formatRoleLabel,
+  formatComputedAt,
   getClient,
   getErrorMessage,
-  inferLastDate,
   inferReason,
 } from "./utils";
 
@@ -31,6 +31,10 @@ const EMPLOYEE_QUERY = gql`
           passed
           reason
         }
+        computedAt
+        overrideApplied
+        overrideReason
+        rejectedReason
       }
     }
   }
@@ -219,12 +223,12 @@ export function useEmployeeEligibilityDetail() {
           id: emp.id ?? "",
           name: emp.name ?? "Unknown",
           role: formatRoleLabel(emp.role ?? emp.employmentStatus ?? "Employee"),
-          benefits: (emp.benefits ?? []).map((benefit, index) => ({
+          benefits: (emp.benefits ?? []).map((benefit) => ({
             benefitId: benefit.benefit?.id ?? "",
             name: benefit.benefit?.name ?? "Unknown",
             status: benefit.status,
             reason: inferReason(benefit),
-            lastDate: inferLastDate(index),
+            lastDate: formatComputedAt(benefit.computedAt),
             history: [],
           })),
         });

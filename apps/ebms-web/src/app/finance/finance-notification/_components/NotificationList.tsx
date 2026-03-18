@@ -5,7 +5,8 @@ import { NotificationCard } from "./NotificationCard";
 type NotificationType =
   | "payment_pending"
   | "reimbursement"
-  | "payment_completed";
+  | "payment_completed"
+  | string;
 
 export type NotificationItem = {
   id: string;

@@ -1,7 +1,12 @@
 "use client";
 
 import type { BenefitFromCatalog, BenefitConfig, Rule } from "../_lib/types";
-import { OPERATORS } from "../_lib/constants";
+import {
+  OPERATORS,
+  OPERATORS_STRING,
+  ROLE_VALUES,
+  getDefaultValueForRuleType,
+} from "../_lib/constants";
 
 const sectionBaseClass =
   "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
@@ -31,6 +36,7 @@ type Props = {
     field: keyof Rule,
     value: string | number | boolean,
   ) => void;
+  onRuleTypeChange?: (ruleIndex: number, newType: string) => void;
   onAddRule: () => void;
   onRemoveRule: (ruleIndex: number) => void;
   onSave: () => void;
@@ -45,6 +51,7 @@ type Props = {
   showCancelButton?: boolean;
   onCancel?: () => void;
   noTopMargin?: boolean;
+  className?: string;
 };
 
 export function RuleConfigSection({
@@ -54,6 +61,7 @@ export function RuleConfigSection({
   rulesForSelected,
   attributes,
   onUpdateRule,
+  onRuleTypeChange,
   onAddRule,
   onRemoveRule,
   onSave,
@@ -68,6 +76,7 @@ export function RuleConfigSection({
   showCancelButton = false,
   onCancel,
   noTopMargin = false,
+  className = "",
 }: Props) {
   const sectionClass = noTopMargin ? sectionBaseClass : `mt-8 ${sectionBaseClass}`;
   const normalizedAttributes = Array.from(
@@ -80,11 +89,11 @@ export function RuleConfigSection({
   }
 
   return (
-    <section className={sectionClass}>
-      <h2 className="text-xl font-medium text-slate-900 dark:text-white">
+    <section className={`${sectionClass} ${className}`.trim()}>
+      <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
         2. Дүрэм тохируулах
       </h2>
-      <p className="mt-1 text-sm text-slate-600 dark:text-[#94A3B8]">
+      <p className="mt-1 text-xs text-slate-600 dark:text-[#94A3B8] sm:text-sm">
         D1-д байгаа benefit-ээс сонгоод eligibility дүрмээ нэмж, засна.
       </p>
 
@@ -126,156 +135,192 @@ export function RuleConfigSection({
       )}
 
       {selectedBenefitId && rulesForSelected && (
-        <div className="mt-6">
+        <div className="mt-3">
           <h3 className="text-sm font-medium text-slate-600 mb-2 dark:text-[#94A3B8]">
             «{rulesForSelected.name || selectedBenefitId}» — eligibility дүрмүүд
           </h3>
-          {(rulesForSelected.rules ?? []).map((rule, ri) => (
-            <div
-              key={ri}
-              className="mb-2 flex flex-wrap items-center gap-2 rounded bg-slate-100 p-2 dark:bg-[#1E293B]"
-            >
-              {/** Backward compatibility: existing `attendance` rules are treated as `late_arrival_count`. */}
-              {(() => {
-                const ruleType =
-                  rule.type === "attendance" ? "late_arrival_count" : rule.type;
-                return (
-                  <>
-                    <select
-                      value={ruleType}
-                      onChange={(e) => onUpdateRule(ri, "type", e.target.value)}
-                      className={inputSm}
-                    >
-                      {normalizedAttributes.map((a) => (
-                        <option key={a} value={a}>
-                          {a}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={rule.operator}
-                      onChange={(e) =>
-                        onUpdateRule(ri, "operator", e.target.value)
-                      }
-                      className={inputSm}
-                    >
-                      {OPERATORS.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                    {ruleType === "employment_status" ? (
+          <div className="pr-1">
+            {(rulesForSelected.rules ?? []).map((rule, ri) => (
+              <div
+                key={ri}
+                className="mb-2 flex flex-wrap items-center gap-2 rounded bg-slate-100 px-2 py-1.5 dark:bg-[#1E293B]"
+              >
+                {/** Backward compatibility: existing `attendance` rules are treated as `late_arrival_count`. */}
+                {(() => {
+                  const ruleType =
+                    rule.type === "attendance"
+                      ? "late_arrival_count"
+                      : rule.type;
+                  return (
+                    <>
                       <select
-                        value={String(rule.value ?? "active").toLowerCase()}
-                        onChange={(e) =>
-                          onUpdateRule(ri, "value", e.target.value)
-                        }
-                        className={`${inputSm} w-40`}
+                        value={ruleType}
+                        onChange={(e) => {
+                          const newType = e.target.value;
+                          if (onRuleTypeChange) {
+                            onRuleTypeChange(ri, newType);
+                          } else {
+                            onUpdateRule(ri, "type", newType);
+                          }
+                        }}
+                        className={inputSm}
                       >
-                        {EMPLOYMENT_STATUS_VALUES.map((status) => (
-                          <option key={status} value={status}>
-                            {status}
+                        {normalizedAttributes.map((a) => (
+                          <option key={a} value={a}>
+                            {a}
                           </option>
                         ))}
                       </select>
-                    ) : ruleType === "responsibility_level" ? (
                       <select
-                        value={Number(rule.value ?? 1)}
+                        value={rule.operator}
                         onChange={(e) =>
-                          onUpdateRule(ri, "value", Number(e.target.value))
+                          onUpdateRule(ri, "operator", e.target.value)
                         }
-                        className={`${inputSm} w-24`}
+                        className={inputSm}
                       >
-                        {RESPONSIBILITY_LEVEL_VALUES.map((level) => (
-                          <option key={level} value={level}>
-                            {level}
+                        {(ruleType === "employment_status" ||
+                        ruleType === "role"
+                          ? OPERATORS_STRING
+                          : OPERATORS
+                        ).map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
                           </option>
                         ))}
                       </select>
-                    ) : ruleType === "late_arrival_count" ? (
-                      <select
-                        value={Number(rule.value ?? 0)}
-                        onChange={(e) =>
-                          onUpdateRule(ri, "value", Number(e.target.value))
-                        }
-                        className={`${inputSm} w-24`}
-                      >
-                        {LATE_ARRIVAL_COUNT_VALUES.map((count) => (
-                          <option key={count} value={count}>
-                            {count}
-                          </option>
-                        ))}
-                      </select>
-                    ) : ruleType === "tenure" ? (
-                      <input
-                        type="number"
-                        min={0}
-                        placeholder="Хоног"
-                        value={Number(rule.value ?? DEFAULT_TENURE_DAYS)}
-                        onChange={(e) =>
-                          onUpdateRule(ri, "value", Number(e.target.value))
-                        }
-                        className={`${inputSm} w-24`}
-                      />
-                    ) : rule.type === "okr_submitted" ? (
-                      <select
-                        value={String(rule.value ?? "false")}
-                        onChange={(e) =>
-                          onUpdateRule(ri, "value", e.target.value === "true")
-                        }
-                        className={`${inputSm} w-28`}
-                      >
-                        {OKR_SUBMITTED_VALUES.map((v) => (
-                          <option key={v} value={v}>
-                            {v}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
+                      {ruleType === "employment_status" ? (
+                        <select
+                          value={String(rule.value ?? "active").toLowerCase()}
+                          onChange={(e) =>
+                            onUpdateRule(ri, "value", e.target.value)
+                          }
+                          className={`${inputSm} w-40`}
+                        >
+                          {EMPLOYMENT_STATUS_VALUES.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+                      ) : ruleType === "responsibility_level" ? (
+                        <select
+                          value={Number(rule.value ?? 1)}
+                          onChange={(e) =>
+                            onUpdateRule(ri, "value", Number(e.target.value))
+                          }
+                          className={`${inputSm} w-24`}
+                        >
+                          {RESPONSIBILITY_LEVEL_VALUES.map((level) => (
+                            <option key={level} value={level}>
+                              {level}
+                            </option>
+                          ))}
+                        </select>
+                      ) : ruleType === "late_arrival_count" ? (
+                        <select
+                          value={Number(rule.value ?? 0)}
+                          onChange={(e) =>
+                            onUpdateRule(ri, "value", Number(e.target.value))
+                          }
+                          className={`${inputSm} w-24`}
+                        >
+                          {LATE_ARRIVAL_COUNT_VALUES.map((count) => (
+                            <option key={count} value={count}>
+                              {count}
+                            </option>
+                          ))}
+                        </select>
+                      ) : ruleType === "tenure" ? (
+                        <input
+                          type="number"
+                          min={0}
+                          placeholder="Хоног"
+                          value={Math.max(
+                            0,
+                            Math.floor(Number(rule.value ?? DEFAULT_TENURE_DAYS) || 0),
+                          )}
+                          onChange={(e) => {
+                            const v = Math.max(
+                              0,
+                              Math.floor(Number(e.target.value) || 0),
+                            );
+                            onUpdateRule(ri, "value", v);
+                          }}
+                          className={`${inputSm} w-24`}
+                        />
+                      ) : rule.type === "okr_submitted" ? (
+                        <select
+                          value={String(rule.value ?? "false")}
+                          onChange={(e) =>
+                            onUpdateRule(ri, "value", e.target.value === "true")
+                          }
+                          className={`${inputSm} w-28`}
+                        >
+                          {OKR_SUBMITTED_VALUES.map((v) => (
+                            <option key={v} value={v}>
+                              {v}
+                            </option>
+                          ))}
+                        </select>
+                      ) : ruleType === "role" ? (
+                        <select
+                          value={String(rule.value ?? "employee").toLowerCase()}
+                          onChange={(e) =>
+                            onUpdateRule(ri, "value", e.target.value)
+                          }
+                          className={`${inputSm} w-36`}
+                        >
+                          {ROLE_VALUES.map((r) => (
+                            <option key={r} value={r}>
+                              {r}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="Утга"
+                          value={
+                            typeof rule.value === "boolean"
+                              ? rule.value
+                                ? "true"
+                                : "false"
+                              : String(rule.value ?? "")
+                          }
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            if (v === "true") onUpdateRule(ri, "value", true);
+                            else if (v === "false")
+                              onUpdateRule(ri, "value", false);
+                            else if (/^\d+$/.test(v))
+                              onUpdateRule(ri, "value", Number(v));
+                            else onUpdateRule(ri, "value", v);
+                          }}
+                          className={`${inputSm} w-24`}
+                        />
+                      )}
                       <input
                         type="text"
-                        placeholder="Утга"
-                        value={
-                          typeof rule.value === "boolean"
-                            ? rule.value
-                              ? "true"
-                              : "false"
-                            : String(rule.value ?? "")
+                        placeholder="Алдааны мессеж (дүрэм давцаагүй үед)"
+                        value={rule.errorMessage ?? ""}
+                        onChange={(e) =>
+                          onUpdateRule(ri, "errorMessage", e.target.value)
                         }
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          if (v === "true") onUpdateRule(ri, "value", true);
-                          else if (v === "false")
-                            onUpdateRule(ri, "value", false);
-                          else if (/^\d+$/.test(v))
-                            onUpdateRule(ri, "value", Number(v));
-                          else onUpdateRule(ri, "value", v);
-                        }}
-                        className={`${inputSm} w-24`}
+                        className={`${inputSm} flex-1 min-w-[180px]`}
                       />
-                    )}
-                    <input
-                      type="text"
-                      placeholder="Алдааны мессеж (дүрэм давцаагүй үед)"
-                      value={rule.errorMessage ?? ""}
-                      onChange={(e) =>
-                        onUpdateRule(ri, "errorMessage", e.target.value)
-                      }
-                      className={`${inputSm} flex-1 min-w-[180px]`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => onRemoveRule(ri)}
-                      className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      Устгах
-                    </button>
-                  </>
-                );
-              })()}
-            </div>
-          ))}
+                      <button
+                        type="button"
+                        onClick={() => onRemoveRule(ri)}
+                        className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        Устгах
+                      </button>
+                    </>
+                  );
+                })()}
+              </div>
+            ))}
+          </div>
           <button
             type="button"
             onClick={onAddRule}

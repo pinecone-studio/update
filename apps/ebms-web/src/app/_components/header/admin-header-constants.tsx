@@ -76,3 +76,12 @@ export const DEFAULT_NOTIFICATIONS: AdminNotification[] = [
     actions: ["view"],
   },
 ];
+
+export type AdminNotification = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  tone: "info" | "success" | "warning" | "neutral";
+  unread: boolean;
+};

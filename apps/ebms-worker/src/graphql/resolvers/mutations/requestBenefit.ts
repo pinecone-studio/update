@@ -3,9 +3,14 @@ import type { Ctx } from "../context";
 import { requireEmployeeId } from "../context";
 import type { MutationResolvers } from "../../generated/graphql";
 import { getDb } from "../../../db/drizzle";
-import { benefits as benefitsTable, benefitRequests } from "../../../db/schema";
+import {
+  benefits as benefitsTable,
+  benefitRequests,
+  employees as employeesTable,
+} from "../../../db/schema";
 import { asBool01 } from "../utils";
 import { and, eq } from "drizzle-orm";
+import { dispatchRoleNotification } from "../../../notifications/roleDispatcher";
 
 export const requestBenefit: NonNullable<
   MutationResolvers<Ctx>["requestBenefit"]
@@ -25,6 +30,7 @@ export const requestBenefit: NonNullable<
   const benefitRow = await db
     .select({
       id: benefitsTable.id,
+      name: benefitsTable.name,
       requiresContract: benefitsTable.requiresContract,
       activeContractId: benefitsTable.activeContractId,
     })
@@ -48,6 +54,28 @@ export const requestBenefit: NonNullable<
     status: "pending",
     createdAt: now,
     updatedAt: now,
+  });
+
+  const [emp] = await db
+    .select({ name: employeesTable.name, nameEng: employeesTable.nameEng })
+    .from(employeesTable)
+    .where(eq(employeesTable.id, employeeId))
+    .limit(1);
+  const employeeName = emp?.nameEng ?? emp?.name ?? employeeId;
+
+  await dispatchRoleNotification(ctx.env, {
+    recipientRole: "admin",
+    title: "New Benefit Request",
+    body: `${employeeName} submitted a request for ${benefit?.name ?? benefitId}.`,
+    type: "request",
+    tone: "info",
+    metadata: {
+      requestId: id,
+      employeeId,
+      benefitId,
+      benefitName: benefit?.name,
+      employeeName,
+    },
   });
 
   return {

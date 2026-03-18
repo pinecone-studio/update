@@ -127,6 +127,7 @@ export type EscalatedFeedbackItem = {
   text: string;
   benefitId: string | null;
   isAnonymous: boolean;
+  employeeName: string | null;
   status: string;
   createdAt: string;
   votingEndsAt: string;
@@ -190,4 +191,68 @@ export async function closeFeedback(feedbackId: string): Promise<{
     throw new Error(data?.error ?? "Failed to close feedback");
   }
   return res.json();
+}
+
+// --- Admin notifications ---
+
+export type AdminNotificationItem = {
+  id: string;
+  title: string;
+  body: string;
+  type: string;
+  tone: string;
+  unread: boolean;
+  createdAt: string;
+  metadata: Record<string, unknown> | null;
+};
+
+export async function fetchAdminNotifications(
+  limit = 50,
+  unreadOnly = false,
+): Promise<AdminNotificationItem[]> {
+  const base = getBaseUrl();
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (unreadOnly) params.set("unreadOnly", "true");
+  const res = await fetch(`${base}/admin/notifications?${params}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...getActiveUserHeaders("admin"),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Failed to fetch notifications");
+  }
+  const json = await res.json();
+  return json.items ?? [];
+}
+
+export async function markAdminNotificationRead(id: string): Promise<void> {
+  const base = getBaseUrl();
+  const res = await fetch(`${base}/admin/notifications/${id}/read`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...getActiveUserHeaders("admin"),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Failed to mark as read");
+  }
+}
+
+export async function markAllAdminNotificationsRead(): Promise<void> {
+  const base = getBaseUrl();
+  const res = await fetch(`${base}/admin/notifications/read-all`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...getActiveUserHeaders("admin"),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Failed to mark all as read");
+  }
 }
