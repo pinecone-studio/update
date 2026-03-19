@@ -3,6 +3,7 @@
 import { gql } from "graphql-request";
 import { useEffect, useMemo, useState } from "react";
 import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
+import { useCachedCount } from "@/app/_lib/useCachedCount";
 import { getAdminClient, getApiErrorMessage } from "../../_lib/api";
 import type { AuditEntry } from "./types";
 
@@ -55,6 +56,10 @@ export function useAuditLog() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [cachedEntryCount, setCachedEntryCount] = useCachedCount(
+    "audit-log-entry-count",
+    { defaultCount: 3 }
+  );
 
   useOnUserSwitch(() => setRefreshKey((k) => k + 1));
 
@@ -179,6 +184,7 @@ export function useAuditLog() {
         });
 
         setEntries(mapped);
+        setCachedEntryCount(mapped.length);
       } catch (e) {
         if (!cancelled) {
           setEntries([]);
@@ -293,6 +299,7 @@ export function useAuditLog() {
     loading,
     error,
     entries,
+    cachedEntryCount,
     filteredEntries,
     benefitOptions,
     actionOptions,

@@ -22,6 +22,7 @@ export default function FinancePage() {
     error,
     setError,
     requests,
+    cachedRequestCount,
     employees,
     benefitSubsidyMap,
     statCards,
@@ -134,7 +135,7 @@ export default function FinancePage() {
     setRejectionReason("");
   }, [rejectingRequestId, rejectionReason, handleDecision]);
 
-  if (loading) return <FinanceDashboardSkeleton />;
+  if (loading) return <FinanceDashboardSkeleton requestRowCount={cachedRequestCount} />;
 
   return (
     <div className="space-y-6">

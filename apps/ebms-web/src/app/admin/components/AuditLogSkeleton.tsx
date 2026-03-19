@@ -4,7 +4,12 @@
 
 import { Skeleton } from "@/app/_components/Skeleton";
 
-export function AuditLogSkeleton() {
+interface AuditLogSkeletonProps {
+  /** Number of table rows to show (matches AuditLogTable) */
+  rowCount?: number;
+}
+
+export function AuditLogSkeleton({ rowCount = 3 }: AuditLogSkeletonProps) {
   return (
     <div className="space-y-6">
       {/* Header - matches AuditLogHeader */}
@@ -46,7 +51,7 @@ export function AuditLogSkeleton() {
               </tr>
             </thead>
             <tbody>
-              {[1, 2, 3, 4, 5].map((i) => (
+              {Array.from({ length: rowCount }, (_, i) => i + 1).map((i) => (
                 <tr
                   key={i}
                   className="border-b border-slate-200 last:border-b-0 dark:border-[#22395A]"

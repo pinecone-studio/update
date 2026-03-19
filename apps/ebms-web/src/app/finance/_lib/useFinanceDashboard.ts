@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
+import { useCachedCount } from "@/app/_lib/useCachedCount";
 import {
   fetchBenefitRequests,
   fetchBenefits,
@@ -19,6 +20,10 @@ export function useFinanceDashboard() {
   const [benefitSubsidyMap, setBenefitSubsidyMap] = useState<
     Record<string, number>
   >({});
+  const [cachedRequestCount, setCachedRequestCount] = useCachedCount(
+    "finance-request-count",
+    { defaultCount: 3 }
+  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -31,6 +36,7 @@ export function useFinanceDashboard() {
         fetchBenefits(client),
       ]);
       setRequests(reqList);
+      setCachedRequestCount(reqList.length);
       setEmployees(Object.fromEntries(employeeList.map((e) => [e.id, e])));
       setBenefitSubsidyMap(
         Object.fromEntries(
@@ -148,6 +154,7 @@ export function useFinanceDashboard() {
     loading,
     error,
     requests,
+    cachedRequestCount,
     employees,
     benefitSubsidyMap,
     statCards,
