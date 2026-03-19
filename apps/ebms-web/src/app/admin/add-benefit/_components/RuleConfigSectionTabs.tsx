@@ -92,7 +92,7 @@ export function RuleConfigSectionTabs({
     FIELD_LABELS[type] ?? type.replace(/_/g, " ");
 
   return (
-    <section className={cardClass}>
+    <section className={`${cardClass} h-full`}>
       <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
         Benefit Configuration
       </h2>

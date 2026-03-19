@@ -257,14 +257,14 @@ export function EmployeeUploadContractModal({
             <button
               type="button"
               onClick={handleClose}
-              className="h-13 w-[156px] rounded-lg bg-[#B0B0B0] px-2 text-[20px] font-normal text-[#122459]"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={uploading || !pdfFile}
-              className="inline-flex h-13 w-[156px] items-center justify-center rounded-lg bg-[#0057AD] px-2 text-[20px] font-normal text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:bg-[#0057AD] disabled:text-white"
+              className="rounded-lg bg-[#0057ADCC] px-4 py-2 font-medium text-white transition hover:bg-[#3E82F7] disabled:opacity-50 dark:bg-[#0057ADCC] dark:hover:bg-[#3E82F7]"
             >
               {uploading ? "Saving..." : "Save"}
             </button>
