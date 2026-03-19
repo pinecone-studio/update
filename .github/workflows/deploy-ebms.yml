@@ -66,7 +66,16 @@ jobs:
           NEXT_PUBLIC_API_URL: https://ebms-api.myagmartsognnaranbaatar.workers.dev
 
       - name: Deploy to Cloudflare Pages
-        run: npx wrangler pages deploy apps/ebms-web/out --project-name=ebms-web
+        run: |
+          for attempt in 1 2 3; do
+            npm exec wrangler pages deploy apps/ebms-web/out --project-name=ebms-web && exit 0
+            if [ "$attempt" -lt 3 ]; then
+              echo "Cloudflare Pages deploy failed on attempt $attempt. Retrying in 15 seconds..."
+              sleep 15
+            fi
+          done
+          echo "Cloudflare Pages deploy failed after 3 attempts."
+          exit 1
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.EBMS_CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.EBMS_CF_ACCOUNT_ID }}
