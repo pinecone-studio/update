@@ -141,55 +141,57 @@ function normalizeStatus(s: string | undefined | null): BenefitStatus {
 }
 
 export interface BenefitCardProps {
-	/** Backend benefit id (for requestBenefit mutation) */
-	benefitId?: string;
-	category: string;
-	name: string;
-	description: string;
-	subsidyPercentage?: string;
-	vendorDetails?: string;
-	eligibilityCriteria: string;
-	contractLink?: string;
-	/** Benefit end date (from active contract expiry) */
-	benefitEndDate?: string | null;
-	/** Benefit start date (from active contract effective date, for ACTIVE benefits) */
-	benefitStartDate?: string | null;
-	/** If true, employee must accept vendor contract before requesting */
-	requiresContract?: boolean;
-	/** When ACTIVE and contract uploaded: request ID to view signed contract */
-	uploadedContractRequestId?: string;
-	/** Хүсэлт илгээх хугацаа (ISO) — энэ өдрөөс хойш LOCKED */
-	requestDeadline?: string | null;
-	/** Хугацаанд хэдэн удаа ашиглах */
-	usageLimitCount?: number;
-	/** Хугацаа: month | year */
-	usageLimitPeriod?: string | null;
-	status: BenefitStatus;
-	/** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
-	lockReason?: string;
-	/** Rejection reason when status is REJECTED (admin's feedback) */
-	rejectReason?: string;
-	/** When status is PENDING: "admin" or "finance" — who must approve next */
-	pendingApprovalBy?: string;
-	/** True when status is currently controlled by an HR/Admin override */
-	overrideApplied?: boolean;
-	/** Optional reason attached to the active override */
-	overrideReason?: string;
-	/** Rules evaluated for eligibility breakdown (shown in detail view) */
-	eligibilityRules?: EligibilityRule[];
-	icon: ReactNode;
-	iconBgColor?: string;
-	iconColor?: string;
-	buttonText?: string;
-	onClick?: () => void;
-	/** Called when user clicks "Request benefit" on ELIGIBLE benefits */
-	onRequestBenefit?: () => void;
-	/** Custom footer actions (replaces default button when provided) */
-	footerActions?: ReactNode;
-	/** Compact layout for list/sidebar (single column) */
-	compact?: boolean;
-	variant?: "default" | "admin";
-	hideStatusBadge?: boolean;
+  /** Backend benefit id (for requestBenefit mutation) */
+  benefitId?: string;
+  category: string;
+  name: string;
+  description: string;
+  subsidyPercentage?: string;
+  vendorDetails?: string;
+  eligibilityCriteria: string;
+  contractLink?: string;
+  /** Benefit end date (from active contract expiry) */
+  benefitEndDate?: string | null;
+  /** Benefit start date (from active contract effective date, for ACTIVE benefits) */
+  benefitStartDate?: string | null;
+  /** If true, employee must accept vendor contract before requesting */
+  requiresContract?: boolean;
+  /** When ACTIVE and contract uploaded: request ID to view signed contract */
+  uploadedContractRequestId?: string;
+  /** Хүсэлт илгээх хугацаа (ISO) — энэ өдрөөс хойш LOCKED */
+  requestDeadline?: string | null;
+  /** Хугацаанд хэдэн удаа ашиглах */
+  usageLimitCount?: number;
+  /** Хугацаа: month | year */
+  usageLimitPeriod?: string | null;
+  status: BenefitStatus;
+  /** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
+  lockReason?: string;
+  /** Rejection reason when status is REJECTED (admin's feedback) */
+  rejectReason?: string;
+  /** When status is PENDING: "admin" or "finance" — who must approve next */
+  pendingApprovalBy?: string;
+  /** True when status is currently controlled by an HR/Admin override */
+  overrideApplied?: boolean;
+  /** Optional reason attached to the active override */
+  overrideReason?: string;
+  /** Rules evaluated for eligibility breakdown (shown in detail view) */
+  eligibilityRules?: EligibilityRule[];
+  icon: ReactNode;
+  iconBgColor?: string;
+  iconColor?: string;
+  buttonText?: string;
+  onClick?: () => void;
+  /** Called when user clicks "Request benefit" on ELIGIBLE benefits */
+  onRequestBenefit?: () => void;
+  /** Custom footer actions (replaces default button when provided) */
+  footerActions?: ReactNode;
+  /** When ACTIVE + uploaded contract: open uploaded PDF (employee dashboard) */
+  onViewUploadedContract?: (requestId: string) => void;
+  /** Compact layout for list/sidebar (single column) */
+  compact?: boolean;
+  variant?: "default" | "admin";
+  hideStatusBadge?: boolean;
 }
 
 function formatRequestDeadline(iso?: string | null): string | undefined {
@@ -227,35 +229,37 @@ function StatusBadge({ status }: { status: BenefitStatus }) {
 }
 
 export const BenefitCard = ({
-	benefitId: _benefitId,
-	category,
-	name,
-	description,
-	subsidyPercentage,
-	vendorDetails,
-	eligibilityCriteria: _eligibilityCriteria,
-	contractLink: _contractLink,
-	benefitEndDate: _benefitEndDate,
-	status,
-	lockReason,
-	rejectReason,
-	overrideApplied = false,
-	overrideReason,
-	pendingApprovalBy,
-	eligibilityRules,
-	icon,
-	iconBgColor: _iconBgColor = "bg-[#4CAF50]/20",
-	iconColor: _iconColor = "text-[#4CAF50]",
-	buttonText,
-	onClick,
-	onRequestBenefit,
-	footerActions,
-	compact,
-	variant = "default",
-	hideStatusBadge = false,
-	requestDeadline,
-	usageLimitCount,
-	usageLimitPeriod,
+  benefitId: _benefitId,
+  category,
+  name,
+  description,
+  subsidyPercentage,
+  vendorDetails,
+  eligibilityCriteria: _eligibilityCriteria,
+  contractLink: _contractLink,
+  benefitEndDate: _benefitEndDate,
+  status,
+  lockReason,
+  rejectReason,
+  overrideApplied = false,
+  overrideReason,
+  pendingApprovalBy,
+  eligibilityRules,
+  icon,
+  iconBgColor: _iconBgColor = "bg-[#4CAF50]/20",
+  iconColor: _iconColor = "text-[#4CAF50]",
+  buttonText,
+  onClick,
+  onRequestBenefit,
+  footerActions,
+  onViewUploadedContract,
+  uploadedContractRequestId,
+  compact,
+  variant = "default",
+  hideStatusBadge = false,
+  requestDeadline,
+  usageLimitCount,
+  usageLimitPeriod,
 }: BenefitCardProps) => {
 	const safeStatus = normalizeStatus(status);
 	const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[safeStatus];
@@ -472,45 +476,54 @@ export const BenefitCard = ({
 						</div>
 					) : null}
 
-					{!isAdminVariant && !compact && safeStatus === "ACTIVE" ? (
-						<div className="mb-2">
-							<div className={`h-px ${dividerClass}`} />
-							<div className="mt-3 space-y-0.5">
-								{subsidyPercentage ? (
-									<div
-										className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}
-									>
-										<span className={labelClass}>Coverage</span>
-										<span className={valueClass}>
-											{subsidyPercentage} subsidy
-										</span>
-									</div>
-								) : null}
-								<div
-									className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}
-								>
-									<span className={labelClass}>Vendor</span>
-									<span className={valueClass}>{vendorDisplayName}</span>
-								</div>
-								{extraInfo ? (
-									<div
-										className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}
-									>
-										<span className={labelClass}>Duration</span>
-										<span className={valueClass}>{extraInfo}</span>
-									</div>
-								) : null}
-								<p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
-								{isAdminVariant && overrideApplied ? (
-									<p className="pt-2 text-xs text-amber-200/90">
-										Override:{" "}
-										{normalizedOverrideReason ||
-											"Status manually updated by HR/Admin."}
-									</p>
-								) : null}
-							</div>
-						</div>
-					) : null}
+          {!isAdminVariant && !compact && safeStatus === "ACTIVE" ? (
+            <div className="mb-2">
+              <div className={`h-px ${dividerClass}`} />
+              <div className="mt-3 space-y-0.5">
+                {subsidyPercentage ? (
+                  <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
+                    <span className={labelClass}>Coverage</span>
+                    <span className={valueClass}>
+                      {subsidyPercentage} subsidy
+                    </span>
+                  </div>
+                ) : null}
+                <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
+                  <span className={labelClass}>Vendor</span>
+                  <span className={valueClass}>{vendorDisplayName}</span>
+                </div>
+                {extraInfo ? (
+                  <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
+                    <span className={labelClass}>Duration</span>
+                    <span className={valueClass}>{extraInfo}</span>
+                  </div>
+                ) : null}
+                {uploadedContractRequestId && onViewUploadedContract ? (
+                  <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
+                    <span className={labelClass}>Contract</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewUploadedContract(uploadedContractRequestId);
+                      }}
+                      className={`${valueClass} text-left underline decoration-slate-400 underline-offset-2 hover:decoration-slate-600 dark:decoration-white/50 dark:hover:decoration-white/80`}
+                    >
+                      View uploaded contract
+                    </button>
+                  </div>
+                ) : null}
+                <p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
+                {isAdminVariant && overrideApplied ? (
+                  <p className="pt-2 text-xs text-amber-200/90">
+                    Override:{" "}
+                    {normalizedOverrideReason ||
+                      "Status manually updated by HR/Admin."}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
 
 					{!isAdminVariant && !compact && safeStatus !== "ACTIVE" ? (
 						<div className="mb-2">

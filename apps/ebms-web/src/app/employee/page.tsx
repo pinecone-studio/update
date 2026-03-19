@@ -100,8 +100,29 @@ export default function EmployeeDashboardPage() {
     },
   ];
 
-  const benefitsWithContractFlow = orderedBenefits.map((benefit) => {
-    if (benefit.status !== "PENDING" || !benefit.benefitId) return benefit;
+  const uploadRequiredTaskIds = Object.values(contractTasksByBenefitId).filter(
+    (t) => t.requestStatus === "APPROVED" && !t.uploadedUrl,
+  );
+  const benefitIdsNeedingUpload = new Set(
+    uploadRequiredTaskIds.map((t) => t.benefitId),
+  );
+  const sourceForUploadNeeded =
+    statusFilter === "PENDING" ? benefits : filteredBenefits;
+  const benefitsToShow =
+    benefitIdsNeedingUpload.size > 0
+      ? [
+          ...orderedBenefits,
+          ...sourceForUploadNeeded.filter(
+            (b) =>
+              b.benefitId &&
+              benefitIdsNeedingUpload.has(b.benefitId) &&
+              !orderedBenefits.some((o) => o.benefitId === b.benefitId),
+          ),
+        ]
+      : orderedBenefits;
+
+  const benefitsWithContractFlow = benefitsToShow.map((benefit) => {
+    if (!benefit.benefitId) return benefit;
     const task = contractTasksByBenefitId[benefit.benefitId];
     if (!task) return benefit;
 

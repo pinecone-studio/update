@@ -70,6 +70,10 @@ type BenefitEligibility {
   pendingApprovalBy: String
   """When status is ACTIVE and contract was uploaded: request ID to view/download contract"""
   uploadedContractRequestId: String
+  """Computed start date (from contract or config period) — ACTIVE only"""
+  effectiveDate: String
+  """Computed end date (from contract or config period) — ACTIVE only"""
+  expiryDate: String
 }
 
 type RuleEvaluation {

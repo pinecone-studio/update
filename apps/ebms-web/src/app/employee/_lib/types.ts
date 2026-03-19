@@ -44,4 +44,8 @@ export type MyBenefitEligibility = {
   pendingApprovalBy?: string | null;
   /** When status is ACTIVE and contract was uploaded: request ID to view/download */
   uploadedContractRequestId?: string | null;
+  /** Computed start date (from contract or config period) — ACTIVE only */
+  effectiveDate?: string | null;
+  /** Computed end date (from contract or config period) — ACTIVE only */
+  expiryDate?: string | null;
 };

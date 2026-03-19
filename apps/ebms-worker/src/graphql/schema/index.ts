@@ -71,6 +71,8 @@ export const typeDefs = /* GraphQL */ `
     overrideReason: String
     pendingApprovalBy: String
     uploadedContractRequestId: String
+    effectiveDate: String
+    expiryDate: String
   }
 
   type RuleEvaluation {
