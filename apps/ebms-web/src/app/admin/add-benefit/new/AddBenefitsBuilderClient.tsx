@@ -19,6 +19,7 @@ import {
   getApiErrorMessage,
   fetchBenefits,
   fetchConfigAndAttributes,
+  CREATE_BENEFIT,
   UPDATE_CONFIG,
   updateBenefitInCatalog,
 } from "../_lib/api";
