@@ -163,7 +163,7 @@ export function HelpFeedbackWidget() {
     return (
       <button
         type="button"
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-gray-300 bg-slate-800 text-white shadow-lg duration-200 hover:bg-slate-700 dark:bg-[#1E293B] dark:hover:bg-[#334155] sm:bottom-8 sm:right-8 sm:h-16 sm:w-16 lg:bottom-14 lg:right-14"
+        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-gray-300 bg-slate-700 text-white shadow-lg duration-200 hover:bg-slate-800 dark:bg-[#1E293B] dark:hover:bg-[#334155] sm:bottom-8 sm:right-8 sm:h-16 sm:w-16 lg:bottom-14 lg:right-14"
         onClick={() => setOpen(true)}
         aria-label="Help & Feedback"
       >
@@ -174,7 +174,7 @@ export function HelpFeedbackWidget() {
 
   return (
     <div className="fixed inset-x-4 bottom-4 z-50 flex h-[70vh] max-h-[420px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-[#1E293B] sm:inset-x-auto sm:right-8 sm:w-[340px] lg:bottom-14 lg:right-14">
-      <div className="w-full rounded-t-2xl bg-[#2196F3] dark:bg-[#1976D2]">
+      <div className="w-full rounded-t-2xl bg-[#8B5CF6] dark:bg-[#6D47D9]">
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <FiMessageCircle size={22} className="text-white" />
@@ -245,13 +245,13 @@ export function HelpFeedbackWidget() {
                   onChange={(e) => setChatQuestion(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAskSubmit()}
                   placeholder="Ask how the portal works..."
-                  className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#2196F3] focus:outline-none focus:ring-1 focus:ring-[#2196F3] dark:border-slate-600 dark:bg-[#1E293B] dark:text-white dark:placeholder:text-slate-500"
+                  className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#8B5CF6] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6] dark:border-slate-600 dark:bg-[#1E293B] dark:text-white dark:placeholder:text-slate-500"
                 />
                 <button
                   type="button"
                   onClick={handleAskSubmit}
                   disabled={!chatQuestion.trim()}
-                  className="rounded-lg bg-[#2196F3] px-4 py-2.5 text-white transition-colors hover:bg-[#1976D2] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg bg-[#8B5CF6] px-4 py-2.5 text-white transition-colors hover:bg-[#7C3AED] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <FiSend size={18} />
                 </button>
@@ -274,7 +274,7 @@ export function HelpFeedbackWidget() {
                 <button
                   type="button"
                   onClick={() => setFeedbackSubmitted(false)}
-                  className="mt-4 text-sm text-[#2196F3] underline hover:text-[#1976D2] dark:text-[#60A5FA] dark:hover:text-[#93C5FD]"
+                  className="mt-4 text-sm text-[#8B5CF6] underline hover:text-[#7C3AED] dark:text-[#A78BFA] dark:hover:text-[#C4B5FD]"
                 >
                   Submit another feedback
                 </button>
@@ -332,7 +332,7 @@ export function HelpFeedbackWidget() {
                                         type="button"
                                         onClick={() => handleVote(item.id)}
                                         disabled={votingId === item.id}
-                                        className="flex items-center gap-1 rounded px-2 py-1 text-xs text-[#2196F3] hover:bg-[#2196F3]/10 disabled:opacity-50"
+                                        className="flex items-center gap-1 rounded px-2 py-1 text-xs text-[#8B5CF6] hover:bg-[#8B5CF6]/10 disabled:opacity-50"
                                       >
                                         <FiThumbsUp size={14} />
                                         {votingId === item.id ? "..." : "Vote"}
@@ -376,7 +376,7 @@ export function HelpFeedbackWidget() {
                               onChange={(e) => setFeedbackMessage(e.target.value)}
                               placeholder="Tell us what we can improve..."
                               rows={3}
-                              className="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-[#2196F3] focus:outline-none focus:ring-1 focus:ring-[#2196F3] dark:border-slate-600 dark:bg-[#0f172a] dark:text-white dark:placeholder:text-slate-500"
+                              className="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-[#8B5CF6] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6] dark:border-slate-600 dark:bg-[#0f172a] dark:text-white dark:placeholder:text-slate-500"
                             />
                           </div>
                           <div className="flex items-center gap-2">
@@ -385,7 +385,7 @@ export function HelpFeedbackWidget() {
                               id="feedback-anonymous"
                               checked={feedbackAnonymous}
                               onChange={(e) => setFeedbackAnonymous(e.target.checked)}
-                              className="h-4 w-4 rounded border-slate-300 text-[#2196F3] focus:ring-[#2196F3]"
+                              className="h-4 w-4 rounded border-slate-300 text-[#8B5CF6] focus:ring-[#8B5CF6]"
                             />
                             <label
                               htmlFor="feedback-anonymous"
@@ -401,7 +401,7 @@ export function HelpFeedbackWidget() {
                             type="button"
                             onClick={handleFeedbackSubmit}
                             disabled={!feedbackMessage.trim() || feedbackSubmitting}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#2196F3] px-5 py-2.5 font-medium text-white transition-colors hover:bg-[#1976D2] disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#8B5CF6] px-5 py-2.5 font-medium text-white transition-colors hover:bg-[#7C3AED] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <FiMessageCircle size={18} />
                             {feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
@@ -415,7 +415,7 @@ export function HelpFeedbackWidget() {
                           <button
                             type="button"
                             onClick={() => setShowAddFeedback(true)}
-                            className="text-sm text-[#2196F3] hover:text-[#1976D2] dark:text-[#60A5FA]"
+                            className="text-sm text-[#8B5CF6] hover:text-[#7C3AED] dark:text-[#A78BFA]"
                           >
                             Add your feedback
                           </button>
