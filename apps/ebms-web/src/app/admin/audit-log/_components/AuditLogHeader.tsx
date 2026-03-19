@@ -16,7 +16,7 @@ export function AuditLogHeader() {
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-5 font-semibold text-slate-900 dark:text-white">
+        <h1 className="text-[28px] font-semibold text-slate-900 dark:text-white">
           System Audit Log
         </h1>
         <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">

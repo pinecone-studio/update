@@ -2,6 +2,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FinanceDashboardSkeleton } from "./components/FinanceDashboardSkeleton";
 import { FinanceStatCard } from "./components/FinanceStatCard";
 import { FinanceStatCardModal } from "./components/FinanceStatCardModal";
@@ -17,6 +18,7 @@ import {
 import { useFinanceDashboard } from "./_lib/useFinanceDashboard";
 
 export default function FinancePage() {
+  const router = useRouter();
   const {
     loading,
     error,
@@ -151,13 +153,19 @@ export default function FinancePage() {
             <FinanceStatCard
               key={card.key}
               card={card}
-              onClick={() => setSelectedCardKey(card.key)}
+              onClick={() => {
+                if (card.key === "contracts") {
+                  router.push("/finance/contracts");
+                  return;
+                }
+                setSelectedCardKey(card.key);
+              }}
             />
           ))}
         </div>
 
         <div className="xl:h-full">
-          <FinanceRightWidgets />
+          <FinanceRightWidgets requests={requests} />
         </div>
       </section>
 

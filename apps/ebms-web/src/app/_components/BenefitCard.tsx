@@ -3,6 +3,7 @@
 "use client";
 
 import { FiInfo } from "react-icons/fi";
+import { translateLockReason } from "@/app/_lib/translateLockReason";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -167,8 +168,8 @@ function formatUsageLimit(
 ): string | undefined {
   if (count == null || count < 1) return undefined;
   if (!period?.trim()) return undefined;
-  const p = period.toLowerCase() === "year" ? "жил" : "сар";
-  return `${count} удаа/${p}`;
+  const p = period.toLowerCase() === "year" ? "year" : "month";
+  return `${count} time${count === 1 ? "" : "s"}/${p}`;
 }
 
 function StatusBadge({ status }: { status: BenefitStatus }) {
@@ -221,7 +222,10 @@ export const BenefitCard = ({
   const categoryLabel = category
     ? `${category.charAt(0).toUpperCase()}${category.slice(1)} benefit`
     : description;
-  const normalizedLockReason = (lockReason ?? "").trim();
+  const normalizedLockReason = (() => {
+    const t = (lockReason ?? "").trim();
+    return t ? translateLockReason(t) : t;
+  })();
   const normalizedRejectReason = (rejectReason ?? "").trim();
   const vendorDisplayName = (vendorDetails ?? "").trim() || "Pinecone";
   const pendingStepText =
@@ -325,9 +329,11 @@ export const BenefitCard = ({
           <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
             <div className="flex min-w-0 items-start gap-3 sm:gap-4">
               <div
-                className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${iconWrapClass}`}
+                className={`flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl sm:h-[58px] sm:w-[58px] ${iconWrapClass}`}
               >
-                <div className="h-5 w-5 sm:h-6 sm:w-6">{icon}</div>
+                <div className="flex h-[30px] w-[30px] items-center justify-center sm:h-[36px] sm:w-[36px]">
+                  {icon}
+                </div>
               </div>
 
               <div className="min-w-0">
@@ -430,7 +436,7 @@ export const BenefitCard = ({
                 </div>
                 {extraInfo ? (
                   <div className="flex items-center justify-between border-b border-white/10 py-2.5">
-                    <span className={labelClass}>Хугацаа</span>
+                    <span className={labelClass}>Duration</span>
                     <span className={valueClass}>{extraInfo}</span>
                   </div>
                 ) : null}
@@ -464,7 +470,7 @@ export const BenefitCard = ({
                 </div>
                 {extraInfo ? (
                   <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2">
-                    <span className={labelClass}>Хугацаа</span>
+                    <span className={labelClass}>Duration</span>
                     <span className={valueClass}>{extraInfo}</span>
                   </div>
                 ) : null}

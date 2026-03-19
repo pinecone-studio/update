@@ -14,6 +14,7 @@ type AdminBenefitCardProps = {
   ruleSummary: string;
   validityPeriodDisplay?: string;
   usagePeriodDisplay?: string;
+  requestDeadlineDisplay?: string;
   financeApproval?: boolean;
   vendorContract?: boolean;
   managerApproval?: boolean;
@@ -35,6 +36,7 @@ export function AdminBenefitCard({
   ruleSummary,
   validityPeriodDisplay,
   usagePeriodDisplay,
+  requestDeadlineDisplay,
   financeApproval,
   vendorContract,
   managerApproval,
@@ -50,26 +52,44 @@ export function AdminBenefitCard({
     ? `${category.charAt(0).toUpperCase()}${category.slice(1)} benefit`
     : "Benefit";
 
+  const durationDisplay = [validityPeriodDisplay, usagePeriodDisplay]
+    .filter(Boolean)
+    .join(" · ") || "—";
+
+  const approvalDisplay = [
+    financeApproval && "Finance",
+    vendorContract && "Vendor Contract",
+    managerApproval && "Manager",
+  ]
+    .filter(Boolean)
+    .join(", ") || "—";
+
+  const labelClass = "text-sm text-white/55";
+  const valueClass = "text-sm font-semibold text-white/90";
+
   return (
     <div
       id={`benefit-card-${id}`}
       className={`flex h-[310px] flex-col rounded-xl border-t border-white/40 transition ${
         isHighlighted ? "ring-2 ring-[#2A8BFF]" : ""
       } bg-[#1A2037] shadow-[0_4px_6px_-4px_rgba(0,0,0,0.1),0_10px_15px_-3px_rgba(0,0,0,0.1)]`}
-      style={{ padding: "16px 16px 16px 16px" }}
     >
-      <div className="flex flex-1 min-h-0 flex-col gap-2 p-4 ">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-1 min-h-0 flex-col p-4 sm:p-5">
+        <div className="flex items-start gap-3 sm:gap-4">
           <div
-            className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 ${iconBgClass} ${iconColorClass}`}
+            className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-white/10 sm:h-12 sm:w-12 ${iconBgClass} ${iconColorClass}`}
           >
             <div className="flex h-5 w-5 items-center justify-center">
               {icon}
             </div>
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-white">{name}</h3>
-            <p className="mt-0.5 text-xs text-slate-400">{categoryLabel}</p>
+            <h3 className="text-[15px] font-semibold text-white sm:text-base">
+              {name}
+            </h3>
+            <p className="mt-1 text-[13px] text-white/50 sm:text-sm">
+              {categoryLabel}
+            </p>
           </div>
         </div>
 
@@ -129,14 +149,18 @@ export function AdminBenefitCard({
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-5">
+        {ruleSummary ? (
+          <p className="mt-3 text-sm text-white/70">{ruleSummary}</p>
+        ) : null}
+
+        <div className="mt-4 flex items-center gap-4">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
             }}
-            className="inline-flex h-11 flex-1 w-[180px] items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-xs font-medium text-white transition hover:bg-white/10"
+            className="inline-flex items-center w-[180px] h-11 justify-center gap-2 rounded-xl border border-white/20 bg-transparent px-6 py-2.5 text-sm font-medium text-white transition hover:bg-white/5"
           >
             Edit
           </button>
@@ -147,7 +171,7 @@ export function AdminBenefitCard({
               onDelete();
             }}
             disabled={isDeleting}
-            className="inline-flex h-11 w-[180px] flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-xs font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60 hover:bg-white/10"
+            className="inline-flex items-center w-[180px] h-11 justify-center gap-2 rounded-xl border border-white/20 bg-transparent px-6 py-2.5 text-sm font-medium text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isDeleting ? "..." : <>Delete</>}
           </button>

@@ -51,7 +51,7 @@ export const requestBenefit: NonNullable<
   if (deadline) {
     const d = new Date(deadline);
     if (!Number.isNaN(d.getTime()) && d.getTime() < Date.now()) {
-      throw new GraphQLError("Хүсэлт илгээх хугацаа дууссан", {
+      throw new GraphQLError("Request period expired", {
         extensions: { code: "BAD_USER_INPUT" },
       });
     }
@@ -85,7 +85,7 @@ export const requestBenefit: NonNullable<
     });
     if (inPeriod.length >= limit) {
       throw new GraphQLError(
-        `Та энэ хугацаанд ${limit} удаа ашигласан. Дараагийн хугацаанд дахин хүсэлт илгээнэ үү.`,
+        `You have used this benefit ${limit} time${limit === 1 ? "" : "s"} this period. Please request again in the next period.`,
         { extensions: { code: "BAD_USER_INPUT" } },
       );
     }

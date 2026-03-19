@@ -4,7 +4,7 @@ import { useState } from "react";
 import { EmployeeContracts } from "./EmployeeContracts";
 import { VendorContracts } from "./VendorContracts";
 
-export default function VendorContractsPage() {
+export default function FinanceContractsPage() {
   const [activeTab, setActiveTab] = useState<"employee" | "vendor">("employee");
 
   return (
@@ -20,10 +20,10 @@ export default function VendorContractsPage() {
             role="tab"
             aria-selected={activeTab === "employee"}
             onClick={() => setActiveTab("employee")}
-            className={`rounded-xl font-medium transition py-2 px-3 ${
+            className={`rounded-xl font-medium transition ${
               activeTab === "employee"
-                ? "text-[24px] text-white border-b border-[#2A9BFF] rounded-b-none"
-                : "text-[24px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
+                ? "text-[24px] text-slate-900 border-b border-[#2A9BFF] rounded-b-none dark:text-white"
+                : "text-[24px] text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
             }`}
           >
             Employee contract
@@ -35,8 +35,8 @@ export default function VendorContractsPage() {
             onClick={() => setActiveTab("vendor")}
             className={`rounded-xl px-3 py-2 font-medium transition ${
               activeTab === "vendor"
-                ? "text-[24px] text-white border-b border-[#2A9BFF] rounded-b-none"
-                : "text-[24px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
+                ? "text-[24px] text-slate-900 border-b border-[#2A9BFF] rounded-b-none dark:text-white"
+                : "text-[24px] text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
             }`}
           >
             Vendor contract

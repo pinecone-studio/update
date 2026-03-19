@@ -16,6 +16,7 @@ import type {
   BenefitCardProps,
   EligibilityRule,
 } from "@/app/_components/BenefitCard";
+import { translateLockReason } from "@/app/_lib/translateLockReason";
 
 function SectionCard({
   title,
@@ -106,7 +107,7 @@ export function BenefitModalDetails({
     },
     LOCKED: {
       title: "Locked",
-      message: benefit.lockReason || "Eligibility requirements not met",
+      message: (benefit.lockReason ? translateLockReason(benefit.lockReason) : null) || "Eligibility requirements not met",
       icon: <FiLock size={24} />,
       iconWrap: "bg-[#7A4364]",
     },
@@ -131,6 +132,11 @@ export function BenefitModalDetails({
       void onViewContract(benefit);
     }
   };
+
+  const hasUploadedContract =
+    benefit.status === "ACTIVE" &&
+    !!benefit.uploadedContractRequestId &&
+    benefit.requiresContract;
 
   return (
     <>
@@ -228,7 +234,19 @@ export function BenefitModalDetails({
             Vendor Contract
           </p>
           <div className="mt-2">
-            {benefit.contractLink ? (
+            {hasUploadedContract ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (onViewUploadedContract && benefit.uploadedContractRequestId) {
+                    void onViewUploadedContract(benefit.uploadedContractRequestId);
+                  }
+                }}
+                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-[#4EA1FF] hover:text-[#7ABEFF]"
+              >
+                View uploaded contract <FiExternalLink size={20} />
+              </button>
+            ) : benefit.contractLink ? (
               <a
                 href={benefit.contractLink}
                 target="_blank"
@@ -256,7 +274,8 @@ export function BenefitModalDetails({
         </div>
       </div>
 
-      {benefit.status === "ACTIVE" &&
+      {!hasUploadedContract ? (
+        benefit.status === "ACTIVE" &&
         benefit.uploadedContractRequestId &&
         benefit.requiresContract && (
           <SectionCard
@@ -277,7 +296,8 @@ export function BenefitModalDetails({
               View uploaded contract <FiExternalLink size={20} />
             </button>
           </SectionCard>
-        )}
+        )
+      ) : null}
     </>
   );
 }

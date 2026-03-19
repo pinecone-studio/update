@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type {
@@ -484,14 +483,7 @@ export default function AddBenefitsBuilderClient({
           >
             Close
           </button>
-        ) : (
-          <Link
-            href="/admin/add-benefit"
-            className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
-          >
-            &larr; Back
-          </Link>
-        )}
+        ) : null}
         <h1 className="text-xl font-semibold text-slate-900 dark:text-white sm:text-2xl">
           Add Benefit
         </h1>

@@ -72,10 +72,10 @@ export function EmployeeUploadContractModal({
         className="absolute inset-0 bg-white/25 backdrop-blur-md dark:bg-black/30 dark:backdrop-blur-lg"
       />
       <section
-        className="relative z-10 flex w-[900px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[28.63px] border bg-[rgba(53,41,99,0.44)] backdrop-blur-[16px]"
+        className="relative z-10 flex w-[900px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[28.63px] border bg-[radial-gradient(circle_at_18%_18%,rgba(126,97,210,0.20),transparent_42%),radial-gradient(circle_at_78%_72%,rgba(84,120,214,0.14),transparent_46%),linear-gradient(155deg,rgba(45,34,93,0.94),rgba(38,31,86,0.92))] backdrop-blur-[18px]"
         style={{
           borderWidth: "0.72px",
-          borderColor: "rgba(185, 189, 255, 0.24)",
+          borderColor: "rgba(138, 156, 233, 0.42)",
           padding: "40px 32px",
           gap: "24px",
         }}
@@ -257,14 +257,14 @@ export function EmployeeUploadContractModal({
             <button
               type="button"
               onClick={handleClose}
-              className="h-13 w-[156px] rounded-lg bg-[#B0B0B0] px-2 text-[20px] font-normal text-[#122459]"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={uploading || !pdfFile}
-              className="inline-flex h-13 w-[156px] items-center justify-center rounded-lg bg-[#0057AD] px-2 text-[20px] font-normal text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:bg-[#0057AD] disabled:text-white"
+              className="rounded-lg bg-[#3B82F6] px-4 py-2 font-medium text-white hover:bg-[#2563EB] disabled:opacity-50 dark:bg-[#3B82F6] dark:hover:bg-[#2563EB]"
             >
               {uploading ? "Saving..." : "Save"}
             </button>

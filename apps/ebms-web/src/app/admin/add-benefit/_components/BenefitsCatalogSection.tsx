@@ -1,13 +1,14 @@
 "use client";
 
-import { HrActiveBenefitsIcon } from "@/app/icons/hrActiveBenefits";
 import { AdminBenefitCard } from "./AdminBenefitCard";
 import { AddBenefitSkeleton } from "./AddBenefitSkeleton";
+import { getCategoryIcon } from "../_lib/getCategoryIcon";
 import {
   getBenefitTone,
   getVendorDisplay,
   formatValidityPeriod,
   formatUsageLimit,
+  formatRequestDeadline,
 } from "../_lib/utils";
 import type { BenefitFromCatalog, BenefitConfig } from "../_lib/types";
 
@@ -67,6 +68,9 @@ export function BenefitsCatalogSection({
           benefit.usageLimitCount ?? 1,
           benefit.usageLimitPeriod,
         );
+        const requestDeadlineDisplay = formatRequestDeadline(
+          benefit.requestDeadline,
+        );
         return (
           <AdminBenefitCard
             key={benefit.id}
@@ -78,10 +82,11 @@ export function BenefitsCatalogSection({
             ruleSummary={ruleSummary}
             validityPeriodDisplay={activePeriodDisplay}
             usagePeriodDisplay={usageLimitDisplay}
+            requestDeadlineDisplay={requestDeadlineDisplay}
             financeApproval={cfg?.financeCheck}
             vendorContract={cfg?.requiresContract}
             managerApproval={cfg?.managerApproval}
-            icon={<HrActiveBenefitsIcon />}
+            icon={getCategoryIcon(benefit.category)}
             iconBgClass={tone.iconBg}
             iconColorClass={tone.iconColor}
             isHighlighted={highlightBenefitId === benefit.id}

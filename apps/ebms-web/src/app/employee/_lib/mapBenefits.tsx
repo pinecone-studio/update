@@ -15,17 +15,17 @@ import {
 } from "react-icons/md";
 
 const CATEGORY_ICONS: Record<string, ReactNode> = {
-  wellness: <MdFitnessCenter size={24} />,
-  health: <MdHealthAndSafety size={24} />,
-  equipment: <MdLaptop size={24} />,
-  career: <MdWorkspacePremium size={24} />,
-  tools: <MdDesignServices size={24} />,
-  financial: <MdHome size={24} />,
-  workplace: <MdWork size={24} />,
-  performance: <MdTrendingUp size={24} />,
+  wellness: <MdFitnessCenter size={30} />,
+  health: <MdHealthAndSafety size={30} />,
+  equipment: <MdLaptop size={30} />,
+  career: <MdWorkspacePremium size={30} />,
+  tools: <MdDesignServices size={30} />,
+  financial: <MdHome size={30} />,
+  workplace: <MdWork size={30} />,
+  performance: <MdTrendingUp size={30} />,
 };
 
-const DEFAULT_ICON = <MdFitnessCenter size={24} />;
+const DEFAULT_ICON = <MdFitnessCenter size={30} />;
 
 /** Map GraphQL myBenefits to BenefitCardProps (UI-д хэрэгтэй хэлбэр) */
 export function mapMyBenefitsToCardProps(

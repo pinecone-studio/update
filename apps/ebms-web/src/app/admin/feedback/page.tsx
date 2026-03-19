@@ -45,8 +45,7 @@ export default function AdminFeedbackPage() {
     ? items.filter((i) => {
         const term = search.trim().toLowerCase();
         const textMatch = i.text.toLowerCase().includes(term);
-        const nameMatch =
-          i.employeeName?.toLowerCase().includes(term) ?? false;
+        const nameMatch = i.employeeName?.toLowerCase().includes(term) ?? false;
         return textMatch || nameMatch;
       })
     : items;
@@ -83,7 +82,9 @@ export default function AdminFeedbackPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-5 font-semibold text-white">Employee Feedback</h1>
+        <h1 className="text-[24px] font-semibold text-white">
+          Employee Feedback
+        </h1>
         <p className="mt-3 text-5 text-[#A7B6D3]">
           Feedback that reached 3 votes and was sent to admin
         </p>
@@ -95,7 +96,7 @@ export default function AdminFeedbackPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-5 text-white placeholder:text-[#8595B6] outline-none"
+            className="h-12 flex-1 rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 text-5 text-white placeholder:text-[#8595B6] outline-none"
             placeholder="Search feedback..."
           />
         </div>
@@ -133,7 +134,7 @@ export default function AdminFeedbackPage() {
                       Sent by:{" "}
                       {item.isAnonymous
                         ? "Anonymous"
-                        : item.employeeName ?? "Employee"}
+                        : (item.employeeName ?? "Employee")}
                     </p>
                     <p className="mt-3 text-5 text-[#8192B3]">
                       {item.voteCount} votes · {formatDate(item.createdAt)}

@@ -4,14 +4,17 @@ import { useRef, useState } from "react";
 
 const MAX_PDF_SIZE_MB = 10;
 
-type BenefitOption = { id: string; name: string };
+type EmployeeOption = { id: string; name: string | null };
 
-type VendorUploadContractModalProps = {
+type EmployeeUploadContractModalProps = {
   open: boolean;
-  benefitOptions: BenefitOption[];
-  selectedBenefitId: string;
-  onBenefitChange: (id: string) => void;
-  benefitsLoading: boolean;
+  employeeOptions: EmployeeOption[];
+  selectedEmployeeId: string;
+  onEmployeeChange: (id: string) => void;
+  vendorOptions: string[];
+  selectedVendor: string;
+  onVendorChange: (v: string) => void;
+  employeesLoading: boolean;
   uploading: boolean;
   onClose: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
@@ -19,21 +22,23 @@ type VendorUploadContractModalProps = {
 
 function validatePdf(file: File): string | null {
   if (file.type !== "application/pdf") return "PDF only";
-  if (file.size > MAX_PDF_SIZE_MB * 1024 * 1024)
-    return `Max ${MAX_PDF_SIZE_MB}MB`;
+  if (file.size > MAX_PDF_SIZE_MB * 1024 * 1024) return `Max ${MAX_PDF_SIZE_MB}MB`;
   return null;
 }
 
-export function VendorUploadContractModal({
+export function EmployeeUploadContractModal({
   open,
-  benefitOptions,
-  selectedBenefitId,
-  onBenefitChange,
-  benefitsLoading,
+  employeeOptions,
+  selectedEmployeeId,
+  onEmployeeChange,
+  vendorOptions,
+  selectedVendor,
+  onVendorChange,
+  employeesLoading,
   uploading,
   onClose,
   onSubmit,
-}: VendorUploadContractModalProps) {
+}: EmployeeUploadContractModalProps) {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -77,7 +82,7 @@ export function VendorUploadContractModal({
       >
         <div className="flex shrink-0 items-center">
           <h2 className="text-[22px] font-normal text-white">
-            Upload Vendor Contract
+            Upload Contract
           </h2>
         </div>
         <form
@@ -87,46 +92,44 @@ export function VendorUploadContractModal({
           }}
           className="flex flex-col gap-6 overflow-hidden"
         >
-          <input type="hidden" name="tab" value="vendor" />
+          <input type="hidden" name="tab" value="employee" />
           <div className="flex flex-col gap-4">
             <h3 className="text-5 font-medium text-[#A7B6D3]">Basic Info</h3>
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">Benefit</label>
+                <label className="text-5 text-[#A7B6D3]">Employee</label>
                 <select
-                  name="benefitId"
-                  required
-                  value={selectedBenefitId}
-                  onChange={(e) => onBenefitChange(e.target.value)}
-                  disabled={benefitsLoading || benefitOptions.length === 0}
+                  name="employeeId"
+                  value={selectedEmployeeId}
+                  onChange={(e) => onEmployeeChange(e.target.value)}
+                  disabled={employeesLoading}
                   className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] disabled:opacity-60"
                 >
                   <option value="">
-                    {benefitsLoading ? "Loading..." : "— Select benefit —"}
+                    {employeesLoading ? "Loading..." : "— Select employee —"}
                   </option>
-                  {benefitOptions.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name} ({b.id})
+                  {employeeOptions.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name || emp.id}
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <label className="text-5 text-[#A7B6D3]">Benefit ID</label>
+                <input
+                  name="benefitId"
+                  required
+                  placeholder="gym-Pinefit"
+                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
+                />
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-5 text-[#A7B6D3]">Version</label>
                 <input
                   name="version"
                   required
-                  placeholder="vendor-2026.1"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
-                />
-              </div>
-              <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">
-                  Vendor Name (optional)
-                </label>
-                <input
-                  name="vendorName"
-                  placeholder="PineFit"
+                  placeholder="2025.1"
                   className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
                 />
               </div>
@@ -140,6 +143,23 @@ export function VendorUploadContractModal({
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-2.5">
                 <label className="text-5 text-[#A7B6D3]">
+                  Vendor (optional)
+                </label>
+                <select
+                  value={selectedVendor}
+                  onChange={(e) => onVendorChange(e.target.value)}
+                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF]"
+                >
+                  <option value="">— Select vendor —</option>
+                  {vendorOptions.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <label className="text-5 text-[#A7B6D3]">
                   Effective Date (optional)
                 </label>
                 <input
@@ -150,12 +170,11 @@ export function VendorUploadContractModal({
                 />
               </div>
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">
-                  Expiry Date (optional)
-                </label>
+                <label className="text-5 text-[#A7B6D3]">Expiry Date</label>
                 <input
                   name="expiryDate"
                   type="date"
+                  required
                   placeholder="yyyy-mm-dd"
                   className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] [color-scheme:dark]"
                 />
@@ -228,7 +247,9 @@ export function VendorUploadContractModal({
               {pdfFile && (
                 <p className="text-5 text-green-400">{pdfFile.name}</p>
               )}
-              {pdfError && <p className="text-5 text-red-400">{pdfError}</p>}
+              {pdfError && (
+                <p className="text-5 text-red-400">{pdfError}</p>
+              )}
             </div>
           </div>
 
@@ -236,14 +257,14 @@ export function VendorUploadContractModal({
             <button
               type="button"
               onClick={handleClose}
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+              className="h-13 w-[156px] rounded-lg bg-[#B0B0B0] px-2 text-[20px] font-normal text-[#122459]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={uploading || !pdfFile}
-              className="rounded-lg bg-[#3B82F6] px-4 py-2 font-medium text-white hover:bg-[#2563EB] disabled:opacity-50 dark:bg-[#3B82F6] dark:hover:bg-[#2563EB]"
+              className="inline-flex h-13 w-[156px] items-center justify-center rounded-lg bg-[#0057AD] px-2 text-[20px] font-normal text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:bg-[#0057AD] disabled:text-white"
             >
               {uploading ? "Saving..." : "Save"}
             </button>

@@ -70,30 +70,25 @@ export function formatUsagePeriod(
   return `${limit} time${limit === 1 ? "" : "s"} per ${period} ${u}${period === 1 ? "" : "s"}`;
 }
 
-/** Backend: requestDeadline display (ISO date → localized) */
+/** Backend: requestDeadline display (ISO date → localized, English) */
 export function formatRequestDeadline(iso?: string | null): string | undefined {
   if (!iso?.trim()) return undefined;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return undefined;
-  return d.toLocaleDateString("mn-MN", {
+  return d.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
 }
 
-/** Backend: usageLimitCount + usageLimitPeriod display */
+/** Backend: usageLimitCount + usageLimitPeriod display (English) */
 export function formatUsageLimit(
   count?: number,
   period?: string | null,
 ): string | undefined {
   if (count == null || count < 1) return undefined;
-  if (!period?.trim()) return `${count} удаа (хязгааргүй хугацаа)`;
-  const p =
-    period.toLowerCase() === "year"
-      ? "year"
-      : period.toLowerCase() === "7days"
-        ? "7 days"
-        : "month";
-  return `${count} per ${p}`;
+  if (!period?.trim()) return `${count} time${count === 1 ? "" : "s"} (unlimited period)`;
+  const p = period.toLowerCase() === "year" ? "year" : "month";
+  return `${count} time${count === 1 ? "" : "s"}/${p}`;
 }
