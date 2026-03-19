@@ -9,6 +9,8 @@ export type ContractTask = {
   benefitId: string;
   benefitName: string;
   requestStatus: ContractTaskStatus;
+  /** Raw status for display: PENDING | ADMIN_APPROVED | APPROVED */
+  rawStatus?: string;
   uploadedUrl?: string | null;
   createdAt: string;
 };
@@ -41,11 +43,18 @@ export function ContractTaskCard({
       <p className="mt-1 text-xs text-white/70">
         {task.benefitName} ({task.requestId})
       </p>
-      <p className="mt-1 text-xs text-amber-100/80">Status: {task.requestStatus}</p>
+      <p className="mt-1 text-xs text-amber-100/80">
+        Status:{" "}
+        {task.rawStatus === "ADMIN_APPROVED"
+          ? "Awaiting Finance"
+          : task.requestStatus}
+      </p>
 
       {task.requestStatus === "PENDING" ? (
         <p className="mt-2 text-xs text-amber-100/80">
-          Admin approval pending. Upload will be enabled after approval.
+          {task.rawStatus === "ADMIN_APPROVED"
+            ? "Finance approval pending. Upload will be enabled after approval."
+            : "Admin approval pending. Upload will be enabled after approval."}
         </p>
       ) : null}
 

@@ -109,6 +109,8 @@ export type BenefitRequest = {
   id: Scalars['ID']['output'];
   rejectReason?: Maybe<Scalars['String']['output']>;
   requiresContract: Scalars['Boolean']['output'];
+  reviewedBy?: Maybe<Scalars['String']['output']>;
+  reviewedByName?: Maybe<Scalars['String']['output']>;
   status: RequestStatus;
 };
 
@@ -658,6 +660,8 @@ export type BenefitRequestResolvers<ContextType = Ctx, ParentType extends Resolv
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   rejectReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   requiresContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  reviewedBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  reviewedByName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
 };
 

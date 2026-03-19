@@ -49,6 +49,8 @@ export type BenefitRequest = {
   requiresContract: boolean;
   contractAcceptedAt?: string | null;
   contractTemplateUrl?: string | null;
+  reviewedBy?: string | null;
+  reviewedByName?: string | null;
 };
 
 export type EmployeeLite = {
@@ -96,6 +98,8 @@ const BENEFIT_REQUESTS_QUERY = gql`
       requiresContract
       contractAcceptedAt
       contractTemplateUrl
+      reviewedBy
+      reviewedByName
     }
   }
 `;
@@ -223,6 +227,26 @@ export async function fetchBenefitRequestContractHtml(
     benefitRequestContractTemplate: { html: string };
   }>(BENEFIT_REQUEST_CONTRACT_TEMPLATE_QUERY, { requestId });
   return res.benefitRequestContractTemplate.html;
+}
+
+/** Open uploaded employee contract PDF in new tab (finance view) */
+export async function openFinanceContractByRequestId(
+  requestId: string,
+): Promise<void> {
+  const base = getBaseUrl().replace(/\/$/, "");
+  const url = `${base}/admin/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
+  const headers = getActiveUserHeaders("finance");
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error(msg || `Failed to load contract (${res.status})`);
+  }
+  const blob = await res.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const target = window.open(objectUrl, "_blank", "noopener,noreferrer");
+  if (!target)
+    throw new Error("Popup blocked. Please allow popups and try again.");
+  URL.revokeObjectURL(objectUrl);
 }
 
 // --- Finance notifications ---

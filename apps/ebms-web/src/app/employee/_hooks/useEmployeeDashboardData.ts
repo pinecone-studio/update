@@ -77,13 +77,18 @@ export function useEmployeeDashboardData() {
             .filter(
               (r) =>
                 r.requiresContract &&
-                (r.status === "PENDING" || r.status === "APPROVED"),
+                (r.status === "PENDING" ||
+                  r.status === "ADMIN_APPROVED" ||
+                  r.status === "APPROVED"),
             )
             .map((r) => ({
               requestId: r.id,
               benefitId: r.benefitId,
               benefitName: r.benefitName ?? r.benefitId,
-              requestStatus: r.status as "PENDING" | "APPROVED",
+              requestStatus: (r.status === "APPROVED"
+                ? "APPROVED"
+                : "PENDING") as "PENDING" | "APPROVED",
+              rawStatus: r.status,
               uploadedUrl: r.contractTemplateUrl ?? null,
               createdAt: r.createdAt,
             }))
