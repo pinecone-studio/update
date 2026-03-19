@@ -10,7 +10,7 @@ export default function FinanceContractsPage() {
   const [activeTab, setActiveTab] = useState<"employee" | "vendor">("employee");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-3">
       <div>
         <Link
           href="/finance"

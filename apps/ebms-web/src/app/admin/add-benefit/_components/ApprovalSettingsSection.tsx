@@ -48,7 +48,7 @@ function ApprovalItem({
 
 export function ApprovalSettingsSection({ form, onChange }: Props) {
   return (
-    <section className={`${cardClass} flex w-full flex-col self-start`}>
+    <section className={`${cardClass} flex h-full w-full flex-col self-start`}>
       <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
         Approval Settings
       </h2>

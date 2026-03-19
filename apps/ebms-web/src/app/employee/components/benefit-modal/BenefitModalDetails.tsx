@@ -242,7 +242,7 @@ export function BenefitModalDetails({
                     void onViewUploadedContract(benefit.uploadedContractRequestId);
                   }
                 }}
-                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-[#4EA1FF] hover:text-[#7ABEFF]"
+                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white hover:text-white/80"
               >
                 View uploaded contract <FiExternalLink size={20} />
               </button>
@@ -252,7 +252,7 @@ export function BenefitModalDetails({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleViewContract}
-                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-[#8FBBFF] hover:text-[#B9D1FF]"
+                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white hover:text-white/80"
               >
                 View vendor contract <FiExternalLink size={20} />
               </a>
@@ -291,7 +291,7 @@ export function BenefitModalDetails({
                   void onViewUploadedContract(benefit.uploadedContractRequestId);
                 }
               }}
-              className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-[#4EA1FF] hover:text-[#7ABEFF]"
+              className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white hover:text-white/80"
             >
               View uploaded contract <FiExternalLink size={20} />
             </button>
