@@ -150,7 +150,7 @@ export function useAuditLog() {
           } else if (trace.action === "contract_expired") {
             actionType = "Contract Expired";
             actionLabel = "Contract Expired";
-            details = trace.reason ?? "Гэрээний хугацаа дууссан";
+            details = trace.reason ?? "Contract period expired";
           } else {
             actionType = "HR Override";
             actionLabel = prev ? `HR Override: ${prev} → ${nextStatus}` : `HR Override: ${nextStatus}`;

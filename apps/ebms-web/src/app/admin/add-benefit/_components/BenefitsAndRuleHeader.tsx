@@ -18,7 +18,7 @@ export function BenefitsAndRuleHeader({ onAddClick }: BenefitsAndRuleHeaderProps
       <button
         type="button"
         onClick={onAddClick}
-        className="rounded-xl border border-white/10 bg-[#0057AD]/80 px-5 py-2.5 text-sm font-medium text-white"
+       className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center gap-2 rounded-xl  bg-[#0057ADCC]/80 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
       >
         + Add Benefits
       </button>
