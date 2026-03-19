@@ -14,7 +14,7 @@ export function NotificationHeader() {
           <HiOutlineArrowLeft className="h-4 w-4" />
           Back
         </Link>
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
+        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl dark:text-white">
           Notifications
         </h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">

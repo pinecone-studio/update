@@ -569,33 +569,39 @@ export default function EmployeeEligibilityDetailClient() {
           </div>
 
           <section className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,rgba(36,24,56,0.78),rgba(22,15,39,0.54))] shadow-[0_18px_70px_rgba(5,3,16,0.34)] backdrop-blur-[3px]">
-            <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-[20px] py-[20px] text-[17px] text-white/50">
-              <div>Benefit</div>
-              <div>Status</div>
-              <div>Reason</div>
-              <div>Last Date</div>
-              <div>Action</div>
-            </div>
+            <div className="overflow-x-auto">
+              <div className="min-w-[640px]">
+                <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-4 py-4 text-sm text-white/50 sm:px-[20px] sm:py-[20px] sm:text-[17px]">
+                  <div className="whitespace-nowrap">Benefit</div>
+                  <div className="whitespace-nowrap">Status</div>
+                  <div className="whitespace-nowrap">Reason</div>
+                  <div className="whitespace-nowrap">Last Date</div>
+                  <div className="whitespace-nowrap">Action</div>
+                </div>
 
-            <div className="px-[20px]">
-              {employee.benefits.map((benefit) => {
-                const key = `${employee.id}-${benefit.benefitId}`;
+                <div className="px-4 sm:px-[20px]">
+                  {employee.benefits.map((benefit) => {
+                    const key = `${employee.id}-${benefit.benefitId}`;
 
-                return (
-                  <div
-                    key={benefit.benefitId || benefit.name}
-                    className="grid min-h-[68px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b font-light text-sm border-white/14 text-[16px] text-white/92 last:border-b-0"
-                  >
-                    <div className="pr-6 font-regular">{benefit.name}</div>
-                    <div>{statusCopy[benefit.status]}</div>
-                    <div className="pr-6 text-white/90">{benefit.reason}</div>
-                    <div>{benefit.lastDate}</div>
-                    <button
-                      type="button"
-                      onClick={() => openBenefitModal(key, benefit.status)}
-                      className="inline-flex items-center gap-[10px] text-[16px] font-medium text-[#1E78FF] transition hover:text-[#56A5FF]"
-                    >
-                      <span>Fix</span>
+                    return (
+                      <div
+                        key={benefit.benefitId || benefit.name}
+                        className="grid min-h-[68px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-white/14 font-light text-sm text-white/92 last:border-b-0 sm:text-[16px]"
+                      >
+                        <div className="min-w-0 pr-4 font-regular sm:pr-6">
+                          <span className="block truncate">{benefit.name}</span>
+                        </div>
+                        <div className="shrink-0 whitespace-nowrap">{statusCopy[benefit.status]}</div>
+                        <div className="min-w-0 pr-4 text-white/90 sm:pr-6">
+                          <span className="line-clamp-2">{benefit.reason}</span>
+                        </div>
+                        <div className="shrink-0 whitespace-nowrap text-xs sm:text-base">{benefit.lastDate}</div>
+                        <button
+                          type="button"
+                          onClick={() => openBenefitModal(key, benefit.status)}
+                          className="shrink-0 inline-flex items-center gap-1 text-sm font-medium text-[#1E78FF] transition hover:text-[#56A5FF] sm:gap-[10px] sm:text-[16px]"
+                        >
+                          <span>Fix</span>
                       <svg
                         viewBox="0 0 24 24"
                         fill="none"
@@ -607,15 +613,17 @@ export default function EmployeeEligibilityDetailClient() {
                         <path d="M10 7h7v7" />
                       </svg>
                     </button>
-                  </div>
-                );
-              })}
+                      </div>
+                    );
+                  })}
 
-              {employee.benefits.length === 0 && (
-                <div className="py-12 text-center text-[18px] text-white/58">
-                  Benefit information not found.
+                  {employee.benefits.length === 0 && (
+                    <div className="py-12 text-center text-sm text-white/58 sm:text-[18px]">
+                      Benefit information not found.
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </section>
         </div>

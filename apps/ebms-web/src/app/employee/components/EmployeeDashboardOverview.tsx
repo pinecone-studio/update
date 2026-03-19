@@ -82,11 +82,11 @@ export function EmployeeDashboardOverview({
   return (
     <section className="grid w-full min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-6 xl:grid-cols-[minmax(0,1fr)_356px] xl:gap-8">
       <div className="min-w-0 max-w-[780px]">
-        <div className="mb-6 flex flex-col sm:mb-8">
-          <h1 className="text-[28px] font-semibold leading-[1.02] tracking-[-1.4px] text-white sm:text-[35px] sm:tracking-[-2.6px]">
+        <div className="mb-4 flex flex-col sm:mb-8">
+          <h1 className="text-xl font-semibold leading-[1.02] tracking-[-1.4px] text-white sm:text-[28px] lg:text-[35px] sm:tracking-[-2.6px]">
             Welcome back, {meName ?? "..."}
           </h1>
-          <p className="mt-2 max-w-[640px] text-[15px] font-normal leading-6 tracking-[-0.2px] text-white/62 sm:mt-3 sm:text-[20px] sm:leading-7 sm:tracking-[-0.45px]">
+          <p className="mt-2 max-w-[640px] text-sm font-normal leading-6 tracking-[-0.2px] text-white/62 sm:mt-3 sm:text-base lg:text-[20px] sm:leading-7 sm:tracking-[-0.45px]">
             You have {activeCount} active benefits and {pendingCount} pending
             requests
           </p>
@@ -113,7 +113,7 @@ export function EmployeeDashboardOverview({
                 >
                   {item.icon}
                 </span>
-                <span className="ml-5 min-w-0 flex-1">
+                <span className="ml-2 min-w-0 flex-1 sm:ml-5">
                   <span
                     className={`text-[14px] leading-none font-medium tracking-[-0.2px] ${styles.tone}`}
                   >
@@ -131,12 +131,19 @@ export function EmployeeDashboardOverview({
         </div>
       </div>
 
-      <div className="mt-1 w-full lg:mt-6 lg:pr-[10px]">
-        <div className="relative flex h-[208px] w-full overflow-hidden rounded-[22px] border border-white/30 p-5 shadow-[0_25px_50px_rgba(0,0,0,0.28)] sm:h-[236px] sm:p-6 lg:h-[242px] lg:w-full">
-          <div className="z-10 mt-3 flex flex-1 flex-col items-start justify-start text-left">
-            <div>
-              <h3 className="text-[28px] font-semibold leading-[0.95] tracking-[-1.1px] text-white/95 sm:text-[32px]">
-                Pineguest
+      <div className="mt-4 w-full lg:mt-6 lg:pr-[10px]">
+        <div className="relative flex min-h-[180px] w-full overflow-hidden rounded-2xl border border-white/30 p-4 shadow-[0_25px_50px_rgba(0,0,0,0.28)] sm:h-[236px] sm:p-6 lg:h-[242px] lg:w-full">
+          <div className="z-10 flex flex-1 flex-col items-start justify-center text-left">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-1.5 text-white/80">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              <span className="text-sm font-semibold tracking-[-0.2px]">
+                Season 3 • Episode 1
+              </span>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-xl font-semibold leading-[0.95] tracking-[-1.1px] text-white/95 sm:text-[28px] lg:text-[32px]">
+                PineQuest
               </h3>
               <p className="mt-2 text-[14px] font-semibold text-white/65 sm:text-[15px]">
                 The dream chapter: Eternity

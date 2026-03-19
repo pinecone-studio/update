@@ -107,10 +107,10 @@ function BenefitsAndRulePageContent() {
   }, [router]);
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <BenefitsAndRuleHeader onAddClick={handleAddClick} />
 
-      <section className="mt-8">
+      <section className="mt-4 sm:mt-6 lg:mt-8">
         <BenefitsCatalogSection
           catalogBenefits={catalogBenefits}
           config={config}

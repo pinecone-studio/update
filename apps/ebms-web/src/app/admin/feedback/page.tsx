@@ -107,7 +107,7 @@ export default function AdminFeedbackPage() {
       {loading ? (
         <p className="text-5 text-[#A7B6D3]">Loading...</p>
       ) : filteredItems.length === 0 ? (
-        <div className="rounded-3xl border border-[#2C4264] bg-[rgba(88,80,140,0.28)] p-8 text-center">
+        <div className="rounded-3xl  p-8 text-center dark:border-[#2C4264] dark:bg-[#181743]/50">
           <HiOutlineInformationCircle className="mx-auto mb-3 h-12 w-12 text-[#8FA3C5]" />
           <p className="text-5 text-[#A7B6D3]">
             No escalated feedback yet. Employees create feedback and vote; when
@@ -119,7 +119,7 @@ export default function AdminFeedbackPage() {
           {filteredItems.map((item) => (
             <article
               key={item.id}
-              className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-5"
+              className="rounded-3xl dark:border-[#2C4264] dark:bg-[#181743]/50 p-5"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-start gap-3 min-w-0 flex-1">

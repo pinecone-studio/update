@@ -24,7 +24,7 @@ export function DashboardStatCard({
 
   return (
     <article
-      className={`flex w-full min-h-[240px] flex-col rounded-2xl px-6 py-6 text-left shadow-lg ring-1 ring-white/10 sm:min-h-[280px] sm:px-8 sm:py-8 lg:h-[320px] lg:w-[454px] lg:px-[54px] lg:py-[48px] ${
+      className={`flex w-full min-h-[180px] flex-col rounded-2xl px-4 py-4 text-left shadow-lg ring-1 ring-white/10 sm:min-h-[240px] sm:px-6 sm:py-6 md:min-h-[280px] md:px-8 md:py-8 lg:h-[320px] lg:min-w-[280px] lg:max-w-[454px] lg:px-[54px] lg:py-[48px] ${
         onClick ? "cursor-pointer transition hover:opacity-95" : ""
       }`}
       style={{ background: bgStyle }}
@@ -49,8 +49,8 @@ export function DashboardStatCard({
           </div>
           <p className="text-lg font-semibold text-[#FAFBFB] sm:text-[24px]">{title}</p>
         </div>
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-[154px] font-normal leading-none text-[#EDF6FF]">{value}</p>
+        <div className="flex flex-1 items-center justify-center overflow-hidden">
+          <p className="text-5xl font-normal leading-none text-[#EDF6FF] sm:text-7xl md:text-8xl lg:text-[100px] xl:text-[154px]">{value}</p>
         </div>
       </div>
     </article>

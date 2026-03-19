@@ -37,17 +37,17 @@ export function ContractStatsCards({ contracts }: ContractStatsCardsProps) {
       {STAT_CARDS.map((card) => (
         <article
           key={card.label}
-          className="h-[107px] min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50"
+          className="min-h-[90px] min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50 sm:h-[107px]"
         >
           <div className="mb-2 flex items-start justify-between">
-            <p className="text-[20px] font-normal dark:text-[#FFFFFF]">
+            <p className="text-sm font-normal dark:text-[#FFFFFF] sm:text-[20px]">
               {card.label}
             </p>
             <span
               className={`mt-1 h-3 w-3 shrink-0 rounded-full ${card.dotClass}`}
             />
           </div>
-          <p className="text-[34px] font-normal text-slate-900 dark:text-white">
+          <p className="text-2xl font-normal text-slate-900 sm:text-[34px] dark:text-white">
             {card.getValue(contracts)}
           </p>
         </article>

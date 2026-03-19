@@ -3,7 +3,7 @@
 import type { AddBenefitFormState } from "../_lib/types";
 
 const cardClass =
-  "rounded-xl border border-[rgba(185,189,255,0.24)] bg-[rgba(53,41,99,0.44)] p-6 backdrop-blur-[12px]";
+  "rounded-xl border border-[rgba(185,189,255,0.24)] bg-[rgba(53,41,99,0.44)] p-4 backdrop-blur-[12px] sm:p-6";
 const inputBase =
   "rounded-lg border border-[rgba(185,189,255,0.24)] bg-[rgba(31,22,57,0.7)] px-2 py-1.5 text-sm text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]";
 const labelClass = "block text-sm text-[#A7B6D3] mb-1";
@@ -43,9 +43,9 @@ export function BenefitConfigCard({ form, onChange }: Props) {
       <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
         Benefit Configuration
       </h2>
-      <div className="mt-3 flex flex-row gap-6">
-        <div className="flex flex-col gap-4">
-          <div className="max-w-[180px]">
+      <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:gap-6">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="w-full max-w-[220px]">
             <label className={labelClass}>Category</label>
             <select
               value={(form.category ?? "").trim().toLowerCase() || "wellness"}
@@ -59,7 +59,7 @@ export function BenefitConfigCard({ form, onChange }: Props) {
               ))}
             </select>
           </div>
-          <div className="max-w-[220px]">
+          <div className="w-full min-w-0 max-w-[220px]">
             <h3 className="text-sm font-medium text-[#A7B6D3] mb-1.5">
               Financial Settings
             </h3>
@@ -83,11 +83,11 @@ export function BenefitConfigCard({ form, onChange }: Props) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
+            <div className="flex min-w-0 flex-col gap-1">
               <label className={labelClass}>
-                Request Deadline 
+                Request Deadline
               </label>
               <input
                 type="date"
@@ -95,12 +95,12 @@ export function BenefitConfigCard({ form, onChange }: Props) {
                 onChange={(e) =>
                   onChange({ ...form, requestDeadline: e.target.value || undefined })
                 }
-                className={`${inputBase} w-40 max-w-full`}
+                className={`${inputBase} w-full min-w-0 sm:w-40`}
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <label className={labelClass}>Active Period </label>
-              <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-col gap-1">
+              <label className={labelClass}>Active Period</label>
+              <div className="flex min-w-0 items-center gap-2">
                 <input
                   type="number"
                   min={1}
@@ -112,7 +112,7 @@ export function BenefitConfigCard({ form, onChange }: Props) {
                       expiryDuration: Math.max(1, Number(e.target.value) || 1),
                     })
                   }
-                  className={`${inputBase} w-16`}
+                  className={`${inputBase} w-16 shrink-0`}
                 />
                 <select
                   value={form.expiryUnit ?? "year"}
@@ -122,7 +122,7 @@ export function BenefitConfigCard({ form, onChange }: Props) {
                       expiryUnit: e.target.value as "day" | "month" | "year",
                     })
                   }
-                  className={`${inputBase} w-24`}
+                  className={`${inputBase} min-w-0 flex-1 sm:w-24`}
                 >
                   {ACTIVE_PERIOD_UNITS.map(({ value, label }) => (
                     <option key={value} value={value}>{label}</option>
@@ -132,9 +132,9 @@ export function BenefitConfigCard({ form, onChange }: Props) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-1">
-              <label className={labelClass}>Employee Usage </label>
-              <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-col gap-1">
+              <label className={labelClass}>Employee Usage</label>
+              <div className="flex min-w-0 items-center gap-2">
                 <input
                   type="number"
                   min={1}
@@ -147,9 +147,9 @@ export function BenefitConfigCard({ form, onChange }: Props) {
                     })
                   }
                   disabled={!form.usageLimitPeriod}
-                  className={`${inputBase} w-16 disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`${inputBase} w-16 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed`}
                 />
-                <span className="text-sm text-[#A7B6D3]">per</span>
+                <span className="shrink-0 text-sm text-[#A7B6D3]">per</span>
                 <select
                   value={form.usageLimitPeriod ?? ""}
                   onChange={(e) =>
@@ -158,7 +158,7 @@ export function BenefitConfigCard({ form, onChange }: Props) {
                       usageLimitPeriod: (e.target.value || "") as "7days" | "month" | "year" | "",
                     })
                   }
-                  className={`${inputBase} w-24`}
+                  className={`${inputBase} min-w-0 flex-1 sm:w-24`}
                 >
                   {EMPLOYEE_USAGE_PERIODS.map(({ value, label }) => (
                     <option key={value} value={value}>{label}</option>

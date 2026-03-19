@@ -152,7 +152,7 @@ export default function HrDashboardPage() {
   return (
     <div className="flex min-h-min flex-1 flex-col gap-4 sm:gap-6 lg:gap-8">
       <section className="grid min-h-min flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-4 sm:gap-6 lg:h-[672px] lg:grid-cols-[auto_1fr] lg:grid-rows-1 lg:items-stretch lg:gap-8">
-        <div className="flex flex-col gap-4 sm:gap-6 lg:min-w-[320px] lg:gap-8 xl:min-w-[454px]">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:flex lg:flex-col lg:min-w-[280px] lg:gap-8 xl:min-w-[454px]">
           <DashboardStatCard
             keyType="employees"
             title="Total-Employees"

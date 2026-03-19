@@ -52,7 +52,7 @@ export function FinanceRequestsSection({
   return (
     <section className="h-full overflow-hidden rounded-3xl border border-[rgba(149,137,199,0.42)] bg-[radial-gradient(circle_at_18%_8%,rgba(162,174,255,0.12),transparent_52%),linear-gradient(155deg,rgba(255,255,255,0.52),rgba(237,231,252,0.46))] backdrop-blur-[1px] dark:border-[rgba(63,91,138,0.44)] dark:bg-[radial-gradient(circle_at_18%_8%,rgba(72,97,205,0.06),transparent_48%),linear-gradient(155deg,rgba(29,28,87,0.28),rgba(28,47,103,0.24))]">
       <div className="flex flex-col gap-4 border-b border-slate-300/70 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6 sm:py-5 dark:border-[#2B405F]">
-        <h2 className="text-[20px] font-semibold leading-tight text-slate-900 dark:text-white">
+        <h2 className="text-base font-semibold leading-tight text-slate-900 sm:text-[20px] dark:text-white">
           Financial Benefit Requests
         </h2>
         <div className="flex flex-wrap items-center gap-2">
@@ -81,8 +81,8 @@ export function FinanceRequestsSection({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-[15px] leading-tight">
-          <thead className="border-b border-slate-300/70 text-[13px] uppercase tracking-wide text-slate-600 dark:border-[#2B405F] dark:text-[#9DAECF]">
+        <table className="min-w-[720px] w-full text-left text-sm leading-tight sm:text-[15px]">
+          <thead className="border-b border-slate-300/70 text-xs uppercase tracking-wide text-slate-600 dark:border-[#2B405F] dark:text-[#9DAECF] sm:text-[13px]">
             <tr>
               <th className="px-4 py-3 sm:px-6 sm:py-4">#</th>
               <th className="px-4 py-3 sm:px-6 sm:py-4">Employee</th>
@@ -190,20 +190,20 @@ export function FinanceRequestsSection({
                       <div className="flex flex-wrap items-center gap-2">
                         {isPending ? (
                           <>
-                            <button
-                              type="button"
-                              onClick={() => void onApprove(request.id)}
-                              disabled={submittingRequestId === request.id}
-                              className="rounded-lg bg-[#0A8A53] px-3 py-1.5 text-[15px] font-medium leading-tight text-white hover:bg-[#0D9C5F] disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => onReject(request.id)}
-                              disabled={submittingRequestId === request.id}
-                              className="rounded-lg bg-[#B21C23] px-3 py-1.5 text-[15px] font-medium leading-tight text-white hover:bg-[#CB222B] disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2"
-                            >
+            <button
+              type="button"
+              onClick={() => void onApprove(request.id)}
+              disabled={submittingRequestId === request.id}
+              className="shrink-0 rounded-lg bg-[#0A8A53] px-2.5 py-1 text-xs font-medium leading-tight text-white hover:bg-[#0D9C5F] disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2 sm:text-[15px]"
+            >
+              Approve
+            </button>
+            <button
+              type="button"
+              onClick={() => onReject(request.id)}
+              disabled={submittingRequestId === request.id}
+              className="shrink-0 rounded-lg bg-[#B21C23] px-2.5 py-1 text-xs font-medium leading-tight text-white hover:bg-[#CB222B] disabled:opacity-60 sm:rounded-xl sm:px-4 sm:py-2 sm:text-[15px]"
+            >
                               Reject
                             </button>
                           </>

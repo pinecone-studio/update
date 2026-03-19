@@ -16,33 +16,39 @@ export function BenefitsTable({
 }: BenefitsTableProps) {
   return (
     <section className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,rgba(36,24,56,0.78),rgba(22,15,39,0.54))] shadow-[0_18px_70px_rgba(5,3,16,0.34)] backdrop-blur-[3px]">
-      <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-[20px] py-[22px] text-[20px] text-white/50">
-        <div>Benefit</div>
-        <div>Status</div>
-        <div>Reason</div>
-        <div>Last Date</div>
-        <div>Action</div>
-      </div>
+      <div className="overflow-x-auto">
+        <div className="min-w-[640px]">
+          <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-4 py-4 text-sm text-white/50 sm:px-[20px] sm:py-[22px] sm:text-[20px]">
+            <div className="whitespace-nowrap">Benefit</div>
+            <div className="whitespace-nowrap">Status</div>
+            <div className="whitespace-nowrap">Reason</div>
+            <div className="whitespace-nowrap">Last Date</div>
+            <div className="whitespace-nowrap">Action</div>
+          </div>
 
-      <div className="px-[20px]">
-        {benefits.map((benefit) => {
-          const key = `${employeeId}-${benefit.benefitId}`;
+          <div className="px-4 sm:px-[20px]">
+            {benefits.map((benefit) => {
+              const key = `${employeeId}-${benefit.benefitId}`;
 
-          return (
-            <div
-              key={benefit.benefitId || benefit.name}
-              className="grid min-h-[72px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-white/14 text-[18px] text-white/92 last:border-b-0"
-            >
-              <div className="pr-6 font-medium">{benefit.name}</div>
-              <div>{statusCopy[benefit.status]}</div>
-              <div className="pr-6 text-white/90">{benefit.reason}</div>
-              <div>{benefit.lastDate} . 20:00pm</div>
-              <button
-                type="button"
-                onClick={() => onOpenBenefitModal(key, benefit.status)}
-                className="inline-flex items-center gap-[10px] text-[18px] font-medium text-[#1E78FF] transition hover:text-[#56A5FF]"
-              >
-                <span>Fix</span>
+              return (
+                <div
+                  key={benefit.benefitId || benefit.name}
+                  className="grid min-h-[72px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-white/14 text-sm text-white/92 last:border-b-0 sm:text-[18px]"
+                >
+                  <div className="min-w-0 pr-4 font-medium sm:pr-6">
+                    <span className="truncate block">{benefit.name}</span>
+                  </div>
+                  <div className="shrink-0 whitespace-nowrap">{statusCopy[benefit.status]}</div>
+                  <div className="min-w-0 pr-4 text-white/90 sm:pr-6">
+                    <span className="line-clamp-2">{benefit.reason}</span>
+                  </div>
+                  <div className="shrink-0 whitespace-nowrap text-xs sm:text-base">{benefit.lastDate} . 20:00pm</div>
+                  <button
+                    type="button"
+                    onClick={() => onOpenBenefitModal(key, benefit.status)}
+                    className="shrink-0 inline-flex items-center gap-1 text-sm font-medium text-[#1E78FF] transition hover:text-[#56A5FF] sm:gap-[10px] sm:text-[18px]"
+                  >
+                    <span>Fix</span>
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -59,10 +65,12 @@ export function BenefitsTable({
         })}
 
         {benefits.length === 0 && (
-          <div className="py-12 text-center text-[18px] text-white/58">
+          <div className="py-12 text-center text-sm text-white/58 sm:text-[18px]">
             Benefit мэдээлэл олдсонгүй.
           </div>
         )}
+          </div>
+        </div>
       </div>
     </section>
   );

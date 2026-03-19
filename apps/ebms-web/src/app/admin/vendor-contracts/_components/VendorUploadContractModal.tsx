@@ -59,7 +59,7 @@ export function VendorUploadContractModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 sm:p-6">
       <button
         type="button"
         aria-label="Close add contract modal"
@@ -67,16 +67,10 @@ export function VendorUploadContractModal({
         className="absolute inset-0 bg-white/25 backdrop-blur-md dark:bg-black/30 dark:backdrop-blur-lg"
       />
       <section
-        className="relative z-10 flex w-[900px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[28.63px] border bg-[radial-gradient(circle_at_18%_18%,rgba(126,97,210,0.20),transparent_42%),radial-gradient(circle_at_78%_72%,rgba(84,120,214,0.14),transparent_46%),linear-gradient(155deg,rgba(45,34,93,0.94),rgba(38,31,86,0.92))] backdrop-blur-[18px]"
-        style={{
-          borderWidth: "0.72px",
-          borderColor: "rgba(138, 156, 233, 0.42)",
-          padding: "40px 32px",
-          gap: "24px",
-        }}
+        className="relative z-10 my-auto flex w-full max-w-[900px] flex-col overflow-hidden rounded-2xl border border-[rgba(138,156,233,0.42)] bg-[radial-gradient(circle_at_18%_18%,rgba(126,97,210,0.20),transparent_42%),radial-gradient(circle_at_78%_72%,rgba(84,120,214,0.14),transparent_46%),linear-gradient(155deg,rgba(45,34,93,0.94),rgba(38,31,86,0.92))] p-4 backdrop-blur-[18px] sm:p-6 md:p-8"
       >
         <div className="flex shrink-0 items-center">
-          <h2 className="text-[22px] font-normal text-white">
+          <h2 className="text-lg font-normal text-white sm:text-[22px]">
             Upload Vendor Contract
           </h2>
         </div>
@@ -85,21 +79,21 @@ export function VendorUploadContractModal({
             e.preventDefault();
             void onSubmit(e);
           }}
-          className="flex flex-col gap-6 overflow-hidden"
+          className="flex flex-col gap-4 overflow-y-auto sm:gap-6"
         >
           <input type="hidden" name="tab" value="vendor" />
           <div className="flex flex-col gap-4">
-            <h3 className="text-5 font-medium text-[#A7B6D3]">Basic Info</h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">Benefit</label>
+            <h3 className="text-sm font-medium text-[#A7B6D3] sm:text-base">Basic Info</h3>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="flex min-w-0 flex-col gap-2.5">
+                <label className="text-sm text-[#A7B6D3]">Benefit</label>
                 <select
                   name="benefitId"
                   required
                   value={selectedBenefitId}
                   onChange={(e) => onBenefitChange(e.target.value)}
                   disabled={benefitsLoading || benefitOptions.length === 0}
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] disabled:opacity-60"
+                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white outline-none focus:border-[#B18CFF] disabled:opacity-60 sm:text-base"
                 >
                   <option value="">
                     {benefitsLoading ? "Loading..." : "— Select benefit —"}
@@ -111,53 +105,53 @@ export function VendorUploadContractModal({
                   ))}
                 </select>
               </div>
-              <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">Version</label>
+              <div className="flex min-w-0 flex-col gap-2.5">
+                <label className="text-sm text-[#A7B6D3]">Version</label>
                 <input
                   name="version"
                   required
                   placeholder="vendor-2026.1"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
+                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF] sm:text-base"
                 />
               </div>
-              <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">
+              <div className="flex min-w-0 flex-col gap-2.5">
+                <label className="text-sm text-[#A7B6D3]">
                   Vendor Name (optional)
                 </label>
                 <input
                   name="vendorName"
                   placeholder="PineFit"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
+                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF] sm:text-base"
                 />
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-4">
-            <h3 className="text-5 font-medium text-[#A7B6D3]">
+            <h3 className="text-sm font-medium text-[#A7B6D3] sm:text-base">
               Contract Details
             </h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex min-w-0 flex-col gap-2.5">
+                <label className="text-sm text-[#A7B6D3]">
                   Effective Date (optional)
                 </label>
                 <input
                   name="effectiveDate"
                   type="date"
                   placeholder="yyyy-mm-dd"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] [color-scheme:dark]"
+                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white outline-none focus:border-[#B18CFF] [color-scheme:dark] sm:text-base"
                 />
               </div>
-              <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">
+              <div className="flex min-w-0 flex-col gap-2.5">
+                <label className="text-sm text-[#A7B6D3]">
                   Expiry Date (optional)
                 </label>
                 <input
                   name="expiryDate"
                   type="date"
                   placeholder="yyyy-mm-dd"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] [color-scheme:dark]"
+                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white outline-none focus:border-[#B18CFF] [color-scheme:dark] sm:text-base"
                 />
               </div>
             </div>
@@ -207,7 +201,7 @@ export function VendorUploadContractModal({
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#2F66E8] px-5 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#2F66E8] px-5 text-sm font-medium text-white transition hover:bg-[#3E82F7] sm:text-base"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -222,17 +216,17 @@ export function VendorUploadContractModal({
                 </svg>
                 Upload PDF
               </button>
-              <p className="text-5 text-[#8595B6]">
+              <p className="text-center text-xs text-[#8595B6] sm:text-sm">
                 Drag & drop or click to upload PDF only Max {MAX_PDF_SIZE_MB}MB
               </p>
               {pdfFile && (
-                <p className="text-5 text-green-400">{pdfFile.name}</p>
+                <p className="text-sm text-green-400">{pdfFile.name}</p>
               )}
-              {pdfError && <p className="text-5 text-red-400">{pdfError}</p>}
+              {pdfError && <p className="text-sm text-red-400">{pdfError}</p>}
             </div>
           </div>
 
-          <div className="flex justify-end gap-2.5 pt-1">
+          <div className="flex shrink-0 flex-wrap justify-end gap-2.5 pt-1 pb-2 sm:pb-0">
             <button
               type="button"
               onClick={handleClose}

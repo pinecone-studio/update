@@ -18,20 +18,32 @@ export function getApiBaseUrl(): string {
 export async function openAdminContractByRequestId(
   requestId: string,
 ): Promise<void> {
-  const base = getApiBaseUrl().replace(/\/$/, "");
-  const url = `${base}/admin/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
-  const headers = getActiveUserHeaders("admin");
-  const res = await fetch(url, { headers });
-  if (!res.ok) {
-    const msg = await res.text();
-    throw new Error(msg || `Failed to load contract (${res.status})`);
-  }
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const target = window.open(objectUrl, "_blank", "noopener,noreferrer");
-  if (!target)
+  const target = window.open("about:blank", "_blank", "noopener,noreferrer");
+  if (!target) {
     throw new Error("Popup blocked. Please allow popups and try again.");
-  URL.revokeObjectURL(objectUrl);
+  }
+  try {
+    target.document.write(
+      "<html><body style='margin:0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui'>Loading contract...</body></html>"
+    );
+    target.document.close();
+    const base = getApiBaseUrl().replace(/\/$/, "");
+    const url = `${base}/admin/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
+    const headers = getActiveUserHeaders("admin");
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      target.close();
+      const msg = await res.text();
+      throw new Error(msg || `Failed to load contract (${res.status})`);
+    }
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    target.location.href = objectUrl;
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  } catch (e) {
+    target.close();
+    throw e;
+  }
 }
 
 export function getAdminClient(): GraphQLClient {

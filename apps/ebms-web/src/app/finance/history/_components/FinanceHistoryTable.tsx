@@ -32,38 +32,40 @@ export function FinanceHistoryTable({
   onError,
 }: FinanceHistoryTableProps) {
   const handleViewContract = useCallback(
-    async (entry: BenefitRequest) => {
-      const showError = (msg: string) => alert(msg);
-      if (entry.contractTemplateUrl) {
-        try {
-          await openFinanceContractByRequestId(entry.id);
-        } catch (e) {
-          showError(getApiErrorMessage(e) || "Failed to open contract");
-        }
+    async (requestId: string) => {
+      const popup = window.open("", "_blank", "noopener,noreferrer");
+      if (!popup) {
+        const msg = "Popup blocked. Please allow popups and try again.";
+        onError?.(msg);
+        if (!onError) alert(msg);
         return;
       }
       try {
+        popup.document.write(
+          "<html><body style='margin:0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui'>Loading...</body></html>"
+        );
+        popup.document.close();
         const html = await fetchBenefitRequestContractHtml(
           getFinanceClient(),
           entry.id,
         );
-        const popup = window.open("", "_blank", "noopener,noreferrer");
-        if (popup) {
-          popup.document.open();
-          popup.document.write(html);
-          popup.document.close();
-        }
+        popup.document.open();
+        popup.document.write(html);
+        popup.document.close();
       } catch (e) {
-        showError(getApiErrorMessage(e) || "Failed to open contract");
+        popup.close();
+        const msg = e instanceof Error ? e.message : "Failed to open contract";
+        onError?.(msg);
+        if (!onError) alert(msg);
       }
     },
     [],
   );
 
   return (
-    <section className="overflow-hidden rounded-3xl dark:bg-[#20194D80]/50 p-2">
+    <section className="overflow-hidden rounded-3xl dark:bg-[#20194D80]/50 p-2 sm:p-4">
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-5">
+        <table className="min-w-[720px] w-full text-left text-sm sm:text-base">
           <thead className="border-b border-white/5 text-slate-500 dark:text-[#A7B6D3]">
             <tr>
               <th className="px-4 py-4 font-medium sm:px-6">№</th>
