@@ -44,8 +44,8 @@ export function AdminMobileMenu({
   if (!open) return null;
 
   return (
-    <div className="absolute left-0 right-0 top-full z-50 w-full border-t border-slate-200 bg-white shadow-lg dark:border-[#24395C] dark:bg-[#1E293B] md:hidden">
-      <nav className="flex flex-col gap-1 p-3 text-sm text-slate-600 dark:text-[#D1DBEF]">
+    <div className="absolute left-0 right-0 top-full z-50 w-full border-t border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)] md:hidden">
+      <nav className="flex flex-col gap-1 p-3 text-sm text-white/90">
         {navItems.map((item) => (
           <Link
             key={item.href}
@@ -53,19 +53,19 @@ export function AdminMobileMenu({
             onClick={onClose}
             className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 transition ${
               isActive(item.href)
-                ? "bg-blue-600 text-white dark:bg-[#2F66E8]"
-                : "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
+                ? "bg-white/10 text-white"
+                : "hover:bg-white/5 hover:text-white"
             }`}
           >
             <span className="scale-90">{item.icon}</span>
             <span>{item.label}</span>
           </Link>
         ))}
-        <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
+        <div className="my-2 h-px bg-white/10" />
         <Link
           href="/employee"
           onClick={onClose}
-          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
+          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 transition hover:bg-white/5 hover:text-white"
         >
           <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
           Employee руу шилжих
@@ -73,7 +73,7 @@ export function AdminMobileMenu({
         <Link
           href="/admin/feedback"
           onClick={onClose}
-          className="inline-flex items-center justify-between gap-2 rounded-lg px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#24364F] dark:hover:text-white"
+          className="inline-flex items-center justify-between gap-2 rounded-lg px-4 py-2 transition hover:bg-white/5 hover:text-white"
         >
           <span className="inline-flex items-center gap-2">
             <HiOutlineChatBubbleLeftRight className="h-4 w-4" />
@@ -85,13 +85,13 @@ export function AdminMobileMenu({
             </span>
           )}
         </Link>
-        <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
-        <label className="inline-flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
+        <div className="my-2 h-px bg-white/10" />
+        <label className="inline-flex items-center justify-between rounded-lg border border-white/20 px-3 py-2 text-xs text-white/80">
           <span>User</span>
           <select
             value={selectedUser.id}
             onChange={(e) => onSelectUser(e.target.value)}
-            className="ml-3 bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
+            className="ml-3 bg-transparent text-xs text-white outline-none"
             aria-label="Select active test user"
           >
             {userOptions.map((opt) => (
@@ -101,13 +101,13 @@ export function AdminMobileMenu({
             ))}
           </select>
         </label>
-        <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
+        <div className="my-2 h-px bg-white/10" />
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onNotificationToggle}
-              className="relative grid h-8 w-8 place-items-center rounded-full bg-slate-100 text-slate-600 ring-1 ring-transparent transition hover:ring-blue-300 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              className="relative grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/90 transition hover:bg-white/5"
               aria-label="Notifications"
             >
               <HiOutlineBell className="text-sm" />
@@ -122,20 +122,16 @@ export function AdminMobileMenu({
               onClick={onClose}
               className="flex items-center gap-2"
             >
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-blue-600 text-[10px] font-semibold text-white">
+              <div className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-[10px] font-semibold text-white">
                 AD
               </div>
-              <span className="text-xs text-slate-600 dark:text-slate-300">
-                Account
-              </span>
+              <span className="text-xs text-white/80">Account</span>
             </Link>
           </div>
           {notificationOpen && (
-            <div className="max-h-[300px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-3 dark:border-[#24395C] dark:bg-[#0F172A]">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                Notifications
-              </p>
-              <p className="mt-2 text-xs text-slate-600 dark:text-[#A7B6D3]">
+            <div className="max-h-[300px] overflow-y-auto rounded-xl border border-white/10 bg-white/5 p-3">
+              <p className="text-sm font-semibold text-white">Notifications</p>
+              <p className="mt-2 text-xs text-white/60">
                 {notifications.length === 0
                   ? "No notifications."
                   : `${unreadCount} unread`}
@@ -143,7 +139,7 @@ export function AdminMobileMenu({
               <Link
                 href="/admin/admin-notification"
                 onClick={onClose}
-                className="mt-2 block text-xs text-blue-600 dark:text-blue-400"
+                className="mt-2 block text-xs text-blue-400 transition hover:text-blue-300"
               >
                 View all →
               </Link>

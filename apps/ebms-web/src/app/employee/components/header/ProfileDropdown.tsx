@@ -44,19 +44,19 @@ export function ProfileDropdown({
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 dark:bg-[#1A2333] dark:border-[#243041]">
-          <div className="p-4 border-b border-slate-200 dark:border-[#243041]">
+        <div
+          className="absolute right-0 top-full z-50 mt-2 w-[280px] overflow-hidden rounded-xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)] dark:border-white/10"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div className="border-b border-white/10 p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold text-white border border-white/10">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 text-sm font-semibold text-white">
                 <ProfileIcon />
               </div>
               <div>
-                <p className="text-slate-900 font-semibold dark:text-white">
-                  {me?.name ?? "—"}
-                </p>
-                <p className="text-slate-500 text-xs mt-1 dark:text-slate-500">
-                  {me?.id ?? "—"}
-                </p>
+                <p className="font-semibold text-white">{me?.name ?? "—"}</p>
+                <p className="mt-1 text-xs text-white/50">{me?.id ?? "—"}</p>
               </div>
             </div>
           </div>
@@ -65,8 +65,8 @@ export function ProfileDropdown({
             <Link
               href="/admin"
               onClick={(e) => onAdminNavigate(e)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white ${
-                !isAdminOrHrUser ? "opacity-60 cursor-not-allowed" : ""
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-white/90 transition hover:bg-white/5 hover:text-white ${
+                !isAdminOrHrUser ? "cursor-not-allowed opacity-60" : ""
               }`}
             >
               <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
@@ -76,8 +76,8 @@ export function ProfileDropdown({
             <Link
               href="/finance"
               onClick={(e) => onFinanceNavigate(e)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white ${
-                !isFinanceManagerUser ? "opacity-60 cursor-not-allowed" : ""
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-white/90 transition hover:bg-white/5 hover:text-white ${
+                !isFinanceManagerUser ? "cursor-not-allowed opacity-60" : ""
               }`}
             >
               <HiOutlineChartBar className="h-4 w-4" />
@@ -87,16 +87,16 @@ export function ProfileDropdown({
             <Link
               href="/employee/history"
               onClick={onClose}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-white/90 transition hover:bg-white/5 hover:text-white"
             >
-              <HistoryIcon  />
+              <HistoryIcon />
               History
             </Link>
 
-            <div className="my-2 h-px bg-slate-200 dark:bg-[#243041]" />
+            <div className="my-2 h-px bg-white/10" />
             <button
               onClick={onClose}
-              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-red-400 transition hover:bg-red-500/10"
             >
               <HiOutlineArrowRightOnRectangle className="text-lg" />
               Sign out

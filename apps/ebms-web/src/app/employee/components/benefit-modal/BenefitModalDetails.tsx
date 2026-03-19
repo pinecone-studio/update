@@ -4,7 +4,6 @@
 
 import {
   FiAlertTriangle,
-  FiChevronDown,
   FiCheck,
   FiClock,
   FiExternalLink,
@@ -163,22 +162,26 @@ export function BenefitModalDetails({
       <div className="grid gap-x-6 gap-y-0 border-b border-white/5 pb-4 md:grid-cols-2">
         <DetailCell label="Subsidy" value={subsidy} />
         <DetailCell label="Vendor" value={vendor} withDivider />
-        <DetailCell
-          label="Start"
-          value={benefit.benefitStartDate || "-"}
-        />
-        <DetailCell
-          label="End"
-          value={benefit.benefitEndDate || "-"}
-          withDivider
-        />
+        {benefit.status === "ACTIVE" &&
+        (benefit.benefitStartDate || benefit.benefitEndDate) ? (
+          <>
+            <DetailCell
+              label="Start"
+              value={benefit.benefitStartDate || "-"}
+            />
+            <DetailCell
+              label="End"
+              value={benefit.benefitEndDate || "-"}
+              withDivider
+            />
+          </>
+        ) : null}
       </div>
 
       <div className="border-b border-white/5 pb-4">
-        <div className="flex items-center gap-2 text-left text-[15px] font-medium text-white/65 sm:text-[16px]">
+        <h3 className="text-left text-[15px] font-medium text-white/65 sm:text-[16px]">
           Eligibility check
-          <FiChevronDown size={18} className="text-white/45" />
-        </div>
+        </h3>
 
         <div
           className={`mt-4 w-full space-y-2 ${

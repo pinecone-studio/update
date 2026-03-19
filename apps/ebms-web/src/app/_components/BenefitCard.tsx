@@ -99,6 +99,21 @@ const STATUS_LABELS: Record<BenefitStatus, string> = {
   REJECTED: "REJECTED",
 };
 
+const VALID_STATUSES: BenefitStatus[] = [
+  "ACTIVE",
+  "ELIGIBLE",
+  "LOCKED",
+  "PENDING",
+  "REJECTED",
+];
+
+function normalizeStatus(s: string | undefined | null): BenefitStatus {
+  const upper = (s ?? "").toUpperCase().trim();
+  if (VALID_STATUSES.includes(upper as BenefitStatus))
+    return upper as BenefitStatus;
+  return "LOCKED";
+}
+
 export interface BenefitCardProps {
   /** Backend benefit id (for requestBenefit mutation) */
   benefitId?: string;
@@ -216,8 +231,9 @@ export const BenefitCard = ({
   usageLimitCount,
   usageLimitPeriod,
 }: BenefitCardProps) => {
-  const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[status];
-  const theme = STATUS_CARD_STYLES[status];
+  const safeStatus = normalizeStatus(status);
+  const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[safeStatus];
+  const theme = STATUS_CARD_STYLES[safeStatus];
   const isAdminVariant = variant === "admin";
   const categoryLabel = category
     ? `${category.charAt(0).toUpperCase()}${category.slice(1)} benefit`
@@ -229,20 +245,20 @@ export const BenefitCard = ({
   const normalizedRejectReason = (rejectReason ?? "").trim();
   const vendorDisplayName = (vendorDetails ?? "").trim() || "Pinecone";
   const pendingStepText =
-    status === "PENDING" && pendingApprovalBy === "finance"
+    safeStatus === "PENDING" && pendingApprovalBy === "finance"
       ? "Finance approval pending"
-      : status === "PENDING" && pendingApprovalBy === "admin"
+      : safeStatus === "PENDING" && pendingApprovalBy === "admin"
         ? "Admin approval pending"
         : null;
   const deadlineDisplay = formatRequestDeadline(requestDeadline);
   const usageDisplay = formatUsageLimit(usageLimitCount, usageLimitPeriod);
   const extraInfo = [deadlineDisplay, usageDisplay].filter(Boolean).join(" · ");
   const supportText =
-    status === "LOCKED"
-      ? normalizedLockReason || STATUS_MESSAGE[status]
-      : status === "REJECTED"
-        ? normalizedRejectReason || STATUS_MESSAGE[status]
-        : pendingStepText ?? STATUS_MESSAGE[status];
+    safeStatus === "LOCKED"
+      ? normalizedLockReason || STATUS_MESSAGE[safeStatus]
+      : safeStatus === "REJECTED"
+        ? normalizedRejectReason || STATUS_MESSAGE[safeStatus]
+        : pendingStepText ?? STATUS_MESSAGE[safeStatus];
   const normalizedOverrideReason = (overrideReason ?? "").trim();
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
@@ -256,7 +272,7 @@ export const BenefitCard = ({
 
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if ((status === "ELIGIBLE" || status === "REJECTED") && onRequestBenefit) {
+    if ((safeStatus === "ELIGIBLE" || safeStatus === "REJECTED") && onRequestBenefit) {
       onRequestBenefit();
     } else if (onClick) {
       onClick();
@@ -264,9 +280,9 @@ export const BenefitCard = ({
   };
 
   const isButtonClickable =
-    status === "ELIGIBLE" ||
-    status === "REJECTED" ||
-    ((status === "ACTIVE" || status === "LOCKED" || status === "PENDING") &&
+    safeStatus === "ELIGIBLE" ||
+    safeStatus === "REJECTED" ||
+    ((safeStatus === "ACTIVE" || safeStatus === "LOCKED" || safeStatus === "PENDING") &&
       onClick);
   const cardClass = isAdminVariant
     ? "border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-[#324A70] dark:bg-[linear-gradient(180deg,#162338_0%,#122033_100%)] dark:shadow-[0_14px_36px_rgba(2,11,31,0.34)]"
@@ -341,7 +357,7 @@ export const BenefitCard = ({
                   <h3 className={`text-[15px] font-semibold sm:text-base ${titleClass}`}>
                     {name}
                   </h3>
-                  {status === "ACTIVE" &&
+                  {safeStatus === "ACTIVE" &&
                   (eligibilityRules ?? []).length > 0 ? (
                     <span
                       className="relative group/info"
@@ -374,8 +390,8 @@ export const BenefitCard = ({
             <div className="flex shrink-0 flex-col items-end gap-2">
               {hideStatusBadge ? null : (
                 <div className="flex flex-col items-end gap-1">
-                  <StatusBadge status={status} />
-                  {status === "PENDING" && pendingApprovalBy ? (
+                  <StatusBadge status={safeStatus} />
+                  {safeStatus === "PENDING" && pendingApprovalBy ? (
                     <span
                       className={`text-[10px] font-medium tracking-wide ${isAdminVariant ? "text-amber-700 dark:text-amber-300" : "text-amber-200/90"}`}
                     >
@@ -418,7 +434,7 @@ export const BenefitCard = ({
             </div>
           ) : null}
 
-          {!isAdminVariant && !compact && status === "ACTIVE" ? (
+          {!isAdminVariant && !compact && safeStatus === "ACTIVE" ? (
             <div className="mb-2">
               <div className={`h-px ${dividerClass}`} />
               <div className="mt-3 space-y-0.5">
@@ -452,7 +468,7 @@ export const BenefitCard = ({
             </div>
           ) : null}
 
-          {!isAdminVariant && !compact && status !== "ACTIVE" ? (
+          {!isAdminVariant && !compact && safeStatus !== "ACTIVE" ? (
             <div className="mb-2">
               <div className={`h-px ${dividerClass}`} />
               <div className="mt-2.5 space-y-0.5">

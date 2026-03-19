@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import { HiBars3, HiOutlineBell } from "react-icons/hi2";
 import { ProfileDropdown } from "./header/ProfileDropdown";
+import { UserDropdown } from "./header/UserDropdown";
 import { MobileHeaderMenu } from "./header/MobileHeaderMenu";
 import { TaglineBanner } from "./header/TaglineBanner";
 import { NotificationDropdown } from "./header/NotificationDropdown";
@@ -20,6 +21,9 @@ export const Header = () => {
     setNotificationOpen,
     profileOpen,
     setProfileOpen,
+    userDropdownOpen,
+    setUserDropdownOpen,
+    userDropdownRef,
     currentTaglineIndex,
     handleRandomTagline,
     me,
@@ -67,21 +71,25 @@ export const Header = () => {
         </div>
 
         <div className="flex min-w-[180px] items-center justify-end gap-2 sm:gap-3">
-          <label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
-            <span>User</span>
-            <select
-              value={selectedUser.id}
-              onChange={(e) => handleUserChange(e.target.value)}
-              className="bg-transparent text-xs text-slate-700 outline-none dark:text-[#D1DBEF]"
-              aria-label="Select active user"
-            >
-              {userOptions.map((opt) => (
-                <option key={opt.id} value={opt.id} className="text-slate-900">
-                  {opt.name} ({opt.id})
-                </option>
-              ))}
-            </select>
-          </label>
+          <div ref={userDropdownRef} className="hidden md:block">
+            <UserDropdown
+              open={userDropdownOpen}
+              selectedUser={
+                userOptions.find((u) => u.id === selectedUser.id) ?? {
+                  id: selectedUser.id,
+                  name: selectedUser.name ?? selectedUser.id,
+                  role: selectedUser.role ?? "employee",
+                }
+              }
+              userOptions={userOptions}
+              onToggle={() => {
+                setUserDropdownOpen((p) => !p);
+                setNotificationOpen(false);
+                setProfileOpen(false);
+              }}
+              onSelect={handleUserChange}
+            />
+          </div>
           <div className="flex items-center justify-end gap-2 shrink-0 min-w-0 sm:gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:text-[#D1DBEF] dark:hover:bg-[#0a121b] dark:hover:text-white">
               <ThemeToggle />
@@ -99,6 +107,7 @@ export const Header = () => {
                   onClick={() => {
                     setNotificationOpen((p) => !p);
                     setProfileOpen(false);
+                    setUserDropdownOpen(false);
                   }}
                   className="relative grid h-10 w-10 place-items-center rounded-full border border-slate-200 ring-1 ring-transparent dark:border-[#334155]"
                   aria-label="Notifications"
@@ -127,6 +136,7 @@ export const Header = () => {
                   onToggle={() => {
                     setProfileOpen((p) => !p);
                     setNotificationOpen(false);
+                    setUserDropdownOpen(false);
                   }}
                   onClose={() => setProfileOpen(false)}
                   onAdminNavigate={handleAdminNavigate}
