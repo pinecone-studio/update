@@ -140,18 +140,15 @@ export function AdminBenefitCard({
                 .join(", ") || "—"}
             </span>
           </div>
-          <div>
-            <span className="text-slate-400">Rule:</span>
-            <div className="mt-1 h-px w-full bg-slate-600/60" />
-            {ruleSummary ? (
-              <p className="mt-1 text-slate-300">{ruleSummary}</p>
-            ) : null}
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Rule:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {ruleSummary || "—"}
+            </span>
           </div>
         </div>
-
-        {ruleSummary ? (
-          <p className="mt-3 text-sm text-white/70">{ruleSummary}</p>
-        ) : null}
 
         <div className="mt-4 flex items-center gap-4">
           <button
