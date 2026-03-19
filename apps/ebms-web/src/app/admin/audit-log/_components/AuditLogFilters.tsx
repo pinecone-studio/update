@@ -56,7 +56,7 @@ export function AuditLogFilters({
   onClearAll,
 }: AuditLogFiltersProps) {
   return (
-    <section className="rounded-3xl p-6  dark:bg-[#20194D80]/50">
+    <section className="rounded-3xl p-4 dark:bg-[#20194D80]/50 sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="flex items-center gap-3 text-5 font-semibold text-slate-900 dark:text-white">
           <svg

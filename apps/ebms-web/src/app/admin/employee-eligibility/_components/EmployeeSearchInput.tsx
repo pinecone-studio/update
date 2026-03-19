@@ -9,7 +9,7 @@ export function EmployeeSearchInput({ value, onChange }: EmployeeSearchInputProp
   return (
     <section>
       <div className="relative">
-        <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#93A4C3]">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 sm:left-5 dark:text-[#93A4C3]">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -26,7 +26,7 @@ export function EmployeeSearchInput({ value, onChange }: EmployeeSearchInputProp
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search employees by name"
-          className="h-14 w-full rounded-2xl border border-white/50 bg-slate-50 pl-14 pr-4 text-[20px] font-normal text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#FAFBFB1A10] dark:border-[#324A70]/10 dark:bg-[#0B102B1A]/10 dark:text-white dark:placeholder:text-white/50 dark:focus:border-white/50"
+          className="h-12 w-full rounded-2xl border border-white/50 bg-slate-50 pl-12 pr-4 text-base font-normal text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#FAFBFB1A10] dark:border-[#324A70]/10 dark:bg-[#0B102B1A]/10 dark:text-white dark:placeholder:text-white/50 dark:focus:border-white/50 sm:h-14 sm:pl-14 sm:text-[20px]"
         />
       </div>
     </section>

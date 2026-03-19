@@ -104,14 +104,14 @@ export default function NotificationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white">
+      <div className="min-h-screen px-3 py-4 text-slate-900 sm:px-4 sm:py-6 dark:text-white">
         <NotificationSkeleton statCardCount={3} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white">
+    <div className="min-h-screen px-3 py-4 text-slate-900 sm:px-4 sm:py-6 dark:text-white">
       <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6">
         <NotificationHeader />
         <NotificationStatsCards

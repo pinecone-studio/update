@@ -474,7 +474,7 @@ export default function AddBenefitsBuilderClient({
   ]);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-3xl border p-5 sm:p-6 pt-4 bg-[rgba(53,41,99,0.44)] border-[rgba(185,189,255,0.24)] backdrop-blur-[16px]">
+    <div className="flex flex-col rounded-3xl border p-4 pt-4 bg-[rgba(53,41,99,0.44)] border-[rgba(185,189,255,0.24)] backdrop-blur-[16px] sm:p-6">
       <div className="mb-3 flex shrink-0 items-start gap-4">
         {inModal ? (
           <button

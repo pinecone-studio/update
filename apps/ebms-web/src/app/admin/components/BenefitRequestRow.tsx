@@ -32,7 +32,7 @@ export function BenefitRequestRow({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start gap-x-4 gap-y-0">
-              <p className="text-[20px] font-semibold leading-none text-white">
+              <p className="text-base font-semibold leading-none text-white sm:text-[20px]">
                 {employeeName}
               </p>
             </div>
@@ -47,11 +47,11 @@ export function BenefitRequestRow({
       </div>
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
         {status === "PENDING" && (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <button
               type="button"
               disabled
-              className="h-[48px] min-w-[118px] rounded-xl border border-[#f0d58a]/85 bg-transparent px-4 py-2 text-[14px] font-medium text-[#f7de9d] transition disabled:cursor-not-allowed disabled:opacity-90 hover:bg-[rgba(240,213,138,0.14)] hover:text-white"
+              className="h-10 min-w-[80px] rounded-xl border border-[#f0d58a]/85 bg-transparent px-3 py-2 text-[13px] font-medium text-[#f7de9d] transition disabled:cursor-not-allowed disabled:opacity-90 hover:bg-[rgba(240,213,138,0.14)] hover:text-white sm:h-[48px] sm:min-w-[118px] sm:px-4 sm:text-[14px]"
             >
               Pending
             </button>
@@ -59,7 +59,7 @@ export function BenefitRequestRow({
               type="button"
               onClick={() => onApprove(request.id)}
               disabled={isLoading}
-              className="h-[48px] min-w-[118px] rounded-xl border border-[#2ba17e]/80 bg-transparent px-4 py-2 text-[14px] font-medium text-[#7fe3be] transition hover:bg-[rgba(43,161,126,0.16)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-10 min-w-[80px] rounded-xl border border-[#2ba17e]/80 bg-transparent px-3 py-2 text-[13px] font-medium text-[#7fe3be] transition hover:bg-[rgba(43,161,126,0.16)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:h-[48px] sm:min-w-[118px] sm:px-4 sm:text-[14px]"
             >
               {isLoading ? "..." : "Approve"}
             </button>
@@ -67,7 +67,7 @@ export function BenefitRequestRow({
               type="button"
               onClick={() => onReject(request.id)}
               disabled={isLoading}
-              className="h-[48px] min-w-[118px] rounded-xl border border-[#c23c46]/80 bg-transparent px-4 py-2 text-[14px] font-medium text-[#f39aa1] transition hover:bg-[rgba(194,60,70,0.16)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-10 min-w-[80px] rounded-xl border border-[#c23c46]/80 bg-transparent px-3 py-2 text-[13px] font-medium text-[#f39aa1] transition hover:bg-[rgba(194,60,70,0.16)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:h-[48px] sm:min-w-[118px] sm:px-4 sm:text-[14px]"
             >
               Reject
             </button>

@@ -331,20 +331,32 @@ export async function openBenefitContractPreview(
 
 /** Open uploaded signed contract PDF in new tab (requires x-employee-id header) */
 export async function openUploadedContract(requestId: string): Promise<void> {
-  const base = getBaseUrl().replace(/\/$/, "");
-  const url = `${base}/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
-  const headers = getActiveUserHeaders("employee");
-  const res = await fetch(url, { headers });
-  if (!res.ok) {
-    const msg = await res.text();
-    throw new Error(msg || `Failed to load contract (${res.status})`);
-  }
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const target = window.open(objectUrl, "_blank", "noopener,noreferrer");
-  if (!target)
+  const target = window.open("about:blank", "_blank", "noopener,noreferrer");
+  if (!target) {
     throw new Error("Popup blocked. Please allow popups and try again.");
-  URL.revokeObjectURL(objectUrl);
+  }
+  try {
+    target.document.write(
+      "<html><body style='margin:0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui'>Loading contract...</body></html>"
+    );
+    target.document.close();
+    const base = getBaseUrl().replace(/\/$/, "");
+    const url = `${base}/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
+    const headers = getActiveUserHeaders("employee");
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      target.close();
+      const msg = await res.text();
+      throw new Error(msg || `Failed to load contract (${res.status})`);
+    }
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    target.location.href = objectUrl;
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  } catch (e) {
+    target.close();
+    throw e;
+  }
 }
 
 export async function uploadSignedContractPdf(

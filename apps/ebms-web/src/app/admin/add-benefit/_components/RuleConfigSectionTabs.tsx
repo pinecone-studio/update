@@ -5,7 +5,7 @@ import type { BenefitFromCatalog, BenefitConfig, Rule } from "../_lib/types";
 import { ROLE_VALUES } from "../_lib/constants";
 
 const cardClass =
-  "rounded-xl border border-[rgba(185,189,255,0.24)] bg-[rgba(53,41,99,0.44)] p-6 backdrop-blur-[12px]";
+  "rounded-xl border border-[rgba(185,189,255,0.24)] bg-[rgba(53,41,99,0.44)] p-4 backdrop-blur-[12px] sm:p-6";
 const inputClass =
   "rounded-lg border border-[rgba(185,189,255,0.24)] bg-[rgba(31,22,57,0.7)] px-3 py-2 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]";
 
@@ -94,7 +94,7 @@ export function RuleConfigSectionTabs({
   return (
     <section className={cardClass}>
       <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
-        Benefit Configuration
+        Eligibility Rules
       </h2>
 
       {error && (
@@ -138,7 +138,7 @@ export function RuleConfigSectionTabs({
 
             {activeRule && (
               <div className="mt-3 space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <select
                     value={ruleType}
                     onChange={(e) => {
@@ -149,7 +149,7 @@ export function RuleConfigSectionTabs({
                         onUpdateRule(activeRuleIndex, "type", newType);
                       }
                     }}
-                    className={`${inputClass} min-w-[140px]`}
+                    className={`${inputClass} min-w-0 w-full sm:min-w-[140px] sm:w-auto`}
                   >
                     {attrsWithTenure.map((a) => (
                       <option key={a} value={a}>
@@ -162,7 +162,7 @@ export function RuleConfigSectionTabs({
                     onChange={(e) =>
                       onUpdateRule(activeRuleIndex, "operator", e.target.value)
                     }
-                    className={`${inputClass} min-w-[120px]`}
+                    className={`${inputClass} min-w-0 w-full sm:min-w-[120px] sm:w-auto`}
                   >
                     {(ruleType === "employment_status" || ruleType === "role"
                       ? OPERATORS_EN.slice(0, 2)
@@ -179,7 +179,7 @@ export function RuleConfigSectionTabs({
                       onChange={(e) =>
                         onUpdateRule(activeRuleIndex, "value", e.target.value)
                       }
-                      className={`${inputClass} min-w-[120px]`}
+                      className={`${inputClass} min-w-0 w-full sm:min-w-[120px] sm:w-auto`}
                     >
                       {EMPLOYMENT_STATUS_VALUES.map(({ value, label }) => (
                         <option key={value} value={value}>
@@ -267,7 +267,7 @@ export function RuleConfigSectionTabs({
                       onChange={(e) =>
                         onUpdateRule(activeRuleIndex, "value", e.target.value)
                       }
-                      className={`${inputClass} min-w-[120px]`}
+                      className={`${inputClass} min-w-0 w-full sm:min-w-[120px] sm:w-auto`}
                     >
                       {ROLE_VALUES.map((r) => (
                         <option key={r} value={r}>
@@ -308,7 +308,7 @@ export function RuleConfigSectionTabs({
                   </button>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <input
                     type="text"
                     placeholder="Error message (when the rule is not met)"
@@ -316,7 +316,7 @@ export function RuleConfigSectionTabs({
                     onChange={(e) =>
                       onUpdateRule(activeRuleIndex, "errorMessage", e.target.value)
                     }
-                    className={`${inputClass} flex-1`}
+                    className={`${inputClass} min-w-0 flex-1`}
                   />
                   <button
                     type="button"

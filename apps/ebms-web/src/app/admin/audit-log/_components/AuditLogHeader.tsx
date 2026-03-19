@@ -14,9 +14,9 @@ export function AuditLogHeader() {
   }, []);
 
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <h1 className="text-[28px] font-semibold text-slate-900 dark:text-white">
+    <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl lg:text-[28px] dark:text-white">
           System Audit Log
         </h1>
         <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
@@ -24,7 +24,7 @@ export function AuditLogHeader() {
         </p>
       </div>
 
-      <div className="flex flex-col items-end gap-2">
+      <div className="flex flex-col items-stretch gap-2 sm:items-end">
         <button
           type="button"
           onClick={() => {
@@ -40,7 +40,7 @@ export function AuditLogHeader() {
             );
           }}
           disabled={exporting}
-          className="flex items-center gap-3 rounded-2xl bg-[#2F66E8] px-6 py-3 text-5 font-medium text-white transition hover:bg-[#3E82F7] disabled:opacity-70"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-[#2F66E8] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#3E82F7] disabled:opacity-70 sm:gap-3 sm:px-6 sm:py-3 sm:text-base"
         >
           {exporting ? (
             <>

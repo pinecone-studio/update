@@ -20,8 +20,8 @@ export function FinanceHistoryHeader({ error }: FinanceHistoryHeaderProps) {
   }, []);
 
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
-      <div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+      <div className="min-w-0">
         <Link
           href="/finance"
           className="mb-3 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white"
@@ -29,7 +29,7 @@ export function FinanceHistoryHeader({ error }: FinanceHistoryHeaderProps) {
           <HiOutlineArrowLeft className="h-4 w-4" />
           Back
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+        <h1 className="text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
           History
         </h1>
         <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
@@ -40,7 +40,7 @@ export function FinanceHistoryHeader({ error }: FinanceHistoryHeaderProps) {
         )}
       </div>
 
-      <div className="flex flex-col items-end gap-2">
+      <div className="flex flex-col items-stretch gap-2 sm:items-end">
         <button
           type="button"
           onClick={() => {

@@ -41,7 +41,7 @@ export function MyProfileHeader({
         <HiOutlineArrowLeft className="h-4 w-4" />
        Back
       </Link>
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My History</h1>
+      <h1 className="text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">My History</h1>
       <p className="text-slate-600 text-sm mt-1 dark:text-slate-400">
         History
       </p>
@@ -52,7 +52,7 @@ export function MyProfileHeader({
           {initials}
         </div>
         <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl dark:text-white">
             {me?.name ?? "—"}
           </h2>
           <p className="text-slate-600 text-sm dark:text-slate-400">{me?.role ?? "—"}</p>
@@ -332,7 +332,7 @@ export function BenefitHistorySection() {
                   key={benefitId}
                   className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden"
                 >
-            <div className="border-b border-slate-200 px-4 py-3 dark:border-white/10 flex items-center justify-between gap-3">
+            <div className="flex flex-col gap-2 border-b border-slate-200 px-4 py-3 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
               <p className="font-semibold text-slate-900 dark:text-white">
                 {benefitName}
               </p>
@@ -355,7 +355,7 @@ export function BenefitHistorySection() {
                   return (
                     <li
                       key={ev.id}
-                      className="flex items-center gap-4 px-4 py-3"
+                      className="flex flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap sm:gap-4"
                     >
                       <div
                         className={`h-9 w-9 flex-shrink-0 rounded-lg flex items-center justify-center ${getRequestStatusStyles(ev.request.status)}`}
@@ -378,7 +378,7 @@ export function BenefitHistorySection() {
                         </p>
                       </div>
                       <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${getRequestStatusStyles(ev.request.status)}`}
+                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${getRequestStatusStyles(ev.request.status)}`}
                       >
                         {getRequestStatusLabel(ev.request.status)}
                       </span>
@@ -398,7 +398,7 @@ export function BenefitHistorySection() {
                 return (
                   <li
                     key={ev.id}
-                    className="flex items-center gap-4 px-4 py-3"
+                    className="flex flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap sm:gap-4"
                   >
                     <div
                       className={`h-9 w-9 flex-shrink-0 rounded-lg flex items-center justify-center ${getEligibilityStatusStyles(ev.audit.newStatus)}`}
@@ -418,7 +418,7 @@ export function BenefitHistorySection() {
                       </p>
                     </div>
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${getEligibilityStatusStyles(ev.audit.newStatus)}`}
+                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${getEligibilityStatusStyles(ev.audit.newStatus)}`}
                     >
                       {newLabel}
                     </span>

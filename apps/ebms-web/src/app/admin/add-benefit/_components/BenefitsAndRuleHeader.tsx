@@ -6,19 +6,19 @@ type BenefitsAndRuleHeaderProps = {
 
 export function BenefitsAndRuleHeader({ onAddClick }: BenefitsAndRuleHeaderProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h1 className="text-[35px] font-medium text-[rgba(255, 255, 255, 0.8)] dark:text-[rgba(255, 255, 255, 0.8)]">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-2xl font-medium text-[rgba(255, 255, 255, 0.8)] sm:text-[28px] lg:text-[35px] dark:text-[rgba(255, 255, 255, 0.8)]">
           Benefits & Rules
         </h1>
-        <p className="mt-3 text-[20px] font-normal text-gray-400">
+        <p className="mt-2 text-base font-normal text-gray-400 sm:text-lg lg:text-[20px]">
           Manage company benefits and eligibility rules
         </p>
       </div>
       <button
         type="button"
         onClick={onAddClick}
-       className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center gap-2 rounded-xl  bg-[#0057ADCC]/80 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
+        className="inline-flex h-11 min-w-0 flex-shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-[#0057ADCC]/80 px-4 text-base font-medium text-white transition hover:bg-[#3E82F7] sm:min-w-[170px] sm:text-[18px]"
       >
         + Add Benefits
       </button>

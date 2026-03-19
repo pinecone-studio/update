@@ -49,7 +49,7 @@ export function FinanceRightWidgets({ requests }: FinanceRightWidgetsProps) {
     <aside className="flex h-full w-full flex-col gap-4 overflow-hidden">
       <div className="flex-1 rounded-3xl border border-[rgba(149,137,199,0.42)] bg-[radial-gradient(circle_at_90%_10%,rgba(162,174,255,0.12),transparent_52%),linear-gradient(160deg,rgba(255,255,255,0.52),rgba(237,231,252,0.46))] p-4 backdrop-blur-[1px] dark:border-[rgba(63,91,138,0.44)] dark:bg-[radial-gradient(circle_at_90%_10%,rgba(76,114,255,0.05),transparent_48%),linear-gradient(160deg,rgba(28,29,82,0.28),rgba(22,37,79,0.24))] sm:p-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-5 font-semibold text-slate-900 dark:text-white">Recent Activity</h3>
+          <h3 className="text-sm font-semibold text-slate-900 sm:text-base dark:text-white">Recent Activity</h3>
           <Link
             href="/finance/history"
             className="text-5 text-slate-600 hover:text-slate-900 dark:text-[#A7B6D3] dark:hover:text-white"
@@ -59,7 +59,7 @@ export function FinanceRightWidgets({ requests }: FinanceRightWidgetsProps) {
         </div>
         <div className="mt-3 flex flex-col gap-3">
           {recentActivity.length === 0 ? (
-            <p className="text-4 text-slate-600 dark:text-[#8FA3C5]">No recent activity.</p>
+            <p className="text-sm text-slate-600 dark:text-[#8FA3C5]">No recent activity.</p>
           ) : (
             recentActivity.map((activity, index) => (
               <div
@@ -78,10 +78,10 @@ export function FinanceRightWidgets({ requests }: FinanceRightWidgetsProps) {
                   {getActivityIcon(activity)}
                 </div>
                 <div className="flex-1">
-                  <p className="text-5 font-medium text-slate-900 dark:text-white">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">
                     {getActivityText(activity)}
                   </p>
-                  <p className="text-4 text-slate-600 dark:text-[#8FA3C5]">
+                  <p className="text-xs text-slate-600 dark:text-[#8FA3C5]">
                     {formatRelativeTime(activity.createdAt)}
                   </p>
                 </div>

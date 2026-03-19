@@ -109,18 +109,25 @@ export default function FinancePage() {
   );
 
   const handleViewTemplate = useCallback(async (requestId: string) => {
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+    if (!popup) {
+      setError("Popup blocked. Please allow popups and try again.");
+      return;
+    }
     try {
+      popup.document.write(
+        "<html><body style='margin:0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui'>Loading...</body></html>"
+      );
+      popup.document.close();
       const html = await fetchBenefitRequestContractHtml(
         getFinanceClient(),
         requestId
       );
-      const popup = window.open("", "_blank", "noopener,noreferrer");
-      if (popup) {
-        popup.document.open();
-        popup.document.write(html);
-        popup.document.close();
-      }
+      popup.document.open();
+      popup.document.write(html);
+      popup.document.close();
     } catch (e) {
+      popup.close();
       setError(getApiErrorMessage(e));
     }
   }, [setError]);
@@ -140,15 +147,15 @@ export default function FinancePage() {
   if (loading) return <FinanceDashboardSkeleton requestRowCount={cachedRequestCount} />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {error && (
         <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
           {error}
         </p>
       )}
 
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-stretch">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2 xl:items-stretch">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
           {visibleStatCards.map((card) => (
             <FinanceStatCard
               key={card.key}

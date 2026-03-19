@@ -70,7 +70,7 @@ export function AdminBenefitCard({
   return (
     <div
       id={`benefit-card-${id}`}
-      className={`flex h-[310px] flex-col rounded-xl border-t border-white/40 transition ${
+      className={`flex min-h-[320px] flex-col rounded-xl border-t border-white/40 transition sm:h-[310px] ${
         isHighlighted ? "ring-2 ring-[#2A8BFF]" : ""
       } bg-[#1A2037] shadow-[0_4px_6px_-4px_rgba(0,0,0,0.1),0_10px_15px_-3px_rgba(0,0,0,0.1)]`}
     >
@@ -150,14 +150,14 @@ export function AdminBenefitCard({
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-4">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
             }}
-            className="inline-flex items-center w-[180px] h-11 justify-center gap-2 rounded-xl border border-white/20 bg-transparent px-6 py-2.5 text-sm font-medium text-white transition hover:bg-white/5"
+            className="inline-flex min-w-[120px] flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-transparent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/5 sm:flex-none sm:min-w-[140px] lg:w-[180px]"
           >
             Edit
           </button>
@@ -168,7 +168,7 @@ export function AdminBenefitCard({
               onDelete();
             }}
             disabled={isDeleting}
-            className="inline-flex items-center w-[180px] h-11 justify-center gap-2 rounded-xl border border-white/20 bg-transparent px-6 py-2.5 text-sm font-medium text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-w-[120px] flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-transparent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:min-w-[140px] lg:w-[180px]"
           >
             {isDeleting ? "..." : <>Delete</>}
           </button>
