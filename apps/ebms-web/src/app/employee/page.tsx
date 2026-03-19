@@ -106,19 +106,18 @@ export default function EmployeeDashboardPage() {
   const benefitIdsNeedingUpload = new Set(
     uploadRequiredTaskIds.map((t) => t.benefitId),
   );
-  const sourceForUploadNeeded =
-    statusFilter === "PENDING" ? benefits : filteredBenefits;
+  const uploadNeededFromFullList =
+    statusFilter !== "ACTIVE"
+      ? benefits.filter(
+          (b) =>
+            b.benefitId &&
+            benefitIdsNeedingUpload.has(b.benefitId) &&
+            !orderedBenefits.some((o) => o.benefitId === b.benefitId),
+        )
+      : [];
   const benefitsToShow =
-    benefitIdsNeedingUpload.size > 0
-      ? [
-          ...orderedBenefits,
-          ...sourceForUploadNeeded.filter(
-            (b) =>
-              b.benefitId &&
-              benefitIdsNeedingUpload.has(b.benefitId) &&
-              !orderedBenefits.some((o) => o.benefitId === b.benefitId),
-          ),
-        ]
+    uploadNeededFromFullList.length > 0
+      ? [...orderedBenefits, ...uploadNeededFromFullList]
       : orderedBenefits;
 
   const benefitsWithContractFlow = benefitsToShow.map((benefit) => {
@@ -143,6 +142,7 @@ export default function EmployeeDashboardPage() {
           onUpload={(requestId) => {
             void handleUploadSignedContract(requestId);
           }}
+          onViewUploadedContract={handleViewUploadedContract}
         />
       ),
     };
