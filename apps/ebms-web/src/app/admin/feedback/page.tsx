@@ -90,13 +90,13 @@ export default function AdminFeedbackPage() {
         </p>
       </div>
 
-      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-4">
+      <section className="rounded-3xl border border-[#5A5F8E] bg-[rgba(88,80,140,0.28)] p-4">
         <div className="flex items-center gap-3">
           <HiOutlineMagnifyingGlass className="text-[#8FA3C5]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-12 flex-1 rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 text-5 text-white placeholder:text-[#8595B6] outline-none"
+            className="h-12 flex-1 rounded-2xl border border-[#5A5F8E] bg-[rgba(88,80,140,0.55)] px-4 text-5 text-white placeholder:text-[#B8BFDA] outline-none"
             placeholder="Search feedback..."
           />
         </div>
@@ -107,7 +107,7 @@ export default function AdminFeedbackPage() {
       {loading ? (
         <p className="text-5 text-[#A7B6D3]">Loading...</p>
       ) : filteredItems.length === 0 ? (
-        <div className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-8 text-center">
+        <div className="rounded-3xl border border-[#2C4264] bg-[rgba(88,80,140,0.28)] p-8 text-center">
           <HiOutlineInformationCircle className="mx-auto mb-3 h-12 w-12 text-[#8FA3C5]" />
           <p className="text-5 text-[#A7B6D3]">
             No escalated feedback yet. Employees create feedback and vote; when

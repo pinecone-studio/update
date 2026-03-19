@@ -133,27 +133,20 @@ export function EmployeeDashboardOverview({
 
       <div className="mt-1 w-full lg:mt-6 lg:pr-[10px]">
         <div className="relative flex h-[208px] w-full overflow-hidden rounded-[22px] border border-white/30 p-5 shadow-[0_25px_50px_rgba(0,0,0,0.28)] sm:h-[236px] sm:p-6 lg:h-[242px] lg:w-full">
-          <div className="z-10 flex flex-1 flex-col items-start justify-center text-left">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-1.5 text-white/80">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              <span className="text-sm font-semibold tracking-[-0.2px]">
-                Season 3 • Episode 1
-              </span>
-            </div>
-
-            <div className="mt-4">
+          <div className="z-10 mt-3 flex flex-1 flex-col items-start justify-start text-left">
+            <div>
               <h3 className="text-[28px] font-semibold leading-[0.95] tracking-[-1.1px] text-white/95 sm:text-[32px]">
-                PineQuest
+                Pineguest
               </h3>
               <p className="mt-2 text-[14px] font-semibold text-white/65 sm:text-[15px]">
                 The dream chapter: Eternity
               </p>
             </div>
 
-            <div className="mt-5 sm:mt-6">
+            <div className="mt-4 sm:mt-5">
               <button
                 type="button"
-                className="inline-flex items-center justify-start rounded-[15px] bg-white/6 px-4 py-2.5 text-left text-[16px] font-semibold text-white/95 transition hover:bg-white/12 sm:pl-2 sm:pr-6 sm:text-[18px]"
+                className="inline-flex items-center justify-start rounded-[15px] bg-white/6 px-4 py-3 text-left text-[16px] font-semibold text-white/95 transition hover:bg-white/12 sm:pl-1 sm:pr-10 sm:text-[18px]"
               >
                 Update team
               </button>

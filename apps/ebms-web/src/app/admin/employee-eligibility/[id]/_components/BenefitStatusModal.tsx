@@ -106,7 +106,7 @@ export function BenefitStatusModal({
           <button
             type="button"
             onClick={onClose}
-            className="h-[46px] min-w-[136px] rounded-[14px] bg-[#DFDFE1] px-[26px] text-[16px] font-medium text-[#1B356B] transition hover:bg-[#E9E9EB]"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
           >
             Cancel
           </button>
@@ -114,7 +114,7 @@ export function BenefitStatusModal({
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="h-[46px] min-w-[200px] rounded-[14px] bg-[#0E63BE] px-[28px] text-[16px] font-medium text-white transition hover:bg-[#1572D8] disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-[#0057ADCC] px-4 py-2 font-medium text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? "Saving..." : "Save"}
           </button>

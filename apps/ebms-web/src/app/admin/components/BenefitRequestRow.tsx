@@ -21,7 +21,8 @@ export function BenefitRequestRow({
   const status = (request.status || "PENDING").toUpperCase();
   const isLoading = actionLoadingId === request.id;
   const employeeName = request.employeeName ?? request.employeeId ?? "";
-  const benefitText = request.benefitName ?? request.benefitId ?? "Benefit request";
+  const benefitText =
+    request.benefitName ?? request.benefitId ?? "Benefit request";
 
   return (
     <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-3">
@@ -30,18 +31,18 @@ export function BenefitRequestRow({
           <div className="flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(160deg,#6f65ff,#8b2fff)] text-[20px] font-semibold text-white">
             {getInitials(employeeName)}
           </div>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 space-y-1">
             <div className="flex flex-wrap items-start gap-x-4 gap-y-0">
-              <p className="text-[20px] font-semibold leading-none text-white">
+              <p className="text-[18px] font-semibold leading-none text-white">
                 {employeeName}
               </p>
             </div>
-            <span className="mt-0 block text-[15px] leading-none text-slate-400 dark:text-[#94A3B8]">
-              {formatRelativeTime(request.createdAt)}
-            </span>
-            <p className="mt-0.5 truncate text-[15px] leading-none text-white/85 dark:text-[#E2E8F0]">
+            <p className="truncate text-[15px] leading-none text-white/85 dark:text-[#E2E8F0]">
               {benefitText}
             </p>
+            <span className="block text-[10px] leading-none text-slate-400 dark:text-[#94A3B8]">
+              {formatRelativeTime(request.createdAt)}
+            </span>
           </div>
         </div>
       </div>

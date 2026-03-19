@@ -227,8 +227,8 @@ export function HelpFeedbackWidget() {
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                       m.role === "user"
-                        ? "bg-[#2196F3] text-white rounded-br-md"
-                        : "bg-white dark:bg-[#334155] text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 rounded-bl-md"
+                        ? "rounded-br-md border border-slate-300 bg-white text-slate-900"
+                        : "rounded-bl-md border border-slate-300 bg-white text-slate-900"
                     }`}
                   >
                     {m.text}

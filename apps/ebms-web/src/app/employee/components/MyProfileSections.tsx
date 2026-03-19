@@ -52,10 +52,10 @@ export function MyProfileHeader({
           {initials}
         </div>
         <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white">
             {me?.name ?? "—"}
           </h2>
-          <p className="text-slate-600 text-sm dark:text-slate-400">{me?.role ?? "—"}</p>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400">{me?.role ?? "—"}</p>
         </div>
       </div>
       </div>
@@ -340,7 +340,7 @@ export function BenefitHistorySection() {
                 <button
                   type="button"
                   onClick={handleViewContract}
-                  className="shrink-0 text-sm font-medium text-slate-900 hover:text-sky-500 dark:text-white "
+                  className="shrink-0 text-sm font-medium text-white hover:text-white/80"
                 >
                   View contract
                 </button>

@@ -343,7 +343,7 @@ export function RuleConfigSection({
                 type="button"
                 onClick={onSave}
                 disabled={saving || loadingConfig}
-                className="rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] disabled:opacity-50 text-white px-4 py-2 font-medium"
+                className="rounded-lg bg-[#0057ADCC] px-4 py-2 font-medium text-white transition hover:bg-[#3E82F7] disabled:opacity-50"
               >
                 {saving ? "Хадгалж байна..." : saveButtonLabel}
               </button>

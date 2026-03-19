@@ -495,7 +495,7 @@ export default function AddBenefitsBuilderClient({
         <BenefitConfigCard form={form} onChange={setForm} />
       </div>
 
-      <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-stretch lg:justify-between">
         <div className="min-w-0 flex-1">
           <RuleConfigSectionTabs
             rulesForSelected={rulesForSelected}
@@ -508,7 +508,7 @@ export default function AddBenefitsBuilderClient({
             message={message2}
           />
         </div>
-        <div className="flex w-full shrink-0 lg:w-72 lg:max-w-[280px] lg:items-start">
+        <div className="flex w-full shrink-0 lg:w-72 lg:max-w-[280px] lg:items-stretch">
           <ApprovalSettingsSection form={form} onChange={setForm} />
         </div>
       </div>
@@ -527,7 +527,7 @@ export default function AddBenefitsBuilderClient({
           type="button"
           onClick={handleSaveRules}
           disabled={saving || loadingConfig}
-          className="rounded-lg bg-[#3B82F6] px-4 py-1.5 font-medium text-white hover:bg-[#2563EB] disabled:opacity-50"
+          className="rounded-lg bg-[#0057ADCC] px-4 py-1.5 font-medium text-white transition hover:bg-[#3E82F7] disabled:opacity-50"
         >
           {saving ? "Saved..." : "Save"}
         </button>

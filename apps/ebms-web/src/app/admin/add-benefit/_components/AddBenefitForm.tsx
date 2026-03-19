@@ -221,7 +221,7 @@ export function AddBenefitForm({
             type="button"
             onClick={onSubmit}
             disabled={creating}
-            className="rounded-lg bg-[#3B82F6] px-4 py-2 font-medium text-white hover:bg-[#2563EB] disabled:opacity-50"
+            className="rounded-lg bg-[#0057ADCC] px-4 py-2 font-medium text-white transition hover:bg-[#3E82F7] disabled:opacity-50"
           >
             {creating
               ? "Хадгалж байна..."
