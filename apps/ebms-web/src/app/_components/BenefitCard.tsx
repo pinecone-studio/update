@@ -8,556 +8,572 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 export type BenefitStatus =
-  | "ACTIVE"
-  | "ELIGIBLE"
-  | "LOCKED"
-  | "PENDING"
-  | "REJECTED";
+	| "ACTIVE"
+	| "ELIGIBLE"
+	| "LOCKED"
+	| "PENDING"
+	| "REJECTED";
 
 export interface EligibilityRule {
-  rule: string;
-  passed: boolean;
-  detail?: string;
+	rule: string;
+	passed: boolean;
+	detail?: string;
 }
 
 const STATUS_STYLES: Record<BenefitStatus, string> = {
-  ACTIVE:
-    "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-[#10d9b3]/30 dark:bg-[#083a45]/65 dark:text-[#0de0c0]",
-  ELIGIBLE:
-    "border-blue-200 bg-blue-50 text-blue-700 dark:border-[#5b86ff]/30 dark:bg-[#243b86]/55 dark:text-[#72a6ff]",
-  LOCKED:
-    "border-rose-200 bg-rose-50 text-rose-700 dark:border-[#f2548e]/30 dark:bg-[#5a2358]/55 dark:text-[#ff6aa4]",
-  PENDING:
-    "border-amber-200 bg-amber-50 text-amber-700 dark:border-[#f1922c]/30 dark:bg-[#6a4028]/55 dark:text-[#ff9a1f]",
-  REJECTED:
-    "border-red-200 bg-red-50 text-red-700 dark:border-[#e16776]/30 dark:bg-[#632b3c]/55 dark:text-[#ff93a0]",
+	ACTIVE:
+		"border-emerald-200 bg-emerald-100 text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-950/80 dark:text-emerald-300",
+	ELIGIBLE:
+		"border-blue-200 bg-blue-100 text-blue-800 dark:border-blue-500/25 dark:bg-blue-950/80 dark:text-blue-300",
+	LOCKED:
+		"border-rose-200 bg-rose-100 text-rose-800 dark:border-rose-500/25 dark:bg-rose-950/80 dark:text-rose-300",
+	PENDING:
+		"border-amber-200 bg-amber-100 text-amber-800 dark:border-amber-500/25 dark:bg-amber-950/80 dark:text-amber-300",
+	REJECTED:
+		"border-red-200 bg-red-100 text-red-800 dark:border-red-500/25 dark:bg-red-950/80 dark:text-red-300",
 };
 
 const STATUS_CARD_STYLES: Record<
-  BenefitStatus,
-  {
-    card: string;
-    button: string;
-    buttonDisabled: string;
-    iconWrap: string;
-    iconColor: string;
-    sweep: string;
-  }
+	BenefitStatus,
+	{
+		card: string;
+		button: string;
+		buttonDisabled: string;
+		iconWrap: string;
+		iconColor: string;
+		sweep: string;
+	}
 > = {
-  ACTIVE: {
-    card:
-      "border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-[0_4px_14px_rgba(16,185,129,0.15)] dark:border-[#0FD0B7]/45 dark:bg-[radial-gradient(circle_at_82%_14%,rgba(103,168,255,0.34),transparent_34%),radial-gradient(circle_at_24%_22%,rgba(44,199,187,0.22),transparent_42%),linear-gradient(135deg,rgba(15,97,113,0.95)_0%,rgba(20,62,95,0.96)_52%,rgba(26,44,96,0.98)_100%)] dark:shadow-[0_10px_30px_rgba(28,106,175,0.32),0_0_0_1px_rgba(40,214,199,0.18)]",
-    button:
-      "border border-emerald-200 bg-white/80 text-emerald-800 hover:bg-emerald-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
-    buttonDisabled:
-      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
-    iconWrap:
-      "border border-emerald-200/60 bg-emerald-100/80 dark:border-white/10 dark:bg-white/5",
-    iconColor: "text-emerald-700 dark:text-white/70",
-    sweep: "rgba(52,211,153,0.16)",
-  },
-  ELIGIBLE: {
-    card:
-      "border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-[0_4px_14px_rgba(59,130,246,0.15)] dark:border-[#4A64FF]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(120,144,255,0.22),transparent_30%),linear-gradient(135deg,rgba(44,44,107,0.96),rgba(55,33,91,0.96))]",
-    button:
-      "border border-blue-200 bg-white/80 text-blue-800 hover:bg-blue-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
-    buttonDisabled:
-      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
-    iconWrap:
-      "border border-blue-200/60 bg-blue-100/80 dark:border-white/10 dark:bg-white/5",
-    iconColor: "text-blue-700 dark:text-white/70",
-    sweep: "rgba(96,165,250,0.16)",
-  },
-  PENDING: {
-    card:
-      "border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 shadow-[0_4px_14px_rgba(245,158,11,0.15)] dark:border-[#C26E22]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(255,199,125,0.18),transparent_30%),linear-gradient(135deg,rgba(92,54,37,0.96),rgba(73,47,54,0.96))]",
-    button:
-      "border border-amber-200 bg-white/80 text-amber-800 hover:bg-amber-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
-    buttonDisabled:
-      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
-    iconWrap:
-      "border border-amber-200/60 bg-amber-100/80 dark:border-white/10 dark:bg-white/5",
-    iconColor: "text-amber-700 dark:text-white/70",
-    sweep: "rgba(251,146,60,0.16)",
-  },
-  LOCKED: {
-    card:
-      "border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50 shadow-[0_4px_14px_rgba(244,63,94,0.15)] dark:border-[#A23F82]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(225,117,232,0.18),transparent_30%),linear-gradient(135deg,rgba(76,33,89,0.96),rgba(66,27,68,0.96))]",
-    button:
-      "border border-rose-200 bg-white/80 text-rose-800 hover:bg-rose-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
-    buttonDisabled:
-      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
-    iconWrap:
-      "border border-rose-200/60 bg-rose-100/80 dark:border-white/10 dark:bg-white/5",
-    iconColor: "text-rose-700 dark:text-white/70",
-    sweep: "rgba(251,113,133,0.16)",
-  },
-  REJECTED: {
-    card:
-      "border-red-200 bg-gradient-to-br from-red-50 to-rose-50 shadow-[0_4px_14px_rgba(239,68,68,0.15)] dark:border-[#C54D58]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(230,126,146,0.18),transparent_30%),linear-gradient(135deg,rgba(93,39,55,0.96),rgba(73,28,39,0.96))]",
-    button:
-      "border border-red-200 bg-white/80 text-red-800 hover:bg-red-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
-    buttonDisabled:
-      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
-    iconWrap:
-      "border border-red-200/60 bg-red-100/80 dark:border-white/10 dark:bg-white/5",
-    iconColor: "text-red-700 dark:text-white/70",
-    sweep: "rgba(251,113,133,0.16)",
-  },
+	ACTIVE: {
+		card: "border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-[0_4px_14px_rgba(16,185,129,0.15)] dark:border-[#0FD0B7]/45 dark:bg-[radial-gradient(circle_at_82%_14%,rgba(103,168,255,0.34),transparent_34%),radial-gradient(circle_at_24%_22%,rgba(44,199,187,0.22),transparent_42%),linear-gradient(135deg,rgba(15,97,113,0.95)_0%,rgba(20,62,95,0.96)_52%,rgba(26,44,96,0.98)_100%)] dark:shadow-[0_10px_30px_rgba(28,106,175,0.32),0_0_0_1px_rgba(40,214,199,0.18)]",
+		button:
+			"border border-emerald-200 bg-white/80 text-emerald-800 hover:bg-emerald-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+		buttonDisabled:
+			"border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+		iconWrap:
+			"border border-emerald-200/60 bg-emerald-100/80 dark:border-white/10 dark:bg-white/5",
+		iconColor: "text-emerald-700 dark:text-white/70",
+		sweep: "rgba(52,211,153,0.16)",
+	},
+	ELIGIBLE: {
+		card: "border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-[0_4px_14px_rgba(59,130,246,0.15)] dark:border-[#4A64FF]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(120,144,255,0.22),transparent_30%),linear-gradient(135deg,rgba(44,44,107,0.96),rgba(55,33,91,0.96))]",
+		button:
+			"border border-blue-200 bg-white/80 text-blue-800 hover:bg-blue-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+		buttonDisabled:
+			"border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+		iconWrap:
+			"border border-blue-200/60 bg-blue-100/80 dark:border-white/10 dark:bg-white/5",
+		iconColor: "text-blue-700 dark:text-white/70",
+		sweep: "rgba(96,165,250,0.16)",
+	},
+	PENDING: {
+		card: "border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 shadow-[0_4px_14px_rgba(245,158,11,0.15)] dark:border-[#C26E22]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(255,199,125,0.18),transparent_30%),linear-gradient(135deg,rgba(92,54,37,0.96),rgba(73,47,54,0.96))]",
+		button:
+			"border border-amber-200 bg-white/80 text-amber-800 hover:bg-amber-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+		buttonDisabled:
+			"border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+		iconWrap:
+			"border border-amber-200/60 bg-amber-100/80 dark:border-white/10 dark:bg-white/5",
+		iconColor: "text-amber-700 dark:text-white/70",
+		sweep: "rgba(251,146,60,0.16)",
+	},
+	LOCKED: {
+		card: "border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50 shadow-[0_4px_14px_rgba(244,63,94,0.15)] dark:border-[#A23F82]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(225,117,232,0.18),transparent_30%),linear-gradient(135deg,rgba(76,33,89,0.96),rgba(66,27,68,0.96))]",
+		button:
+			"border border-rose-200 bg-white/80 text-rose-800 hover:bg-rose-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+		buttonDisabled:
+			"border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+		iconWrap:
+			"border border-rose-200/60 bg-rose-100/80 dark:border-white/10 dark:bg-white/5",
+		iconColor: "text-rose-700 dark:text-white/70",
+		sweep: "rgba(251,113,133,0.16)",
+	},
+	REJECTED: {
+		card: "border-red-200 bg-gradient-to-br from-red-50 to-rose-50 shadow-[0_4px_14px_rgba(239,68,68,0.15)] dark:border-[#C54D58]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(230,126,146,0.18),transparent_30%),linear-gradient(135deg,rgba(93,39,55,0.96),rgba(73,28,39,0.96))]",
+		button:
+			"border border-red-200 bg-white/80 text-red-800 hover:bg-red-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+		buttonDisabled:
+			"border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+		iconWrap:
+			"border border-red-200/60 bg-red-100/80 dark:border-white/10 dark:bg-white/5",
+		iconColor: "text-red-700 dark:text-white/70",
+		sweep: "rgba(251,113,133,0.16)",
+	},
 };
 
 const BUTTON_TEXT_BY_STATUS: Record<BenefitStatus, string> = {
-  ELIGIBLE: "Request benefit",
-  ACTIVE: "Manage benefit",
-  PENDING: "View request",
-  LOCKED: "View requirements",
-  REJECTED: "Request benefit",
+	ELIGIBLE: "Request benefit",
+	ACTIVE: "Manage benefit",
+	PENDING: "View request",
+	LOCKED: "View requirements",
+	REJECTED: "Request benefit",
 };
 
 const STATUS_MESSAGE: Record<BenefitStatus, string> = {
-  ACTIVE: "Benefit currently active",
-  ELIGIBLE: "You are eligible for this benefit",
-  PENDING: "Your request is under review",
-  LOCKED: "Eligibility requirements not satisfied",
-  REJECTED: "Your previous request was rejected",
+	ACTIVE: "Benefit currently active",
+	ELIGIBLE: "You are eligible for this benefit",
+	PENDING: "Your request is under review",
+	LOCKED: "Eligibility requirements not satisfied",
+	REJECTED: "Your previous request was rejected",
 };
 
 const STATUS_LABELS: Record<BenefitStatus, string> = {
-  ACTIVE: "ACTIVE",
-  ELIGIBLE: "ELIGIBLE",
-  PENDING: "PENDING",
-  LOCKED: "LOCKED",
-  REJECTED: "REJECTED",
+	ACTIVE: "ACTIVE",
+	ELIGIBLE: "ELIGIBLE",
+	PENDING: "PENDING",
+	LOCKED: "LOCKED",
+	REJECTED: "REJECTED",
 };
 
 const VALID_STATUSES: BenefitStatus[] = [
-  "ACTIVE",
-  "ELIGIBLE",
-  "LOCKED",
-  "PENDING",
-  "REJECTED",
+	"ACTIVE",
+	"ELIGIBLE",
+	"LOCKED",
+	"PENDING",
+	"REJECTED",
 ];
 
 function normalizeStatus(s: string | undefined | null): BenefitStatus {
-  const upper = (s ?? "").toUpperCase().trim();
-  if (VALID_STATUSES.includes(upper as BenefitStatus))
-    return upper as BenefitStatus;
-  return "LOCKED";
+	const upper = (s ?? "").toUpperCase().trim();
+	if (VALID_STATUSES.includes(upper as BenefitStatus))
+		return upper as BenefitStatus;
+	return "LOCKED";
 }
 
 export interface BenefitCardProps {
-  /** Backend benefit id (for requestBenefit mutation) */
-  benefitId?: string;
-  category: string;
-  name: string;
-  description: string;
-  subsidyPercentage?: string;
-  vendorDetails?: string;
-  eligibilityCriteria: string;
-  contractLink?: string;
-  /** Benefit end date (from active contract expiry) */
-  benefitEndDate?: string | null;
-  /** Benefit start date (from active contract effective date, for ACTIVE benefits) */
-  benefitStartDate?: string | null;
-  /** If true, employee must accept vendor contract before requesting */
-  requiresContract?: boolean;
-  /** When ACTIVE and contract uploaded: request ID to view signed contract */
-  uploadedContractRequestId?: string;
-  /** Хүсэлт илгээх хугацаа (ISO) — энэ өдрөөс хойш LOCKED */
-  requestDeadline?: string | null;
-  /** Хугацаанд хэдэн удаа ашиглах */
-  usageLimitCount?: number;
-  /** Хугацаа: month | year */
-  usageLimitPeriod?: string | null;
-  status: BenefitStatus;
-  /** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
-  lockReason?: string;
-  /** Rejection reason when status is REJECTED (admin's feedback) */
-  rejectReason?: string;
-  /** When status is PENDING: "admin" or "finance" — who must approve next */
-  pendingApprovalBy?: string;
-  /** True when status is currently controlled by an HR/Admin override */
-  overrideApplied?: boolean;
-  /** Optional reason attached to the active override */
-  overrideReason?: string;
-  /** Rules evaluated for eligibility breakdown (shown in detail view) */
-  eligibilityRules?: EligibilityRule[];
-  icon: ReactNode;
-  iconBgColor?: string;
-  iconColor?: string;
-  buttonText?: string;
-  onClick?: () => void;
-  /** Called when user clicks "Request benefit" on ELIGIBLE benefits */
-  onRequestBenefit?: () => void;
-  /** Custom footer actions (replaces default button when provided) */
-  footerActions?: ReactNode;
-  /** Compact layout for list/sidebar (single column) */
-  compact?: boolean;
-  variant?: "default" | "admin";
-  hideStatusBadge?: boolean;
+	/** Backend benefit id (for requestBenefit mutation) */
+	benefitId?: string;
+	category: string;
+	name: string;
+	description: string;
+	subsidyPercentage?: string;
+	vendorDetails?: string;
+	eligibilityCriteria: string;
+	contractLink?: string;
+	/** Benefit end date (from active contract expiry) */
+	benefitEndDate?: string | null;
+	/** Benefit start date (from active contract effective date, for ACTIVE benefits) */
+	benefitStartDate?: string | null;
+	/** If true, employee must accept vendor contract before requesting */
+	requiresContract?: boolean;
+	/** When ACTIVE and contract uploaded: request ID to view signed contract */
+	uploadedContractRequestId?: string;
+	/** Хүсэлт илгээх хугацаа (ISO) — энэ өдрөөс хойш LOCKED */
+	requestDeadline?: string | null;
+	/** Хугацаанд хэдэн удаа ашиглах */
+	usageLimitCount?: number;
+	/** Хугацаа: month | year */
+	usageLimitPeriod?: string | null;
+	status: BenefitStatus;
+	/** Human-readable explanation when status is LOCKED (e.g., "OKR not submitted for Q1 2025") */
+	lockReason?: string;
+	/** Rejection reason when status is REJECTED (admin's feedback) */
+	rejectReason?: string;
+	/** When status is PENDING: "admin" or "finance" — who must approve next */
+	pendingApprovalBy?: string;
+	/** True when status is currently controlled by an HR/Admin override */
+	overrideApplied?: boolean;
+	/** Optional reason attached to the active override */
+	overrideReason?: string;
+	/** Rules evaluated for eligibility breakdown (shown in detail view) */
+	eligibilityRules?: EligibilityRule[];
+	icon: ReactNode;
+	iconBgColor?: string;
+	iconColor?: string;
+	buttonText?: string;
+	onClick?: () => void;
+	/** Called when user clicks "Request benefit" on ELIGIBLE benefits */
+	onRequestBenefit?: () => void;
+	/** Custom footer actions (replaces default button when provided) */
+	footerActions?: ReactNode;
+	/** Compact layout for list/sidebar (single column) */
+	compact?: boolean;
+	variant?: "default" | "admin";
+	hideStatusBadge?: boolean;
 }
 
 function formatRequestDeadline(iso?: string | null): string | undefined {
-  if (!iso?.trim()) return undefined;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return undefined;
-  return d.toLocaleDateString("mn-MN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+	if (!iso?.trim()) return undefined;
+	const d = new Date(iso);
+	if (Number.isNaN(d.getTime())) return undefined;
+	return d.toLocaleDateString("mn-MN", {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	});
 }
 
 function formatUsageLimit(
-  count?: number,
-  period?: string | null,
+	count?: number,
+	period?: string | null,
 ): string | undefined {
-  if (count == null || count < 1) return undefined;
-  if (!period?.trim()) return undefined;
-  const p = period.toLowerCase() === "year" ? "year" : "month";
-  return `${count} time${count === 1 ? "" : "s"}/${p}`;
+	if (count == null || count < 1) return undefined;
+	if (!period?.trim()) return undefined;
+	const p = period.toLowerCase() === "year" ? "year" : "month";
+	return `${count} time${count === 1 ? "" : "s"}/${p}`;
 }
 
 function StatusBadge({ status }: { status: BenefitStatus }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold tracking-[0.04em] ${STATUS_STYLES[status]}`}
-    >
-      {status === "ELIGIBLE" ? (
-        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-      ) : null}
-      {STATUS_LABELS[status]}
-    </span>
-  );
+	return (
+		<span
+			className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold tracking-[0.04em] ${STATUS_STYLES[status]}`}
+		>
+			{status === "ELIGIBLE" ? (
+				<span className="h-1.5 w-1.5 rounded-full bg-current" />
+			) : null}
+			{STATUS_LABELS[status]}
+		</span>
+	);
 }
 
 export const BenefitCard = ({
-  benefitId: _benefitId,
-  category,
-  name,
-  description,
-  subsidyPercentage,
-  vendorDetails,
-  eligibilityCriteria: _eligibilityCriteria,
-  contractLink: _contractLink,
-  benefitEndDate: _benefitEndDate,
-  status,
-  lockReason,
-  rejectReason,
-  overrideApplied = false,
-  overrideReason,
-  pendingApprovalBy,
-  eligibilityRules,
-  icon,
-  iconBgColor: _iconBgColor = "bg-[#4CAF50]/20",
-  iconColor: _iconColor = "text-[#4CAF50]",
-  buttonText,
-  onClick,
-  onRequestBenefit,
-  footerActions,
-  compact,
-  variant = "default",
-  hideStatusBadge = false,
-  requestDeadline,
-  usageLimitCount,
-  usageLimitPeriod,
+	benefitId: _benefitId,
+	category,
+	name,
+	description,
+	subsidyPercentage,
+	vendorDetails,
+	eligibilityCriteria: _eligibilityCriteria,
+	contractLink: _contractLink,
+	benefitEndDate: _benefitEndDate,
+	status,
+	lockReason,
+	rejectReason,
+	overrideApplied = false,
+	overrideReason,
+	pendingApprovalBy,
+	eligibilityRules,
+	icon,
+	iconBgColor: _iconBgColor = "bg-[#4CAF50]/20",
+	iconColor: _iconColor = "text-[#4CAF50]",
+	buttonText,
+	onClick,
+	onRequestBenefit,
+	footerActions,
+	compact,
+	variant = "default",
+	hideStatusBadge = false,
+	requestDeadline,
+	usageLimitCount,
+	usageLimitPeriod,
 }: BenefitCardProps) => {
-  const safeStatus = normalizeStatus(status);
-  const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[safeStatus];
-  const theme = STATUS_CARD_STYLES[safeStatus];
-  const isAdminVariant = variant === "admin";
-  const categoryLabel = category
-    ? `${category.charAt(0).toUpperCase()}${category.slice(1)} benefit`
-    : description;
-  const normalizedLockReason = (() => {
-    const t = (lockReason ?? "").trim();
-    return t ? translateLockReason(t) : t;
-  })();
-  const normalizedRejectReason = (rejectReason ?? "").trim();
-  const vendorDisplayName = (vendorDetails ?? "").trim() || "Pinecone";
-  const pendingStepText =
-    safeStatus === "PENDING" && pendingApprovalBy === "finance"
-      ? "Finance approval pending"
-      : safeStatus === "PENDING" && pendingApprovalBy === "admin"
-        ? "Admin approval pending"
-        : null;
-  const deadlineDisplay = formatRequestDeadline(requestDeadline);
-  const usageDisplay = formatUsageLimit(usageLimitCount, usageLimitPeriod);
-  const extraInfo = [deadlineDisplay, usageDisplay].filter(Boolean).join(" · ");
-  const supportText =
-    safeStatus === "LOCKED"
-      ? normalizedLockReason || STATUS_MESSAGE[safeStatus]
-      : safeStatus === "REJECTED"
-        ? normalizedRejectReason || STATUS_MESSAGE[safeStatus]
-        : pendingStepText ?? STATUS_MESSAGE[safeStatus];
-  const normalizedOverrideReason = (overrideReason ?? "").trim();
-  const [shouldAnimate, setShouldAnimate] = useState(false);
+	const safeStatus = normalizeStatus(status);
+	const displayButtonText = buttonText ?? BUTTON_TEXT_BY_STATUS[safeStatus];
+	const theme = STATUS_CARD_STYLES[safeStatus];
+	const isAdminVariant = variant === "admin";
+	const categoryLabel = category
+		? `${category.charAt(0).toUpperCase()}${category.slice(1)} benefit`
+		: description;
+	const normalizedLockReason = (() => {
+		const t = (lockReason ?? "").trim();
+		return t ? translateLockReason(t) : t;
+	})();
+	const normalizedRejectReason = (rejectReason ?? "").trim();
+	const vendorDisplayName = (vendorDetails ?? "").trim() || "Pinecone";
+	const pendingStepText =
+		safeStatus === "PENDING" && pendingApprovalBy === "finance"
+			? "Finance approval pending"
+			: safeStatus === "PENDING" && pendingApprovalBy === "admin"
+				? "Admin approval pending"
+				: null;
+	const deadlineDisplay = formatRequestDeadline(requestDeadline);
+	const usageDisplay = formatUsageLimit(usageLimitCount, usageLimitPeriod);
+	const extraInfo = [deadlineDisplay, usageDisplay].filter(Boolean).join(" · ");
+	const supportText =
+		safeStatus === "LOCKED"
+			? normalizedLockReason || STATUS_MESSAGE[safeStatus]
+			: safeStatus === "REJECTED"
+				? normalizedRejectReason || STATUS_MESSAGE[safeStatus]
+				: (pendingStepText ?? STATUS_MESSAGE[safeStatus]);
+	const normalizedOverrideReason = (overrideReason ?? "").trim();
+	const [shouldAnimate, setShouldAnimate] = useState(false);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setShouldAnimate(true);
-    }, 5000);
+	useEffect(() => {
+		const timer = window.setTimeout(() => {
+			setShouldAnimate(true);
+		}, 5000);
 
-    return () => window.clearTimeout(timer);
-  }, []);
+		return () => window.clearTimeout(timer);
+	}, []);
 
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if ((safeStatus === "ELIGIBLE" || safeStatus === "REJECTED") && onRequestBenefit) {
-      onRequestBenefit();
-    } else if (onClick) {
-      onClick();
-    }
-  };
+	const handleButtonClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (
+			(safeStatus === "ELIGIBLE" || safeStatus === "REJECTED") &&
+			onRequestBenefit
+		) {
+			onRequestBenefit();
+		} else if (onClick) {
+			onClick();
+		}
+	};
 
-  const isButtonClickable =
-    safeStatus === "ELIGIBLE" ||
-    safeStatus === "REJECTED" ||
-    ((safeStatus === "ACTIVE" || safeStatus === "LOCKED" || safeStatus === "PENDING") &&
-      onClick);
-  const cardClass = isAdminVariant
-    ? "border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-[#324A70] dark:bg-[linear-gradient(180deg,#162338_0%,#122033_100%)] dark:shadow-[0_14px_36px_rgba(2,11,31,0.34)]"
-    : theme.card;
-  const iconWrapClass = isAdminVariant
-    ? `${_iconBgColor} ${_iconColor} border border-black/5 dark:border-white/10`
-    : `${theme.iconWrap} ${theme.iconColor}`;
-  const titleClass = isAdminVariant
-    ? "text-slate-900 dark:text-white"
-    : "text-slate-900 dark:text-white";
-  const metaClass = isAdminVariant
-    ? "text-slate-500 dark:text-[#9FB0CF]"
-    : "text-slate-600 dark:text-white/50";
-  const dividerClass = isAdminVariant
-    ? "bg-gradient-to-r from-slate-200 via-slate-100 to-transparent dark:from-[#2C4264] dark:via-[#223655] dark:to-transparent"
-    : "bg-gradient-to-r from-slate-200 via-slate-100 to-transparent dark:from-white/18 dark:via-white/12 dark:to-white/6";
-  const labelClass = isAdminVariant
-    ? "text-sm text-slate-500 dark:text-[#9FB0CF]"
-    : "text-sm text-slate-600 dark:text-white/55";
-  const valueClass = isAdminVariant
-    ? "text-sm font-semibold text-slate-800 dark:text-white/90"
-    : "text-sm font-semibold text-slate-800 dark:text-white/90";
-  const bodyClass = isAdminVariant
-    ? "text-[15px] leading-6 text-slate-600 dark:text-[#D1DBEF]"
-    : "text-base text-slate-700 dark:text-white/85";
-  const rowBorderClass = isAdminVariant
-    ? "border-slate-200 dark:border-white/10"
-    : "border-slate-200 dark:border-white/10";
-  return (
-    <div
-      className={`flex min-w-0 flex-col w-full ${compact ? "" : "h-full"} ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
-      onClick={onClick}
-      onKeyDown={
-        onClick
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onClick();
-              }
-            }
-          : undefined
-      }
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
-    >
-      <div
-        className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-4 backdrop-blur-sm shadow-lg transition-all duration-300 sm:p-5 ${
-          cardClass
-        } ${compact ? "flex-none" : "flex-1 min-h-0"}`}
-      >
-        {shouldAnimate && !isAdminVariant ? (
-          <div
-            className="pointer-events-none absolute inset-0 opacity-70"
-            style={{
-              background: `radial-gradient(circle at center, rgba(255,255,255,0.20) 0%, ${theme.sweep} 34%, transparent 68%)`,
-              animation: "benefit-card-sweep 11s ease-in-out infinite",
-            }}
-          />
-        ) : null}
-        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+	const isButtonClickable =
+		safeStatus === "ELIGIBLE" ||
+		safeStatus === "REJECTED" ||
+		((safeStatus === "ACTIVE" ||
+			safeStatus === "LOCKED" ||
+			safeStatus === "PENDING") &&
+			onClick);
+	const cardClass = isAdminVariant
+		? "border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-[#324A70] dark:bg-[linear-gradient(180deg,#162338_0%,#122033_100%)] dark:shadow-[0_14px_36px_rgba(2,11,31,0.34)]"
+		: theme.card;
+	const iconWrapClass = isAdminVariant
+		? `${_iconBgColor} ${_iconColor} border border-black/5 dark:border-white/10`
+		: `${theme.iconWrap} ${theme.iconColor}`;
+	const titleClass = isAdminVariant
+		? "text-slate-900 dark:text-white"
+		: "text-slate-900 dark:text-white";
+	const metaClass = isAdminVariant
+		? "text-slate-500 dark:text-[#9FB0CF]"
+		: "text-slate-600 dark:text-white/50";
+	const dividerClass = isAdminVariant
+		? "bg-gradient-to-r from-slate-200 via-slate-100 to-transparent dark:from-[#2C4264] dark:via-[#223655] dark:to-transparent"
+		: "bg-gradient-to-r from-slate-200 via-slate-100 to-transparent dark:from-white/18 dark:via-white/12 dark:to-white/6";
+	const labelClass = isAdminVariant
+		? "text-sm text-slate-500 dark:text-[#9FB0CF]"
+		: "text-sm text-slate-600 dark:text-white/55";
+	const valueClass = isAdminVariant
+		? "text-sm font-semibold text-slate-800 dark:text-white/90"
+		: "text-sm font-semibold text-slate-800 dark:text-white/90";
+	const bodyClass = isAdminVariant
+		? "text-[15px] leading-6 text-slate-600 dark:text-[#D1DBEF]"
+		: "text-base text-slate-700 dark:text-white/85";
+	const rowBorderClass = isAdminVariant
+		? "border-slate-200 dark:border-white/10"
+		: "border-slate-200 dark:border-white/10";
+	return (
+		<div
+			className={`flex min-w-0 flex-col w-full ${compact ? "" : "h-full"} ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
+			onClick={onClick}
+			onKeyDown={
+				onClick
+					? (e) => {
+							if (e.key === "Enter" || e.key === " ") {
+								e.preventDefault();
+								onClick();
+							}
+						}
+					: undefined
+			}
+			role={onClick ? "button" : undefined}
+			tabIndex={onClick ? 0 : undefined}
+		>
+			<div
+				className={`group relative w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-4 backdrop-blur-sm shadow-lg transition-all duration-300 sm:p-5 ${
+					cardClass
+				} ${compact ? "flex-none" : "flex-1 min-h-0"}`}
+			>
+				{shouldAnimate && !isAdminVariant ? (
+					<div
+						className="pointer-events-none absolute inset-0 opacity-70"
+						style={{
+							background: `radial-gradient(circle at center, rgba(255,255,255,0.20) 0%, ${theme.sweep} 34%, transparent 68%)`,
+							animation: "benefit-card-sweep 11s ease-in-out infinite",
+						}}
+					/>
+				) : null}
+				<div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-        <div className="relative flex h-full flex-col">
-          <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
-            <div className="flex min-w-0 items-start gap-3 sm:gap-4">
-              <div
-                className={`flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl sm:h-[58px] sm:w-[58px] ${iconWrapClass}`}
-              >
-                <div className="flex h-[30px] w-[30px] items-center justify-center sm:h-[36px] sm:w-[36px]">
-                  {icon}
-                </div>
-              </div>
+				<div className="relative flex h-full flex-col">
+					<div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
+						<div className="flex min-w-0 items-start gap-3 sm:gap-4">
+							<div
+								className={`flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl sm:h-[58px] sm:w-[58px] ${iconWrapClass}`}
+							>
+								<div className="flex h-[30px] w-[30px] items-center justify-center sm:h-[36px] sm:w-[36px]">
+									{icon}
+								</div>
+							</div>
 
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className={`text-[15px] font-semibold sm:text-base ${titleClass}`}>
-                    {name}
-                  </h3>
-                  {safeStatus === "ACTIVE" &&
-                  (eligibilityRules ?? []).length > 0 ? (
-                    <span
-                      className="relative group/info"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <FiInfo
-                        size={12}
-                        className="cursor-help text-slate-500 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/70"
-                        aria-label="Requirements to maintain benefit"
-                      />
-                      <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-44 -translate-x-1/2 rounded-lg bg-slate-900 px-2 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover/info:opacity-100 dark:bg-[#121624]">
-                        <p className="mb-1 font-semibold">
-                          To maintain this benefit
-                        </p>
-                        <ul className="list-inside list-disc space-y-0.5">
-                          {(eligibilityRules ?? []).slice(0, 3).map((r, i) => (
-                            <li key={i} className="line-clamp-2">
-                              {r.rule}
-                            </li>
-                          ))}
-                        </ul>
-                      </span>
-                    </span>
-                  ) : null}
-                </div>
-                <p className={`mt-1 text-[13px] sm:text-sm ${metaClass}`}>{categoryLabel}</p>
-              </div>
-            </div>
+							<div className="min-w-0">
+								<div className="flex items-center gap-2">
+									<h3
+										className={`text-[15px] font-semibold sm:text-base ${titleClass}`}
+									>
+										{name}
+									</h3>
+									{safeStatus === "ACTIVE" &&
+									(eligibilityRules ?? []).length > 0 ? (
+										<span
+											className="relative group/info"
+											onClick={(e) => e.stopPropagation()}
+										>
+											<FiInfo
+												size={12}
+												className="cursor-help text-slate-500 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/70"
+												aria-label="Requirements to maintain benefit"
+											/>
+											<span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-44 -translate-x-1/2 rounded-lg bg-slate-900 px-2 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover/info:opacity-100 dark:bg-[#121624]">
+												<p className="mb-1 font-semibold">
+													To maintain this benefit
+												</p>
+												<ul className="list-inside list-disc space-y-0.5">
+													{(eligibilityRules ?? []).slice(0, 3).map((r, i) => (
+														<li key={i} className="line-clamp-2">
+															{r.rule}
+														</li>
+													))}
+												</ul>
+											</span>
+										</span>
+									) : null}
+								</div>
+								<p className={`mt-1 text-[13px] sm:text-sm ${metaClass}`}>
+									{categoryLabel}
+								</p>
+							</div>
+						</div>
 
-            <div className="flex shrink-0 flex-col items-end gap-2">
-              {hideStatusBadge ? null : (
-                <div className="flex flex-col items-end gap-1">
-                  <StatusBadge status={safeStatus} />
-                  {safeStatus === "PENDING" && pendingApprovalBy ? (
-                    <span
-                      className={`text-[10px] font-medium tracking-wide ${isAdminVariant ? "text-amber-700 dark:text-amber-300" : "text-amber-700 dark:text-amber-200/90"}`}
-                    >
-                      {pendingApprovalBy === "finance"
-                        ? "Finance approval"
-                        : "Admin approval"}
-                    </span>
-                  ) : null}
-                </div>
-              )}
-              {isAdminVariant && overrideApplied ? (
-                <span className="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-amber-200">
-                  MANUAL OVERRIDE
-                </span>
-              ) : null}
-            </div>
-          </div>
+						<div className="flex shrink-0 flex-col items-end gap-2">
+							{hideStatusBadge ? null : (
+								<div className="flex flex-col items-end gap-1">
+									<StatusBadge status={safeStatus} />
+									{safeStatus === "PENDING" && pendingApprovalBy ? (
+										<span
+											className={`text-[10px] font-medium tracking-wide ${isAdminVariant ? "text-amber-700 dark:text-amber-300" : "text-amber-700 dark:text-amber-200/90"}`}
+										>
+											{pendingApprovalBy === "finance"
+												? "Finance approval"
+												: "Admin approval"}
+										</span>
+									) : null}
+								</div>
+							)}
+							{isAdminVariant && overrideApplied ? (
+								<span className="inline-flex items-center rounded-full border border-amber-300/30 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-amber-200">
+									MANUAL OVERRIDE
+								</span>
+							) : null}
+						</div>
+					</div>
 
-          {isAdminVariant && !compact ? (
-            <div className="mb-2">
-              <div className="mt-3 space-y-0.5">
-                {subsidyPercentage ? (
-                  <div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
-                    <span className={labelClass}>Coverage</span>
-                    <span className={valueClass}>
-                      {subsidyPercentage} subsidy
-                    </span>
-                  </div>
-                ) : null}
-                <div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
-                  <span className={labelClass}>Vendor</span>
-                  <span className={valueClass}>{vendorDisplayName}</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
-                  <span className={labelClass}>Rules</span>
-                  <span className={valueClass}>{_eligibilityCriteria}</span>
-                </div>
-                <p className={`pt-4 ${bodyClass}`}>{description}</p>
-              </div>
-            </div>
-          ) : null}
+					{isAdminVariant && !compact ? (
+						<div className="mb-2">
+							<div className="mt-3 space-y-0.5">
+								{subsidyPercentage ? (
+									<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+										<span className={labelClass}>Coverage</span>
+										<span className={valueClass}>
+											{subsidyPercentage} subsidy
+										</span>
+									</div>
+								) : null}
+								<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+									<span className={labelClass}>Vendor</span>
+									<span className={valueClass}>{vendorDisplayName}</span>
+								</div>
+								<div className="flex items-center justify-between border-b border-slate-200 py-2.5 dark:border-white/10">
+									<span className={labelClass}>Rules</span>
+									<span className={valueClass}>{_eligibilityCriteria}</span>
+								</div>
+								<p className={`pt-4 ${bodyClass}`}>{description}</p>
+							</div>
+						</div>
+					) : null}
 
-          {!isAdminVariant && !compact && safeStatus === "ACTIVE" ? (
-            <div className="mb-2">
-              <div className={`h-px ${dividerClass}`} />
-              <div className="mt-3 space-y-0.5">
-                {subsidyPercentage ? (
-                  <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
-                    <span className={labelClass}>Coverage</span>
-                    <span className={valueClass}>
-                      {subsidyPercentage} subsidy
-                    </span>
-                  </div>
-                ) : null}
-                <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
-                  <span className={labelClass}>Vendor</span>
-                  <span className={valueClass}>{vendorDisplayName}</span>
-                </div>
-                {extraInfo ? (
-                  <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
-                    <span className={labelClass}>Duration</span>
-                    <span className={valueClass}>{extraInfo}</span>
-                  </div>
-                ) : null}
-                <p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
-                {isAdminVariant && overrideApplied ? (
-                  <p className="pt-2 text-xs text-amber-200/90">
-                    Override:{" "}
-                    {normalizedOverrideReason ||
-                      "Status manually updated by HR/Admin."}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
+					{!isAdminVariant && !compact && safeStatus === "ACTIVE" ? (
+						<div className="mb-2">
+							<div className={`h-px ${dividerClass}`} />
+							<div className="mt-3 space-y-0.5">
+								{subsidyPercentage ? (
+									<div
+										className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}
+									>
+										<span className={labelClass}>Coverage</span>
+										<span className={valueClass}>
+											{subsidyPercentage} subsidy
+										</span>
+									</div>
+								) : null}
+								<div
+									className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}
+								>
+									<span className={labelClass}>Vendor</span>
+									<span className={valueClass}>{vendorDisplayName}</span>
+								</div>
+								{extraInfo ? (
+									<div
+										className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}
+									>
+										<span className={labelClass}>Duration</span>
+										<span className={valueClass}>{extraInfo}</span>
+									</div>
+								) : null}
+								<p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>
+								{isAdminVariant && overrideApplied ? (
+									<p className="pt-2 text-xs text-amber-200/90">
+										Override:{" "}
+										{normalizedOverrideReason ||
+											"Status manually updated by HR/Admin."}
+									</p>
+								) : null}
+							</div>
+						</div>
+					) : null}
 
-          {!isAdminVariant && !compact && safeStatus !== "ACTIVE" ? (
-            <div className="mb-2">
-              <div className={`h-px ${dividerClass}`} />
-              <div className="mt-2.5 space-y-0.5">
-                {subsidyPercentage ? (
-                  <div className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}>
-                    <span className={labelClass}>Coverage</span>
-                    <span className={valueClass}>
-                      {subsidyPercentage} subsidy
-                    </span>
-                  </div>
-                ) : null}
-                <div className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}>
-                  <span className={labelClass}>Vendor</span>
-                  <span className={valueClass}>{vendorDisplayName}</span>
-                </div>
-                {extraInfo ? (
-                  <div className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}>
-                    <span className={labelClass}>Duration</span>
-                    <span className={valueClass}>{extraInfo}</span>
-                  </div>
-                ) : null}
-                <p className={`pt-4 ${bodyClass}`}>{supportText}</p>
-                {isAdminVariant && overrideApplied ? (
-                  <p className="pt-2 text-xs text-amber-200/90">
-                    Override:{" "}
-                    {normalizedOverrideReason ||
-                      "Status manually updated by HR/Admin."}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
+					{!isAdminVariant && !compact && safeStatus !== "ACTIVE" ? (
+						<div className="mb-2">
+							<div className={`h-px ${dividerClass}`} />
+							<div className="mt-2.5 space-y-0.5">
+								{subsidyPercentage ? (
+									<div
+										className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}
+									>
+										<span className={labelClass}>Coverage</span>
+										<span className={valueClass}>
+											{subsidyPercentage} subsidy
+										</span>
+									</div>
+								) : null}
+								<div
+									className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}
+								>
+									<span className={labelClass}>Vendor</span>
+									<span className={valueClass}>{vendorDisplayName}</span>
+								</div>
+								{extraInfo ? (
+									<div
+										className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}
+									>
+										<span className={labelClass}>Duration</span>
+										<span className={valueClass}>{extraInfo}</span>
+									</div>
+								) : null}
+								<p className={`pt-4 ${bodyClass}`}>{supportText}</p>
+								{isAdminVariant && overrideApplied ? (
+									<p className="pt-2 text-xs text-amber-200/90">
+										Override:{" "}
+										{normalizedOverrideReason ||
+											"Status manually updated by HR/Admin."}
+									</p>
+								) : null}
+							</div>
+						</div>
+					) : null}
 
-          {!isAdminVariant ? (
-            <div className="mb-3 mt-auto h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent sm:mb-4 dark:from-white/10 dark:via-white/5 dark:to-transparent" />
-          ) : null}
+					{!isAdminVariant ? (
+						<div className="mb-3 mt-auto h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent sm:mb-4 dark:from-white/10 dark:via-white/5 dark:to-transparent" />
+					) : null}
 
-          {footerActions ? (
-            <div className="w-full">{footerActions}</div>
-          ) : (
-            <button
-              type="button"
-              disabled={!isButtonClickable}
-              className={`flex h-10 w-full items-center justify-center gap-2 rounded-xl text-[13px] font-medium transition-all duration-200 sm:h-11 sm:text-[14px] ${
-                isButtonClickable
-                  ? `${theme.button} dark:group-hover:bg-white/[0.08]`
-                  : theme.buttonDisabled
-              }`}
-              onClick={handleButtonClick}
-            >
-              {displayButtonText}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+					{footerActions ? (
+						<div className="w-full">{footerActions}</div>
+					) : (
+						<button
+							type="button"
+							disabled={!isButtonClickable}
+							className={`flex h-10 w-full items-center justify-center gap-2 rounded-xl text-[13px] font-medium transition-all duration-200 sm:h-11 sm:text-[14px] ${
+								isButtonClickable
+									? `${theme.button} dark:group-hover:bg-white/[0.08]`
+									: theme.buttonDisabled
+							}`}
+							onClick={handleButtonClick}
+						>
+							{displayButtonText}
+						</button>
+					)}
+				</div>
+			</div>
+		</div>
+	);
 };
