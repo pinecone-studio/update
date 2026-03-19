@@ -3,6 +3,7 @@
 "use client";
 
 import { FiCheck, FiClock, FiLock, FiStar } from "react-icons/fi";
+import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import { BenefitPortfolio } from "@/app/_components/BenefitPortfolio";
 import { EmployeeDashboardSkeleton } from "./components/EmployeeDashboardSkeleton";
 import { ContractTaskCard } from "./components/ContractTaskCard";
