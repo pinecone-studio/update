@@ -18,6 +18,7 @@ import {
   getApiErrorMessage,
   type EmployeeNotification,
 } from "../_lib/api";
+import { NotificationSkeleton } from "@/app/_components/NotificationSkeleton";
 
 export default function NotificationPage() {
   const [loading, setLoading] = useState(true);
@@ -102,7 +103,11 @@ export default function NotificationPage() {
   useOnUserSwitch(loadNotifications);
 
   if (loading) {
-    return <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white" />;
+    return (
+      <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white">
+        <NotificationSkeleton statCardCount={3} />
+      </div>
+    );
   }
 
   return (
