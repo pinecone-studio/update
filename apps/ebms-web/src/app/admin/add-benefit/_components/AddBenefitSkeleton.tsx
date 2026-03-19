@@ -10,7 +10,7 @@ export function AddBenefitSkeleton() {
       {[1, 2, 3, 4, 5, 6].map((i) => (
         <div
           key={i}
-          className="flex h-[267px] flex-col rounded-xl border-t border-white/40 bg-[#1A2037] p-4 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.1),0_10px_15px_-3px_rgba(0,0,0,0.1)]"
+          className="flex h-[267px] flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.1),0_10px_15px_-3px_rgba(0,0,0,0.1)] dark:border-white/10 dark:bg-[#16142a]"
         >
           <div className="flex flex-1 min-h-0 flex-col gap-2">
             <div className="flex items-center gap-3">

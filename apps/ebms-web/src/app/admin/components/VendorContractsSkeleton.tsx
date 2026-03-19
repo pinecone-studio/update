@@ -24,7 +24,7 @@ export function VendorContractsSkeleton() {
       </section>
 
       {/* Table section - matches VendorContractTableSection / ContractTableSection */}
-      <section className="rounded-3xl bg-white p-6 dark:border-[#2C4264] dark:bg-[#181743]/50">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#181743]/50">
         <div className="flex flex-col gap-12">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="relative min-w-0 flex-1">

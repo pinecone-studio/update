@@ -14,15 +14,15 @@ export function EmployeeEligibilitySkeleton() {
       </div>
 
       {/* Search bar - matches EmployeeSearchInput */}
-      <section className="rounded-2xl bg-white p-6 dark:border-[#2C4264] dark:bg-[#20194D80]/50">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#16142a]">
         <div className="relative">
           <Skeleton className="h-14 w-full rounded-2xl" />
         </div>
       </section>
 
       {/* Employee list - matches EmployeeListSection */}
-      <section className="flex h-[450px] flex-col overflow-hidden rounded-3xl dark:bg-[#20194D80]/50">
-        <div className="grid grid-cols-[40px_1fr_1fr_auto] items-center gap-4 border-b border-white/10 px-6 py-4 dark:border-[#2C4264] dark:bg-[#60587B4D]">
+      <section className="flex h-[450px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/90 dark:border-white/10 dark:bg-[#16142a]">
+        <div className="grid grid-cols-[40px_1fr_1fr_auto] items-center gap-4 border-b border-slate-200 px-6 py-4 dark:border-[#2C4264] dark:bg-[#60587B4D]">
           <Skeleton className="h-4 w-4 rounded" />
           <Skeleton className="h-4 w-20 rounded" />
           <Skeleton className="h-4 w-12 rounded" />
@@ -32,7 +32,7 @@ export function EmployeeEligibilitySkeleton() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="-mx-6 grid grid-cols-[40px_1fr_1fr_auto] items-center gap-4 border-b border-white/5 px-6 py-3 last:border-b-0 dark:border-[#2C4264]/50"
+              className="-mx-6 grid grid-cols-[40px_1fr_1fr_auto] items-center gap-4 border-b border-slate-200 px-6 py-3 last:border-b-0 dark:border-[#2C4264]/50"
             >
               <Skeleton className="h-4 w-4 rounded" />
               <div className="flex min-w-0 items-center gap-3">

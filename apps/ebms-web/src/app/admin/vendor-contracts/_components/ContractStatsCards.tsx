@@ -26,7 +26,7 @@ const STAT_CARDS = [
   },
   {
     label: "Total Contracts",
-    dotClass: "bg-[#ffffff]",
+    dotClass: "bg-slate-400 dark:bg-[#ffffff]",
     getValue: (c: Contract[]) => c.length,
   },
 ];
@@ -40,7 +40,7 @@ export function ContractStatsCards({ contracts }: ContractStatsCardsProps) {
           className="min-h-[90px] min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50 sm:h-[107px]"
         >
           <div className="mb-2 flex items-start justify-between">
-            <p className="text-sm font-normal dark:text-[#FFFFFF] sm:text-[20px]">
+            <p className="text-sm font-normal text-slate-700 sm:text-[20px] dark:text-[#FFFFFF]">
               {card.label}
             </p>
             <span

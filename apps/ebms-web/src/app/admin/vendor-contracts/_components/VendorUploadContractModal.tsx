@@ -59,18 +59,18 @@ export function VendorUploadContractModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/30 p-4 sm:p-6 dark:bg-black/70">
       <button
         type="button"
         aria-label="Close add contract modal"
         onClick={handleClose}
-        className="absolute inset-0 bg-white/25 backdrop-blur-md dark:bg-black/30 dark:backdrop-blur-lg"
+        className="absolute inset-0 backdrop-blur-md"
       />
       <section
-        className="relative z-10 my-auto flex w-full max-w-[900px] flex-col overflow-hidden rounded-2xl border border-[rgba(138,156,233,0.42)] bg-[radial-gradient(circle_at_18%_18%,rgba(126,97,210,0.20),transparent_42%),radial-gradient(circle_at_78%_72%,rgba(84,120,214,0.14),transparent_46%),linear-gradient(155deg,rgba(45,34,93,0.94),rgba(38,31,86,0.92))] p-4 backdrop-blur-[18px] sm:p-6 md:p-8"
+        className="relative z-10 my-auto flex w-full max-w-[900px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-[#16142a] dark:shadow-[0_32px_120px_rgba(0,0,0,0.5)] sm:p-6 md:p-8"
       >
         <div className="flex shrink-0 items-center">
-          <h2 className="text-lg font-normal text-white sm:text-[22px]">
+          <h2 className="text-lg font-normal text-slate-900 sm:text-[22px] dark:text-white">
             Upload Vendor Contract
           </h2>
         </div>
@@ -83,17 +83,17 @@ export function VendorUploadContractModal({
         >
           <input type="hidden" name="tab" value="vendor" />
           <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-medium text-[#A7B6D3] sm:text-base">Basic Info</h3>
+            <h3 className="text-sm font-medium text-slate-600 sm:text-base dark:text-[#A7B6D3]">Basic Info</h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div className="flex min-w-0 flex-col gap-2.5">
-                <label className="text-sm text-[#A7B6D3]">Benefit</label>
+                <label className="text-sm text-slate-600 dark:text-[#A7B6D3]">Benefit</label>
                 <select
                   name="benefitId"
                   required
                   value={selectedBenefitId}
                   onChange={(e) => onBenefitChange(e.target.value)}
                   disabled={benefitsLoading || benefitOptions.length === 0}
-                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white outline-none focus:border-[#B18CFF] disabled:opacity-60 sm:text-base"
+                  className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none focus:border-blue-500 disabled:opacity-60 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:focus:border-[#B18CFF] sm:text-base"
                 >
                   <option value="">
                     {benefitsLoading ? "Loading..." : "— Select benefit —"}
@@ -106,52 +106,52 @@ export function VendorUploadContractModal({
                 </select>
               </div>
               <div className="flex min-w-0 flex-col gap-2.5">
-                <label className="text-sm text-[#A7B6D3]">Version</label>
+                <label className="text-sm text-slate-600 dark:text-[#A7B6D3]">Version</label>
                 <input
                   name="version"
                   required
                   placeholder="vendor-2026.1"
-                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF] sm:text-base"
+                  className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:placeholder:text-[#B7A9D9] dark:focus:border-[#B18CFF] sm:text-base"
                 />
               </div>
               <div className="flex min-w-0 flex-col gap-2.5">
-                <label className="text-sm text-[#A7B6D3]">
+                <label className="text-sm text-slate-600 dark:text-[#A7B6D3]">
                   Vendor Name (optional)
                 </label>
                 <input
                   name="vendorName"
                   placeholder="PineFit"
-                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF] sm:text-base"
+                  className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:placeholder:text-[#B7A9D9] dark:focus:border-[#B18CFF] sm:text-base"
                 />
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-medium text-[#A7B6D3] sm:text-base">
+            <h3 className="text-sm font-medium text-slate-600 sm:text-base dark:text-[#A7B6D3]">
               Contract Details
             </h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="flex min-w-0 flex-col gap-2.5">
-                <label className="text-sm text-[#A7B6D3]">
+                <label className="text-sm text-slate-600 dark:text-[#A7B6D3]">
                   Effective Date (optional)
                 </label>
                 <input
                   name="effectiveDate"
                   type="date"
                   placeholder="yyyy-mm-dd"
-                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white outline-none focus:border-[#B18CFF] [color-scheme:dark] sm:text-base"
+                  className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:focus:border-[#B18CFF] [color-scheme:dark] sm:text-base"
                 />
               </div>
               <div className="flex min-w-0 flex-col gap-2.5">
-                <label className="text-sm text-[#A7B6D3]">
+                <label className="text-sm text-slate-600 dark:text-[#A7B6D3]">
                   Expiry Date (optional)
                 </label>
                 <input
                   name="expiryDate"
                   type="date"
                   placeholder="yyyy-mm-dd"
-                  className="h-11 min-w-0 w-full rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-sm text-white outline-none focus:border-[#B18CFF] [color-scheme:dark] sm:text-base"
+                  className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:focus:border-[#B18CFF] [color-scheme:dark] sm:text-base"
                 />
               </div>
             </div>
@@ -178,10 +178,10 @@ export function VendorUploadContractModal({
               }
               className={`flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-4 transition-colors ${
                 isDragging
-                  ? "border-[#B18CFF] bg-[rgba(93,63,155,0.26)]"
+                  ? "border-blue-400 bg-blue-50 dark:border-[#B18CFF] dark:bg-[rgba(93,63,155,0.26)]"
                   : pdfError
                     ? "border-red-500"
-                    : "border-[#6F5AA8] bg-[rgba(31,22,57,0.32)]"
+                    : "border-slate-200 bg-slate-50 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.32)]"
               }`}
             >
               <input
@@ -201,7 +201,7 @@ export function VendorUploadContractModal({
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#2F66E8] px-5 text-sm font-medium text-white transition hover:bg-[#3E82F7] sm:text-base"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-medium text-white transition hover:bg-blue-500 dark:bg-[#2F66E8] dark:hover:bg-[#3E82F7] sm:text-base"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -216,13 +216,13 @@ export function VendorUploadContractModal({
                 </svg>
                 Upload PDF
               </button>
-              <p className="text-center text-xs text-[#8595B6] sm:text-sm">
+              <p className="text-center text-xs text-slate-600 sm:text-sm dark:text-[#8595B6]">
                 Drag & drop or click to upload PDF only Max {MAX_PDF_SIZE_MB}MB
               </p>
               {pdfFile && (
-                <p className="text-sm text-green-400">{pdfFile.name}</p>
+                <p className="text-sm text-green-600 dark:text-green-400">{pdfFile.name}</p>
               )}
-              {pdfError && <p className="text-sm text-red-400">{pdfError}</p>}
+              {pdfError && <p className="text-sm text-red-600 dark:text-red-400">{pdfError}</p>}
             </div>
           </div>
 
@@ -237,7 +237,7 @@ export function VendorUploadContractModal({
             <button
               type="submit"
               disabled={uploading || !pdfFile}
-              className="rounded-lg bg-[#0057ADCC] px-4 py-2 font-medium text-white transition hover:bg-[#3E82F7] disabled:opacity-50 dark:bg-[#0057ADCC] dark:hover:bg-[#3E82F7]"
+              className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-500 disabled:opacity-50 dark:bg-[#1a5fb4] dark:hover:bg-[#2A9BFF]"
             >
               {uploading ? "Saving..." : "Save"}
             </button>

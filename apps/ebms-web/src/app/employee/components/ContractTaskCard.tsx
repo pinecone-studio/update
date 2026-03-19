@@ -36,14 +36,14 @@ export function ContractTaskCard({
 
   return (
     <div
-      className="rounded-xl border border-white/10 bg-white/5 p-3"
+      className="rounded-xl border border-slate-200 bg-white/60 p-3 dark:border-white/10 dark:bg-white/5"
       onClick={(e) => e.stopPropagation()}
     >
-      <p className="text-xs font-medium text-white/90">Contract status</p>
-      <p className="mt-1 text-xs text-white/70">
+      <p className="text-xs font-medium text-slate-800 dark:text-white/90">Contract status</p>
+      <p className="mt-1 text-xs text-slate-600 dark:text-white/70">
         {task.benefitName} ({task.requestId})
       </p>
-      <p className="mt-1 text-xs text-amber-100/80">
+      <p className="mt-1 text-xs text-amber-700 dark:text-amber-100/80">
         Status:{" "}
         {task.rawStatus === "ADMIN_APPROVED"
           ? "Awaiting Finance"
@@ -51,7 +51,7 @@ export function ContractTaskCard({
       </p>
 
       {task.requestStatus === "PENDING" ? (
-        <p className="mt-2 text-xs text-amber-100/80">
+        <p className="mt-2 text-xs text-amber-700 dark:text-amber-100/80">
           {task.rawStatus === "ADMIN_APPROVED"
             ? "Finance approval pending. Upload will be enabled after approval."
             : "Admin approval pending. Upload will be enabled after approval."}
@@ -62,14 +62,14 @@ export function ContractTaskCard({
         <div className="mt-2 flex items-center gap-3">
           {task.uploadedUrl ? (
             <>
-              <span className="text-xs text-emerald-300">
+              <span className="text-xs text-emerald-700 dark:text-emerald-300">
                 Signed contract uploaded
               </span>
               <a
                 href={task.uploadedUrl ?? "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-medium text-blue-300 hover:text-blue-200"
+                className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
               >
                 View uploaded file
               </a>
@@ -82,7 +82,7 @@ export function ContractTaskCard({
             type="file"
             accept="application/pdf"
             onChange={(e) => onSelectFile(task.requestId, e.target.files?.[0] ?? null)}
-            className="text-xs text-white/80 file:mr-2 file:rounded-md file:border-0 file:bg-white/20 file:px-3 file:py-1.5 file:text-xs file:text-white hover:file:bg-white/30"
+            className="text-xs text-slate-700 file:mr-2 file:rounded-md file:border-0 file:bg-slate-200 file:px-3 file:py-1.5 file:text-xs file:text-slate-800 hover:file:bg-slate-300 dark:text-white/80 dark:file:bg-white/20 dark:file:text-white dark:hover:file:bg-white/30"
           />
           <button
             type="button"
@@ -95,7 +95,7 @@ export function ContractTaskCard({
         </div>
       )}
 
-      {errorText ? <p className="mt-2 text-xs text-red-300">{errorText}</p> : null}
+      {errorText ? <p className="mt-2 text-xs text-red-600 dark:text-red-300">{errorText}</p> : null}
     </div>
   );
 }

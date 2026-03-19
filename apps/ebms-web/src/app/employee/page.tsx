@@ -158,10 +158,10 @@ export default function EmployeeDashboardPage() {
 
             <section className="mt-2 w-full sm:mt-8 lg:mt-10">
               <div className="mb-4 sm:mb-6">
-                <h2 className="text-base font-semibold tracking-[-0.4px] text-white sm:text-[20px] sm:tracking-[-0.6px]">
+                <h2 className="text-base font-semibold tracking-[-0.4px] text-slate-900 sm:text-[20px] sm:tracking-[-0.6px] dark:text-white">
                   {title}
                 </h2>
-                <p className="mt-1 text-sm text-white/45 sm:text-[15px]">
+                <p className="mt-1 text-sm text-slate-600 sm:text-[15px] dark:text-white/45">
                   {subtitle}
                 </p>
               </div>

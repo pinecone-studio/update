@@ -34,7 +34,7 @@ function SectionCard({
     <div
       className={`rounded-2xl border px-[16px] pb-[10px] pt-[14px] backdrop-blur-[1.5px] ${theme} ${className ?? ""}`}
     >
-      <div className="mb-1.5 flex items-center gap-2.5 text-white/55">
+      <div className="mb-1.5 flex items-center gap-2.5 text-slate-600 dark:text-white/55">
         <span className="shrink-0">{icon}</span>
         <h3 className="text-[14px] font-semibold uppercase tracking-[0.09em]">
           {title}
@@ -56,12 +56,12 @@ function DetailCell({
 }) {
   return (
     <div
-      className={`min-w-0 py-2 ${withDivider ? "md:border-l md:border-white/5 md:pl-6" : ""}`}
+      className={`min-w-0 py-2 ${withDivider ? "md:border-l md:border-slate-200 md:pl-6 dark:md:border-white/5" : ""}`}
     >
-      <p className="text-[12px] font-medium text-white/45 sm:text-[13px]">
+      <p className="text-[12px] font-medium text-slate-500 sm:text-[13px] dark:text-white/45">
         {label}
       </p>
-      <p className="mt-1.5 text-[16px] font-semibold leading-6 tracking-[0.12px] text-white sm:text-[18px]">
+      <p className="mt-1.5 text-[16px] font-semibold leading-6 tracking-[0.12px] text-slate-900 sm:text-[18px] dark:text-white">
         {value}
       </p>
     </div>
@@ -149,17 +149,17 @@ export function BenefitModalDetails({
             {summaryCopy.icon}
           </div>
           <div className="min-w-0">
-            <p className="text-[16px] font-semibold tracking-[0.15px] text-white sm:text-[18px]">
+            <p className="text-[16px] font-semibold tracking-[0.15px] text-slate-900 sm:text-[18px] dark:text-white">
               {summaryCopy.title}
             </p>
-            <p className="mt-1 text-[13px] leading-5 text-white/60 sm:text-[14px]">
+            <p className="mt-1 text-[13px] leading-5 text-slate-600 sm:text-[14px] dark:text-white/60">
               {summaryCopy.message}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-x-6 gap-y-0 border-b border-white/5 pb-4 md:grid-cols-2">
+      <div className="grid gap-x-6 gap-y-0 border-b border-slate-200 pb-4 md:grid-cols-2 dark:border-white/5">
         <DetailCell label="Subsidy" value={subsidy} />
         <DetailCell label="Vendor" value={vendor} withDivider />
         {benefit.status === "ACTIVE" &&
@@ -178,8 +178,8 @@ export function BenefitModalDetails({
         ) : null}
       </div>
 
-      <div className="border-b border-white/5 pb-4">
-        <h3 className="text-left text-[15px] font-medium text-white/65 sm:text-[16px]">
+      <div className="border-b border-slate-200 pb-4 dark:border-white/5">
+        <h3 className="text-left text-[15px] font-medium text-slate-700 sm:text-[16px] dark:text-white/65">
           Eligibility check
         </h3>
 
@@ -192,27 +192,27 @@ export function BenefitModalDetails({
         >
           {rules.map((rule, index) => (
             <div key={`${rule.rule}-${index}`} className="flex items-start gap-3 py-1.5">
-              <div className="grid h-[34px] w-[34px] shrink-0 place-items-center text-white/90">
+              <div className="grid h-[34px] w-[34px] shrink-0 place-items-center text-slate-700 dark:text-white/90">
                 {rule.passed ? (
-                  <FiCheck size={16} className="text-[#61DA91]" />
+                  <FiCheck size={16} className="text-emerald-600 dark:text-[#61DA91]" />
                 ) : /override|manual/i.test(`${rule.rule} ${rule.detail ?? ""}`) ? (
-                  <FiAlertTriangle size={17} className="text-[#F4BC4E]" />
+                  <FiAlertTriangle size={17} className="text-amber-600 dark:text-[#F4BC4E]" />
                 ) : (
-                  <FiX size={16} className="text-[#FF8EA1]" />
+                  <FiX size={16} className="text-rose-500 dark:text-[#FF8EA1]" />
                 )}
               </div>
               <div className="min-w-0 flex-1 pt-0.5">
                 <p
                   className={`text-[16px] font-semibold leading-6 tracking-[0.1px] sm:text-[17px] ${
                     /override|manual/i.test(`${rule.rule} ${rule.detail ?? ""}`)
-                      ? "text-[#F7C55C]"
-                      : "text-white"
+                      ? "text-amber-700 dark:text-[#F7C55C]"
+                      : "text-slate-900 dark:text-white"
                   }`}
                 >
                   {rule.rule}
                 </p>
                 {rule.detail ? (
-                  <p className="mt-1 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white/50">
+                  <p className="mt-1 text-[14px] font-normal leading-5 tracking-[-0.15px] text-slate-600 dark:text-white/50">
                     {rule.detail}
                   </p>
                 ) : null}
@@ -220,8 +220,8 @@ export function BenefitModalDetails({
               <span
                 className={`mt-1 inline-flex h-[34px] min-w-[92px] shrink-0 items-center justify-center rounded-[10px] px-3 text-[14px] font-semibold tracking-[0.02em] ${
                   rule.passed
-                    ? "border border-[#2D6E6B] bg-[#214E58]/72 text-[#9BF1C7]"
-                    : "border border-[#7B4363] bg-[#6A3450]/70 text-[#FFAFBF]"
+                    ? "border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-[#2D6E6B] dark:bg-[#214E58]/72 dark:text-[#9BF1C7]"
+                    : "border border-rose-300 bg-rose-100 text-rose-800 dark:border-[#7B4363] dark:bg-[#6A3450]/70 dark:text-[#FFAFBF]"
                 }`}
               >
                 {rule.passed ? "PASS" : "FAIL"}
@@ -233,7 +233,7 @@ export function BenefitModalDetails({
 
       <div className="space-y-3">
         <div>
-          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-white/45">
+          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-white/45">
             Vendor Contract
           </p>
           <div className="mt-2">
@@ -245,7 +245,7 @@ export function BenefitModalDetails({
                     void onViewUploadedContract(benefit.uploadedContractRequestId);
                   }
                 }}
-                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white hover:text-white/80"
+                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-slate-900 hover:text-slate-700 dark:text-white dark:hover:text-white/80"
               >
                 View uploaded contract <FiExternalLink size={20} />
               </button>
@@ -255,12 +255,12 @@ export function BenefitModalDetails({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleViewContract}
-                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white hover:text-white/80"
+                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-slate-900 hover:text-slate-700 dark:text-white dark:hover:text-white/80"
               >
                 View vendor contract <FiExternalLink size={20} />
               </a>
             ) : (
-              <p className="text-[14px] font-normal leading-5 tracking-[-0.15px] text-white/55">
+              <p className="text-[14px] font-normal leading-5 tracking-[-0.15px] text-slate-500 dark:text-white/55">
                 No contract linked.
               </p>
             )}
@@ -268,10 +268,10 @@ export function BenefitModalDetails({
         </div>
 
         <div>
-          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-white/45">
+          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-white/45">
             Description
           </p>
-          <p className="mt-2 text-[14px] leading-6 tracking-[-0.15px] text-white/82">
+          <p className="mt-2 text-[14px] leading-6 tracking-[-0.15px] text-slate-700 dark:text-white/82">
             {benefit.description || benefit.eligibilityCriteria}
           </p>
         </div>
@@ -288,16 +288,16 @@ export function BenefitModalDetails({
             className="min-h-[78px] mt-1"
           >
             <button
-              type="button"
-              onClick={() => {
-                if (onViewUploadedContract && benefit.uploadedContractRequestId) {
-                  void onViewUploadedContract(benefit.uploadedContractRequestId);
-                }
-              }}
-              className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-white hover:text-white/80"
-            >
-              View uploaded contract <FiExternalLink size={20} />
-            </button>
+                type="button"
+                onClick={() => {
+                  if (onViewUploadedContract && benefit.uploadedContractRequestId) {
+                    void onViewUploadedContract(benefit.uploadedContractRequestId);
+                  }
+                }}
+                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-slate-900 hover:text-slate-700 dark:text-white dark:hover:text-white/80"
+              >
+                View uploaded contract <FiExternalLink size={20} />
+              </button>
           </SectionCard>
         )
       ) : null}
