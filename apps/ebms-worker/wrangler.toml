@@ -28,3 +28,8 @@ crons = ["0 2 * * *"]  # 02:00 UTC daily — OKR sync
 # ─── Vars (non-secret config) ────────────────────────────────────────
 [vars]
 ENVIRONMENT = "development"
+# Resend: use onboarding@resend.dev for testing; verify domain for production
+RESEND_FROM_EMAIL = "EBMS <onboarding@resend.dev>"
+
+# ─── Secrets (set via `wrangler secret set RESEND_API_KEY`) ───────────
+# For local dev, add RESEND_API_KEY to .dev.vars (see .dev.vars.example)

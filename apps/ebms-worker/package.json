@@ -38,6 +38,7 @@
 	},
 	"dependencies": {
 		"drizzle-orm": "^0.45.1",
+		"resend": "^4.0.0",
 		"graphql": "^16.13.1",
 		"graphql-yoga": "^5.10.0",
 		"handlebars": "^4.7.8",

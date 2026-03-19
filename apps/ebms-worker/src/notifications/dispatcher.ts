@@ -1,8 +1,9 @@
 import type { Env } from "../types";
 import { getDb } from "../db/drizzle";
 import { isEmployeeNotificationsTableMissing } from "../db/errors";
-import { employeeNotifications } from "../db/schema";
+import { employeeNotifications, employees } from "../db/schema";
 import { and, eq, gte } from "drizzle-orm";
+import { sendEmailViaResend } from "./sendEmail";
 
 export type NotificationType =
   | "ELIGIBILITY_CHANGE"
@@ -91,12 +92,43 @@ export async function dispatchEmployeeNotification(
     }
 
     await insertNotification(env, input, "in_app", "delivered", 0);
-    await insertNotification(env, input, "email", "queued", 1);
 
-    // Placeholder for mail channel integration.
-    console.log(
-      `[notification] queued email for ${input.employeeId}: ${input.title}`,
-    );
+    let emailStatus: "delivered" | "queued" | "failed" = "queued";
+    if (env.RESEND_API_KEY && env.RESEND_FROM_EMAIL) {
+      try {
+        const db = getDb(env);
+        const [emp] = await db
+          .select({ email: employees.email })
+          .from(employees)
+          .where(eq(employees.id, input.employeeId))
+          .limit(1);
+
+        if (emp?.email?.trim()) {
+          await sendEmailViaResend(
+            env.RESEND_API_KEY,
+            env.RESEND_FROM_EMAIL,
+            {
+              to: emp.email.trim(),
+              subject: input.title,
+              text: input.body,
+              idempotencyKey: input.dedupeKey
+                ? `ebms-notif-${input.dedupeKey}`
+                : undefined,
+            },
+          );
+          emailStatus = "delivered";
+        }
+      } catch (err) {
+        console.error("[notification] Resend failed:", err);
+        emailStatus = "failed";
+      }
+    } else {
+      console.log(
+        `[notification] email skipped (no RESEND_API_KEY/RESEND_FROM_EMAIL): ${input.employeeId} — ${input.title}`,
+      );
+    }
+
+    await insertNotification(env, input, "email", emailStatus, 1);
   } catch (err) {
     if (isEmployeeNotificationsTableMissing(err)) {
       return; // Graceful fallback when local/remote DB lacks employee_notifications
