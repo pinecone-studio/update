@@ -47,7 +47,7 @@ export function FinanceHistoryTable({
         popup.document.close();
         const html = await fetchBenefitRequestContractHtml(
           getFinanceClient(),
-          entry.id,
+          requestId,
         );
         popup.document.open();
         popup.document.write(html);
@@ -129,7 +129,7 @@ export function FinanceHistoryTable({
                     {entry.contractTemplateUrl ? (
                       <button
                         type="button"
-                        onClick={() => handleViewContract(entry)}
+                        onClick={() => handleViewContract(entry.id)}
                         className="cursor-pointer text-sm font-medium text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300"
                       >
                         View contract
@@ -137,7 +137,7 @@ export function FinanceHistoryTable({
                     ) : entry.requiresContract ? (
                       <button
                         type="button"
-                        onClick={() => handleViewContract(entry)}
+                        onClick={() => handleViewContract(entry.id)}
                         className="cursor-pointer text-sm font-medium text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300"
                       >
                         View template
