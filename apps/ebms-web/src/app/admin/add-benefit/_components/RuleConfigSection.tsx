@@ -9,7 +9,7 @@ import {
 } from "../_lib/constants";
 
 const sectionBaseClass =
-  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "rounded-xl border border-[rgba(185,189,255,0.24)] bg-[rgba(53,41,99,0.44)] p-6 backdrop-blur-[12px]";
 const inputSm =
   "rounded border border-slate-300 bg-white px-2 py-1.5 text-slate-900 text-sm dark:border-[#334155] dark:bg-[#0F172A] dark:text-white";
 const selectClass =

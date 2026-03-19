@@ -20,7 +20,6 @@ import {
   getApiErrorMessage,
   fetchBenefits,
   fetchConfigAndAttributes,
-  CREATE_BENEFIT,
   UPDATE_CONFIG,
   updateBenefitInCatalog,
 } from "../_lib/api";
@@ -260,7 +259,8 @@ export default function AddBenefitsBuilderClient({
       if (!ruleTargetId) return;
       const defaultValue = getDefaultValueForRuleType(newType);
       const defaultOperator = getDefaultOperatorForRuleType(newType);
-      const isStringField = newType === "employment_status" || newType === "role";
+      const isStringField =
+        newType === "employment_status" || newType === "role";
       setConfig((prev) => {
         const benefit = prev[ruleTargetId] ?? {
           name: isEditMode ? (selectedBenefit?.name ?? "") : form.name,
@@ -278,7 +278,9 @@ export default function AddBenefitsBuilderClient({
           ...existing,
           type: newType,
           value: defaultValue,
-          operator: isStringField ? defaultOperator : (existing.operator ?? "eq"),
+          operator: isStringField
+            ? defaultOperator
+            : (existing.operator ?? "eq"),
         };
         return { ...prev, [ruleTargetId]: { ...benefit, rules } };
       });
@@ -472,7 +474,7 @@ export default function AddBenefitsBuilderClient({
   ]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-[#2C4264] dark:bg-[#1E293B] pt-4">
+    <div className="flex flex-col overflow-hidden rounded-3xl border p-5 sm:p-6 pt-4 bg-[rgba(53,41,99,0.44)] border-[rgba(185,189,255,0.24)] backdrop-blur-[16px]">
       <div className="mb-3 flex shrink-0 items-start gap-4">
         {inModal ? (
           <button
@@ -500,8 +502,8 @@ export default function AddBenefitsBuilderClient({
         <BenefitConfigCard form={form} onChange={setForm} />
       </div>
 
-      <div className="mt-4 flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:items-stretch lg:justify-between">
-        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
+      <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1">
           <RuleConfigSectionTabs
             rulesForSelected={rulesForSelected}
             attributes={attributes}
@@ -513,16 +515,18 @@ export default function AddBenefitsBuilderClient({
             message={message2}
           />
         </div>
-        <div className="flex w-full shrink-0 lg:w-72 lg:max-w-[280px]">
+        <div className="flex w-full shrink-0 lg:w-72 lg:max-w-[280px] lg:items-start">
           <ApprovalSettingsSection form={form} onChange={setForm} />
         </div>
       </div>
 
-      <div className="mt-4 flex shrink-0 justify-end gap-3">
+      <div className="mt-2 flex shrink-0 justify-end gap-3">
         <button
           type="button"
-          onClick={() => (inModal ? onClose?.() : router.push("/admin/add-benefit"))}
-          className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+          onClick={() =>
+            inModal ? onClose?.() : router.push("/admin/add-benefit")
+          }
+          className="rounded-lg border border-slate-300 bg-white px-4 py-1.5 font-medium text-slate-700 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
         >
           Cancel
         </button>
@@ -530,7 +534,7 @@ export default function AddBenefitsBuilderClient({
           type="button"
           onClick={handleSaveRules}
           disabled={saving || loadingConfig}
-          className="rounded-lg bg-[#3B82F6] px-4 py-2 font-medium text-white hover:bg-[#2563EB] disabled:opacity-50"
+          className="rounded-lg bg-[#3B82F6] px-4 py-1.5 font-medium text-white hover:bg-[#2563EB] disabled:opacity-50"
         >
           {saving ? "Saved..." : "Save"}
         </button>

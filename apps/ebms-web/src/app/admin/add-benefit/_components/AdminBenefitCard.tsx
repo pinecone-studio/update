@@ -54,9 +54,7 @@ export function AdminBenefitCard({
     <div
       id={`benefit-card-${id}`}
       className={`flex h-[310px] flex-col rounded-xl border-t border-white/40 transition ${
-        isHighlighted
-          ? "ring-2 ring-[#2A8BFF]"
-          : ""
+        isHighlighted ? "ring-2 ring-[#2A8BFF]" : ""
       } bg-[#1A2037] shadow-[0_4px_6px_-4px_rgba(0,0,0,0.1),0_10px_15px_-3px_rgba(0,0,0,0.1)]`}
       style={{ padding: "16px 16px 16px 16px" }}
     >
@@ -65,7 +63,9 @@ export function AdminBenefitCard({
           <div
             className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 ${iconBgClass} ${iconColorClass}`}
           >
-            <div className="flex h-5 w-5 items-center justify-center">{icon}</div>
+            <div className="flex h-5 w-5 items-center justify-center">
+              {icon}
+            </div>
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-semibold text-white">{name}</h3>
@@ -75,23 +75,41 @@ export function AdminBenefitCard({
 
         <div className="mt-3 flex-1 space-y-1.5 overflow-hidden text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Coverage:</span>
-            <span className="font-medium text-[#FFFFFF]/70">{subsidyPercent}% subsidy</span>
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Coverage:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {subsidyPercent}% subsidy
+            </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Vendor:</span>
-            <span className="font-medium text-[#FFFFFF]/70 text-[14px] ">{vendorDisplay}</span>
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Vendor:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70 text-[14px] ">
+              {vendorDisplay}
+            </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Active period:</span>
-            <span className="font-medium text-[#FFFFFF]/70">{validityPeriodDisplay ?? "—"}</span>
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Active period:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {validityPeriodDisplay ?? "—"}
+            </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Employee usage:</span>
-            <span className="font-medium text-[#FFFFFF]/70">{usagePeriodDisplay ?? "—"}</span>
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Employee usage:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {usagePeriodDisplay ?? "—"}
+            </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-normal text-[#FFFFFF]/40">Approval:</span>
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Approval:
+            </span>
             <span className="font-medium text-[#FFFFFF]/70">
               {[
                 financeApproval && "Finance",
@@ -131,13 +149,7 @@ export function AdminBenefitCard({
             disabled={isDeleting}
             className="inline-flex h-11 w-[180px] flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-xs font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60 hover:bg-white/10"
           >
-            {isDeleting ? (
-              "..."
-            ) : (
-              <>
-                Delete
-              </>
-            )}
+            {isDeleting ? "..." : <>Delete</>}
           </button>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_KEY_PREFIX = "ebms-cached-count";
 
@@ -34,7 +34,12 @@ export function useCachedCount(
   options?: { defaultCount?: number }
 ): [number, (count: number) => void] {
   const defaultCount = options?.defaultCount ?? 3;
-  const [cached, setCached] = useState<number | null>(() => getCachedCount(key));
+  const [cached, setCached] = useState<number | null>(null);
+
+  useEffect(() => {
+    const stored = getCachedCount(key);
+    if (stored != null) setCached(stored);
+  }, [key]);
 
   const updateCount = useCallback(
     (count: number) => {

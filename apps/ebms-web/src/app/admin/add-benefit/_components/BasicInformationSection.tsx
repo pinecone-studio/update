@@ -3,10 +3,10 @@
 import type { AddBenefitFormState } from "../_lib/types";
 
 const cardClass =
-  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "rounded-xl border border-[rgba(185,189,255,0.24)] bg-[rgba(53,41,99,0.44)] p-6 backdrop-blur-[12px]";
 const inputClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white";
-const labelClass = "block text-sm text-slate-600 mb-1 dark:text-[#94A3B8]";
+  "w-full rounded-lg border border-[rgba(185,189,255,0.24)] bg-[rgba(31,22,57,0.7)] px-3 py-2 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]";
+const labelClass = "block text-sm text-[#A7B6D3] mb-1";
 
 type Props = {
   form: AddBenefitFormState;

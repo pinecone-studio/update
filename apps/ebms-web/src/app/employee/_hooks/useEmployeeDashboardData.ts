@@ -142,13 +142,9 @@ export function useEmployeeDashboardData() {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [load]);
 
-  const handleRequestBenefit = useCallback(
+  const requestBenefitDirect = useCallback(
     async (benefit: BenefitCardProps) => {
       if (!benefit.benefitId) return;
-      const confirmed = window.confirm(
-        `Та "${benefit.name}" benefit-ийг хүсэхдээ итгэлтэй байна уу?`,
-      );
-      if (!confirmed) return false;
       try {
         await requestBenefit(benefit.benefitId);
         setBenefits((prev) =>
@@ -268,7 +264,7 @@ export function useEmployeeDashboardData() {
     uploadingContractByRequestId,
     contractUploadErrorByRequestId,
     setSelectedContractFileByRequestId,
-    handleRequestBenefit,
+    requestBenefitDirect,
     handleViewContract,
     handleViewUploadedContract,
     handleUploadSignedContract,

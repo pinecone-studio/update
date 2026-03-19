@@ -4,7 +4,7 @@ import { FiDollarSign, FiFileText, FiUsers } from "react-icons/fi";
 import type { AddBenefitFormState } from "../_lib/types";
 
 const cardClass =
-  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "rounded-xl border border-[rgba(185,189,255,0.24)] bg-[rgba(53,41,99,0.44)] p-4 backdrop-blur-[12px]";
 
 type Props = {
   form: AddBenefitFormState;
@@ -27,7 +27,7 @@ function ApprovalItem({
   onChange,
 }: ApprovalItemProps) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 transition hover:bg-slate-50 dark:border-[#334155] dark:bg-slate-900/50 dark:hover:bg-slate-800/50">
+    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[rgba(185,189,255,0.18)] bg-[rgba(31,22,57,0.7)] p-2.5 transition hover:bg-[rgba(61,44,101,0.7)]">
       <div
         className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${iconBgClass} text-slate-600 dark:text-slate-300`}
       >
@@ -48,14 +48,14 @@ function ApprovalItem({
 
 export function ApprovalSettingsSection({ form, onChange }: Props) {
   return (
-    <section className={`${cardClass} flex h-full min-h-0 flex-col w-full`}>
+    <section className={`${cardClass} flex w-full flex-col self-start`}>
       <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
         Approval Settings
       </h2>
       <div className="mt-2 flex flex-col gap-2">
         <ApprovalItem
           icon={<FiDollarSign size={18} />}
-          iconBgClass="bg-emerald-500/20 dark:bg-emerald-500/20"
+          iconBgClass="bg-slate-500/20 dark:bg-slate-500/20"
           title="Requires Finance Approval"
           checked={form.financeCheck ?? false}
           onChange={(v) => onChange({ ...form, financeCheck: v })}
