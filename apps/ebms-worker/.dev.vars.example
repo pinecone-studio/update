@@ -1,0 +1,7 @@
+# Copy to .dev.vars and add your Resend API key for local dev.
+# .dev.vars is gitignored — never commit real keys.
+#
+# Get API key: https://resend.com/api-keys
+# Test address: onboarding@resend.dev (from), delivered@resend.dev (to)
+
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
