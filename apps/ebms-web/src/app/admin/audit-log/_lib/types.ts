@@ -1,5 +1,5 @@
 export type AuditActionType =
-  | "HR Override"
+  | "Override"
   | "Request Approved"
   | "Request Rejected"
   | "Contract Uploaded"

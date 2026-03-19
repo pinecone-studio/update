@@ -19,8 +19,11 @@ export default function FinanceContractsPage() {
           <HiOutlineArrowLeft className="h-4 w-4" />
           Back
         </Link>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          Contracts
+        </h1>
         <div
-          className="flex flex-wrap items-center gap-3"
+          className="mt-4 flex flex-wrap items-center gap-3"
           role="tablist"
           aria-label="Contract type"
         >

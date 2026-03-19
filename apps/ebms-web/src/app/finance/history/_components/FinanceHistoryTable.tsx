@@ -4,6 +4,8 @@ import { useCallback } from "react";
 import {
   fetchBenefitRequestContractHtml,
   getFinanceClient,
+  getApiErrorMessage,
+  openFinanceContractByRequestId,
 } from "../../_lib/api";
 import type { BenefitRequest } from "../../_lib/api";
 
@@ -30,11 +32,20 @@ export function FinanceHistoryTable({
   onError,
 }: FinanceHistoryTableProps) {
   const handleViewContract = useCallback(
-    async (requestId: string) => {
+    async (entry: BenefitRequest) => {
+      const showError = (msg: string) => alert(msg);
+      if (entry.contractTemplateUrl) {
+        try {
+          await openFinanceContractByRequestId(entry.id);
+        } catch (e) {
+          showError(getApiErrorMessage(e) || "Failed to open contract");
+        }
+        return;
+      }
       try {
         const html = await fetchBenefitRequestContractHtml(
           getFinanceClient(),
-          requestId,
+          entry.id,
         );
         const popup = window.open("", "_blank", "noopener,noreferrer");
         if (popup) {
@@ -43,12 +54,10 @@ export function FinanceHistoryTable({
           popup.document.close();
         }
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Failed to open contract";
-        onError?.(msg);
-        if (!onError) alert(msg);
+        showError(getApiErrorMessage(e) || "Failed to open contract");
       }
     },
-    [onError],
+    [],
   );
 
   return (
@@ -59,12 +68,12 @@ export function FinanceHistoryTable({
             <tr>
               <th className="px-4 py-4 font-medium sm:px-6">№</th>
               <th className="px-4 py-4 font-medium sm:px-6">Time</th>
-              <th className="px-4 py-4 font-medium sm:px-6">User</th>
+              <th className="px-4 py-4 font-medium sm:px-6">Employee</th>
               <th className="px-4 py-4 font-medium sm:px-6">Action</th>
               <th className="px-4 py-4 font-medium sm:px-6">Benefit</th>
               <th className="px-4 py-4 font-medium sm:px-6">Result</th>
               <th className="px-4 py-4 font-medium sm:px-6">Contract</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Log ID</th>
+              <th className="px-4 py-4 font-medium sm:px-6">Request ID</th>
             </tr>
           </thead>
           <tbody>
@@ -74,8 +83,11 @@ export function FinanceHistoryTable({
                   ? "ADMIN_APPROVED"
                   : "PENDING";
               const newStatus = entry.status;
-              const actionLabel =
+              const actionBase =
                 entry.status === "APPROVED" ? "Request Approved" : "Request Rejected";
+              const actionLabel = entry.reviewedByName
+                ? `${actionBase} by ${entry.reviewedByName}`
+                : actionBase;
               return (
                 <tr
                   key={entry.id}
@@ -90,9 +102,6 @@ export function FinanceHistoryTable({
                   <td className="px-4 py-5 sm:px-6">
                     <p className="font-semibold text-slate-900 dark:text-white">
                       {entry.employeeName ?? entry.employeeId}
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-[#8FA3C5]">
-                      {entry.employeeId}
                     </p>
                   </td>
                   <td className="px-4 py-5 font-medium text-slate-800 dark:text-[#D4DEEF] sm:px-6">
@@ -115,13 +124,21 @@ export function FinanceHistoryTable({
                     </div>
                   </td>
                   <td className="px-4 py-5 sm:px-6">
-                    {entry.contractTemplateUrl || entry.requiresContract ? (
+                    {entry.contractTemplateUrl ? (
                       <button
                         type="button"
-                        onClick={() => handleViewContract(entry.id)}
+                        onClick={() => handleViewContract(entry)}
                         className="cursor-pointer text-sm font-medium text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300"
                       >
                         View contract
+                      </button>
+                    ) : entry.requiresContract ? (
+                      <button
+                        type="button"
+                        onClick={() => handleViewContract(entry)}
+                        className="cursor-pointer text-sm font-medium text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300"
+                      >
+                        View template
                       </button>
                     ) : (
                       <span className="text-slate-400 dark:text-slate-500">—</span>

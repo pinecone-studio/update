@@ -122,6 +122,8 @@ export const typeDefs = /* GraphQL */ `
     requiresContract: Boolean!
     contractId: ID
     contractTemplateUrl: String
+    reviewedBy: String
+    reviewedByName: String
   }
 
   type ContractTemplate {

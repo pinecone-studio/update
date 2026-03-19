@@ -10,7 +10,7 @@ import {
   benefits,
   contracts,
 } from "../../../db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 
 const statusMap: Record<string, string> = {
   PENDING: "pending",
@@ -50,6 +50,7 @@ export const benefitRequests: NonNullable<
       contractAcceptedAt: benefitRequestsTable.contractAcceptedAt,
       rejectReason: benefitRequestsTable.rejectReason,
       employeeContractR2Key: benefitRequestsTable.employeeContractR2Key,
+      reviewedBy: benefitRequestsTable.reviewedBy,
       employeeName: employees.name,
       benefitName: benefits.name,
       requiresContract: benefits.requiresContract,
@@ -61,6 +62,19 @@ export const benefitRequests: NonNullable<
     .leftJoin(contracts, eq(benefits.activeContractId, contracts.id))
     .where(sql`1=1`)
     .orderBy(sql`${benefitRequestsTable.createdAt} DESC`);
+
+  const reviewerIds = [...new Set(rows.map((r) => r.reviewedBy).filter(Boolean))] as string[];
+  const reviewerMap = new Map<string, string>();
+  if (reviewerIds.length > 0) {
+    const reviewerRows = await db
+      .select({ id: employees.id, name: employees.name, role: employees.role })
+      .from(employees)
+      .where(inArray(employees.id, reviewerIds));
+    for (const rev of reviewerRows) {
+      const role = rev.role ?? "";
+      reviewerMap.set(rev.id, role ? `${rev.name?.trim() || rev.id} (${role})` : (rev.name?.trim() || rev.id));
+    }
+  }
 
   return rows
     .filter((r) => {
@@ -113,5 +127,7 @@ export const benefitRequests: NonNullable<
       contractTemplateUrl: r.employeeContractR2Key
         ? `/admin/contracts/employee-requests/${encodeURIComponent(r.id)}/file`
         : null,
+      reviewedBy: r.reviewedBy ?? null,
+      reviewedByName: r.reviewedBy ? (reviewerMap.get(r.reviewedBy) ?? r.reviewedBy) : null,
     }));
 };

@@ -135,7 +135,7 @@ export function useAuditLog() {
           }
 
           let actionLabel: string;
-          let actionType: "HR Override" | "Request Approved" | "Request Rejected" | "Contract Uploaded" | "Contract Expired";
+          let actionType: "Override" | "Request Approved" | "Request Rejected" | "Contract Uploaded" | "Contract Expired";
           let details = "";
 
           if (trace.action === "request_approved") {
@@ -157,9 +157,10 @@ export function useAuditLog() {
             actionLabel = "Contract Expired";
             details = trace.reason ?? "Contract period expired";
           } else {
-            actionType = "HR Override";
-            actionLabel = prev ? `HR Override: ${prev} → ${nextStatus}` : `HR Override: ${nextStatus}`;
-            details = trace.reason ?? (trace.overrideBy ? `Override by ${trace.overrideBy}` : "HR eligibility override.");
+            const performedByStr = formatPerformedBy(item.triggeredBy ?? null);
+            actionType = "Override";
+            actionLabel = `Override by ${performedByStr}`;
+            details = trace.reason ?? (trace.overrideBy ? `Override by ${trace.overrideBy}` : "Eligibility override.");
           }
 
           return {
@@ -205,7 +206,7 @@ export function useAuditLog() {
   );
   const actionOptions = useMemo(
     () =>
-      ["HR Override", "Request Approved", "Request Rejected", "Contract Uploaded", "Contract Expired"].filter((a) =>
+      ["Override", "Request Approved", "Request Rejected", "Contract Uploaded", "Contract Expired"].filter((a) =>
         entries.some((e) => e.actionType === a),
       ),
     [entries],

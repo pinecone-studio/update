@@ -41,7 +41,7 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
             <tr>
               <th className="px-4 py-4 font-medium sm:px-6">№</th>
               <th className="px-4 py-4 font-medium sm:px-6">Time</th>
-              <th className="px-4 py-4 font-medium sm:px-6">User</th>
+              <th className="px-4 py-4 font-medium sm:px-6">Processed by</th>
               <th className="px-4 py-4 font-medium sm:px-6">Action</th>
               <th className="px-4 py-4 font-medium sm:px-6">Benefit</th>
               <th className="px-4 py-4 font-medium sm:px-6">Result</th>
@@ -72,10 +72,7 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
                   </td>
                   <td className="px-4 py-5 sm:px-6">
                     <p className="font-semibold text-slate-900 dark:text-white">
-                      {entry.employee}
-                    </p>
-                    <p className="text-sm text-slate-500 dark:text-[#8FA3C5]">
-                      {entry.employeeId}
+                      {entry.performedBy}
                     </p>
                   </td>
                   <td className="px-4 py-5 font-medium text-slate-800 dark:text-[#D4DEEF] sm:px-6">
