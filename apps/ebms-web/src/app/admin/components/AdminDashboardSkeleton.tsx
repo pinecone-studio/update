@@ -4,7 +4,14 @@
 
 import { Skeleton } from "@/app/_components/Skeleton";
 
-export function AdminDashboardSkeleton() {
+interface AdminDashboardSkeletonProps {
+  /** Number of request rows to show (matches BenefitRequestsSection) */
+  requestRowCount?: number;
+}
+
+export function AdminDashboardSkeleton({
+  requestRowCount = 3,
+}: AdminDashboardSkeletonProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-hidden">
       <section className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_1fr] gap-8 px-6 py-6 overflow-hidden lg:grid-cols-[auto_1fr] lg:grid-rows-1">
@@ -43,7 +50,7 @@ export function AdminDashboardSkeleton() {
           </div>
 
           <div className="min-h-0 flex-1 divide-y divide-white/30 px-8 pb-8">
-            {[1, 2, 3, 4, 5].map((i) => (
+            {Array.from({ length: requestRowCount }, (_, i) => i + 1).map((i) => (
               <div
                 key={i}
                 className="flex items-center justify-between px-4 py-3"

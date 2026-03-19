@@ -7,6 +7,7 @@ import type { BenefitCardProps } from "@/app/_components/BenefitCard";
 import {
   ensureValidActiveUserProfile,
 } from "@/app/_lib/activeUser";
+import { useCachedCount } from "@/app/_lib/useCachedCount";
 import { useOnUserSwitch } from "@/app/_lib/useOnUserSwitch";
 import {
   fetchMe,
@@ -41,6 +42,11 @@ export function useEmployeeDashboardData() {
   const [contractUploadErrorByRequestId, setContractUploadErrorByRequestId] =
     useState<Record<string, string>>({});
 
+  const [cachedBenefitCount, setCachedBenefitCount] = useCachedCount(
+    "employee-benefit-count",
+    { defaultCount: 3 }
+  );
+
   const load = useCallback(
     async (opts?: { silent?: boolean; retried?: boolean }) => {
       if (!opts?.silent) {
@@ -53,6 +59,7 @@ export function useEmployeeDashboardData() {
         setMe({ name: meRes.name, okrSubmitted: meRes.okrSubmitted });
 
         const mapped = mapMyBenefitsToCardProps(myBenefitsRes);
+        setCachedBenefitCount(mapped.length);
         setBenefits((prev) => {
           if (prev.length === 0) return mapped;
           return mapped.map((fresh) => {
@@ -250,6 +257,7 @@ export function useEmployeeDashboardData() {
     loading,
     error,
     benefits,
+    cachedBenefitCount,
     statusFilter,
     setStatusFilter,
     counts,

@@ -19,6 +19,7 @@ export default function EmployeeDashboardPage() {
     loading,
     error,
     benefits,
+    cachedBenefitCount,
     statusFilter,
     setStatusFilter,
     counts,
@@ -99,7 +100,7 @@ export default function EmployeeDashboardPage() {
     <div className="flex min-h-screen w-full flex-col items-center px-0 py-2 sm:px-2 sm:py-4 lg:px-4 lg:py-6">
       <div className="flex w-full max-w-[1512px] min-w-0 flex-col">
         {loading ? (
-          <EmployeeDashboardSkeleton benefitCount={benefits.length || 6} />
+          <EmployeeDashboardSkeleton benefitCount={cachedBenefitCount} />
         ) : (
           <>
             <EmployeeDashboardOverview

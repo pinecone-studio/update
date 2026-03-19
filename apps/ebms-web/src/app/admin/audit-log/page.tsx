@@ -10,6 +10,7 @@ export default function AuditLogPage() {
   const {
     loading,
     error,
+    cachedEntryCount,
     filteredEntries,
     benefitOptions,
     actionOptions,
@@ -31,7 +32,7 @@ export default function AuditLogPage() {
   } = useAuditLog();
 
   if (loading) {
-    return <AuditLogSkeleton />;
+    return <AuditLogSkeleton rowCount={cachedEntryCount} />;
   }
 
   return (

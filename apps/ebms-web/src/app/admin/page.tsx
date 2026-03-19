@@ -2,6 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCachedCount } from "@/app/_lib/useCachedCount";
 import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import { DashboardStatCard } from "./components/DashboardStatCard";
 import { BenefitRequestsSection } from "./components/BenefitRequestsSection";
@@ -31,6 +32,10 @@ export default function HrDashboardPage() {
     Array<{ id: string; name: string; department: string }>
   >([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [cachedRequestCount, setCachedRequestCount] = useCachedCount(
+    "admin-request-count",
+    { defaultCount: 3 }
+  );
 
   useOnUserSwitch(() => setRefreshKey((k) => k + 1));
 
@@ -43,7 +48,10 @@ export default function HrDashboardPage() {
     (async () => {
       try {
         const data = await fetchBenefitRequests(client, statusFilter);
-        if (!cancelled) setRequests(data);
+        if (!cancelled) {
+          setRequests(data);
+          setCachedRequestCount(data.length);
+        }
       } catch (e) {
         if (!cancelled) {
           setError(getApiErrorMessage(e));
@@ -137,7 +145,7 @@ export default function HrDashboardPage() {
     }
   }, []);
 
-  if (loading) return <AdminDashboardSkeleton />;
+  if (loading) return <AdminDashboardSkeleton requestRowCount={cachedRequestCount} />;
 
   return (
     <div className="flex min-h-min flex-1 flex-col gap-4 sm:gap-6 lg:gap-8">
