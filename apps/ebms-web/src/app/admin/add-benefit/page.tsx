@@ -13,6 +13,16 @@ import {
   fetchConfigAndAttributes,
   deleteBenefitFromCatalog,
 } from "./_lib/api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/app/_components/ui/alert-dialog";
 
 function BenefitsAndRulePageContent() {
   const router = useRouter();
@@ -24,6 +34,10 @@ function BenefitsAndRulePageContent() {
   const [error, setError] = useState<string | null>(null);
   const [actionBusyId, setActionBusyId] = useState<string | null>(null);
   const [highlightBenefitId, setHighlightBenefitId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const loadAll = useCallback(async () => {
     setLoadingCatalog(true);
@@ -61,21 +75,25 @@ function BenefitsAndRulePageContent() {
 
   const handleDelete = useCallback(
     async (benefitId: string, benefitName: string) => {
-      const ok = window.confirm(`"${benefitName}" benefit-ийг устгах уу?`);
-      if (!ok) return;
-      setActionBusyId(benefitId);
-      setError(null);
-      try {
-        await deleteBenefitFromCatalog(getClient(), benefitId);
-        await loadAll();
-      } catch (e) {
-        setError(getApiErrorMessage(e));
-      } finally {
-        setActionBusyId(null);
-      }
+      setConfirmDelete({ id: benefitId, name: benefitName });
     },
     [loadAll],
   );
+
+  const confirmDeleteBenefit = useCallback(async () => {
+    if (!confirmDelete) return;
+    setActionBusyId(confirmDelete.id);
+    setError(null);
+    try {
+      await deleteBenefitFromCatalog(getClient(), confirmDelete.id);
+      await loadAll();
+    } catch (e) {
+      setError(getApiErrorMessage(e));
+    } finally {
+      setActionBusyId(null);
+      setConfirmDelete(null);
+    }
+  }, [confirmDelete, loadAll]);
 
   const handleEdit = useCallback(
     (benefitId: string) => {
@@ -104,6 +122,37 @@ function BenefitsAndRulePageContent() {
           onDelete={handleDelete}
         />
       </section>
+
+      <AlertDialog
+        open={!!confirmDelete}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete benefit</AlertDialogTitle>
+            <AlertDialogDescription>
+              Та{" "}
+              <span className="font-semibold text-white">
+                "{confirmDelete?.name}"
+              </span>{" "}
+              benefit‑ийг устгах уу? Энэ үйлдлийг буцаах боломжгүй.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl border border-[#2B3B55] bg-[#121C2F] px-4 py-2 text-sm font-medium text-slate-200 hover:bg-[#1A263D] transition">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteBenefit}
+              className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-400 transition"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

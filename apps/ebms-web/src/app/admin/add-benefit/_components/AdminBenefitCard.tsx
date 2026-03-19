@@ -70,7 +70,7 @@ export function AdminBenefitCard({
   return (
     <div
       id={`benefit-card-${id}`}
-      className={`flex flex-col rounded-xl border border-white/10 transition ${
+      className={`flex h-[310px] flex-col rounded-xl border-t border-white/40 transition ${
         isHighlighted ? "ring-2 ring-[#2A8BFF]" : ""
       } bg-[#1A2037] shadow-[0_4px_6px_-4px_rgba(0,0,0,0.1),0_10px_15px_-3px_rgba(0,0,0,0.1)]`}
     >
@@ -79,7 +79,9 @@ export function AdminBenefitCard({
           <div
             className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-white/10 sm:h-12 sm:w-12 ${iconBgClass} ${iconColorClass}`}
           >
-            <div className="h-5 w-5 sm:h-6 sm:w-6">{icon}</div>
+            <div className="flex h-5 w-5 items-center justify-center">
+              {icon}
+            </div>
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-[15px] font-semibold text-white sm:text-base">
@@ -91,26 +93,59 @@ export function AdminBenefitCard({
           </div>
         </div>
 
-        <div className="mt-3 space-y-0.5">
-          <div className="flex items-center justify-between border-b border-white/10 py-2.5">
-            <span className={labelClass}>Coverage</span>
-            <span className={valueClass}>{subsidyPercent}% subsidy</span>
+        <div className="mt-3 flex-1 space-y-1.5 overflow-hidden text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Coverage:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {subsidyPercent}% subsidy
+            </span>
           </div>
-          <div className="flex items-center justify-between border-b border-white/10 py-2.5">
-            <span className={labelClass}>Vendor</span>
-            <span className={valueClass}>{vendorDisplay}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Vendor:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70 text-[14px] ">
+              {vendorDisplay}
+            </span>
           </div>
-          <div className="flex items-center justify-between border-b border-white/10 py-2.5">
-            <span className={labelClass}>Duration</span>
-            <span className={valueClass}>{durationDisplay}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Active period:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {validityPeriodDisplay ?? "—"}
+            </span>
           </div>
-          <div className="flex items-center justify-between border-b border-white/10 py-2.5">
-            <span className={labelClass}>Request deadline</span>
-            <span className={valueClass}>{requestDeadlineDisplay ?? "—"}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Employee usage:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {usagePeriodDisplay ?? "—"}
+            </span>
           </div>
-          <div className="flex items-center justify-between border-b border-white/10 py-2.5">
-            <span className={labelClass}>Approval</span>
-            <span className={valueClass}>{approvalDisplay}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-normal text-[#FFFFFF]/40">
+              Approval:
+            </span>
+            <span className="font-medium text-[#FFFFFF]/70">
+              {[
+                financeApproval && "Finance",
+                vendorContract && "Vendor Contract",
+                managerApproval && "Manager",
+              ]
+                .filter(Boolean)
+                .join(", ") || "—"}
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-400">Rule:</span>
+            <div className="mt-1 h-px w-full bg-slate-600/60" />
+            {ruleSummary ? (
+              <p className="mt-1 text-slate-300">{ruleSummary}</p>
+            ) : null}
           </div>
         </div>
 
@@ -138,7 +173,7 @@ export function AdminBenefitCard({
             disabled={isDeleting}
             className="inline-flex items-center w-[180px] h-11 justify-center gap-2 rounded-xl border border-white/20 bg-transparent px-6 py-2.5 text-sm font-medium text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isDeleting ? "..." : "Delete"}
+            {isDeleting ? "..." : <>Delete</>}
           </button>
         </div>
       </div>

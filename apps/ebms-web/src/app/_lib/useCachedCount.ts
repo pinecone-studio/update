@@ -37,7 +37,8 @@ export function useCachedCount(
   const [cached, setCached] = useState<number | null>(null);
 
   useEffect(() => {
-    setCached(getCachedCount(key));
+    const stored = getCachedCount(key);
+    if (stored != null) setCached(stored);
   }, [key]);
 
   const updateCount = useCallback(

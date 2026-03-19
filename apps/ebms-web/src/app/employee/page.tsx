@@ -12,6 +12,17 @@ import {
 } from "./components/EmployeeDashboardOverview";
 import { HelpFeedbackWidget } from "./components/HelpFeedbackWidget";
 import { useEmployeeDashboardData } from "./_hooks/useEmployeeDashboardData";
+import { useCallback, useRef, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/app/_components/ui/alert-dialog";
 
 export default function EmployeeDashboardPage() {
   const {
@@ -30,11 +41,40 @@ export default function EmployeeDashboardPage() {
     uploadingContractByRequestId,
     contractUploadErrorByRequestId,
     setSelectedContractFileByRequestId,
-    handleRequestBenefit,
+    requestBenefitDirect,
     handleViewContract,
     handleViewUploadedContract,
     handleUploadSignedContract,
   } = useEmployeeDashboardData();
+
+  const [confirmBenefit, setConfirmBenefit] =
+    useState<BenefitCardProps | null>(null);
+  const confirmResolver = useRef<((value: boolean) => void) | null>(null);
+
+  const handleRequestBenefit = useCallback(
+    (benefit: BenefitCardProps) => {
+      return new Promise<boolean>((resolve) => {
+        confirmResolver.current = resolve;
+        setConfirmBenefit(benefit);
+      });
+    },
+    [],
+  );
+
+  const handleConfirmRequest = useCallback(async () => {
+    if (!confirmBenefit) return;
+    const benefit = confirmBenefit;
+    setConfirmBenefit(null);
+    const ok = await requestBenefitDirect(benefit);
+    confirmResolver.current?.(ok !== false);
+    confirmResolver.current = null;
+  }, [confirmBenefit, requestBenefitDirect]);
+
+  const handleCancelRequest = useCallback(() => {
+    setConfirmBenefit(null);
+    confirmResolver.current?.(false);
+    confirmResolver.current = null;
+  }, []);
 
   const filterItems = [
     {
@@ -125,18 +165,49 @@ export default function EmployeeDashboardPage() {
                 </p>
               </div>
 
-              <BenefitPortfolio
-                benefits={benefitsWithContractFlow}
-                onRequestBenefit={handleRequestBenefit}
-                onViewContract={handleViewContract}
-                onViewUploadedContract={handleViewUploadedContract}
-              />
-            </section>
-          </>
-        )}
-      </div>
-
-      <HelpFeedbackWidget />
+            <BenefitPortfolio
+              benefits={benefitsWithContractFlow}
+              onRequestBenefit={handleRequestBenefit}
+              onViewContract={handleViewContract}
+              onViewUploadedContract={handleViewUploadedContract}
+            />
+          </section>
+        </>
+      )}
     </div>
+
+    <HelpFeedbackWidget />
+
+    <AlertDialog
+      open={!!confirmBenefit}
+      onOpenChange={(open) => {
+        if (!open) handleCancelRequest();
+      }}
+    >
+      <AlertDialogContent className="z-[120]">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Request benefit</AlertDialogTitle>
+          <AlertDialogDescription>
+            Та{" "}
+            <span className="font-semibold text-white">
+              "{confirmBenefit?.name}"
+            </span>{" "}
+            benefit‑ийг хүсэхдээ итгэлтэй байна уу?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="rounded-xl border border-[#2B3B55] bg-[#121C2F] px-4 py-2 text-sm font-medium text-slate-200 hover:bg-[#1A263D] transition">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirmRequest}
+            className="rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400 transition"
+          >
+            Request
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </div>
   );
 }
