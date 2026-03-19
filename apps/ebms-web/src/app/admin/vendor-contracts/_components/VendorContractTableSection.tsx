@@ -43,7 +43,7 @@ export function VendorContractTableSection({
           <button
             type="button"
             onClick={onAddContract}
-            className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center gap-2 rounded-xl bg-[#0057ADCC]/80 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
+            className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center gap-2 rounded-xl border-none bg-[#0057ADCC]/80 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
           >
             + <span className="text-[18px] font-normal">Add Contract</span>
           </button>

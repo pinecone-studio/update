@@ -329,9 +329,11 @@ export const BenefitCard = ({
           <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
             <div className="flex min-w-0 items-start gap-3 sm:gap-4">
               <div
-                className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${iconWrapClass}`}
+                className={`flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl sm:h-[58px] sm:w-[58px] ${iconWrapClass}`}
               >
-                <div className="h-5 w-5 sm:h-6 sm:w-6">{icon}</div>
+                <div className="flex h-[30px] w-[30px] items-center justify-center sm:h-[36px] sm:w-[36px]">
+                  {icon}
+                </div>
               </div>
 
               <div className="min-w-0">

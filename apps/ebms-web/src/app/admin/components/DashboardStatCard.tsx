@@ -7,6 +7,7 @@ type DashboardStatCardProps = {
   title: string;
   value: string;
   icon: ReactNode;
+  onClick?: () => void;
 };
 
 export function DashboardStatCard({
@@ -14,6 +15,7 @@ export function DashboardStatCard({
   title,
   value,
   icon,
+  onClick,
 }: DashboardStatCardProps) {
   const bgStyle =
     keyType === "employees"
@@ -22,8 +24,23 @@ export function DashboardStatCard({
 
   return (
     <article
-      className="flex w-full min-h-[240px] flex-col rounded-2xl px-6 py-6 text-left shadow-lg ring-1 ring-white/10 sm:min-h-[280px] sm:px-8 sm:py-8 lg:h-[320px] lg:w-[454px] lg:px-[54px] lg:py-[48px]"
+      className={`flex w-full min-h-[240px] flex-col rounded-2xl px-6 py-6 text-left shadow-lg ring-1 ring-white/10 sm:min-h-[280px] sm:px-8 sm:py-8 lg:h-[320px] lg:w-[454px] lg:px-[54px] lg:py-[48px] ${
+        onClick ? "cursor-pointer transition hover:opacity-95" : ""
+      }`}
       style={{ background: bgStyle }}
+      onClick={onClick}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
     >
       <div className="flex flex-1 flex-col justify-between gap-4 sm:gap-6">
         <div className="flex items-center gap-4 sm:gap-10">

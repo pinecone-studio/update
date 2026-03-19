@@ -2,6 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCachedCount } from "@/app/_lib/useCachedCount";
 import { AdminDashboardSkeleton } from "./components/AdminDashboardSkeleton";
 import { DashboardStatCard } from "./components/DashboardStatCard";
@@ -19,6 +20,7 @@ import {
 import type { BenefitRequest } from "./_lib/dashboard-types";
 
 export default function HrDashboardPage() {
+  const router = useRouter();
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,13 +157,14 @@ export default function HrDashboardPage() {
             keyType="employees"
             title="Total-Employees"
             value={String(totalEmployees)}
+            onClick={() => router.push("/admin/employee-eligibility")}
             icon={
-              <div className="h-[60px] w-[60px] rounded-[12px] bg-[rgba(10,18,45,0.22)] p-[5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
-                <div className="h-full w-full overflow-hidden rounded-[6px] bg-white">
+              <div className="h-[60px] w-[60px] rounded-[12px] bg-[rgba(10,18,45,0.22)] p-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
+                <div className="h-full w-full overflow-hidden rounded-[10px] bg-white">
                   <img
                     src="/Total-employee.png"
                     alt="Total employees"
-                    className="h-full w-full object-contain p-[3px]"
+                    className="h-full w-full object-contain p-0"
                   />
                 </div>
               </div>
@@ -171,13 +174,14 @@ export default function HrDashboardPage() {
             keyType="benefits"
             title="All-Benefits"
             value={String(activeBenefits)}
+            onClick={() => router.push("/admin/add-benefit")}
             icon={
-              <div className="h-[60px] w-[60px] rounded-[12px] bg-[rgba(10,18,45,0.22)] p-[5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
-                <div className="h-full w-full overflow-hidden rounded-[6px] bg-white">
+              <div className="h-[60px] w-[60px] rounded-[12px] bg-[rgba(10,18,45,0.22)] p-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]">
+                <div className="h-full w-full overflow-hidden rounded-[10px] bg-white">
                   <img
                     src="/All-benefit.png"
                     alt="All benefits"
-                    className="h-full w-full object-contain p-[3px]"
+                    className="h-full w-full object-contain p-0"
                   />
                 </div>
               </div>
