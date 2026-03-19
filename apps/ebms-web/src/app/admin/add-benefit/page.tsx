@@ -135,19 +135,21 @@ function BenefitsAndRulePageContent() {
 					if (!open) setConfirmDelete(null);
 				}}
 			>
-				<AlertDialogContent>
+				<AlertDialogContent className="border-slate-200 bg-white dark:border-[#243041] dark:bg-[#111A2A]">
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete benefit</AlertDialogTitle>
-						<AlertDialogDescription>
+						<AlertDialogTitle className="!text-slate-900 dark:!text-white">
+							Delete benefit
+						</AlertDialogTitle>
+						<AlertDialogDescription className="text-slate-700 dark:text-slate-300">
 							Та{" "}
-							<span className="font-semibold text-white">
+							<span className="font-semibold text-slate-900 dark:text-white">
 								"{confirmDelete?.name}"
 							</span>{" "}
 							benefit‑ийг устгах уу? Энэ үйлдлийг буцаах боломжгүй.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel className="rounded-xl border border-[#2B3B55] bg-[#121C2F] px-4 py-2 text-sm font-medium text-slate-200 hover:bg-[#1A263D] transition">
+						<AlertDialogCancel className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-50 dark:border-[#2B3B55] dark:bg-[#121C2F] dark:text-slate-200 dark:hover:bg-[#1A263D]">
 							Cancel
 						</AlertDialogCancel>
 						<AlertDialogAction

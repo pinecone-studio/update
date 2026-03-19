@@ -155,7 +155,7 @@ export default function FinancePage() {
       )}
 
       <section className="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2 xl:items-stretch">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
           {visibleStatCards.map((card) => (
             <FinanceStatCard
               key={card.key}

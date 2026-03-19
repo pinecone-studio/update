@@ -34,13 +34,13 @@ export function ContractTableSection({
 					</h2>
 				</div>
 				<div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-					<div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-						<div className="relative w-full sm:w-auto">
+					<div className="flex items-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+						<div className="relative w-[96px] shrink-0 sm:w-auto">
 							<select
 								aria-label="Filter by employee"
 								value={filterByEmployeeId}
 								onChange={(e) => onFilterByEmployeeChange(e.target.value)}
-								className="h-10 min-w-[82px] appearance-none rounded-lg border border-slate-20 bg-[#FFFFFF]/10 pl-3 pr-9 text-5 text-slate-900 outline-none dark:text-white"
+								className="h-10 min-w-[82px] appearance-none rounded-lg border border-slate-300 bg-slate-50 pl-3 pr-9 text-5 text-slate-900 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[#FFFFFF]/10 dark:text-white dark:focus:border-[#B18CFF]"
 							>
 								<option value="">All</option>
 								{employeeOptions.map((emp) => (
@@ -51,7 +51,7 @@ export function ContractTableSection({
 							</select>
 						</div>
 						<div className="relative min-w-0 flex-1">
-							<span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
+							<span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-[#8FA3C5]">
 								<svg
 									viewBox="0 0 24 24"
 									fill="none"
@@ -68,7 +68,7 @@ export function ContractTableSection({
 								value={search}
 								onChange={(e) => onSearchChange(e.target.value)}
 								placeholder="Search by contract name"
-								className="h-11 w-full min-w-0 rounded-lg border border-transparent bg-[#FFFFFF]/10 pl-12 pr-4 text-sm text-slate-200 placeholder:text-slate-200 outline-none focus:border-white/70 dark:text-white dark:placeholder:text-[#FFFFFF80]/50 dark:focus:border-white/50 sm:w-[280px] lg:w-[368px]"
+								className="h-10 w-full min-w-0 rounded-lg border border-slate-300 bg-slate-50 pl-12 pr-4 text-sm text-slate-900 placeholder:text-slate-500 outline-none focus:border-blue-500 dark:border-transparent dark:bg-[#FFFFFF]/10 dark:text-white dark:placeholder:text-[#FFFFFF80]/50 dark:focus:border-white/50 sm:h-11 sm:w-[280px] lg:w-[368px]"
 							/>
 						</div>
 					</div>
@@ -81,7 +81,55 @@ export function ContractTableSection({
 					</button>
 				</div>
 
-				<div className="overflow-x-auto">
+				<div className="space-y-3 md:hidden">
+					{contracts.map((contract, index) => (
+						<div
+							key={contract.id}
+							className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5"
+						>
+							<div className="mb-3 flex items-start justify-between gap-3">
+								<div>
+									<p className="text-xs text-slate-500 dark:text-[#A7B6D3]">№ {index + 1}</p>
+									<p className="mt-1 text-base font-semibold text-slate-900 dark:text-white">
+										{contract.contractNumber}
+									</p>
+								</div>
+							</div>
+							<div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+								<div>
+									<p className="text-slate-500 dark:text-[#A7B6D3]">Contract code</p>
+									<p className="mt-1 text-slate-900 dark:text-white">{contract.contractName}</p>
+								</div>
+								<div>
+									<p className="text-slate-500 dark:text-[#A7B6D3]">Start date</p>
+									<p className="mt-1 text-slate-900 dark:text-white">{contract.startDate}</p>
+								</div>
+								<div>
+									<p className="text-slate-500 dark:text-[#A7B6D3]">End date</p>
+									<p className="mt-1 text-slate-900 dark:text-white">{contract.endDate}</p>
+								</div>
+								<div className="min-w-0">
+									<p className="text-slate-500 dark:text-[#A7B6D3]">Contract URL</p>
+									<a
+										href={contract.contractUrl}
+										target="_blank"
+										rel="noreferrer"
+										className="mt-1 block truncate text-blue-600 underline decoration-blue-600/40 underline-offset-4 hover:text-blue-700 dark:text-[#6FA3FF] dark:decoration-[#6FA3FF]/40 dark:hover:text-[#8AB6FF]"
+									>
+										{contract.contractUrl}
+									</a>
+								</div>
+							</div>
+						</div>
+					))}
+					{contracts.length === 0 && (
+						<div className="py-6 text-center text-sm text-slate-600 dark:text-[#A7B6D3]">
+							Contract not found.
+						</div>
+					)}
+				</div>
+
+				<div className="hidden overflow-x-auto md:block">
 					<table className="min-w-[640px] w-full">
 						<thead>
 							<tr>

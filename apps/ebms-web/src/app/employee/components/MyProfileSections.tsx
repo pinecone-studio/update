@@ -330,7 +330,7 @@ export function BenefitHistorySection() {
               return (
                 <div
                   key={benefitId}
-                  className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden"
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-transparent"
                 >
             <div className="flex flex-col gap-2 border-b border-slate-200 px-4 py-3 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
               <p className="font-semibold text-slate-900 dark:text-white">

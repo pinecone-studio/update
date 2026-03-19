@@ -35,11 +35,11 @@ export function BenefitRequestRow({
 					</div>
 					<div className="min-w-0 flex-1 space-y-1">
 						<div className="flex flex-wrap items-start gap-x-4 gap-y-0">
-							<p className="text-base font-semibold leading-none text-white sm:text-[20px]">
+							<p className="text-base font-semibold leading-none text-slate-900 dark:text-white sm:text-[20px]">
 								{employeeName}
 							</p>
 						</div>
-						<p className="truncate text-[15px] leading-none text-white/85 dark:text-[#E2E8F0]">
+						<p className="truncate text-[15px] leading-none text-slate-700 dark:text-[#E2E8F0]">
 							{benefitText}
 						</p>
 						<span className="block text-[10px] leading-none text-slate-400 dark:text-[#94A3B8]">

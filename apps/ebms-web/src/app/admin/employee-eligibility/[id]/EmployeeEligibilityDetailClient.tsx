@@ -531,14 +531,14 @@ export default function EmployeeEligibilityDetailClient() {
 
 	return (
 		<>
-			<div className="min-h-[80vh] px-[28px] pb-12 pt-[34px] text-slate-900 dark:text-white">
+			<div className="min-h-[80vh] px-4 pb-12 pt-6 text-slate-900 dark:text-white sm:px-[28px] sm:pt-[34px]">
 				<div className="mx-auto max-w-[1512px]">
-					<div className="mb-[42px] flex items-start gap-[22px]">
+					<div className="mb-8 flex flex-col gap-4 sm:mb-[42px] sm:flex-row sm:items-start sm:gap-[22px]">
 						<button
 							type="button"
 							onClick={() => router.push("/admin/employee-eligibility")}
 							aria-label="Back"
-							className="mt-[6px] inline-flex h-[64px] w-[64px] items-center justify-center rounded-[16px] bg-slate-200 text-slate-700 transition hover:bg-slate-300 dark:border dark:border-white/10 dark:bg-[#1e1a35] dark:text-white dark:hover:bg-[#2a2540]"
+							className="inline-flex h-14 w-14 items-center justify-center rounded-[16px] bg-slate-200 text-slate-700 transition hover:bg-slate-300 dark:border dark:border-white/10 dark:bg-[#1e1a35] dark:text-white dark:hover:bg-[#2a2540] sm:mt-[6px] sm:h-[64px] sm:w-[64px]"
 						>
 							<svg
 								viewBox="0 0 24 24"
@@ -553,11 +553,11 @@ export default function EmployeeEligibilityDetailClient() {
 							</svg>
 						</button>
 
-						<div className="ml-auto flex flex-col items-end text-right">
-							<h1 className="text-[42px] font-normal leading-[1.02] tracking-[-0.04em] text-slate-900 dark:text-white">
+						<div className="flex min-w-0 flex-col text-left sm:ml-auto sm:items-end sm:text-right">
+							<h1 className="max-w-full break-words text-[26px] font-normal leading-[1.02] tracking-[-0.04em] text-slate-900 dark:text-white sm:text-[34px] lg:text-[42px]">
 								{employee.name}
 							</h1>
-							<p className="mt-[8px] text-[26px] font-light tracking-[-0.02em] text-slate-600 dark:text-white/48">
+							<p className="mt-2 text-[16px] font-light tracking-[-0.02em] text-slate-600 dark:text-white/48 sm:text-[22px] lg:text-[26px]">
 								Role
 								<span className="font-light text-slate-700 dark:text-[#9AA8AB]">
 									: {employee.role}
@@ -567,7 +567,73 @@ export default function EmployeeEligibilityDetailClient() {
 					</div>
 
 					<section className="overflow-hidden rounded-[22px] border border-slate-200 bg-white/90 shadow-lg backdrop-blur-[3px] dark:border-white/10 dark:bg-[#16142a] dark:shadow-[0_18px_70px_rgba(5,3,16,0.34)]">
-						<div className="overflow-x-auto">
+						<div className="block lg:hidden">
+							<div className="space-y-0 px-4">
+								{employee.benefits.map((benefit) => {
+									const key = `${employee.id}-${benefit.benefitId}`;
+									return (
+										<div
+											key={benefit.benefitId || benefit.name}
+											className="border-b border-slate-200 py-4 last:border-b-0 dark:border-white/10"
+										>
+											<div className="flex items-start justify-between gap-3">
+												<div className="min-w-0">
+													<p className="text-lg font-medium text-slate-900 dark:text-white">
+														{benefit.name}
+													</p>
+													<p className="mt-1 text-sm text-slate-600 dark:text-white/70">
+														{statusCopy[benefit.status]}
+													</p>
+												</div>
+												<button
+													type="button"
+													onClick={() => openBenefitModal(key, benefit.status)}
+													className="shrink-0 inline-flex items-center gap-1 text-sm font-medium text-[#1E78FF] transition hover:text-[#56A5FF] dark:text-[#5BA3FF] dark:hover:text-[#7AB8FF]"
+												>
+													<span>Fix</span>
+													<svg
+														viewBox="0 0 24 24"
+														fill="none"
+														className="h-4 w-4"
+														stroke="currentColor"
+														strokeWidth="1.8"
+													>
+														<path d="M7 17L17 7" />
+														<path d="M10 7h7v7" />
+													</svg>
+												</button>
+											</div>
+											<div className="mt-3 space-y-2 text-sm">
+												<div className="flex items-start justify-between gap-3">
+													<span className="text-slate-500 dark:text-white/50">
+														Reason
+													</span>
+													<span className="max-w-[58%] text-right text-slate-800 dark:text-white/90">
+														{benefit.reason}
+													</span>
+												</div>
+												<div className="flex items-start justify-between gap-3">
+													<span className="text-slate-500 dark:text-white/50">
+														Last Date
+													</span>
+													<span className="text-right text-slate-800 dark:text-white/90">
+														{benefit.lastDate}
+													</span>
+												</div>
+											</div>
+										</div>
+									);
+								})}
+
+								{employee.benefits.length === 0 && (
+									<div className="py-12 text-center text-sm text-slate-600 dark:text-white/58">
+										Benefit information not found.
+									</div>
+								)}
+							</div>
+						</div>
+
+						<div className="hidden overflow-x-auto lg:block">
 							<div className="min-w-[640px]">
 								<div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 sm:px-[20px] sm:py-[20px] sm:text-[17px] dark:border-white/10 dark:bg-[#1e1a35] dark:text-white/70">
 									<div className="whitespace-nowrap">Benefit</div>

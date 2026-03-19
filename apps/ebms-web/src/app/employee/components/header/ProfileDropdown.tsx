@@ -37,7 +37,7 @@ export function ProfileDropdown({
     <div className="relative">
       <button
         onClick={onToggle}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-sm font-semibold text-slate-700 dark:border-white/10 dark:text-white"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-transparent dark:text-white"
         aria-label="Profile"
       >
         <ProfileIcon />
@@ -51,7 +51,7 @@ export function ProfileDropdown({
         >
           <div className="border-b border-slate-200 p-4 dark:border-white/10">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 text-sm font-semibold text-slate-700 dark:border-white/10 dark:text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-transparent dark:text-white">
                 <ProfileIcon />
               </div>
               <div>

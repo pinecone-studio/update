@@ -22,7 +22,7 @@ export function VendorContractTableSection({
 			<div className="flex flex-col gap-6 sm:gap-12">
 				<div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
 					<div className="relative min-w-0 flex-1">
-						<span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
+						<span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-[#8FA3C5]">
 							<svg
 								viewBox="0 0 24 24"
 								fill="none"
@@ -39,7 +39,7 @@ export function VendorContractTableSection({
 							value={search}
 							onChange={(e) => onSearchChange(e.target.value)}
 							placeholder="Search by contract name"
-							className="h-11 w-full min-w-0 rounded-lg border border-transparent bg-[#FFFFFF]/10 pl-12 pr-4 text-sm text-slate-200 placeholder:text-slate-200 outline-none focus:border-white/70 dark:text-white dark:placeholder:text-[#FFFFFF80]/50 dark:focus:border-white/50 sm:w-[280px] lg:w-[368px]"
+							className="h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-slate-50 pl-12 pr-4 text-sm text-slate-900 placeholder:text-slate-500 outline-none focus:border-blue-500 dark:border-transparent dark:bg-[#FFFFFF]/10 dark:text-white dark:placeholder:text-[#FFFFFF80]/50 dark:focus:border-white/50 sm:w-[280px] lg:w-[368px]"
 						/>
 					</div>
 					<button

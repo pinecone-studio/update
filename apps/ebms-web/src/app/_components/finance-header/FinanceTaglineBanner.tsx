@@ -41,11 +41,11 @@ export function FinanceTaglineBanner({
 			<button
 				ref={diceButtonRef}
 				onClick={handleRandomTagline}
-				className="group absolute right-0 top-1/2 inline-flex h-[40px] w-[40px] -translate-y-1/2 items-center justify-center rounded-[18px] border border-slate-200 bg-slate-100 shadow transition hover:border-slate-300 hover:bg-slate-200 active:scale-[0.98] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_10px_24px_rgba(0,0,0,0.35)] dark:hover:border-white/20 dark:hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))]"
+				className="group absolute right-0 top-1/2 inline-flex h-[40px] w-[40px] -translate-y-1/2 items-center justify-center rounded-[18px] border border-slate-200 bg-slate-100 shadow transition hover:border-slate-300 hover:bg-slate-200 active:scale-[0.98] dark:border-white/10 dark:bg-[#06080f] dark:shadow-[0_10px_24px_rgba(0,0,0,0.45)] dark:hover:border-white/20 dark:hover:bg-[#0d1320]"
 				title="Шинэ уриа үг"
 				aria-label="Change tagline"
 			>
-				<IoDiceOutline className="h-5 w-5 text-slate-600 transition group-hover:text-slate-800 dark:text-slate-700 dark:group-hover:text-slate-900" />
+				<IoDiceOutline className="h-5 w-5 text-slate-600 transition group-hover:text-slate-800 dark:text-white/80 dark:group-hover:text-white" />
 			</button>
 		</div>
 	);

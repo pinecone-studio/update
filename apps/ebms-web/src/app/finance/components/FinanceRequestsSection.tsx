@@ -61,7 +61,7 @@ export function FinanceRequestsSection({
               key={value ?? "all"}
               type="button"
               onClick={() => onStatusFilterChange(value)}
-              className={`rounded-xl px-4 py-2 text-[15px] font-medium leading-tight transition ${
+              className={`rounded-xl px-3 py-2 text-[14px] font-medium leading-tight transition sm:px-4 sm:text-[15px] ${
                 statusFilter === value
                   ? "bg-[#2A69D7] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]"
                   : "border border-[#3A4F78]/40 text-slate-700 hover:bg-[#d6cdf6] dark:border-[#3A4F78] dark:text-[#B7C4DD] dark:hover:bg-[#2A3E63]"
@@ -80,7 +80,144 @@ export function FinanceRequestsSection({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="space-y-3 p-4 sm:hidden">
+        {requests.length === 0 ? (
+          <div className="py-10 text-center">
+            <h3 className="text-[18px] font-semibold leading-tight text-slate-900 dark:text-white">
+              No requests awaiting finance
+            </h3>
+            <p className="mt-2 text-[14px] leading-tight text-slate-600 dark:text-[#A7B6D3]">
+              All employee benefit requests are processed.
+            </p>
+          </div>
+        ) : (
+          requests.map((request, index) => {
+            const status = (request.status || "PENDING").toUpperCase();
+            const isPending = status === "PENDING" || status === "ADMIN_APPROVED";
+            const needsSignature =
+              status === "APPROVED" &&
+              request.requiresContract &&
+              !request.contractAcceptedAt;
+
+            return (
+              <div
+                key={request.id}
+                className="rounded-2xl border border-slate-200 bg-white/70 p-4 dark:border-[#2B405F] dark:bg-white/5"
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#8B3DFF] text-[13px] font-semibold leading-tight text-white">
+                      {getInitials(request.employeeName || request.employeeId)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 dark:text-[#A7B6D3]">#{index + 1}</p>
+                      <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
+                        {request.employeeName || request.employeeId}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-lg bg-slate-200 px-2 py-1 text-[12px] leading-tight text-slate-700 dark:bg-[#24364F] dark:text-[#B7C4DD]">
+                    {employees[request.employeeId]?.role || "—"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
+                  <div>
+                    <p className="text-slate-500 dark:text-[#A7B6D3]">Benefit Type</p>
+                    <p className="mt-1 text-slate-900 dark:text-white">
+                      {request.benefitName || request.benefitId}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-slate-500 dark:text-[#A7B6D3]">Requested Amount</p>
+                    <p className="mt-1 font-semibold text-slate-900 dark:text-white">
+                      {benefitSubsidyMap[request.benefitId] != null
+                        ? `${benefitSubsidyMap[request.benefitId]}%`
+                        : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-slate-500 dark:text-[#A7B6D3]">Date</p>
+                    <p className="mt-1 text-slate-700 dark:text-[#8FA3C5]">
+                      {request.createdAt
+                        ? new Date(request.createdAt).toLocaleString("mn-MN", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-slate-500 dark:text-[#A7B6D3]">Contract</p>
+                    <div className="mt-1 flex flex-col gap-1">
+                      {request.requiresContract ? (
+                        <span
+                          className={`inline-flex w-fit rounded-md px-2 py-1 text-[12px] font-medium leading-tight ${
+                            needsSignature
+                              ? "bg-amber-500/20 text-amber-400"
+                              : "bg-emerald-500/20 text-emerald-400"
+                          }`}
+                        >
+                          {needsSignature ? "Not signed" : "Signed"}
+                        </span>
+                      ) : (
+                        <span className="text-[12px] text-slate-400">N/A</span>
+                      )}
+                      {request.contractTemplateUrl ? (
+                        <button
+                          type="button"
+                          onClick={() => void onViewTemplate(request.id)}
+                          className="w-fit text-[12px] leading-tight text-[#8BC3FF] hover:text-[#B5DAFF]"
+                        >
+                          View template
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3 dark:border-[#2B405F]">
+                  {isPending ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => void onApprove(request.id)}
+                        disabled={submittingRequestId === request.id}
+                        className="shrink-0 rounded-lg bg-[#0A8A53] px-3 py-1.5 text-xs font-medium leading-tight text-white hover:bg-[#0D9C5F] disabled:opacity-60"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onReject(request.id)}
+                        disabled={submittingRequestId === request.id}
+                        className="shrink-0 rounded-lg bg-[#B21C23] px-3 py-1.5 text-xs font-medium leading-tight text-white hover:bg-[#CB222B] disabled:opacity-60"
+                      >
+                        Reject
+                      </button>
+                    </>
+                  ) : (
+                    <span
+                      className={`rounded-md px-2 py-1 text-[12px] font-medium leading-tight ${
+                        status === "APPROVED"
+                          ? "bg-emerald-500/20 text-emerald-400"
+                          : "bg-rose-500/20 text-rose-400"
+                      }`}
+                    >
+                      {status === "APPROVED" ? "Approved" : "Rejected"}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="hidden overflow-x-auto sm:block">
         <table className="min-w-[720px] w-full text-left text-sm leading-tight sm:text-[15px]">
           <thead className="border-b border-slate-300/70 text-xs uppercase tracking-wide text-slate-600 dark:border-[#2B405F] dark:text-[#9DAECF] sm:text-[13px]">
             <tr>

@@ -33,7 +33,84 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
 	}, []);
 	return (
 		<section className="overflow-hidden rounded-3xl border border-slate-200 bg-white/90 p-2 dark:border-white/10 dark:bg-[#16142a]">
-			<div className="overflow-x-auto">
+			<div className="space-y-3 p-2 sm:hidden">
+				{entries.map((entry, idx) => {
+					let oldStatus = (entry.oldStatus ?? "").toUpperCase().trim();
+					if (!oldStatus) {
+						if (entry.status === "ACTIVE") oldStatus = "ELIGIBLE";
+						else if (entry.status === "ELIGIBLE") oldStatus = "PENDING";
+						else if (entry.status === "REJECTED") oldStatus = "PENDING";
+						else oldStatus = "LOCKED";
+					}
+					const newStatus = entry.status;
+					return (
+						<div
+							key={entry.id}
+							className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5"
+						>
+							<div className="mb-3 flex items-start justify-between gap-3">
+								<div>
+									<p className="text-xs text-slate-500 dark:text-[#A7B6D3]">№ {idx + 1}</p>
+									<p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+										{entry.action}
+									</p>
+								</div>
+								<p className="text-right text-[11px] text-slate-500 dark:text-[#A7B6D3]">
+									{formatDateTime(entry.timestamp)}
+								</p>
+							</div>
+
+							<div className="grid grid-cols-2 gap-x-4 gap-y-3 text-[12px]">
+								<div>
+									<p className="text-slate-500 dark:text-[#A7B6D3]">Processed by</p>
+									<p className="mt-1 font-semibold text-slate-900 dark:text-white">
+										{entry.performedBy}
+									</p>
+								</div>
+								<div>
+									<p className="text-slate-500 dark:text-[#A7B6D3]">Benefit</p>
+									<p className="mt-1 text-slate-900 dark:text-white">{entry.benefit}</p>
+								</div>
+								<div>
+									<p className="text-slate-500 dark:text-[#A7B6D3]">Result</p>
+									<div className="mt-1 flex flex-wrap items-center gap-1 text-[11px] font-medium text-slate-700 dark:text-[#C7D6EF]">
+										<span>{oldStatus}</span>
+										<span className="text-slate-400 dark:text-[#6B7B9E]">→</span>
+										<span>{newStatus}</span>
+									</div>
+								</div>
+								<div>
+									<p className="text-slate-500 dark:text-[#A7B6D3]">Log ID</p>
+									<p className="mt-1 font-mono text-[11px] text-slate-700 dark:text-[#8FA3C5]">
+										{entry.id.slice(0, 8)}…
+									</p>
+								</div>
+							</div>
+
+							<div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-200 pt-3 dark:border-white/10">
+								<span className="text-[11px] text-slate-500 dark:text-[#A7B6D3]">
+									{entry.employee}
+								</span>
+								{entry.uploadedContractRequestId ? (
+									<button
+										type="button"
+										onClick={() =>
+											handleViewContract(entry.uploadedContractRequestId!)
+										}
+										className="cursor-pointer text-xs font-medium text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300"
+									>
+										View contract
+									</button>
+								) : (
+									<span className="text-xs text-slate-400 dark:text-slate-500">—</span>
+								)}
+							</div>
+						</div>
+					);
+				})}
+			</div>
+
+			<div className="hidden overflow-x-auto sm:block">
 				<table className="min-w-full text-left text-5">
 					<thead className="border-b border-slate-200 text-slate-500 dark:border-white/5 dark:text-[#A7B6D3]">
 						<tr>

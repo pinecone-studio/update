@@ -22,9 +22,9 @@ export default function VendorContractsPage() {
 						role="tab"
 						aria-selected={activeTab === "employee"}
 						onClick={() => setActiveTab("employee")}
-						className={`rounded-xl px-3 py-2 text-base font-medium transition sm:text-lg lg:text-[24px] ${
+						className={`px-3 py-2 text-base font-medium transition sm:text-lg lg:text-[24px] ${
 							activeTab === "employee"
-								? "border-b-2 border-blue-600 bg-blue-600 text-white rounded-b-none dark:border-[#2A9BFF] dark:bg-[#2A9BFF]/90"
+								? "border-b-2 border-blue-600 text-slate-900 dark:border-[#2A9BFF] dark:text-white"
 								: "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
 						}`}
 					>
@@ -35,9 +35,9 @@ export default function VendorContractsPage() {
 						role="tab"
 						aria-selected={activeTab === "vendor"}
 						onClick={() => setActiveTab("vendor")}
-						className={`rounded-xl px-3 py-2 text-base font-medium transition sm:text-lg lg:text-[24px] ${
+						className={`px-3 py-2 text-base font-medium transition sm:text-lg lg:text-[24px] ${
 							activeTab === "vendor"
-								? "border-b-2 border-blue-600 bg-blue-600 text-white rounded-b-none dark:border-[#2A9BFF] dark:bg-[#2A9BFF]/90"
+								? "border-b-2 border-blue-600 text-slate-900 dark:border-[#2A9BFF] dark:text-white"
 								: "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
 						}`}
 					>
