@@ -3,11 +3,12 @@
  */
 
 import { Hono } from "hono";
-import { and, eq, sql, lt } from "drizzle-orm";
+import { and, eq, ne, sql, lt } from "drizzle-orm";
 import type { Env } from "../types";
 import { getDb } from "../db/drizzle";
-import { feedback, feedbackVotes } from "../db/schema";
+import { feedback, feedbackVotes, employees } from "../db/schema";
 import { dispatchRoleNotification } from "../notifications/roleDispatcher";
+import { dispatchEmployeeNotification } from "../notifications/dispatcher";
 
 const VOTING_DEADLINE_HOURS = 24;
 const VOTE_THRESHOLD = 3;
@@ -161,6 +162,28 @@ feedbackRoute.post("/", async (c) => {
     createdAt: now,
     votingEndsAt,
   });
+
+  // Notify other employees that new feedback is open for voting
+  try {
+    const otherEmployees = await db
+      .select({ id: employees.id })
+      .from(employees)
+      .where(ne(employees.id, employeeId));
+    for (const emp of otherEmployees) {
+      await dispatchEmployeeNotification(c.env, {
+        employeeId: emp.id,
+        title: "New feedback to vote on",
+        body: "A colleague shared feedback about benefits. Vote within 24 hours to help escalate it.",
+        type: "ELIGIBILITY_CHANGE",
+        tone: "info",
+        dedupeKey: `feedback:${id}`,
+        metadata: { feedbackId: id, benefitId: body.benefitId ?? null },
+      });
+    }
+  } catch (err) {
+    // Don't block feedback creation if notifications fail
+    console.error("[feedback] Failed to notify employees:", err);
+  }
 
   return c.json({
     id,
