@@ -9,6 +9,7 @@ import {
   NotificationList,
   type NotificationItem,
 } from "./_components/NotificationList";
+import { NotificationSkeleton } from "@/app/_components/NotificationSkeleton";
 import {
   fetchFinanceNotifications,
   markFinanceNotificationRead,
@@ -224,7 +225,9 @@ export default function FinanceNotificationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen  px-4 py-6 text-slate-900 " />
+      <div className="min-h-screen px-4 py-6 text-slate-900 dark:text-white">
+        <NotificationSkeleton statCardCount={4} />
+      </div>
     );
   }
 
