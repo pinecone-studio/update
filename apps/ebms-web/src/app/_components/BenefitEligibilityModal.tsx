@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { FiCheck, FiX, FiExternalLink, FiInfo } from "react-icons/fi";
+import { translateLockReason } from "@/app/_lib/translateLockReason";
 import type { BenefitCardProps, EligibilityRule } from "./BenefitCard";
 
 const STATUS_STYLES: Record<BenefitCardProps["status"], string> = {
@@ -317,7 +318,7 @@ export function BenefitEligibilityModal({
                     Why it&apos;s locked
                   </h3>
                   <p className="text-sm text-amber-900 dark:text-amber-200">
-                    {benefit.lockReason}
+                    {translateLockReason(benefit.lockReason)}
                   </p>
                 </div>
               )}

@@ -4,7 +4,7 @@ export function AuditLogHeader() {
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-5 font-semibold text-slate-900 dark:text-white">
+        <h1 className="text-[28px] font-semibold text-slate-900 dark:text-white">
           System Audit Log
         </h1>
         <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
@@ -14,7 +14,7 @@ export function AuditLogHeader() {
 
       <button
         type="button"
-        className="flex items-center gap-3 rounded-2xl bg-[#2F66E8] px-6 py-3 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
+       className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center gap-2 rounded-xl  bg-[#0057ADCC]/80 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
       >
         <svg
           viewBox="0 0 24 24"

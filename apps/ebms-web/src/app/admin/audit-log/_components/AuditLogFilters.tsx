@@ -23,7 +23,7 @@ type AuditLogFiltersProps = {
 };
 
 const SelectChevron = () => (
-  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8595B6]">
+  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8595B6]">
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -56,7 +56,7 @@ export function AuditLogFilters({
   onClearAll,
 }: AuditLogFiltersProps) {
   return (
-    <section className="rounded-3xl p-6 dark:border-[#2C4264] dark:bg-[#0F172A]">
+    <section className="rounded-3xl p-6  dark:bg-[#20194D80]/50">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="flex items-center gap-3 text-5 font-semibold text-slate-900 dark:text-white">
           <svg
@@ -73,7 +73,7 @@ export function AuditLogFilters({
         <button
           type="button"
           onClick={onClearAll}
-          className="rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-5 text-slate-700 transition hover:bg-slate-200 dark:border-[#4B5D83] dark:bg-[#334160] dark:text-[#D4DEEF] dark:hover:bg-[#3A4A6C]"
+          className="rounded-xl border border-slate-200 bg-white/10 px-4 py-2 text-5 text-slate-900 transition hover:bg-white/20 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
         >
           Clear All
         </button>
@@ -85,7 +85,7 @@ export function AuditLogFilters({
             Search
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-200 dark:text-[#8FA3C5]">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -102,7 +102,7 @@ export function AuditLogFilters({
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
               placeholder="User, ID, benefit, action, status..."
-              className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 pl-14 pr-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
+              className="h-14 w-full rounded-2xl border border-slate-200 bg-white/10 pl-14 pr-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-white/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-[#ffffff] dark:focus:border-white/10"
             />
           </div>
         </div>
@@ -115,7 +115,7 @@ export function AuditLogFilters({
             <select
               value={benefitFilter}
               onChange={(e) => onBenefitFilterChange(e.target.value)}
-              className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-14 w-full appearance-none rounded-2xl border border-slate-200 bg-white/10 px-4 pr-9 text-l text-slate-900 outline-none focus:border-white/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-white/10"
             >
               <option value="ALL">All Benefits</option>
               {benefitOptions.map((benefit) => (
@@ -139,7 +139,7 @@ export function AuditLogFilters({
                   e.target.value as "ALL" | AuditEntry["status"],
                 )
               }
-              className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-14 w-full appearance-none rounded-2xl border border-slate-200 bg-white/10 px-4 pr-9 text-l text-slate-900 outline-none focus:border-white/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-white/10"
             >
               <option value="ALL">All Status</option>
               <option value="ACTIVE">ACTIVE</option>
@@ -161,13 +161,13 @@ export function AuditLogFilters({
               type="date"
               value={dateFrom}
               onChange={(e) => onDateFromChange(e.target.value)}
-              className="h-14 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-14 w-full rounded-xl border border-slate-200 bg-white/10 px-4 text-l text-slate-900 outline-none focus:border-white/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-white/10"
             />
             <input
               type="date"
               value={dateTo}
               onChange={(e) => onDateToChange(e.target.value)}
-              className="h-14 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-14 w-full rounded-xl border border-slate-200 bg-white/10 px-4 text-l text-slate-900 outline-none focus:border-white/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-white/10"
             />
           </div>
         </div>
@@ -180,7 +180,7 @@ export function AuditLogFilters({
             <select
               value={actionFilter}
               onChange={(e) => onActionFilterChange(e.target.value)}
-              className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-l text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-14 w-full appearance-none rounded-2xl border border-slate-200 bg-white/10 px-4 pr-9 text-l text-slate-900 outline-none focus:border-white/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-white/10"
             >
               <option value="ALL">All Actions</option>
               {actionOptions.map((action) => (
@@ -201,7 +201,7 @@ export function AuditLogFilters({
             value={logIdFilter}
             onChange={(e) => onLogIdFilterChange(e.target.value)}
             placeholder="LOG-1001"
-            className="h-14 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
+            className="h-14 w-full rounded-2xl border border-slate-200 bg-white/10 px-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-white/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-[#ffffff] dark:focus:border-white/10"
           />
         </div>
       </div>

@@ -279,7 +279,7 @@ export async function getBenefitEligibilityForEmployee(
           status: "locked",
           computedAt: now,
           ruleEvaluationJson: JSON.stringify([
-            { ruleType: "contract_expired", passed: false, reason: "Гэрээний хугацаа дууссан" },
+            { ruleType: "contract_expired", passed: false, reason: "Contract period expired" },
           ]),
         })
         .where(
@@ -297,7 +297,7 @@ export async function getBenefitEligibilityForEmployee(
         newStatus: "locked",
         ruleTraceJson: JSON.stringify({
           action: "contract_expired",
-          reason: "Гэрээний хугацаа дууссан",
+          reason: "Contract period expired",
           triggeredBy: "system",
         }),
         triggeredBy: "system",
@@ -346,7 +346,7 @@ export async function getBenefitEligibilityForEmployee(
           {
             ruleType: "request_deadline",
             passed: false,
-            reason: "Хүсэлт илгээх хугацаа дууссан",
+            reason: "Request period expired",
           },
         ],
         computedAt: now,
@@ -447,7 +447,7 @@ export async function getBenefitEligibilityForEmployee(
               {
                 ruleType: "contract_expired",
                 passed: false,
-                reason: "Гэрээний хугацаа дууссан",
+                reason: "Contract period expired",
               },
             ]
           : overrideActive
@@ -558,7 +558,7 @@ export async function getBenefitEligibilityForEmployee(
             {
               ruleType: "contract_expired",
               passed: false,
-              reason: "Гэрээний хугацаа дууссан",
+              reason: "Contract period expired",
             },
           ]
         : ruleEvaluations,

@@ -142,7 +142,7 @@ export function FinanceHistorySection() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+        <section className="rounded-3xl p-6 dark:bg-[#20194D80]/50">
           <div className="mb-5 flex items-center justify-between">
             <Skeleton className="h-6 w-20 rounded" />
             <Skeleton className="h-9 w-24 rounded-xl" />
@@ -151,16 +151,15 @@ export function FinanceHistorySection() {
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="space-y-2">
                 <Skeleton className="h-4 w-24 rounded" />
-                <Skeleton className="h-12 w-full rounded-2xl" />
+                <Skeleton className="h-14 w-full rounded-2xl" />
               </div>
             ))}
           </div>
         </section>
-        <Skeleton className="h-4 w-48 rounded" />
-        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#112349]">
+        <section className="overflow-hidden rounded-3xl dark:bg-[#20194D80]/50 p-2">
           <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-slate-200 dark:border-[#2B405F]">
+            <table className="min-w-full text-left text-5">
+              <thead className="border-b border-white/5 dark:text-[#A7B6D3]">
                 <tr>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
                     <th key={i} className="px-4 py-4 sm:px-6">
@@ -173,7 +172,7 @@ export function FinanceHistorySection() {
                 {[1, 2, 3, 4, 5].map((i) => (
                   <tr
                     key={i}
-                    className="border-b border-slate-200 last:border-b-0 dark:border-[#22395A]"
+                    className="border-b border-white/5 last:border-b-0"
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((j) => (
                       <td key={j} className="px-4 py-5 sm:px-6">

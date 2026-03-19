@@ -10,6 +10,8 @@ import {
   fetchMyBenefitRequests,
   fetchMyAuditLog,
   fetchBenefits,
+  openUploadedContract,
+  openBenefitContractPreview,
 } from "../_lib/api";
 import type { MyBenefitRequest, AuditEntry } from "../_lib/api";
 
@@ -299,15 +301,50 @@ export function BenefitHistorySection() {
             {benefitsByCategory[category]?.map((benefitId) => {
               const events = eventsByBenefit.get(benefitId) ?? [];
               const benefitName = getBenefitName(benefitId);
+              const reqEv = events.find(
+                (e): e is { type: "request"; id: string; date: string; request: MyBenefitRequest } =>
+                  e.type === "request",
+              );
+              const mostRecentRequest = reqEv?.request;
+              const handleViewContract = async () => {
+                if (!mostRecentRequest) return;
+                try {
+                  if (
+                    mostRecentRequest.contractTemplateUrl ||
+                    (mostRecentRequest.status === "APPROVED" &&
+                      mostRecentRequest.requiresContract)
+                  ) {
+                    await openUploadedContract(mostRecentRequest.id);
+                  } else if (mostRecentRequest.requiresContract) {
+                    await openBenefitContractPreview(benefitId);
+                  } else if (mostRecentRequest.status === "APPROVED") {
+                    await openUploadedContract(mostRecentRequest.id);
+                  } else {
+                    await openBenefitContractPreview(benefitId);
+                  }
+                } catch (e) {
+                  alert(e instanceof Error ? e.message : "Failed to open contract");
+                }
+              };
+              const canViewContract = !!mostRecentRequest;
               return (
                 <div
                   key={benefitId}
                   className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden"
                 >
-            <div className="border-b border-slate-200 px-4 py-3 dark:border-white/10">
+            <div className="border-b border-slate-200 px-4 py-3 dark:border-white/10 flex items-center justify-between gap-3">
               <p className="font-semibold text-slate-900 dark:text-white">
                 {benefitName}
               </p>
+              {canViewContract && (
+                <button
+                  type="button"
+                  onClick={handleViewContract}
+                  className="shrink-0 text-sm font-medium text-slate-900 hover:text-sky-500 dark:text-white "
+                >
+                  View contract
+                </button>
+              )}
             </div>
             <ul className="divide-y divide-slate-200 dark:divide-white/10">
               {events.map((ev) => {

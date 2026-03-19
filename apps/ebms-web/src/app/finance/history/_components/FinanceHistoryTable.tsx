@@ -7,32 +7,6 @@ import {
 } from "../../_lib/api";
 import type { BenefitRequest } from "../../_lib/api";
 
-const STATUS_COLORS: Record<string, string> = {
-  PENDING:
-    "border-amber-400 bg-amber-100 text-amber-800 dark:border-amber-600 dark:bg-amber-900/40 dark:text-amber-300",
-  ADMIN_APPROVED:
-    "border-sky-400 bg-sky-100 text-sky-800 dark:border-sky-600 dark:bg-sky-900/40 dark:text-sky-300",
-  ELIGIBLE:
-    "border-sky-400 bg-sky-100 text-sky-800 dark:border-sky-600 dark:bg-sky-900/40 dark:text-sky-300",
-  APPROVED:
-    "border-emerald-400 bg-emerald-100 text-emerald-800 dark:border-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300",
-  ACTIVE:
-    "border-emerald-400 bg-emerald-100 text-emerald-800 dark:border-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300",
-  REJECTED:
-    "border-red-400 bg-red-100 text-red-800 dark:border-red-600 dark:bg-red-900/40 dark:text-red-300",
-  CANCELLED:
-    "border-slate-400 bg-slate-100 text-slate-700 dark:border-slate-500 dark:bg-slate-700/50 dark:text-slate-300",
-  LOCKED:
-    "border-slate-400 bg-slate-100 text-slate-700 dark:border-slate-500 dark:bg-slate-700/50 dark:text-slate-300",
-};
-
-function getStatusStyle(status: string) {
-  return (
-    STATUS_COLORS[status] ??
-    "border-slate-400 bg-slate-100 text-slate-700 dark:border-slate-500 dark:bg-slate-700/50 dark:text-slate-300"
-  );
-}
-
 function formatDateTime(raw: string) {
   const date = new Date(raw);
   if (Number.isNaN(date.getTime())) return raw;
@@ -78,17 +52,17 @@ export function FinanceHistoryTable({
   );
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#112349]">
+    <section className="overflow-hidden rounded-3xl dark:bg-[#20194D80]/50 p-2">
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-slate-200 text-slate-500 dark:border-[#2B405F] dark:text-[#A7B6D3]">
+        <table className="min-w-full text-left text-5">
+          <thead className="border-b border-white/5 text-slate-500 dark:text-[#A7B6D3]">
             <tr>
               <th className="px-4 py-4 font-medium sm:px-6">№</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Date & Time</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Employee</th>
+              <th className="px-4 py-4 font-medium sm:px-6">Time</th>
+              <th className="px-4 py-4 font-medium sm:px-6">User</th>
               <th className="px-4 py-4 font-medium sm:px-6">Action</th>
               <th className="px-4 py-4 font-medium sm:px-6">Benefit</th>
-              <th className="px-4 py-4 font-medium sm:px-6">Old → New Status</th>
+              <th className="px-4 py-4 font-medium sm:px-6">Result</th>
               <th className="px-4 py-4 font-medium sm:px-6">Contract</th>
               <th className="px-4 py-4 font-medium sm:px-6">Log ID</th>
             </tr>
@@ -105,7 +79,7 @@ export function FinanceHistoryTable({
               return (
                 <tr
                   key={entry.id}
-                  className="border-b border-slate-200 last:border-b-0 dark:border-[#22395A]"
+                  className="border-b border-white/5 last:border-b-0"
                 >
                   <td className="px-4 py-5 font-semibold text-slate-900 dark:text-white sm:px-6">
                     {idx + 1}
@@ -128,27 +102,16 @@ export function FinanceHistoryTable({
                     {entry.benefitName ?? entry.benefitId}
                   </td>
                   <td className="px-4 py-5 sm:px-6">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-slate-500 dark:text-[#8FA3C5]">
-                          Old:
-                        </span>
-                        <span
-                          className={`inline-flex rounded-xl border px-3 py-1 text-xs font-medium ${getStatusStyle(oldStatus)}`}
-                        >
-                          {oldStatus}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-slate-500 dark:text-[#8FA3C5]">
-                          New:
-                        </span>
-                        <span
-                          className={`inline-flex rounded-xl border px-3 py-1 text-xs font-medium ${getStatusStyle(newStatus)}`}
-                        >
-                          {newStatus}
-                        </span>
-                      </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-medium text-slate-700 dark:text-[#C7D6EF]">
+                        {oldStatus}
+                      </span>
+                      <span className="text-slate-400 dark:text-[#6B7B9E]">
+                        →
+                      </span>
+                      <span className="text-xs font-medium text-slate-700 dark:text-[#C7D6EF]">
+                        {newStatus}
+                      </span>
                     </div>
                   </td>
                   <td className="px-4 py-5 sm:px-6">
@@ -156,7 +119,7 @@ export function FinanceHistoryTable({
                       <button
                         type="button"
                         onClick={() => handleViewContract(entry.id)}
-                        className="rounded-lg border border-sky-400 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-100 dark:border-sky-600 dark:bg-sky-900/40 dark:text-sky-300 dark:hover:bg-sky-900/60"
+                        className="cursor-pointer text-sm font-medium text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300"
                       >
                         View contract
                       </button>
@@ -174,8 +137,8 @@ export function FinanceHistoryTable({
         </table>
       </div>
       {entries.length === 0 && (
-        <p className="border-t border-slate-200 px-4 py-8 text-center text-sm text-slate-500 dark:border-[#22395A] dark:text-[#A7B6D3] sm:px-6">
-          Таны сонгосон хайлт/шүүлтүүрт тохирох бичлэг олдсонгүй.
+        <p className="border-t border-slate-200 px-4 py-3 text-5 text-slate-500 dark:border-[#22395A] dark:text-[#A7B6D3] sm:px-6">
+          No records found matching your selected search/filter.
         </p>
       )}
     </section>

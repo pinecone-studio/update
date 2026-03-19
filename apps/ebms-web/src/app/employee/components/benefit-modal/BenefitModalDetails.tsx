@@ -16,6 +16,7 @@ import type {
   BenefitCardProps,
   EligibilityRule,
 } from "@/app/_components/BenefitCard";
+import { translateLockReason } from "@/app/_lib/translateLockReason";
 
 function SectionCard({
   title,
@@ -106,7 +107,7 @@ export function BenefitModalDetails({
     },
     LOCKED: {
       title: "Locked",
-      message: benefit.lockReason || "Eligibility requirements not met",
+      message: (benefit.lockReason ? translateLockReason(benefit.lockReason) : null) || "Eligibility requirements not met",
       icon: <FiLock size={24} />,
       iconWrap: "bg-[#7A4364]",
     },

@@ -20,7 +20,7 @@ export default function VendorContractsPage() {
             role="tab"
             aria-selected={activeTab === "employee"}
             onClick={() => setActiveTab("employee")}
-            className={`rounded-xl font-medium transition ${
+            className={`rounded-xl font-medium transition py-2 px-3 ${
               activeTab === "employee"
                 ? "text-[24px] text-white border-b border-[#2A9BFF] rounded-b-none"
                 : "text-[24px] text-slate-600 dark:text-slate-300 dark:hover:text-white"

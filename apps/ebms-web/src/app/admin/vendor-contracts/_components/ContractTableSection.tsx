@@ -33,7 +33,7 @@ export function ContractTableSection({
           <button
             type="button"
             onClick={onAddContract}
-            className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-[#0057ADCC]/80 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
+            className="inline-flex h-11 min-w-[170px] flex-[0_0_auto] items-center justify-center gap-2 rounded-xl bg-[#0057ADCC]/80 px-4 text-[18px] font-medium text-white transition hover:bg-[#3E82F7]"
           >
             + <span className="text-[18px] font-normal">Add Contract</span>
           </button>
@@ -43,7 +43,7 @@ export function ContractTableSection({
             aria-label="Filter by employee"
             value={filterByEmployeeId}
             onChange={(e) => onFilterByEmployeeChange(e.target.value)}
-            className="h-11 min-w-[94px] rounded-lg border border-slate-20 bg-[#FFFFFF]/10 px-3 text-5 text-slate-900 outline-none dark:text-white"
+            className="h-11 min-w-[100px] max-w-[130px] rounded-lg bg-[#FFFFFF]/10 pl-3 pr-7 text-5 text-slate-900 outline-none dark:text-white"
           >
             <option value="">All</option>
             {employeeOptions.map((emp) => (
