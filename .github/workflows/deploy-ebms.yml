@@ -68,7 +68,7 @@ jobs:
       - name: Deploy to Cloudflare Pages
         run: |
           for attempt in 1 2 3; do
-            npm exec wrangler pages deploy apps/ebms-web/out --project-name=ebms-web && exit 0
+            npm exec -- wrangler pages deploy apps/ebms-web/out --project-name=ebms-web && exit 0
             if [ "$attempt" -lt 3 ]; then
               echo "Cloudflare Pages deploy failed on attempt $attempt. Retrying in 15 seconds..."
               sleep 15
