@@ -25,6 +25,7 @@ export function useEmployeeHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
   const [me, setMe] = useState<{ name: string; id: string } | null>(null);
   const [selectedUser, setSelectedUser] = useState<ActiveUserProfile>(
@@ -41,6 +42,7 @@ export function useEmployeeHeader() {
   const [notifications, setNotifications] = useState<HeaderNotification[]>([]);
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,6 +96,12 @@ export function useEmployeeHeader() {
         !profileRef.current.contains(e.target as Node)
       ) {
         setProfileOpen(false);
+      }
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(e.target as Node)
+      ) {
+        setUserDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -230,6 +238,9 @@ export function useEmployeeHeader() {
     setNotificationOpen,
     profileOpen,
     setProfileOpen,
+    userDropdownOpen,
+    setUserDropdownOpen,
+    userDropdownRef,
     currentTaglineIndex,
     handleRandomTagline,
     me,

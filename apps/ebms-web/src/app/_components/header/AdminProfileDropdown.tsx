@@ -38,26 +38,28 @@ export function AdminProfileDropdown({
         )}
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#24395C] dark:bg-[#1E293B]">
-          <div className="border-b border-slate-200 p-4 dark:border-[#24395C]">
+        <div
+          className="absolute right-0 top-full z-50 mt-2 w-[280px] overflow-hidden rounded-xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div className="border-b border-white/10 p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 text-sm font-semibold text-white">
                 <ProfileIcon />
               </div>
               <div>
-                <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                <p className="font-semibold text-white">
                   {selectedUser.name || selectedUser.id}
                 </p>
-                <p className="mt-1 text-4 text-slate-500 dark:text-[#A7B6D3]">
-                  {selectedUser.id}
-                </p>
+                <p className="mt-1 text-xs text-white/50">{selectedUser.id}</p>
               </div>
             </div>
           </div>
           <div className="p-2">
             <Link
               href="/employee"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-white/90 transition hover:bg-white/5 hover:text-white"
               onClick={onClose}
             >
               <HiOutlineArrowTopRightOnSquare className="h-4 w-4" />
@@ -65,7 +67,7 @@ export function AdminProfileDropdown({
             </Link>
             <Link
               href="/admin/feedback"
-              className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+              className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-white/90 transition hover:bg-white/5 hover:text-white"
               onClick={onClose}
             >
               <span className="flex items-center gap-2">
@@ -78,10 +80,10 @@ export function AdminProfileDropdown({
                 </span>
               )}
             </Link>
-            <div className="my-2 h-px bg-slate-200 dark:bg-[#24395C]" />
+            <div className="my-2 h-px bg-white/10" />
             <button
               type="button"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-500/10"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 transition hover:bg-red-500/10"
             >
               <HiOutlineArrowRightOnRectangle className="h-4 w-4" />
               Sign out

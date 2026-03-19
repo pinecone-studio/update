@@ -51,10 +51,15 @@ export function mapMyBenefitsToCardProps(
         detail: r.reason,
       })) ?? [];
 
-    const benefitEndDate = b.activeContract?.expiryDate ?? "2026-12-31";
+    // Start/End date зөвхөн ACTIVE үед харуулна; LOCKED/ELIGIBLE/PENDING-д байхгүй
+    const benefitEndDate =
+      item.status === "ACTIVE"
+        ? (b.activeContract?.expiryDate ?? undefined)
+        : undefined;
     const benefitStartDate =
-      b.activeContract?.effectiveDate ??
-      (item.status === "ACTIVE" ? "2025-01-15" : undefined);
+      item.status === "ACTIVE"
+        ? (b.activeContract?.effectiveDate ?? undefined)
+        : undefined;
 
     const uploadedContractRequestId = item.uploadedContractRequestId ?? undefined;
 
