@@ -30,8 +30,8 @@ export function NotificationCard({ item, onMarkAsRead }: NotificationCardProps) 
             : "text-slate-600 bg-slate-50 dark:text-slate-400 dark:bg-slate-500/10";
 
   const unreadClasses = item.unread
-    ? "border-slate-200 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-white/20 dark:bg-white/5"
-    : "border-slate-100 shadow-sm dark:border-white/10 dark:bg-white/5";
+    ? "border-slate-200 bg-white shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-white/20 dark:bg-white/5"
+    : "border-slate-100 bg-white shadow-sm dark:border-white/10 dark:bg-white/5";
 
   const CardIcon =
     item.type === "request"

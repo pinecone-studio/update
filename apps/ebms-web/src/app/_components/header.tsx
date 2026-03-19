@@ -83,14 +83,6 @@ export function Header() {
 				</nav>
 
 				<div className="flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
-					<button
-						type="button"
-						onClick={() => setMenuOpen(!menuOpen)}
-						className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 md:hidden dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
-						aria-label="Toggle navigation"
-					>
-						<HiBars3 className="h-5 w-5" />
-					</button>
 					<label className="hidden md:flex items-center gap-2 rounded-lg border border-slate-300 px-2 py-1.5 text-xs text-slate-600 dark:border-[#334155] dark:text-[#A7B6D3]">
 						<span>User</span>
 						<select
@@ -106,9 +98,17 @@ export function Header() {
 							))}
 						</select>
 					</label>
-					<div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-white/10 dark:text-[#D1DBEF] dark:hover:bg-[#0a121b] dark:hover:text-white">
+					<div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-white/10 dark:bg-transparent dark:text-[#D1DBEF] dark:hover:bg-[#0a121b] dark:hover:text-white">
 						<ThemeToggle />
 					</div>
+					<button
+						type="button"
+						onClick={() => setMenuOpen(!menuOpen)}
+						className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 md:hidden dark:text-[#D1DBEF] dark:hover:bg-[#24364F] dark:hover:text-white"
+						aria-label="Toggle navigation"
+					>
+						<HiBars3 className="h-5 w-5" />
+					</button>
 					<div className="relative hidden md:block" ref={notificationRef}>
 						<button
 							type="button"
@@ -116,7 +116,7 @@ export function Header() {
 								setNotificationOpen((prev) => !prev);
 								setProfileOpen(false);
 							}}
-							className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 dark:border-white/10 dark:text-[#D1DBEF]"
+							className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 dark:border-white/10 dark:bg-transparent dark:text-[#D1DBEF]"
 							aria-label="Notifications"
 						>
 							<HiOutlineBell className="h-5 w-5" />

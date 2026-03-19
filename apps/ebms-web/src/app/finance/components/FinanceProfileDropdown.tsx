@@ -30,7 +30,7 @@ export function FinanceProfileDropdown({
 		<div className="relative">
 			<button
 				onClick={onToggle}
-				className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white border border-white/10"
+				className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-transparent dark:text-white"
 				aria-label="Profile"
 			>
 				<ProfileIcon />
@@ -40,7 +40,7 @@ export function FinanceProfileDropdown({
 				<div className="absolute right-0 top-full z-50 mt-2 w-[280px] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden dark:bg-[#1A2333] dark:border-[#243041]">
 					<div className="p-4 border-b border-slate-200 dark:border-[#243041]">
 						<div className="flex items-center gap-3">
-							<div className="flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold text-white border border-white/10">
+							<div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-transparent dark:text-white">
 								<ProfileIcon />
 							</div>
 							<div>

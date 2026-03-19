@@ -82,11 +82,11 @@ export function FinanceHeader() {
 						</select>
 					</label>
 					<div className="flex items-center justify-end gap-2 shrink-0 min-w-0 sm:gap-3">
-						<div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:text-[#D1DBEF] dark:hover:bg-[#0a121b] dark:hover:text-white">
+						<div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-[#334155] dark:bg-transparent dark:text-[#D1DBEF] dark:hover:bg-[#0a121b] dark:hover:text-white">
 							<ThemeToggle />
 						</div>
 						<button
-							className="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-slate-600 ring-1 ring-transparent transition hover:ring-blue-300 hover:bg-slate-200 md:hidden dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+							className="grid h-10 w-10 place-items-center rounded-full border border-slate-300 bg-white text-slate-600 ring-1 ring-transparent transition hover:ring-blue-300 hover:bg-slate-100 md:hidden dark:border-[#334155] dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
 							onClick={() => setMenuOpen((p) => !p)}
 							aria-label="Toggle navigation"
 						>
@@ -99,7 +99,7 @@ export function FinanceHeader() {
 										setNotificationOpen((p) => !p);
 										setProfileOpen(false);
 									}}
-									className="relative grid h-10 w-10 place-items-center rounded-full border border-slate-200 ring-1 ring-transparent dark:border-[#334155]"
+									className="relative grid h-10 w-10 place-items-center rounded-full border border-slate-300 bg-white text-slate-600 ring-1 ring-transparent dark:border-[#334155] dark:bg-transparent dark:text-[#D1DBEF]"
 									aria-label="Notifications"
 								>
 									<HiOutlineBell className="h-5 w-5 text-sm" />

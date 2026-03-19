@@ -3,7 +3,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
+	HiOutlineArrowLeft,
 	HiOutlineMagnifyingGlass,
 	HiOutlineInformationCircle,
 	HiOutlineCheckCircle,
@@ -80,23 +82,30 @@ export default function AdminFeedbackPage() {
 	}
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-6 pt-3">
 			<div>
-				<h1 className="text-[24px] font-semibold text-white">
+				<Link
+					href="/admin"
+					className="mb-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white"
+				>
+					<HiOutlineArrowLeft className="h-4 w-4" />
+					Back
+				</Link>
+				<h1 className="text-[24px] font-semibold text-slate-900 dark:text-white">
 					Employee Feedback
 				</h1>
-				<p className="mt-3 text-5 text-[#A7B6D3]">
+				<p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
 					Feedback that reached 3 votes and was sent to admin
 				</p>
 			</div>
 
-			<section className="rounded-3xl border border-[#5A5F8E] bg-[rgba(88,80,140,0.28)] p-4">
+			<section className="rounded-3xl border border-slate-300 bg-white/65 p-4 dark:border-[#5A5F8E] dark:bg-[rgba(88,80,140,0.28)]">
 				<div className="flex items-center gap-3">
-					<HiOutlineMagnifyingGlass className="text-[#8FA3C5]" />
+					<HiOutlineMagnifyingGlass className="text-slate-500 dark:text-[#8FA3C5]" />
 					<input
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
-						className="h-12 flex-1 rounded-2xl border border-[#5A5F8E] bg-[rgba(88,80,140,0.55)] px-4 text-5 text-white placeholder:text-[#B8BFDA] outline-none"
+						className="h-12 flex-1 rounded-2xl border border-slate-300 bg-slate-50 px-4 text-5 text-slate-900 placeholder:text-slate-500 outline-none dark:border-[#5A5F8E] dark:bg-[rgba(88,80,140,0.55)] dark:text-white dark:placeholder:text-[#D6DBEA]"
 						placeholder="Search feedback..."
 					/>
 				</div>
@@ -105,11 +114,11 @@ export default function AdminFeedbackPage() {
 			{error && <p className="text-sm text-red-400">{error}</p>}
 
 			{loading ? (
-				<p className="text-5 text-[#A7B6D3]">Loading...</p>
+				<p className="text-5 text-slate-600 dark:text-[#A7B6D3]">Loading...</p>
 			) : filteredItems.length === 0 ? (
 				<div className="rounded-3xl border border-slate-200 bg-white/90 p-8 text-center dark:border-[#2C4264] dark:bg-[#16142a]">
 					<HiOutlineInformationCircle className="mx-auto mb-3 h-12 w-12 text-[#8FA3C5]" />
-					<p className="text-5 text-[#A7B6D3]">
+					<p className="text-5 text-slate-600 dark:text-[#A7B6D3]">
 						No escalated feedback yet. Employees create feedback and vote; when
 						it reaches 3 votes before the 24h deadline, it appears here.
 					</p>
@@ -127,16 +136,16 @@ export default function AdminFeedbackPage() {
 										<HiOutlineCheckCircle className="text-lg" />
 									</div>
 									<div className="min-w-0 flex-1">
-										<p className="text-5 font-semibold text-white">
+										<p className="text-5 font-semibold text-slate-900 dark:text-white">
 											{item.text}
 										</p>
-										<p className="mt-1 text-5 text-[#A7B6D3]">
+										<p className="mt-1 text-5 text-slate-600 dark:text-[#A7B6D3]">
 											Sent by:{" "}
 											{item.isAnonymous
 												? "Anonymous"
 												: (item.employeeName ?? "Employee")}
 										</p>
-										<p className="mt-3 text-5 text-[#8192B3]">
+										<p className="mt-3 text-5 text-slate-500 dark:text-[#8192B3]">
 											{item.voteCount} votes · {formatDate(item.createdAt)}
 											{item.closedAt && (
 												<> · Read {formatDate(item.closedAt)}</>
@@ -149,7 +158,7 @@ export default function AdminFeedbackPage() {
 										type="button"
 										onClick={() => handleClose(item.id)}
 										disabled={closingId === item.id}
-										className="rounded-xl border border-[#4B5D83] bg-[#334160] px-4 py-2 text-5 text-[#D4DEEF] transition hover:bg-[#3A4A6C] disabled:opacity-50"
+										className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-5 text-slate-900 transition hover:bg-slate-50 disabled:opacity-50 dark:border-[#4B5D83] dark:bg-[#334160] dark:text-[#D4DEEF] dark:hover:bg-[#3A4A6C]"
 									>
 										{closingId === item.id ? "..." : "Mark as read"}
 									</button>

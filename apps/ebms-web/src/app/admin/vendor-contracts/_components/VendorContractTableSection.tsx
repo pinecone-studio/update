@@ -39,7 +39,7 @@ export function VendorContractTableSection({
 							value={search}
 							onChange={(e) => onSearchChange(e.target.value)}
 							placeholder="Search by contract name"
-							className="h-11 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-transparent dark:bg-[#FFFFFF]/10 dark:text-white dark:placeholder:text-[#FFFFFF80]/50 dark:focus:border-white/50 sm:w-[280px] lg:w-[368px]"
+							className="h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-slate-50 pl-12 pr-4 text-slate-900 placeholder:text-slate-500 outline-none focus:border-blue-500 dark:border-transparent dark:bg-[#FFFFFF]/10 dark:text-white dark:placeholder:text-[#FFFFFF80]/50 dark:focus:border-white/50 sm:w-[280px] lg:w-[368px]"
 						/>
 					</div>
 					<button

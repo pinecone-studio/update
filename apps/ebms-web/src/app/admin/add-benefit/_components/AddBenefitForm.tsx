@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AddBenefitFormState } from "../_lib/types";
 import { BENEFIT_SUGGESTIONS } from "../_lib/constants";
 
@@ -42,6 +42,7 @@ export function AddBenefitForm({
   className = "",
 }: Props) {
   const objectUrlRef = useRef<string | null>(null);
+  const [useSuggestedDefaults, setUseSuggestedDefaults] = useState(false);
   const normalizedCategory = (form.category ?? "").trim().toLowerCase();
   const isPresetCategory = CATEGORY_OPTIONS.includes(normalizedCategory);
   const categorySelectValue = isPresetCategory ? normalizedCategory : "__other";
@@ -54,6 +55,19 @@ export function AddBenefitForm({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (isEditMode || !useSuggestedDefaults) return;
+    const suggestion =
+      BENEFIT_SUGGESTIONS[
+        Math.floor(Math.random() * BENEFIT_SUGGESTIONS.length)
+      ];
+    onChange({
+      ...form,
+      ...suggestion,
+      activeFromDate: form.activeFromDate,
+    });
+  }, [form, isEditMode, onChange, useSuggestedDefaults]);
 
   return (
     <section className={`${sectionClass} ${className}`.trim()}>
@@ -246,6 +260,23 @@ export function AddBenefitForm({
           </button>
         )}
       </div>
+      {!isEditMode && (
+        <div className="mt-3 flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="s1-use-suggested-defaults"
+            checked={useSuggestedDefaults}
+            onChange={(e) => setUseSuggestedDefaults(e.target.checked)}
+            className="rounded border-[#334155]"
+          />
+          <label
+            htmlFor="s1-use-suggested-defaults"
+            className="text-sm text-slate-600 dark:text-[#94A3B8]"
+          >
+            Suggested default-уудыг автоматаар бөглөх
+          </label>
+        </div>
+      )}
     </section>
   );
 }

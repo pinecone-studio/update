@@ -2,7 +2,7 @@
 
 "use client";
 
-import { FiInfo } from "react-icons/fi";
+import { FiArrowUpRight, FiInfo } from "react-icons/fi";
 import { translateLockReason } from "@/app/_lib/translateLockReason";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -507,9 +507,10 @@ export const BenefitCard = ({
                         e.stopPropagation();
                         onViewUploadedContract(uploadedContractRequestId);
                       }}
-                      className={`${valueClass} text-left underline decoration-slate-400 underline-offset-2 hover:decoration-slate-600 dark:decoration-white/50 dark:hover:decoration-white/80`}
+                      className={`${valueClass} inline-flex items-center gap-2 text-left hover:opacity-80`}
                     >
-                      View uploaded contract
+                      <span>View</span>
+                      <FiArrowUpRight className="h-4 w-4" />
                     </button>
                   </div>
                 ) : null}

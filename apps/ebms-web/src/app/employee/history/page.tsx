@@ -57,8 +57,8 @@ export default function MyProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 w-full dark:bg-[#0B1220]">
-        <div className="w-full bg-slate-50 px-6 py-6 dark:bg-transparent">
+      <div className="min-h-screen w-full dark:bg-[#0B1220]">
+        <div className="w-full px-6 py-6 dark:bg-transparent">
           <ProfileSkeleton />
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function MyProfilePage() {
 
   return (
     <div className="min-h-screen">
-      <div className="w-full bg-slate-50 px-6 py-6 dark:bg-transparent">
+      <div className="w-full px-6 py-6 dark:bg-transparent">
         <div className="max-w-[1500px] mx-auto">
           <MyProfileHeader me={me} error={error} initials={initials} />
 

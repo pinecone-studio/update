@@ -52,7 +52,7 @@ export function FinanceRightWidgets({ requests }: FinanceRightWidgetsProps) {
           <h3 className="text-sm font-semibold text-slate-900 sm:text-base dark:text-white">Recent Activity</h3>
           <Link
             href="/finance/history"
-            className="text-5 text-slate-600 hover:text-slate-900 dark:text-[#A7B6D3] dark:hover:text-white"
+            className="text-sm text-slate-600 hover:text-slate-900 dark:text-[#A7B6D3] dark:hover:text-white"
           >
             View All ›
           </Link>

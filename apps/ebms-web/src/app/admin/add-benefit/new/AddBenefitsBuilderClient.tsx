@@ -13,6 +13,7 @@ import type {
 import {
 	ERROR_MESSAGES,
 	DEFAULT_FORM,
+	BENEFIT_SUGGESTIONS,
 	getDefaultValueForRuleType,
 	getDefaultOperatorForRuleType,
 } from "../_lib/constants";
@@ -475,6 +476,18 @@ export default function AddBenefitsBuilderClient({
 		onSaved,
 	]);
 
+	const applySuggestedDefaults = useCallback(() => {
+		const suggestion =
+			BENEFIT_SUGGESTIONS[
+				Math.floor(Math.random() * BENEFIT_SUGGESTIONS.length)
+			];
+		setForm((prev) => ({
+			...prev,
+			...suggestion,
+			activeFromDate: prev.activeFromDate,
+		}));
+	}, []);
+
 	return (
 		<div className="flex flex-col rounded-3xl border border-slate-200 bg-white p-4 pt-4 shadow-lg dark:border-white/10 dark:bg-[#16142a] dark:shadow-[0_18px_70px_rgba(5,3,16,0.34)] sm:p-6">
 			<div className="mb-3 flex shrink-0 items-start gap-4">
@@ -515,7 +528,19 @@ export default function AddBenefitsBuilderClient({
 				</div>
 			</div>
 
-			<div className="mt-2 flex shrink-0 justify-end gap-3">
+			<div className="mt-4 flex shrink-0 items-center justify-between gap-3">
+				<div>
+					{!isEditMode ? (
+						<button
+							type="button"
+							onClick={applySuggestedDefaults}
+							className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-slate-300 dark:hover:bg-[#24364F]"
+						>
+							Suggest
+						</button>
+					) : null}
+				</div>
+				<div className="flex items-center justify-end gap-3">
 				<button
 					type="button"
 					onClick={() =>
@@ -533,6 +558,7 @@ export default function AddBenefitsBuilderClient({
 				>
 					{saving ? "Saved..." : "Save"}
 				</button>
+				</div>
 			</div>
 		</div>
 	);

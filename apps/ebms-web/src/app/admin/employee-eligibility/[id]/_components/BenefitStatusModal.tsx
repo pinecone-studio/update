@@ -39,34 +39,32 @@ export function BenefitStatusModal({
 }: BenefitStatusModalProps) {
 	if (!open) return null;
 
-	const availableStatusOptions = statusOptions.filter(
-		(option) => option !== benefit.status,
-	);
+	const availableStatusOptions = statusOptions;
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-6 backdrop-blur-[10px] dark:bg-black/70">
-			<div className="h-[599px] w-full max-w-[900px] rounded-[30px] border border-slate-200 bg-white px-[48px] pb-[38px] pt-[44px] shadow-[0_32px_120px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#16142a] dark:shadow-[0_32px_120px_rgba(0,0,0,0.5)]">
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 backdrop-blur-[10px] dark:bg-black/70 sm:px-6">
+			<div className="max-h-[92vh] w-full max-w-[900px] overflow-y-auto rounded-[30px] border border-slate-200 bg-white px-5 pb-8 pt-8 shadow-[0_32px_120px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#16142a] dark:shadow-[0_32px_120px_rgba(0,0,0,0.5)] sm:px-[48px] sm:pb-[38px] sm:pt-[44px]">
 				<div>
-					<h2 className="text-[31px] font-normal leading-none tracking-[-0.03em] text-slate-900 dark:text-white">
+					<h2 className="text-[26px] font-normal leading-none tracking-[-0.03em] text-slate-900 dark:text-white sm:text-[31px]">
 						{benefit.name}
 					</h2>
-					<p className="mt-[6px] text-[18px] leading-none text-slate-600 dark:text-[#8D95AF]">
+					<p className="mt-[6px] text-[16px] leading-none text-slate-600 dark:text-[#8D95AF] sm:text-[18px]">
 						Edit benefit status
 					</p>
 				</div>
 
-				<div className="mt-[34px] grid grid-cols-[1.02fr_1.38fr] gap-[16px]">
-					<div className="flex h-[100px] flex-col justify-center rounded-[18px] border border-slate-200 bg-slate-50 px-[24px] dark:border-white/10 dark:bg-[#1e1a35]">
-						<p className="text-[27px] font-normal leading-[1.02] tracking-[-0.03em] text-slate-900 dark:text-[#C7C8D2]">
+				<div className="mt-6 grid grid-cols-1 gap-4 sm:mt-[34px] sm:grid-cols-[1.02fr_1.38fr] sm:gap-[16px]">
+					<div className="flex min-h-[100px] flex-col justify-center rounded-[18px] border border-slate-200 bg-slate-50 px-5 py-4 dark:border-white/10 dark:bg-[#1e1a35] sm:h-[100px] sm:px-[24px]">
+						<p className="text-[22px] font-normal leading-[1.02] tracking-[-0.03em] text-slate-900 dark:text-[#C7C8D2] sm:text-[27px]">
 							{employeeName}
 						</p>
-						<p className="mt-[6px] text-[17px] leading-none text-slate-600 dark:text-[#B8BDCA]">
+						<p className="mt-[6px] text-[15px] leading-none text-slate-600 dark:text-[#B8BDCA] sm:text-[17px]">
 							{employeeRole}
 						</p>
 					</div>
 
-					<div className="flex h-[100px] items-center rounded-[18px] border border-slate-200 bg-slate-50 px-[12px] py-[14px] dark:border-white/10 dark:bg-[#1e1a35]">
-						<div className="grid w-full grid-cols-3 gap-[10px]">
+					<div className="flex min-h-[100px] items-center rounded-[18px] border border-slate-200 bg-slate-50 px-3 py-3 dark:border-white/10 dark:bg-[#1e1a35] sm:h-[100px] sm:px-[12px] sm:py-[14px]">
+						<div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-[10px] lg:grid-cols-4">
 							{availableStatusOptions.map((option) => {
 								const selected = draftStatus === option;
 								return (

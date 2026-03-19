@@ -35,7 +35,7 @@ export function NotificationFilters({
 
 	const btnClass = (active: boolean) =>
 		active
-			? "border-slate-900 text-white dark:border-white dark:text-white"
+			? "border-slate-800 bg-slate-800 text-white dark:border-white dark:bg-white/20 dark:text-white"
 			: "border-slate-200 text-slate-700 dark:border-white/20 dark:text-slate-200";
 
 	return (

@@ -18,19 +18,19 @@ export function NotificationStatsCards({
   ];
 
   return (
-    <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <section className="grid grid-cols-2 gap-3 md:grid-cols-3">
       {cards.map((card) => (
         <article
           key={card.label}
-          className="rounded-2xl border border-slate-200 p-4 shadow-sm dark:border-white/20"
+          className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/20 dark:bg-transparent sm:p-4"
         >
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-xs text-slate-500 dark:text-white">
+          <div className="mb-3 flex items-center justify-between sm:mb-4">
+            <p className="pr-2 text-[11px] leading-snug text-slate-500 dark:text-white sm:text-xs">
               {card.label}
             </p>
-            <span className={`h-2 w-2 rounded-full ${card.dot}`} />
+            <span className={`h-2 w-2 shrink-0 rounded-full ${card.dot}`} />
           </div>
-          <p className="text-lg font-semibold text-slate-900 sm:text-xl dark:text-white">
+          <p className="text-[28px] font-semibold leading-none text-slate-900 sm:text-xl dark:text-white">
             {card.value}
           </p>
         </article>
