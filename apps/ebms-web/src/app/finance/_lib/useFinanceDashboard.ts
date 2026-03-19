@@ -78,6 +78,11 @@ export function useFinanceDashboard() {
     [requests]
   );
 
+  const contractRequests = useMemo(
+    () => requests.filter((r) => r.requiresContract).length,
+    [requests]
+  );
+
   const totalAllocated = useMemo(
     () =>
       requests
@@ -122,6 +127,14 @@ export function useFinanceDashboard() {
         icon: "!",
       },
       {
+        key: "contracts",
+        value: String(contractRequests),
+        title: "Contracts",
+        note: "Open contract workspace",
+        tone: "blue",
+        icon: "wallet",
+      },
+      {
         key: "budget",
         value: `₮${allocatedBudgetInMillions}M / ₮${totalBudgetInMillions}M`,
         title: "Budget",
@@ -134,6 +147,7 @@ export function useFinanceDashboard() {
       pendingRequests.length,
       approvedThisMonth,
       rejectedRequests,
+      contractRequests,
       totalAllocated,
       allocatedBudgetInMillions,
       totalBudgetInMillions,

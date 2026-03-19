@@ -7,6 +7,10 @@ function getBaseUrl(): string {
   return base || "http://localhost:8787";
 }
 
+export function getApiBaseUrl(): string {
+  return getBaseUrl();
+}
+
 export function getFinanceClient(): GraphQLClient {
   const base = getBaseUrl();
   const url = base.endsWith("/graphql") ? base : `${base}/graphql`;
