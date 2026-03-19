@@ -213,6 +213,21 @@ export function useEmployeeDashboardData() {
       setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: true }));
       try {
         await uploadSignedContractPdf(requestId, selected);
+        // Optimistic: benefit becomes ACTIVE after upload (backend sets benefit_eligibility.status = active)
+        const task = Object.values(contractTasksByBenefitId).find(
+          (t) => t.requestId === requestId,
+        );
+        const benefitId = task?.benefitId;
+        if (benefitId) {
+          setBenefits((prev) =>
+            prev.map((b) =>
+              b.benefitId === benefitId
+                ? { ...b, status: "ACTIVE" as const }
+                : b,
+            ),
+          );
+          setSelectedContractFileByRequestId((p) => ({ ...p, [requestId]: null }));
+        }
         await load({ silent: true });
       } catch (e) {
         setContractUploadErrorByRequestId((prev) => ({
@@ -223,7 +238,7 @@ export function useEmployeeDashboardData() {
         setUploadingContractByRequestId((prev) => ({ ...prev, [requestId]: false }));
       }
     },
-    [load, selectedContractFileByRequestId],
+    [load, selectedContractFileByRequestId, contractTasksByBenefitId],
   );
 
   const counts = {

@@ -191,6 +191,8 @@ export interface BenefitCardProps {
   onRequestBenefit?: () => void;
   /** Custom footer actions (replaces default button when provided) */
   footerActions?: ReactNode;
+  /** When ACTIVE + uploaded contract: open uploaded PDF (employee dashboard) */
+  onViewUploadedContract?: (requestId: string) => void;
   /** Compact layout for list/sidebar (single column) */
   compact?: boolean;
   variant?: "default" | "admin";
@@ -255,6 +257,8 @@ export const BenefitCard = ({
   onClick,
   onRequestBenefit,
   footerActions,
+  onViewUploadedContract,
+  uploadedContractRequestId,
   compact,
   variant = "default",
   hideStatusBadge = false,
@@ -488,6 +492,21 @@ export const BenefitCard = ({
                   <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
                     <span className={labelClass}>Duration</span>
                     <span className={valueClass}>{extraInfo}</span>
+                  </div>
+                ) : null}
+                {uploadedContractRequestId && onViewUploadedContract ? (
+                  <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
+                    <span className={labelClass}>Contract</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewUploadedContract(uploadedContractRequestId);
+                      }}
+                      className={`${valueClass} text-left underline decoration-slate-400 underline-offset-2 hover:decoration-slate-600 dark:decoration-white/50 dark:hover:decoration-white/80`}
+                    >
+                      View uploaded contract
+                    </button>
                   </div>
                 ) : null}
                 <p className={`pt-4 ${bodyClass}`}>{STATUS_MESSAGE.ACTIVE}</p>

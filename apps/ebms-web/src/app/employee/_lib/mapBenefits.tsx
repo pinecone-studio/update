@@ -27,6 +27,17 @@ const CATEGORY_ICONS: Record<string, ReactNode> = {
 
 const DEFAULT_ICON = <MdFitnessCenter size={30} />;
 
+function formatDateForDisplay(iso?: string | null): string | undefined {
+  if (!iso?.trim()) return undefined;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return d.toLocaleDateString("mn-MN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 /** Map GraphQL myBenefits to BenefitCardProps (UI-д хэрэгтэй хэлбэр) */
 export function mapMyBenefitsToCardProps(
   items: MyBenefitEligibility[],
@@ -51,15 +62,21 @@ export function mapMyBenefitsToCardProps(
         detail: r.reason,
       })) ?? [];
 
-    // Start/End date зөвхөн ACTIVE үед харуулна; LOCKED/ELIGIBLE/PENDING-д байхгүй
-    const benefitEndDate =
+    // Start/End date: benefit нэмэхэд тохируулсан хугацаанаас (contract эсвэл config)
+    const rawStart =
       item.status === "ACTIVE"
-        ? (b.activeContract?.expiryDate ?? undefined)
+        ? (item.effectiveDate ?? b.activeContract?.effectiveDate ?? undefined)
         : undefined;
-    const benefitStartDate =
+    const rawEnd =
       item.status === "ACTIVE"
-        ? (b.activeContract?.effectiveDate ?? undefined)
+        ? (item.expiryDate ?? b.activeContract?.expiryDate ?? undefined)
         : undefined;
+    const benefitStartDate = rawStart
+      ? (formatDateForDisplay(rawStart) ?? rawStart)
+      : undefined;
+    const benefitEndDate = rawEnd
+      ? (formatDateForDisplay(rawEnd) ?? rawEnd)
+      : undefined;
 
     const uploadedContractRequestId = item.uploadedContractRequestId ?? undefined;
 

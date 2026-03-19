@@ -55,7 +55,35 @@ export type BenefitEligibilityRow = {
   pendingApprovalBy?: string | null;
   /** When status is ACTIVE and contract uploaded: request ID for view/download */
   uploadedContractRequestId?: string | null;
+  /** Computed start date (ACTIVE only) — from contract or config */
+  effectiveDate?: string | null;
+  /** Computed end date (ACTIVE only) — from contract or config */
+  expiryDate?: string | null;
 };
+
+function addDurationToDate(
+  iso: string,
+  duration: number,
+  unit: "day" | "month" | "year",
+): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  if (unit === "day") {
+    d.setDate(d.getDate() + duration);
+  } else if (unit === "month") {
+    d.setMonth(d.getMonth() + duration);
+  } else {
+    d.setFullYear(d.getFullYear() + duration);
+  }
+  return d.toISOString().slice(0, 10);
+}
+
+function toDateOnly(iso: string | null | undefined): string | null {
+  if (!iso?.trim()) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return iso.slice(0, 10);
+}
 
 export async function getBenefitEligibilityForEmployee(
   env: Env,
@@ -116,6 +144,7 @@ export async function getBenefitEligibilityForEmployee(
       .select({
         benefitId: benefitRequests.benefitId,
         updatedAt: benefitRequests.updatedAt,
+        employeeContractUploadedAt: benefitRequests.employeeContractUploadedAt,
       })
       .from(benefitRequests)
       .where(
@@ -123,13 +152,23 @@ export async function getBenefitEligibilityForEmployee(
           eq(benefitRequests.employeeId, employeeId),
           eq(benefitRequests.status, "approved"),
         ),
-      ),
+      )
+      .orderBy(desc(benefitRequests.updatedAt)),
   ]);
 
   const uploadedContractByBenefit = new Map<string, string>();
   for (const r of approvedWithContractRows) {
     if (r.employeeContractR2Key) {
       uploadedContractByBenefit.set(r.benefitId, r.id);
+    }
+  }
+
+  const activationDateByBenefit = new Map<string, string>();
+  for (const r of approvedRequestsForUsage) {
+    const activation =
+      r.employeeContractUploadedAt ?? r.updatedAt ?? "";
+    if (activation && !activationDateByBenefit.has(r.benefitId)) {
+      activationDateByBenefit.set(r.benefitId, activation);
     }
   }
 
@@ -206,6 +245,7 @@ export async function getBenefitEligibilityForEmployee(
       overrideBy: benefitEligibility.overrideBy,
       overrideReason: benefitEligibility.overrideReason,
       overrideExpiresAt: benefitEligibility.overrideExpiresAt,
+      contractEffectiveDate: contracts.effectiveDate,
       contractExpiryDate: contracts.expiryDate,
     })
     .from(benefitsTable)
@@ -355,6 +395,8 @@ export async function getBenefitEligibilityForEmployee(
         overrideReason: null,
         pendingApprovalBy: null,
         uploadedContractRequestId: null,
+        effectiveDate: null,
+        expiryDate: null,
       });
       continue;
     }
@@ -426,6 +468,28 @@ export async function getBenefitEligibilityForEmployee(
           ? (uploadedContractByBenefit.get(row.benefitId) ?? null)
           : null;
 
+      let effectiveDate: string | null = null;
+      let expiryDate: string | null = null;
+      if (finalStatus === "ACTIVE") {
+        const contractEff = toDateOnly(row.contractEffectiveDate);
+        const contractExp = toDateOnly(row.contractExpiryDate);
+        if (contractEff && contractExp) {
+          effectiveDate = contractEff;
+          expiryDate = contractExp;
+        } else {
+          const activation = activationDateByBenefit.get(row.benefitId);
+          const cfg = benefitConfig as { expiryDuration?: number; expiryUnit?: string } | undefined;
+          const duration = cfg?.expiryDuration ?? 1;
+          const unit = (cfg?.expiryUnit ?? "year") as "day" | "month" | "year";
+          if (activation) {
+            effectiveDate = toDateOnly(activation);
+            expiryDate = effectiveDate
+              ? addDurationToDate(activation, duration, unit)
+              : null;
+          }
+        }
+      }
+
       results.push({
         benefit: {
           id: row.benefitId,
@@ -470,6 +534,8 @@ export async function getBenefitEligibilityForEmployee(
           : null,
         pendingApprovalBy,
         uploadedContractRequestId,
+        effectiveDate,
+        expiryDate,
       });
       continue;
     }
@@ -538,6 +604,28 @@ export async function getBenefitEligibilityForEmployee(
         ? (uploadedContractByBenefit.get(row.benefitId) ?? null)
         : null;
 
+    let effectiveDateNoRules: string | null = null;
+    let expiryDateNoRules: string | null = null;
+    if (status === "ACTIVE") {
+      const contractEff = toDateOnly(row.contractEffectiveDate);
+      const contractExp = toDateOnly(row.contractExpiryDate);
+      if (contractEff && contractExp) {
+        effectiveDateNoRules = contractEff;
+        expiryDateNoRules = contractExp;
+      } else {
+        const activation = activationDateByBenefit.get(row.benefitId);
+        const cfg = benefitConfigNoRules as { expiryDuration?: number; expiryUnit?: string } | undefined;
+        const duration = cfg?.expiryDuration ?? 1;
+        const unit = (cfg?.expiryUnit ?? "year") as "day" | "month" | "year";
+        if (activation) {
+          effectiveDateNoRules = toDateOnly(activation);
+          expiryDateNoRules = effectiveDateNoRules
+            ? addDurationToDate(activation, duration, unit)
+            : null;
+        }
+      }
+    }
+
     results.push({
       benefit: {
         id: row.benefitId,
@@ -573,6 +661,8 @@ export async function getBenefitEligibilityForEmployee(
         : null,
       pendingApprovalBy,
       uploadedContractRequestId,
+      effectiveDate: effectiveDateNoRules,
+      expiryDate: expiryDateNoRules,
     });
   }
 

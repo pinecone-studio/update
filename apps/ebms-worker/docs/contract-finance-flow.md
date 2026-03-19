@@ -149,3 +149,36 @@ Employee archiveBenefitContractPdf → ACTIVE
 - Алхам 3 дараа: Finance notification "Payment Approval Required"
 - Алхам 4 дараа: Employee notification "Benefit Approved: Upload Signed Contract"
 - Алхам 5 дараа: myBenefits дээр benefit ACTIVE, Contract task "Signed contract uploaded"
+
+---
+
+## Flow 4 кодоор шалгасан (Verification)
+
+### Backend — дараалал зөв
+
+| Алхам | Файл | Логик |
+|-------|------|-------|
+| 1. Request | `requestBenefit.ts` | benefit_requests.status = "pending" |
+| 2. Sign | `signBenefitContract.ts` | Зөвхөн status="pending" үед. contractAcceptedAt set |
+| 3. Admin approve | `confirmBenefitRequest.ts` | needsFinanceApproval && pending → admin_approved. Finance-д "admin must approve first" |
+| 4. Finance approve | `confirmBenefitRequest.ts` | admin_approved + Finance role → approved. benefit_eligibility = "pending" (requiresContract) |
+| 5. Upload | `archiveBenefitContractPdf.ts` | Зөвхөн status="approved" үед. benefit_eligibility = "active" |
+
+### Frontend — UI холболт
+
+| Алхам | Компонент | Юу харуулна |
+|-------|-----------|--------------|
+| 2 | BenefitStatusModal / Request flow | Sign contract → signBenefitContract |
+| 3–4 | ContractTaskCard | rawStatus=ADMIN_APPROVED → "Awaiting Finance"; rawStatus=APPROVED → Upload PDF |
+| 5 | useEmployeeDashboardData | fetchMyBenefitRequests → APPROVED + requiresContract → upload UI |
+| 5 | uploadSignedContractPdf | PDF → base64 → archiveBenefitContractPdf mutation |
+
+### Шалгах дараалал (Manual test)
+
+1. **Бэлтгэл:** Benefit үүсгэх — financeCheck ✓, requiresContract ✓, active contract тохируулсан
+2. **Employee:** Request → Sign contract (гэрээ хараад зөвшөөрөх)
+3. **Admin:** /admin эсвэл benefit requests → Approve
+4. **Шалгах:** Employee dashboard дээр Contract task "Awaiting Finance"
+5. **Finance:** /finance → Awaiting tab → Approve
+6. **Шалгах:** Contract task "Upload signed PDF" гарна
+7. **Employee:** PDF сонгоод Upload → ACTIVE болно

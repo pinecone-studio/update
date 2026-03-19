@@ -85,6 +85,7 @@ export function BenefitPortfolio({
               onRequestBenefit={
                 canRequest ? () => handleRequestBenefit(benefit) : undefined
               }
+              onViewUploadedContract={onViewUploadedContract}
             />
           );
         })}

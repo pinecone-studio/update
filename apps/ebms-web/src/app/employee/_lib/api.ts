@@ -85,6 +85,8 @@ const MY_BENEFITS_QUERY = gql`
       overrideReason
       pendingApprovalBy
       uploadedContractRequestId
+      effectiveDate
+      expiryDate
     }
   }
 `;
