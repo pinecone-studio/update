@@ -3,11 +3,14 @@ import { getActiveUserHeaders } from "@/app/_lib/activeUser";
 import type { BenefitStatus, EmployeeBenefit } from "./types";
 import { statusButtonClass } from "./constants";
 
-export function getStatusSegmentClass(option: BenefitStatus, selected: boolean) {
+export function getStatusSegmentClass(
+  option: BenefitStatus,
+  selected: boolean,
+) {
   const base =
-    "inline-flex h-[58px] items-center justify-center rounded-[8px] border text-[18px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9BFF]/70";
+    "inline-flex h-[60px] w-full items-center justify-center rounded-[12px] border text-[16px] font-medium tracking-[-0.01em] transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9BFF]/70";
   if (selected) return `${base} ${statusButtonClass[option]}`;
-  return `${base} border-white/10 bg-[rgba(255,255,255,0.03)] text-white hover:border-[#2A9BFF] hover:bg-[rgba(42,155,255,0.22)]`;
+  return `${base} border-[#FFFFFF]/20 bg-[rgba(255,255,255,0.018)] text-white hover:border-[rgba(74,110,163,0.45)] hover:bg-[rgba(49,72,114,0.18)]`;
 }
 
 export function getClient(): GraphQLClient {
@@ -56,7 +59,9 @@ export function inferReason(benefit: EmployeeBenefit): string {
   return "See eligibility rules";
 }
 
-export function formatComputedAt(computedAt: string | null | undefined): string {
+export function formatComputedAt(
+  computedAt: string | null | undefined,
+): string {
   if (!computedAt?.trim()) return "—";
   try {
     const d = new Date(computedAt);

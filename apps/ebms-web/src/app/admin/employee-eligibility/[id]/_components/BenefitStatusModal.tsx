@@ -1,7 +1,7 @@
 "use client";
 
 import type { BenefitRow, BenefitStatus } from "../_lib/types";
-import { modalStatusOptions, statusCopy } from "../_lib/constants";
+import { statusCopy, statusOptions } from "../_lib/constants";
 import { getStatusSegmentClass } from "../_lib/utils";
 
 type BenefitStatusModalProps = {
@@ -37,31 +37,35 @@ export function BenefitStatusModal({
 }: BenefitStatusModalProps) {
   if (!open) return null;
 
+  const availableStatusOptions = statusOptions.filter(
+    (option) => option !== benefit.status,
+  );
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(8,10,20,0.26)] px-6 backdrop-blur-[2px]">
-      <div className="h-[520px] w-full max-w-[760px] rounded-[30px] border border-white/12 bg-[rgba(31,39,68,0.60)] px-[34px] pb-[32px] pt-[44px] shadow-[0_40px_140px_rgba(3,6,15,0.34)] backdrop-blur-[10px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(circle_at_50%_52%,rgba(61,42,108,0.20),transparent_42%),linear-gradient(180deg,rgba(9,11,21,0.72),rgba(10,11,20,0.78))] px-6 backdrop-blur-[10px]">
+      <div className="h-[599px] w-full max-w-[900px] rounded-[30px] border border-[rgba(255,255,255,0.13)] bg-[linear-gradient(180deg,rgba(28,35,64,0.96),rgba(29,37,67,0.94))] px-[48px] pb-[38px] pt-[44px] shadow-[0_32px_120px_rgba(3,6,18,0.36)]">
         <div>
-          <h2 className="text-[26px] font-normal tracking-[-0.03em] text-white">
+          <h2 className="text-[31px] font-normal leading-none tracking-[-0.03em] text-white">
             {benefit.name}
           </h2>
-          <p className="mt-[1px] text-[18px] text-white/45">
+          <p className="mt-[6px] text-[18px] leading-none text-[#8D95AF]">
             Edit benefit status
           </p>
         </div>
 
-        <div className="mt-[22px] grid grid-cols-[1.04fr_1.62fr] gap-[12px]">
-          <div className="rounded-[16px] border border-white/8 bg-white/[0.02] px-[22px] py-[14px]">
-            <p className="text-[24px] font-normal leading-[1.05] tracking-[-0.03em] text-white">
+        <div className="mt-[34px] grid grid-cols-[1.02fr_1.38fr] gap-[16px]">
+          <div className="flex h-[100px] flex-col justify-center rounded-[18px] border border-[#FFFFFF] bg-[rgba(255,255,255,0.015)] px-[24px]">
+            <p className="text-[27px] font-normal leading-[1.02] tracking-[-0.03em] text-[#C7C8D2]">
               {employeeName}
             </p>
-            <p className="mt-[4px] text-[16px] text-white/63">
+            <p className="mt-[6px] text-[17px] leading-none text-[#B8BDCA]">
               {employeeRole}
             </p>
           </div>
 
-          <div className="rounded-[16px] border border-white/8 bg-white/[0.02] p-[20px]">
-            <div className="grid grid-cols-4 gap-[12px]">
-              {modalStatusOptions.map((option) => {
+          <div className="flex h-[100px] items-center rounded-[18px] border border-[#FFFFFF]/20 bg-[rgba(255,255,255,0.015)] px-[12px] py-[14px]">
+            <div className="grid w-full grid-cols-3 gap-[10px]">
+              {availableStatusOptions.map((option) => {
                 const selected = draftStatus === option;
                 return (
                   <button
@@ -79,7 +83,7 @@ export function BenefitStatusModal({
           </div>
         </div>
 
-        <label className="mt-2 block pl-[24px] text-[14px] text-white/50">
+        <label className="mt-[44px] block pl-[2px] text-[14px] leading-none text-[#A8AEBE]">
           *Reason for change (optional)
         </label>
         <textarea
@@ -87,12 +91,10 @@ export function BenefitStatusModal({
           value={draftReason}
           onChange={(e) => onDraftReasonChange(e.target.value)}
           placeholder="Comment..."
-          className="mt-2 h-[120px] w-full rounded-[22px] border border-white/8 bg-white/[0.02] px-[24px] py-[20px] text-[23px] font-normal text-white outline-none placeholder:text-white/36 focus:border-[#2A9BFF]"
+          className="mt-[14px] h-[179px] w-full resize-none rounded-[26px] border border-white/10 bg-[rgba(255,255,255,0.015)] px-[30px] py-[24px] text-[21px] font-normal text-white outline-none placeholder:text-[#A2A8B8] focus:border-[#2A9BFF]"
         />
 
-        {error && (
-          <p className="mt-3 text-sm text-red-300">{error}</p>
-        )}
+        {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
 
         {savedReason && !error && (
           <p className="mt-3 text-sm text-white/48">
@@ -100,11 +102,11 @@ export function BenefitStatusModal({
           </p>
         )}
 
-        <div className="mt-[16px] flex justify-end gap-[20px]">
+        <div className="mt-[20px] flex justify-end gap-[18px]">
           <button
             type="button"
             onClick={onClose}
-            className="h-[46px] w-34 rounded-[10px] bg-[#C3C3C3] px-[20px] py-[10px] text-[16px] font-ligth text-[#16346E] transition hover:bg-[#D1D1D1]"
+            className="h-[46px] min-w-[136px] rounded-[14px] bg-[#DFDFE1] px-[26px] text-[16px] font-medium text-[#1B356B] transition hover:bg-[#E9E9EB]"
           >
             Cancel
           </button>
@@ -112,7 +114,7 @@ export function BenefitStatusModal({
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="h-[46px] w-50 rounded-[10px] bg-[#0868CB] px-[28px] py-[10px] text-[16px] font-light text-white transition hover:bg-[#0B76E4] disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-[46px] min-w-[200px] rounded-[14px] bg-[#0E63BE] px-[28px] text-[16px] font-medium text-white transition hover:bg-[#1572D8] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? "Saving..." : "Save"}
           </button>

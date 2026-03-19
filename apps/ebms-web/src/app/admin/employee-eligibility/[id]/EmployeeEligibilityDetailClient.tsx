@@ -117,13 +117,6 @@ const statusOptions: BenefitStatus[] = [
   "LOCKED",
 ];
 
-const modalStatusOptions: BenefitStatus[] = [
-  "ACTIVE",
-  "PENDING",
-  "ELIGIBLE",
-  "LOCKED",
-];
-
 const statusCopy: Record<BenefitStatus, string> = {
   ACTIVE: "Active",
   PENDING: "Pending",
@@ -301,8 +294,13 @@ export default function EmployeeEligibilityDetailClient() {
     );
   }, [activeBenefitKey, employee]);
 
+  const normalizeDialogStatus = (status: BenefitStatus): BenefitStatus =>
+    statusOptions.includes(status) ? status : "PENDING";
+
   const activeDraftStatus = activeBenefit
-    ? (draftStatusByKey[activeBenefitKey ?? ""] ?? activeBenefit.status)
+    ? normalizeDialogStatus(
+        draftStatusByKey[activeBenefitKey ?? ""] ?? activeBenefit.status,
+      )
     : "ACTIVE";
   const activeStatusMeta = getModalStatusMeta(activeDraftStatus);
   const activeRuleRows = activeBenefit
@@ -345,10 +343,9 @@ export default function EmployeeEligibilityDetailClient() {
   }, [activeDraftReason, activeBenefitKey]);
 
   const openBenefitModal = (key: string, currentStatus: BenefitStatus) => {
+    const initialStatus = normalizeDialogStatus(currentStatus);
     setActiveBenefitKey(key);
-    setDraftStatusByKey((prev) =>
-      prev[key] ? prev : { ...prev, [key]: currentStatus },
-    );
+    setDraftStatusByKey((prev) => ({ ...prev, [key]: initialStatus }));
     setErrorByKey((prev) => ({ ...prev, [key]: "" }));
   };
 
@@ -363,7 +360,7 @@ export default function EmployeeEligibilityDetailClient() {
   ) => {
     if (!id) return;
 
-    const nextStatus = draftStatusByKey[key] ?? "PENDING";
+    const nextStatus = normalizeDialogStatus(draftStatusByKey[key] ?? "PENDING");
     const rawReason = draftReasonByKey[key] ?? "";
     const reason = rawReason.trim() || fallbackReason;
 
