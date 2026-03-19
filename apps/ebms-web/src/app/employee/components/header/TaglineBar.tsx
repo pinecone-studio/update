@@ -25,7 +25,7 @@ export function TaglineBar({ text, onRandom, diceButtonRef }: TaglineBarProps) {
         title="Шинэ уриа үг"
         aria-label="Change tagline"
       >
-        <IoDiceOutline className="h-5 w-5 text-white/55 transition group-hover:text-white/85" />
+        <IoDiceOutline className="h-5 w-5 text-slate-700 transition group-hover:text-slate-900" />
       </button>
     </div>
   );

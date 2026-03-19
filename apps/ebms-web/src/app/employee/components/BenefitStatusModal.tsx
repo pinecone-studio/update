@@ -53,7 +53,7 @@ export function BenefitStatusModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-[rgba(15,23,43,0.55)] backdrop-blur-md"
+      className="fixed inset-0 z-[100] bg-black/30 backdrop-blur-md dark:bg-[rgba(15,23,43,0.55)]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -69,19 +69,19 @@ export function BenefitStatusModal({
           >
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="flex min-w-0 items-start gap-3">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] border border-white/15 bg-white/5 text-white/75 sm:h-14 sm:w-14">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] border border-slate-200 bg-slate-100 text-slate-700 sm:h-14 sm:w-14 dark:border-white/15 dark:bg-white/5 dark:text-white/75">
                   <div className="h-5 w-5 sm:h-6 sm:w-6">{benefit.icon}</div>
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h2
                       id="benefit-status-modal-title"
-                      className="text-[18px] font-bold tracking-[0.2px] text-white sm:text-[20px]"
+                      className="text-[18px] font-bold tracking-[0.2px] text-slate-900 sm:text-[20px] dark:text-white"
                     >
                       {benefit.name}
                     </h2>
                   </div>
-                  <p className="text-[13px] font-normal leading-5 tracking-[-0.15px] text-white/50 sm:text-[14px]">
+                  <p className="text-[13px] font-normal leading-5 tracking-[-0.15px] text-slate-600 sm:text-[14px] dark:text-white/50">
                     {benefit.category} benefit
                   </p>
                 </div>
@@ -90,7 +90,7 @@ export function BenefitStatusModal({
               <button
                 type="button"
                 onClick={onClose}
-                className={`grid h-10 w-10 place-items-center rounded-[14px] border text-white/70 transition sm:h-11 sm:w-11 ${theme.closeBtn}`}
+                className="grid h-10 w-10 place-items-center rounded-[14px] border border-slate-200 bg-slate-100 text-slate-600 transition hover:bg-slate-200 sm:h-11 sm:w-11 dark:border-white/10 dark:bg-white/6 dark:text-white/70 dark:hover:bg-white/12"
                 aria-label="Close"
               >
                 <FiX size={20} />
@@ -122,7 +122,7 @@ export function BenefitStatusModal({
               <button
                 type="button"
                 onClick={onRequestClick}
-                className="h-[50px] w-full rounded-2xl border border-[#4d78ff] bg-[#3d78ff] px-6 text-[15px] font-semibold text-white transition hover:bg-[#5285ff] sm:h-[56px] sm:text-[16px]"
+                className="h-[50px] w-full rounded-2xl border border-blue-300 bg-blue-600 px-6 text-[15px] font-semibold text-white transition hover:bg-blue-500 sm:h-[56px] sm:text-[16px] dark:border-[#4d78ff] dark:bg-[#3d78ff] dark:hover:bg-[#5285ff]"
               >
                 Request benefit
               </button>

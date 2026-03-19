@@ -40,7 +40,7 @@ export function UserDropdown({
 
       {open && (
         <div
-          className="absolute left-0 top-full z-50 mt-2 min-w-[220px] overflow-hidden rounded-xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]"
+          className="absolute left-0 top-full z-50 mt-2 min-w-[220px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-[#0E1622] dark:shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]"
           role="listbox"
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
@@ -58,12 +58,12 @@ export function UserDropdown({
                 }}
                 className={`flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition ${
                   opt.id === selectedUser.id
-                    ? "bg-white/10 font-medium text-white"
-                    : "text-white/80 hover:bg-white/5 hover:text-white"
+                    ? "bg-slate-200 font-medium text-slate-900 dark:bg-white/10 dark:text-white"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-white/80 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
                 <span className="min-w-0 truncate">{opt.name}</span>
-                <span className="shrink-0 text-[11px] text-white/50">
+                <span className="shrink-0 text-[11px] text-slate-500 dark:text-white/50">
                   ({opt.id})
                 </span>
               </button>

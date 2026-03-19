@@ -26,7 +26,7 @@ export function EmployeeSearchInput({ value, onChange }: EmployeeSearchInputProp
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search employees by name"
-          className="h-12 w-full rounded-2xl border border-white/50 bg-slate-50 pl-12 pr-4 text-base font-normal text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#FAFBFB1A10] dark:border-[#324A70]/10 dark:bg-[#0B102B1A]/10 dark:text-white dark:placeholder:text-white/50 dark:focus:border-white/50 sm:h-14 sm:pl-14 sm:text-[20px]"
+          className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-base font-normal text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#16142a] dark:text-white dark:placeholder:text-white/50 dark:focus:border-white/50 sm:h-14 sm:pl-14 sm:text-[20px]"
         />
       </div>
     </section>

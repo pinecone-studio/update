@@ -21,11 +21,16 @@ export interface EligibilityRule {
 }
 
 const STATUS_STYLES: Record<BenefitStatus, string> = {
-  ACTIVE: "border-[#10d9b3]/30 bg-[#083a45]/65 text-[#0de0c0]",
-  ELIGIBLE: "border-[#5b86ff]/30 bg-[#243b86]/55 text-[#72a6ff]",
-  LOCKED: "border-[#f2548e]/30 bg-[#5a2358]/55 text-[#ff6aa4]",
-  PENDING: "border-[#f1922c]/30 bg-[#6a4028]/55 text-[#ff9a1f]",
-  REJECTED: "border-[#e16776]/30 bg-[#632b3c]/55 text-[#ff93a0]",
+  ACTIVE:
+    "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-[#10d9b3]/30 dark:bg-[#083a45]/65 dark:text-[#0de0c0]",
+  ELIGIBLE:
+    "border-blue-200 bg-blue-50 text-blue-700 dark:border-[#5b86ff]/30 dark:bg-[#243b86]/55 dark:text-[#72a6ff]",
+  LOCKED:
+    "border-rose-200 bg-rose-50 text-rose-700 dark:border-[#f2548e]/30 dark:bg-[#5a2358]/55 dark:text-[#ff6aa4]",
+  PENDING:
+    "border-amber-200 bg-amber-50 text-amber-700 dark:border-[#f1922c]/30 dark:bg-[#6a4028]/55 dark:text-[#ff9a1f]",
+  REJECTED:
+    "border-red-200 bg-red-50 text-red-700 dark:border-[#e16776]/30 dark:bg-[#632b3c]/55 dark:text-[#ff93a0]",
 };
 
 const STATUS_CARD_STYLES: Record<
@@ -33,44 +38,70 @@ const STATUS_CARD_STYLES: Record<
   {
     card: string;
     button: string;
+    buttonDisabled: string;
     iconWrap: string;
     iconColor: string;
     sweep: string;
   }
 > = {
   ACTIVE: {
-    card: "border-[#0FD0B7]/45 bg-[radial-gradient(circle_at_82%_14%,rgba(103,168,255,0.34),transparent_34%),radial-gradient(circle_at_24%_22%,rgba(44,199,187,0.22),transparent_42%),linear-gradient(135deg,rgba(15,97,113,0.95)_0%,rgba(20,62,95,0.96)_52%,rgba(26,44,96,0.98)_100%)] shadow-[0_10px_30px_rgba(28,106,175,0.32),0_0_0_1px_rgba(40,214,199,0.18)]",
-    button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
-    iconWrap: "border border-white/10 bg-white/5",
-    iconColor: "text-white/70",
+    card:
+      "border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-[0_4px_14px_rgba(16,185,129,0.15)] dark:border-[#0FD0B7]/45 dark:bg-[radial-gradient(circle_at_82%_14%,rgba(103,168,255,0.34),transparent_34%),radial-gradient(circle_at_24%_22%,rgba(44,199,187,0.22),transparent_42%),linear-gradient(135deg,rgba(15,97,113,0.95)_0%,rgba(20,62,95,0.96)_52%,rgba(26,44,96,0.98)_100%)] dark:shadow-[0_10px_30px_rgba(28,106,175,0.32),0_0_0_1px_rgba(40,214,199,0.18)]",
+    button:
+      "border border-emerald-200 bg-white/80 text-emerald-800 hover:bg-emerald-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+    buttonDisabled:
+      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+    iconWrap:
+      "border border-emerald-200/60 bg-emerald-100/80 dark:border-white/10 dark:bg-white/5",
+    iconColor: "text-emerald-700 dark:text-white/70",
     sweep: "rgba(52,211,153,0.16)",
   },
   ELIGIBLE: {
-    card: "border-[#4A64FF]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(120,144,255,0.22),transparent_30%),linear-gradient(135deg,rgba(44,44,107,0.96),rgba(55,33,91,0.96))]",
-    button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
-    iconWrap: "border border-white/10 bg-white/5",
-    iconColor: "text-white/70",
+    card:
+      "border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-[0_4px_14px_rgba(59,130,246,0.15)] dark:border-[#4A64FF]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(120,144,255,0.22),transparent_30%),linear-gradient(135deg,rgba(44,44,107,0.96),rgba(55,33,91,0.96))]",
+    button:
+      "border border-blue-200 bg-white/80 text-blue-800 hover:bg-blue-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+    buttonDisabled:
+      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+    iconWrap:
+      "border border-blue-200/60 bg-blue-100/80 dark:border-white/10 dark:bg-white/5",
+    iconColor: "text-blue-700 dark:text-white/70",
     sweep: "rgba(96,165,250,0.16)",
   },
   PENDING: {
-    card: "border-[#C26E22]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(255,199,125,0.18),transparent_30%),linear-gradient(135deg,rgba(92,54,37,0.96),rgba(73,47,54,0.96))]",
-    button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
-    iconWrap: "border border-white/10 bg-white/5",
-    iconColor: "text-white/70",
+    card:
+      "border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 shadow-[0_4px_14px_rgba(245,158,11,0.15)] dark:border-[#C26E22]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(255,199,125,0.18),transparent_30%),linear-gradient(135deg,rgba(92,54,37,0.96),rgba(73,47,54,0.96))]",
+    button:
+      "border border-amber-200 bg-white/80 text-amber-800 hover:bg-amber-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+    buttonDisabled:
+      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+    iconWrap:
+      "border border-amber-200/60 bg-amber-100/80 dark:border-white/10 dark:bg-white/5",
+    iconColor: "text-amber-700 dark:text-white/70",
     sweep: "rgba(251,146,60,0.16)",
   },
   LOCKED: {
-    card: "border-[#A23F82]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(225,117,232,0.18),transparent_30%),linear-gradient(135deg,rgba(76,33,89,0.96),rgba(66,27,68,0.96))]",
-    button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
-    iconWrap: "border border-white/10 bg-white/5",
-    iconColor: "text-white/70",
+    card:
+      "border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50 shadow-[0_4px_14px_rgba(244,63,94,0.15)] dark:border-[#A23F82]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(225,117,232,0.18),transparent_30%),linear-gradient(135deg,rgba(76,33,89,0.96),rgba(66,27,68,0.96))]",
+    button:
+      "border border-rose-200 bg-white/80 text-rose-800 hover:bg-rose-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+    buttonDisabled:
+      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+    iconWrap:
+      "border border-rose-200/60 bg-rose-100/80 dark:border-white/10 dark:bg-white/5",
+    iconColor: "text-rose-700 dark:text-white/70",
     sweep: "rgba(251,113,133,0.16)",
   },
   REJECTED: {
-    card: "border-[#C54D58]/40 bg-[radial-gradient(circle_at_84%_16%,rgba(230,126,146,0.18),transparent_30%),linear-gradient(135deg,rgba(93,39,55,0.96),rgba(73,28,39,0.96))]",
-    button: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
-    iconWrap: "border border-white/10 bg-white/5",
-    iconColor: "text-white/70",
+    card:
+      "border-red-200 bg-gradient-to-br from-red-50 to-rose-50 shadow-[0_4px_14px_rgba(239,68,68,0.15)] dark:border-[#C54D58]/40 dark:bg-[radial-gradient(circle_at_84%_16%,rgba(230,126,146,0.18),transparent_30%),linear-gradient(135deg,rgba(93,39,55,0.96),rgba(73,28,39,0.96))]",
+    button:
+      "border border-red-200 bg-white/80 text-red-800 hover:bg-red-100/80 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+    buttonDisabled:
+      "border border-slate-200 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white/35",
+    iconWrap:
+      "border border-red-200/60 bg-red-100/80 dark:border-white/10 dark:bg-white/5",
+    iconColor: "text-red-700 dark:text-white/70",
     sweep: "rgba(251,113,133,0.16)",
   },
 };
@@ -292,25 +323,28 @@ export const BenefitCard = ({
     : `${theme.iconWrap} ${theme.iconColor}`;
   const titleClass = isAdminVariant
     ? "text-slate-900 dark:text-white"
-    : "text-white";
+    : "text-slate-900 dark:text-white";
   const metaClass = isAdminVariant
     ? "text-slate-500 dark:text-[#9FB0CF]"
-    : "text-white/50";
+    : "text-slate-600 dark:text-white/50";
   const dividerClass = isAdminVariant
     ? "bg-gradient-to-r from-slate-200 via-slate-100 to-transparent dark:from-[#2C4264] dark:via-[#223655] dark:to-transparent"
-    : "bg-gradient-to-r from-white/18 via-white/12 to-white/6";
+    : "bg-gradient-to-r from-slate-200 via-slate-100 to-transparent dark:from-white/18 dark:via-white/12 dark:to-white/6";
   const labelClass = isAdminVariant
     ? "text-sm text-slate-500 dark:text-[#9FB0CF]"
-    : "text-sm text-white/55";
+    : "text-sm text-slate-600 dark:text-white/55";
   const valueClass = isAdminVariant
     ? "text-sm font-semibold text-slate-800 dark:text-white/90"
-    : "text-sm font-semibold text-white/90";
+    : "text-sm font-semibold text-slate-800 dark:text-white/90";
   const bodyClass = isAdminVariant
     ? "text-[15px] leading-6 text-slate-600 dark:text-[#D1DBEF]"
-    : "text-base text-white/85";
+    : "text-base text-slate-700 dark:text-white/85";
+  const rowBorderClass = isAdminVariant
+    ? "border-slate-200 dark:border-white/10"
+    : "border-slate-200 dark:border-white/10";
   return (
     <div
-      className={`flex flex-col w-full ${compact ? "" : "h-full"} ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
+      className={`flex min-w-0 flex-col w-full ${compact ? "" : "h-full"} ${onClick ? "cursor-pointer hover:opacity-95 transition-opacity" : ""}`}
       onClick={onClick}
       onKeyDown={
         onClick
@@ -365,10 +399,10 @@ export const BenefitCard = ({
                     >
                       <FiInfo
                         size={12}
-                        className="cursor-help text-white/40 hover:text-white/70"
+                        className="cursor-help text-slate-500 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/70"
                         aria-label="Requirements to maintain benefit"
                       />
-                      <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-44 -translate-x-1/2 rounded-lg bg-[#121624] px-2 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover/info:opacity-100">
+                      <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-44 -translate-x-1/2 rounded-lg bg-slate-900 px-2 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover/info:opacity-100 dark:bg-[#121624]">
                         <p className="mb-1 font-semibold">
                           To maintain this benefit
                         </p>
@@ -393,7 +427,7 @@ export const BenefitCard = ({
                   <StatusBadge status={safeStatus} />
                   {safeStatus === "PENDING" && pendingApprovalBy ? (
                     <span
-                      className={`text-[10px] font-medium tracking-wide ${isAdminVariant ? "text-amber-700 dark:text-amber-300" : "text-amber-200/90"}`}
+                      className={`text-[10px] font-medium tracking-wide ${isAdminVariant ? "text-amber-700 dark:text-amber-300" : "text-amber-700 dark:text-amber-200/90"}`}
                     >
                       {pendingApprovalBy === "finance"
                         ? "Finance approval"
@@ -439,19 +473,19 @@ export const BenefitCard = ({
               <div className={`h-px ${dividerClass}`} />
               <div className="mt-3 space-y-0.5">
                 {subsidyPercentage ? (
-                  <div className="flex items-center justify-between border-b border-white/10 py-2.5">
+                  <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
                     <span className={labelClass}>Coverage</span>
                     <span className={valueClass}>
                       {subsidyPercentage} subsidy
                     </span>
                   </div>
                 ) : null}
-                <div className="flex items-center justify-between border-b border-white/10 py-2.5">
+                <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
                   <span className={labelClass}>Vendor</span>
                   <span className={valueClass}>{vendorDisplayName}</span>
                 </div>
                 {extraInfo ? (
-                  <div className="flex items-center justify-between border-b border-white/10 py-2.5">
+                  <div className={`flex items-center justify-between border-b ${rowBorderClass} py-2.5`}>
                     <span className={labelClass}>Duration</span>
                     <span className={valueClass}>{extraInfo}</span>
                   </div>
@@ -473,19 +507,19 @@ export const BenefitCard = ({
               <div className={`h-px ${dividerClass}`} />
               <div className="mt-2.5 space-y-0.5">
                 {subsidyPercentage ? (
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2">
+                  <div className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}>
                     <span className={labelClass}>Coverage</span>
                     <span className={valueClass}>
                       {subsidyPercentage} subsidy
                     </span>
                   </div>
                 ) : null}
-                <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2">
+                <div className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}>
                   <span className={labelClass}>Vendor</span>
                   <span className={valueClass}>{vendorDisplayName}</span>
                 </div>
                 {extraInfo ? (
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2">
+                  <div className={`flex items-center justify-between gap-3 border-b ${rowBorderClass} py-2`}>
                     <span className={labelClass}>Duration</span>
                     <span className={valueClass}>{extraInfo}</span>
                   </div>
@@ -503,7 +537,7 @@ export const BenefitCard = ({
           ) : null}
 
           {!isAdminVariant ? (
-            <div className="mb-3 mt-auto h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent sm:mb-4" />
+            <div className="mb-3 mt-auto h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent sm:mb-4 dark:from-white/10 dark:via-white/5 dark:to-transparent" />
           ) : null}
 
           {footerActions ? (
@@ -514,8 +548,8 @@ export const BenefitCard = ({
               disabled={!isButtonClickable}
               className={`flex h-10 w-full items-center justify-center gap-2 rounded-xl text-[13px] font-medium transition-all duration-200 sm:h-11 sm:text-[14px] ${
                 isButtonClickable
-                  ? `${theme.button} group-hover:bg-white/[0.08]`
-                  : "cursor-not-allowed border border-white/10 bg-white/5 text-white/35"
+                  ? `${theme.button} dark:group-hover:bg-white/[0.08]`
+                  : theme.buttonDisabled
               }`}
               onClick={handleButtonClick}
             >

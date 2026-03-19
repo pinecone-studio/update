@@ -48,20 +48,20 @@ export function NotificationDropdown({
 
   return (
     <div
-      className="absolute right-0 top-full z-50 mt-3 w-[380px] overflow-hidden rounded-2xl border border-white/10 bg-[#0E1622] shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]"
+      className="absolute right-0 top-full z-50 mt-3 w-[380px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-[#0E1622] dark:shadow-[0_28px_70px_-40px_rgba(0,0,0,0.85)]"
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <p className="text-sm font-semibold text-white">Notifications</p>
+      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-white/10">
+        <p className="text-sm font-semibold text-slate-900 dark:text-white">Notifications</p>
         <div className="flex gap-4">
           <button
             type="button"
             onClick={() => setFilter("unread")}
             className={`text-xs font-medium transition ${
               filter === "unread"
-                ? "text-white underline underline-offset-2"
-                : "text-white/60 hover:text-white"
+                ? "text-slate-900 underline underline-offset-2 dark:text-white"
+                : "text-slate-600 hover:text-slate-900 dark:text-white/60 dark:hover:text-white"
             }`}
           >
             Unread
@@ -71,8 +71,8 @@ export function NotificationDropdown({
             onClick={() => setFilter("all")}
             className={`text-xs font-medium transition ${
               filter === "all"
-                ? "text-white underline underline-offset-2"
-                : "text-white/60 hover:text-white"
+                ? "text-slate-900 underline underline-offset-2 dark:text-white"
+                : "text-slate-600 hover:text-slate-900 dark:text-white/60 dark:hover:text-white"
             }`}
           >
             All
@@ -81,27 +81,27 @@ export function NotificationDropdown({
       </div>
       <div className="max-h-[320px] space-y-2 overflow-y-auto px-3 py-3">
         {filtered.length === 0 ? (
-          <p className="py-6 text-center text-xs text-white/50">
+          <p className="py-6 text-center text-xs text-slate-500 dark:text-white/50">
             No notifications
           </p>
         ) : (
           filtered.slice(0, 5).map((n) => (
             <div
               key={n.id}
-              className="rounded-xl border border-white/5 bg-white/5 p-3"
+              className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/5 dark:bg-white/5"
             >
               <div className="flex gap-3">
                 <NotificationDot n={n} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
                       {n.title}
                     </p>
-                    <p className="flex-shrink-0 text-[11px] text-white/40">
+                    <p className="flex-shrink-0 text-[11px] text-slate-500 dark:text-white/40">
                       {n.time}
                     </p>
                   </div>
-                  <p className="mt-0.5 text-xs text-white/60">
+                  <p className="mt-0.5 text-xs text-slate-600 dark:text-white/60">
                     {n.subtitle ?? n.body}
                   </p>
                 </div>
@@ -110,7 +110,7 @@ export function NotificationDropdown({
           ))
         )}
       </div>
-      <div className="flex items-center justify-between border-t border-white/10 px-3 py-3">
+      <div className="flex items-center justify-between border-t border-slate-200 px-3 py-3 dark:border-white/10">
         <Link
           href="/employee/notification"
           onClick={onClose}
@@ -125,7 +125,7 @@ export function NotificationDropdown({
               onMarkAllRead();
               onClose();
             }}
-            className="text-xs font-medium text-white/60 transition hover:text-white"
+            className="text-xs font-medium text-slate-600 transition hover:text-slate-900 dark:text-white/60 dark:hover:text-white"
           >
             Mark all as read
           </button>
