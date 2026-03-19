@@ -66,17 +66,6 @@ export function useFinanceDashboard() {
     [requests]
   );
 
-  const approvedThisMonth = useMemo(() => {
-    const now = new Date();
-    return requests.filter((r) => {
-      if (r.status !== "APPROVED") return false;
-      const d = new Date(r.createdAt);
-      return (
-        d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
-      );
-    }).length;
-  }, [requests]);
-
   const rejectedRequests = useMemo(
     () =>
       requests.filter((r) => (r.status ?? "").toUpperCase() === "REJECTED")
@@ -116,14 +105,6 @@ export function useFinanceDashboard() {
         icon: "!",
       },
       {
-        key: "approved",
-        value: String(approvedThisMonth),
-        title: "Approved This Month",
-        note: "Based on current month data",
-        tone: "green",
-        icon: "check",
-      },
-      {
         key: "rejected",
         value: String(rejectedRequests),
         title: "Rejected Requests",
@@ -151,7 +132,6 @@ export function useFinanceDashboard() {
     ],
     [
       pendingRequests.length,
-      approvedThisMonth,
       rejectedRequests,
       contractRequests,
       totalAllocated,

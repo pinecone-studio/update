@@ -133,6 +133,11 @@ export function BenefitModalDetails({
     }
   };
 
+  const hasUploadedContract =
+    benefit.status === "ACTIVE" &&
+    !!benefit.uploadedContractRequestId &&
+    benefit.requiresContract;
+
   return (
     <>
       <div
@@ -229,7 +234,19 @@ export function BenefitModalDetails({
             Vendor Contract
           </p>
           <div className="mt-2">
-            {benefit.contractLink ? (
+            {hasUploadedContract ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (onViewUploadedContract && benefit.uploadedContractRequestId) {
+                    void onViewUploadedContract(benefit.uploadedContractRequestId);
+                  }
+                }}
+                className="inline-flex items-center gap-2 text-[14px] font-normal leading-5 tracking-[-0.15px] text-[#4EA1FF] hover:text-[#7ABEFF]"
+              >
+                View uploaded contract <FiExternalLink size={20} />
+              </button>
+            ) : benefit.contractLink ? (
               <a
                 href={benefit.contractLink}
                 target="_blank"
@@ -257,7 +274,8 @@ export function BenefitModalDetails({
         </div>
       </div>
 
-      {benefit.status === "ACTIVE" &&
+      {!hasUploadedContract ? (
+        benefit.status === "ACTIVE" &&
         benefit.uploadedContractRequestId &&
         benefit.requiresContract && (
           <SectionCard
@@ -278,7 +296,8 @@ export function BenefitModalDetails({
               View uploaded contract <FiExternalLink size={20} />
             </button>
           </SectionCard>
-        )}
+        )
+      ) : null}
     </>
   );
 }

@@ -27,19 +27,19 @@ export function BenefitRequestRow({
     <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-3">
       <div className="flex min-w-0 flex-1">
         <div className="flex items-start gap-3">
-          <div className="flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(160deg,#6f65ff,#8b2fff)] text-[22px] font-semibold text-white">
+          <div className="flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(160deg,#6f65ff,#8b2fff)] text-[20px] font-semibold text-white">
             {getInitials(employeeName)}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-              <p className="text-[20px] font-semibold leading-tight text-white">
+            <div className="flex flex-wrap items-start gap-x-4 gap-y-0">
+              <p className="text-[20px] font-semibold leading-none text-white">
                 {employeeName}
               </p>
-              <span className="text-[15px] text-slate-400 dark:text-[#94A3B8]">
-                {formatRelativeTime(request.createdAt)}
-              </span>
             </div>
-            <p className="mt-1 truncate text-[15px] leading-tight text-white/85 dark:text-[#E2E8F0]">
+            <span className="mt-0 block text-[15px] leading-none text-slate-400 dark:text-[#94A3B8]">
+              {formatRelativeTime(request.createdAt)}
+            </span>
+            <p className="mt-0.5 truncate text-[15px] leading-none text-white/85 dark:text-[#E2E8F0]">
               {benefitText}
             </p>
           </div>
@@ -51,7 +51,7 @@ export function BenefitRequestRow({
             <button
               type="button"
               disabled
-              className="h-[48px] min-w-[118px] rounded-xl border border-[#f0d58a]/85 bg-[linear-gradient(180deg,#c8892b,#a86714)] px-4 py-2 text-[14px] font-medium text-[#ffffff] transition disabled:cursor-not-allowed disabled:opacity-90"
+              className="h-[48px] min-w-[118px] rounded-xl border border-[#f0d58a]/85 bg-transparent px-4 py-2 text-[14px] font-medium text-[#f7de9d] transition disabled:cursor-not-allowed disabled:opacity-90 hover:bg-[rgba(240,213,138,0.14)] hover:text-white"
             >
               Pending
             </button>
@@ -59,7 +59,7 @@ export function BenefitRequestRow({
               type="button"
               onClick={() => onApprove(request.id)}
               disabled={isLoading}
-              className="h-[48px] min-w-[118px] rounded-xl border border-[#2ba17e]/80 bg-[#0f5540] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[#14684d] disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-[48px] min-w-[118px] rounded-xl border border-[#2ba17e]/80 bg-transparent px-4 py-2 text-[14px] font-medium text-[#7fe3be] transition hover:bg-[rgba(43,161,126,0.16)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "..." : "Approve"}
             </button>
@@ -67,7 +67,7 @@ export function BenefitRequestRow({
               type="button"
               onClick={() => onReject(request.id)}
               disabled={isLoading}
-              className="h-[48px] min-w-[118px] rounded-xl border border-[#c23c46]/80 bg-[linear-gradient(180deg,#a4161c,#8e1218)] px-4 py-2 text-[14px] font-medium text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-[48px] min-w-[118px] rounded-xl border border-[#c23c46]/80 bg-transparent px-4 py-2 text-[14px] font-medium text-[#f39aa1] transition hover:bg-[rgba(194,60,70,0.16)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               Reject
             </button>

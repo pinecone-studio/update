@@ -45,8 +45,7 @@ export default function AdminFeedbackPage() {
     ? items.filter((i) => {
         const term = search.trim().toLowerCase();
         const textMatch = i.text.toLowerCase().includes(term);
-        const nameMatch =
-          i.employeeName?.toLowerCase().includes(term) ?? false;
+        const nameMatch = i.employeeName?.toLowerCase().includes(term) ?? false;
         return textMatch || nameMatch;
       })
     : items;
@@ -83,19 +82,21 @@ export default function AdminFeedbackPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-[28px] font-semibold text-white">Employee Feedback</h1>
+        <h1 className="text-[24px] font-semibold text-white">
+          Employee Feedback
+        </h1>
         <p className="mt-3 text-5 text-[#A7B6D3]">
           Feedback that reached 3 votes and was sent to admin
         </p>
       </div>
 
-      <section className="rounded-2xl  dark:bg-[#20194D80]/50 p-4">
+      <section className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-4">
         <div className="flex items-center gap-3">
           <HiOutlineMagnifyingGlass className="text-[#8FA3C5]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-5 text-white placeholder:text-white/80 outline-none"
+            className="h-12 flex-1 rounded-2xl border border-[#324A70] bg-[#0F172A] px-4 text-5 text-white placeholder:text-[#8595B6] outline-none"
             placeholder="Search feedback..."
           />
         </div>
@@ -106,7 +107,7 @@ export default function AdminFeedbackPage() {
       {loading ? (
         <p className="text-5 text-[#A7B6D3]">Loading...</p>
       ) : filteredItems.length === 0 ? (
-        <div className="rounded-2xl dark:bg-[#20194D80]/50 p-8 text-center">
+        <div className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-8 text-center">
           <HiOutlineInformationCircle className="mx-auto mb-3 h-12 w-12 text-[#8FA3C5]" />
           <p className="text-5 text-[#A7B6D3]">
             No escalated feedback yet. Employees create feedback and vote; when
@@ -118,7 +119,7 @@ export default function AdminFeedbackPage() {
           {filteredItems.map((item) => (
             <article
               key={item.id}
-              className="rounded-2xl dark:bg-[#20194D80]/50 p-5"
+              className="rounded-3xl border border-[#2C4264] bg-[#1E293B] p-5"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -133,7 +134,7 @@ export default function AdminFeedbackPage() {
                       Sent by:{" "}
                       {item.isAnonymous
                         ? "Anonymous"
-                        : item.employeeName ?? "Employee"}
+                        : (item.employeeName ?? "Employee")}
                     </p>
                     <p className="mt-3 text-5 text-[#8192B3]">
                       {item.voteCount} votes · {formatDate(item.createdAt)}
