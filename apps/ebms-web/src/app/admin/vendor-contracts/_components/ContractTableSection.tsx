@@ -38,7 +38,7 @@ export function ContractTableSection({
                 aria-label="Filter by employee"
                 value={filterByEmployeeId}
                 onChange={(e) => onFilterByEmployeeChange(e.target.value)}
-                className="h-11 min-w-[94px] appearance-none rounded-lg border border-slate-20 bg-[#FFFFFF]/10 pl-3 pr-10 text-5 text-slate-900 outline-none dark:text-white"
+                className="h-10 min-w-[82px] appearance-none rounded-lg border border-slate-20 bg-[#FFFFFF]/10 pl-3 pr-9 text-5 text-slate-900 outline-none dark:text-white"
               >
                 <option value="">All</option>
                 {employeeOptions.map((emp) => (

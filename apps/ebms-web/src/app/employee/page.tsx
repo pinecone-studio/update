@@ -197,12 +197,12 @@ export default function EmployeeDashboardPage() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-xl border border-[#2B3B55] bg-[#121C2F] px-4 py-2 text-sm font-medium text-slate-200 hover:bg-[#1A263D] transition">
+          <AlertDialogCancel className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirmRequest}
-            className="rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400 transition"
+            className="rounded-lg bg-[#0057ADCC] px-4 py-2 font-medium text-white transition hover:bg-[#3E82F7] dark:bg-[#0057ADCC] dark:hover:bg-[#3E82F7]"
           >
             Request
           </AlertDialogAction>

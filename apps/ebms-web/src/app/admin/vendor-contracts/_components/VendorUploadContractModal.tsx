@@ -237,7 +237,7 @@ export function VendorUploadContractModal({
             <button
               type="submit"
               disabled={uploading || !pdfFile}
-              className="rounded-lg bg-[#3B82F6] px-4 py-2 font-medium text-white hover:bg-[#2563EB] disabled:opacity-50 dark:bg-[#3B82F6] dark:hover:bg-[#2563EB]"
+              className="rounded-lg bg-[#0057ADCC] px-4 py-2 font-medium text-white transition hover:bg-[#3E82F7] disabled:opacity-50 dark:bg-[#0057ADCC] dark:hover:bg-[#3E82F7]"
             >
               {uploading ? "Saving..." : "Save"}
             </button>

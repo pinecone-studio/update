@@ -166,13 +166,13 @@ export function FinanceHistoryFilters({
 
         <div className="space-y-2">
           <label className="text-5 font-medium text-slate-900 dark:text-white">
-            Log ID
+            Request ID
           </label>
           <input
             type="text"
             value={requestIdFilter}
             onChange={(e) => onRequestIdFilterChange(e.target.value)}
-            placeholder="LOG-1001"
+            placeholder="Request ID"
             className="h-14 w-full rounded-2xl border border-slate-200 bg-white/10 px-4 text-l text-slate-900 placeholder:text-slate-400 outline-none focus:border-white/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-[#ffffff] dark:focus:border-white/10"
           />
         </div>

@@ -85,6 +85,9 @@ export function FinanceHistorySection() {
             entry.id.toLowerCase().includes(normalizedSearch) ||
             (entry.rejectReason ?? "")
               .toLowerCase()
+              .includes(normalizedSearch) ||
+            (entry.reviewedByName ?? "")
+              .toLowerCase()
               .includes(normalizedSearch)
           )
         ) {

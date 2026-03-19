@@ -26,7 +26,7 @@ export function EmployeeEligibilityDetailHeader({
       </button>
 
       <div className="flex flex-col justify-end">
-        <h1 className="text-[58px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
+        <h1 className="text-[53px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
           {employeeName}
         </h1>
         <p className="mt-[12px] text-[27px] font-normal tracking-[-0.02em] text-white/48">

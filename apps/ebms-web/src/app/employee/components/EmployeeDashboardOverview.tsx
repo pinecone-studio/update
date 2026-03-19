@@ -150,10 +150,10 @@ export function EmployeeDashboardOverview({
               </p>
             </div>
 
-            <div className="mt-5 sm:mt-6">
+            <div className="mt-4 sm:mt-5">
               <button
                 type="button"
-                className="inline-flex items-center justify-start rounded-[15px] bg-white/6 px-4 py-2.5 text-left text-[16px] font-semibold text-white/95 transition hover:bg-white/12 sm:pl-2 sm:pr-6 sm:text-[18px]"
+                className="inline-flex items-center justify-start rounded-[15px] bg-white/6 px-4 py-3 text-left text-[16px] font-semibold text-white/95 transition hover:bg-white/12 sm:pl-1 sm:pr-10 sm:text-[18px]"
               >
                 Update team
               </button>

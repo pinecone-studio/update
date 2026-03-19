@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { HiOutlineArrowLeft } from "react-icons/hi2";
 import { EmployeeContracts } from "./EmployeeContracts";
 import { VendorContracts } from "./VendorContracts";
 
@@ -10,6 +12,16 @@ export default function FinanceContractsPage() {
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
+        <Link
+          href="/finance"
+          className="mb-3 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white"
+        >
+          <HiOutlineArrowLeft className="h-4 w-4" />
+          Back
+        </Link>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          Contracts
+        </h1>
         <div
           className="flex flex-wrap items-center gap-2 sm:gap-3"
           role="tablist"

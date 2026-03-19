@@ -33,7 +33,7 @@ export function FinanceHistoryHeader({ error }: FinanceHistoryHeaderProps) {
           History
         </h1>
         <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
-          Track and investigate all system actions in one place
+          Approved and rejected benefit requests
         </p>
         {error && (
           <p className="mt-2 text-sm text-red-400">Error: {error}</p>
