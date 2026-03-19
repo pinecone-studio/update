@@ -50,7 +50,7 @@ adminContracts.get("/", async (c) => {
     }> = [];
 
     try {
-      manualRows = await db
+      const manualSelect = await db
         .select({
           id: employeeContractsTable.id,
           employeeId: employeeContractsTable.employeeId,
@@ -60,6 +60,8 @@ adminContracts.get("/", async (c) => {
           version: employeeContractsTable.version,
           effectiveDate: employeeContractsTable.effectiveDate,
           expiryDate: employeeContractsTable.expiryDate,
+          benefitContractEffectiveDate: contractsTable.effectiveDate,
+          benefitContractExpiryDate: contractsTable.expiryDate,
           r2ObjectKey: employeeContractsTable.r2ObjectKey,
           createdAt: employeeContractsTable.createdAt,
           updatedAt: employeeContractsTable.updatedAt,
@@ -71,10 +73,29 @@ adminContracts.get("/", async (c) => {
           eq(employeeContractsTable.benefitId, benefitsTable.id),
         )
         .leftJoin(
+          contractsTable,
+          eq(benefitsTable.activeContractId, contractsTable.id),
+        )
+        .leftJoin(
           employeesTable,
           eq(employeeContractsTable.employeeId, employeesTable.id),
         )
         .orderBy(desc(employeeContractsTable.createdAt));
+
+      manualRows = manualSelect.map((r) => ({
+        id: r.id,
+        employeeId: r.employeeId,
+        benefitId: r.benefitId,
+        benefitName: r.benefitName,
+        vendorName: r.vendorName,
+        version: r.version,
+        effectiveDate: r.effectiveDate ?? r.benefitContractEffectiveDate ?? null,
+        expiryDate: r.expiryDate ?? r.benefitContractExpiryDate ?? null,
+        r2ObjectKey: r.r2ObjectKey,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+        employeeName: r.employeeName,
+      }));
     } catch (error) {
       const message = getErrorText(error);
       // Backward compatibility: if local/remote DB does not yet have employee_contracts,
