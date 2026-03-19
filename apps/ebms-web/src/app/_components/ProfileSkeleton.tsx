@@ -14,11 +14,11 @@ export function ProfileSkeleton({
   const isAdmin = variant === "admin";
   const maxWidthClass = isAdmin ? "max-w-[921px]" : "max-w-[1500px]";
   const tabBorderClass = isAdmin
-    ? "border-slate-700/60"
-    : "border-slate-200 dark:border-slate-700/60";
+    ? "border-slate-700/60 dark:border-white/20"
+    : "border-slate-200 dark:border-white/10";
   const sectionClass = isAdmin
-    ? "bg-white border border-slate-200 rounded-xl p-6 dark:bg-[#1A2333] dark:border-[#243041]"
-    : "bg-white border border-slate-200 rounded-xl p-6 dark:bg-[#1A2333] dark:border-[#243041]";
+    ? "rounded-xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/5"
+    : "rounded-xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/5";
 
   return (
     <div className={`${maxWidthClass} mx-auto`}>

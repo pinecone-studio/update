@@ -12,25 +12,25 @@ export function VendorContractsSkeleton() {
         {[1, 2, 3, 4].map((i) => (
           <article
             key={i}
-            className="h-[107px] min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[#ffffff]/50 dark:bg-[#1D1A4180]/50"
+            className="h-[107px] min-w-0 rounded-xl border border-slate-200 bg-white p-3 dark:border-[rgba(38,38,38,1)] dark:bg-[rgba(13,94,85,0.1)]"
           >
             <div className="mb-2 flex items-start justify-between">
-              <Skeleton className="h-5 w-28 rounded" />
-              <Skeleton className="h-3 w-3 shrink-0 rounded-full" />
+              <Skeleton className="h-5 w-28 rounded bg-slate-200 dark:bg-white/10" />
+              <Skeleton className="h-3 w-3 shrink-0 rounded-full bg-slate-200 dark:bg-white/10" />
             </div>
-            <Skeleton className="h-9 w-12 rounded" />
+            <Skeleton className="h-9 w-12 rounded bg-slate-200 dark:bg-white/10" />
           </article>
         ))}
       </section>
 
       {/* Table section - matches VendorContractTableSection / ContractTableSection */}
-      <section className="rounded-3xl bg-white p-6 dark:border-[#2C4264] dark:bg-[#181743]/50">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] dark:border-[rgba(38,38,38,1)] dark:bg-[rgba(13,94,85,0.1)] dark:shadow-none">
         <div className="flex flex-col gap-12">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="relative min-w-0 flex-1">
-              <Skeleton className="h-11 w-[368px] rounded-lg" />
+              <Skeleton className="h-11 w-[368px] rounded-lg bg-slate-200 dark:bg-white/10" />
             </div>
-            <Skeleton className="h-11 min-w-[170px] rounded-xl" />
+            <Skeleton className="h-11 min-w-[170px] rounded-xl bg-slate-200 dark:bg-white/10" />
           </div>
 
           <table className="min-w-full">
@@ -38,7 +38,7 @@ export function VendorContractsSkeleton() {
               <tr>
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <th key={i} className="px-5 py-4 text-left">
-                    <Skeleton className="h-4 w-20 rounded" />
+                    <Skeleton className="h-4 w-20 rounded bg-slate-200 dark:bg-white/10" />
                   </th>
                 ))}
               </tr>
@@ -48,7 +48,7 @@ export function VendorContractsSkeleton() {
                 <tr key={i}>
                   {[1, 2, 3, 4, 5, 6].map((j) => (
                     <td key={j} className="px-5 py-5">
-                      <Skeleton className="h-4 w-24 rounded" />
+                      <Skeleton className="h-4 w-24 rounded bg-slate-200 dark:bg-white/10" />
                     </td>
                   ))}
                 </tr>

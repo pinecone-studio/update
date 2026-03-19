@@ -41,10 +41,10 @@ export function NotificationStatsCards({
       {cards.map((card) => (
         <article
           key={card.label}
-          className="rounded-2xl border border-slate-200 p-4 shadow-sm dark:border-white/20"
+          className="rounded-2xl border border-slate-200 p-4 shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-none"
         >
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-xs text-slate-500 dark:text-white">
+            <p className="text-xs text-slate-500 dark:text-white/60">
               {card.label}
             </p>
             <span className={`h-2 w-2 rounded-full ${card.dot}`} />

@@ -22,8 +22,8 @@ export default function VendorContractsPage() {
             onClick={() => setActiveTab("employee")}
             className={`rounded-xl font-medium transition ${
               activeTab === "employee"
-                ? "text-[24px] text-white border-b border-[#2A9BFF] rounded-b-none"
-                : "text-[24px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
+                ? "text-[24px] text-slate-900 border-b-2 border-blue-600 rounded-b-none dark:text-white dark:border-[#2A9BFF]"
+                : "text-[24px] text-slate-600 hover:text-slate-800 dark:hover:text-white/80"
             }`}
           >
             Employee contract
@@ -35,14 +35,14 @@ export default function VendorContractsPage() {
             onClick={() => setActiveTab("vendor")}
             className={`rounded-xl px-3 py-2 font-medium transition ${
               activeTab === "vendor"
-                ? "text-[24px] text-white border-b border-[#2A9BFF] rounded-b-none"
-                : "text-[24px] text-slate-600 dark:text-slate-300 dark:hover:text-white"
+                ? "text-[24px] text-slate-900 border-b-2 border-blue-600 rounded-b-none dark:text-white dark:border-[#2A9BFF]"
+                : "text-[24px] text-slate-600 hover:text-slate-800 dark:hover:text-white/80"
             }`}
           >
             Vendor contract
           </button>
         </div>
-        <p className="mt-3 text-5 text-slate-600 dark:text-[#A7B6D3]">
+        <p className="mt-3 text-5 text-slate-600 dark:text-[var(--text-secondary)]">
           {activeTab === "employee"
             ? "Manage employee contracts and track lifecycle status"
             : "Manage vendor contracts and track lifecycle status"}

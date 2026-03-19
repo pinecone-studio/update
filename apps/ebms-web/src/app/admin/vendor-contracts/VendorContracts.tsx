@@ -33,12 +33,12 @@ export function VendorContracts() {
   return (
     <div className="space-y-6">
       {uploadError && (
-        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+        <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-5 text-red-700">
           {uploadError}
         </p>
       )}
       {uploadMessage && (
-        <p className="rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-5 text-green-800 dark:border-green-800 dark:bg-green-950/30 dark:text-green-300">
+        <p className="rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-5 text-green-800">
           {uploadMessage}
         </p>
       )}

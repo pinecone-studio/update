@@ -33,11 +33,11 @@ export function NotificationFilters({
 
   const btnClass = (active: boolean) =>
     active
-      ? "border-slate-900 text-white dark:border-white dark:text-white"
-      : "border-slate-200 text-slate-700 dark:border-white/20 dark:text-slate-200";
+      ? "border-slate-900 bg-slate-900 text-white dark:border-white/30 dark:bg-white/20 dark:text-white"
+      : "border-slate-200 text-slate-900 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10";
 
   return (
-    <section className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+    <section className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-white/60">
       {tabs.map((tab) => {
         const isActive =
           tab.key === "unread" ? unreadOnly : activeTab === tab.key;

@@ -15,8 +15,8 @@ export function BenefitsTable({
   onOpenBenefitModal,
 }: BenefitsTableProps) {
   return (
-    <section className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,rgba(36,24,56,0.78),rgba(22,15,39,0.54))] shadow-[0_18px_70px_rgba(5,3,16,0.34)] backdrop-blur-[3px]">
-      <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-[20px] py-[22px] text-[20px] text-white/50">
+    <section className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[var(--shadow-card)] dark:border-transparent dark:bg-[linear-gradient(180deg,rgba(36,24,56,0.78),rgba(22,15,39,0.54))] dark:shadow-[0_18px_70px_rgba(5,3,16,0.34)] dark:backdrop-blur-[3px]">
+      <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-slate-200 bg-slate-50 px-[20px] py-[22px] text-[20px] text-slate-500 dark:border-transparent dark:bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] dark:text-white/50">
         <div>Benefit</div>
         <div>Status</div>
         <div>Reason</div>
@@ -31,16 +31,16 @@ export function BenefitsTable({
           return (
             <div
               key={benefit.benefitId || benefit.name}
-              className="grid min-h-[72px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-white/14 text-[18px] text-white/92 last:border-b-0"
+              className="grid min-h-[72px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-slate-200 text-[18px] text-slate-800 last:border-b-0 dark:border-white/14 dark:text-white/92"
             >
               <div className="pr-6 font-medium">{benefit.name}</div>
               <div>{statusCopy[benefit.status]}</div>
-              <div className="pr-6 text-white/90">{benefit.reason}</div>
+              <div className="pr-6 text-slate-600 dark:text-white/90">{benefit.reason}</div>
               <div>{benefit.lastDate} . 20:00pm</div>
               <button
                 type="button"
                 onClick={() => onOpenBenefitModal(key, benefit.status)}
-                className="inline-flex items-center gap-[10px] text-[18px] font-medium text-[#1E78FF] transition hover:text-[#56A5FF]"
+                className="inline-flex items-center gap-[10px] text-[18px] font-medium text-blue-600 transition hover:text-blue-700 dark:text-[#1E78FF] dark:hover:text-[#56A5FF]"
               >
                 <span>Fix</span>
                 <svg
@@ -59,7 +59,7 @@ export function BenefitsTable({
         })}
 
         {benefits.length === 0 && (
-          <div className="py-12 text-center text-[18px] text-white/58">
+          <div className="py-12 text-center text-[18px] text-slate-500 dark:text-white/58">
             Benefit мэдээлэл олдсонгүй.
           </div>
         )}

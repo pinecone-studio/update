@@ -40,7 +40,7 @@ export function NotificationList({
         if (items.length === 0) return null;
         return (
           <div key={group} className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-white/70">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-white/50">
               {group}
             </p>
             <div className="space-y-3">

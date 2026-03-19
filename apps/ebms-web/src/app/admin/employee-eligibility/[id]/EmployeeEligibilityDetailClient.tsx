@@ -511,7 +511,7 @@ export default function EmployeeEligibilityDetailClient() {
 
   if (!id) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-white/70">
+      <div className="flex min-h-[60vh] items-center justify-center text-slate-600 dark:text-white/70">
         Employee not found.
       </div>
     );
@@ -520,15 +520,15 @@ export default function EmployeeEligibilityDetailClient() {
   if (loading) {
     return (
       <div className="min-h-[80vh] animate-pulse px-6 pb-10 pt-10">
-        <div className="mb-10 h-24 w-80 rounded-3xl bg-white/10" />
-        <div className="h-[540px] rounded-[28px] bg-white/10" />
+        <div className="mb-10 h-24 w-80 rounded-3xl bg-slate-200 dark:bg-white/10" />
+        <div className="h-[540px] rounded-[28px] bg-slate-200 dark:bg-white/10" />
       </div>
     );
   }
 
   if (!employee) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-white/70">
+      <div className="flex min-h-[60vh] items-center justify-center text-slate-600 dark:text-white/70">
         Employee not found.
       </div>
     );
@@ -536,14 +536,14 @@ export default function EmployeeEligibilityDetailClient() {
 
   return (
     <>
-      <div className="min-h-[80vh] px-[28px] pb-12 pt-[34px] text-white">
+      <div className="min-h-[80vh] px-[28px] pb-12 pt-[34px] text-slate-900 dark:text-white">
         <div className="mx-auto max-w-[1512px]">
           <div className="mb-[42px] flex items-start gap-[22px]">
             <button
               type="button"
               onClick={() => router.push("/admin/employee-eligibility")}
               aria-label="Back"
-              className="mt-[6px] inline-flex h-[64px] w-[64px] items-center justify-center rounded-[16px] bg-[#FFFFFF1A] text-white/88 transition hover:bg-[rgba(40,58,92,0.92)]"
+              className="mt-[6px] inline-flex h-[64px] w-[64px] items-center justify-center rounded-[16px] border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-transparent dark:bg-[#FFFFFF1A] dark:text-white/88 dark:hover:bg-[rgba(40,58,92,0.92)]"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -559,20 +559,20 @@ export default function EmployeeEligibilityDetailClient() {
             </button>
 
             <div className="ml-auto flex flex-col items-end text-right">
-              <h1 className="text-[42px] font-normal leading-[1.02] tracking-[-0.04em] text-white">
+              <h1 className="text-[42px] font-normal leading-[1.02] tracking-[-0.04em] text-slate-900 dark:text-white">
                 {employee.name}
               </h1>
-              <p className="mt-[8px] text-[26px] font-light text-[#9AA8AB80] tracking-[-0.02em] text-white/48">
+              <p className="mt-[8px] text-[26px] font-light tracking-[-0.02em] text-slate-600 dark:text-white/48">
                 Role
-                <span className="text-[#9AA8AB] font-light">
+                <span className="font-light text-slate-700 dark:text-[#9AA8AB]">
                   : {employee.role}
                 </span>
               </p>
             </div>
           </div>
 
-          <section className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,rgba(36,24,56,0.78),rgba(22,15,39,0.54))] shadow-[0_18px_70px_rgba(5,3,16,0.34)] backdrop-blur-[3px]">
-            <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center bg-[linear-gradient(90deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08),rgba(255,255,255,0.12))] px-[20px] py-[20px] text-[17px] text-white/50">
+          <section className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[var(--shadow-card)] dark:border-white/10 dark:bg-transparent dark:shadow-none">
+            <div className="grid grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-slate-200 bg-slate-50 px-[20px] py-[20px] text-[17px] text-slate-500 dark:border-white/10 dark:bg-transparent dark:text-white/70">
               <div>Benefit</div>
               <div>Status</div>
               <div>Reason</div>
@@ -587,16 +587,16 @@ export default function EmployeeEligibilityDetailClient() {
                 return (
                   <div
                     key={benefit.benefitId || benefit.name}
-                    className="grid min-h-[68px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b font-light text-sm border-white/14 text-[16px] text-white/92 last:border-b-0"
+                    className="grid min-h-[68px] grid-cols-[2.2fr_1.1fr_1.45fr_1.2fr_0.65fr] items-center border-b border-slate-200 font-light text-sm text-[16px] text-slate-800 last:border-b-0 dark:border-white/14 dark:text-white"
                   >
-                    <div className="pr-6 font-regular">{benefit.name}</div>
-                    <div>{statusCopy[benefit.status]}</div>
-                    <div className="pr-6 text-white/90">{benefit.reason}</div>
-                    <div>{benefit.lastDate}</div>
+                    <div className="pr-6 font-regular dark:text-white">{benefit.name}</div>
+                    <div className="dark:text-white">{statusCopy[benefit.status]}</div>
+                    <div className="pr-6 text-slate-600 dark:text-white/90">{benefit.reason}</div>
+                    <div className="dark:text-white">{benefit.lastDate}</div>
                     <button
                       type="button"
                       onClick={() => openBenefitModal(key, benefit.status)}
-                      className="inline-flex items-center gap-[10px] text-[16px] font-medium text-[#1E78FF] transition hover:text-[#56A5FF]"
+                      className="inline-flex items-center gap-[10px] text-[16px] font-medium text-blue-600 transition hover:text-blue-700 dark:text-[#1E78FF] dark:hover:text-[#56A5FF]"
                     >
                       <span>Fix</span>
                       <svg
@@ -615,7 +615,7 @@ export default function EmployeeEligibilityDetailClient() {
               })}
 
               {employee.benefits.length === 0 && (
-                <div className="py-12 text-center text-[18px] text-white/58">
+                <div className="py-12 text-center text-[18px] text-slate-500 dark:text-white/70">
                   Benefit information not found.
                 </div>
               )}

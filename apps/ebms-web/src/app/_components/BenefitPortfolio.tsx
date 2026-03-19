@@ -52,10 +52,10 @@ export function BenefitPortfolio({
   if (benefits.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-        <p className="text-slate-500 dark:text-slate-400 text-sm">
+        <p className="text-slate-500 text-sm">
           No benefits match this filter.
         </p>
-        <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">
+        <p className="text-slate-400 text-xs mt-1">
           Try selecting a different status or view All benefits.
         </p>
       </div>

@@ -5,9 +5,9 @@ import type { BenefitFromCatalog, BenefitConfig, Rule } from "../_lib/types";
 import { ROLE_VALUES } from "../_lib/constants";
 
 const cardClass =
-  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-white/10 dark:bg-white/5";
 const inputClass =
-  "rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white";
+  "rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-white/20 dark:bg-white/5 dark:text-white";
 
 const EMPLOYMENT_STATUS_VALUES = [
   { value: "active", label: "Active" },
@@ -93,17 +93,17 @@ export function RuleConfigSectionTabs({
 
   return (
     <section className={cardClass}>
-      <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
+      <h2 className="text-base font-medium text-slate-900 sm:text-lg dark:text-white">
         Benefit Configuration
       </h2>
 
       {error && (
-        <div className="mt-2 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-sm text-red-600 dark:bg-red-500/20 dark:border-red-500/50 dark:text-red-200">
+        <div className="mt-2 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
           {error}
         </div>
       )}
       {message && (
-        <div className="mt-2 rounded-lg border border-green-300 bg-green-50 px-3 py-1.5 text-sm text-green-700 dark:bg-green-500/20 dark:border-green-500/50 dark:text-green-200">
+        <div className="mt-2 rounded-lg border border-green-300 bg-green-50 px-3 py-1.5 text-sm text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400">
           {message}
         </div>
       )}
@@ -112,14 +112,14 @@ export function RuleConfigSectionTabs({
         <button
           type="button"
           onClick={onAddRule}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-[#334155] dark:text-[#C9D5EA] dark:hover:bg-[#24364F]"
+          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-white/20 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
         >
           + Add Rule
         </button>
 
         {rules.length > 0 && (
           <>
-            <div className="mt-3 flex flex-wrap gap-1 border-b border-slate-200 dark:border-[#334155]">
+            <div className="mt-3 flex flex-wrap gap-1 border-b border-slate-200 dark:border-white/10">
               {rules.map((_, ri) => (
                 <button
                   key={ri}
@@ -127,8 +127,8 @@ export function RuleConfigSectionTabs({
                   onClick={() => setActiveRuleIndex(ri)}
                   className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
                     activeRuleIndex === ri
-                      ? "border-blue-500 text-white dark:text-white"
-                      : "border-transparent text-slate-500 hover:text-slate-700 dark:text-[#94A3B8] dark:hover:text-[#C9D5EA]"
+                      ? "border-blue-500 text-slate-900 dark:text-white"
+                      : "border-transparent text-slate-500 hover:text-slate-900 dark:text-white/60 dark:hover:text-white"
                   }`}
                 >
                   Rule {ri + 1}
@@ -323,7 +323,7 @@ export function RuleConfigSectionTabs({
                     onClick={() =>
                       onUpdateRule(activeRuleIndex, "errorMessage", "")
                     }
-                    className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-[#334155] dark:text-[#C9D5EA] dark:hover:bg-[#24364F]"
+                    className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-white/20 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
                   >
                     Clear
                   </button>

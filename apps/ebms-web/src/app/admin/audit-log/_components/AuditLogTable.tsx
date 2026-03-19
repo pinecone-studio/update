@@ -5,18 +5,18 @@ import { openAdminContractByRequestId } from "../../_lib/api";
 import type { AuditEntry } from "../_lib/types";
 
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: "border-emerald-400 bg-emerald-100 text-emerald-800 dark:border-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300",
-  ELIGIBLE: "border-sky-400 bg-sky-100 text-sky-800 dark:border-sky-600 dark:bg-sky-900/40 dark:text-sky-300",
-  PENDING: "border-amber-400 bg-amber-100 text-amber-800 dark:border-amber-600 dark:bg-amber-900/40 dark:text-amber-300",
-  LOCKED: "border-slate-400 bg-slate-100 text-slate-700 dark:border-slate-500 dark:bg-slate-700/50 dark:text-slate-300",
-  REJECTED: "border-red-400 bg-red-100 text-red-800 dark:border-red-600 dark:bg-red-900/40 dark:text-red-300",
-  CANCELLED: "border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-600 dark:bg-slate-800/50 dark:text-slate-400",
+  ACTIVE: "border-emerald-400 bg-emerald-100 text-emerald-800 dark:border-emerald-500/50 dark:bg-emerald-500/20 dark:text-emerald-300",
+  ELIGIBLE: "border-sky-400 bg-sky-100 text-sky-800 dark:border-sky-500/50 dark:bg-sky-500/20 dark:text-sky-300",
+  PENDING: "border-amber-400 bg-amber-100 text-amber-800 dark:border-amber-500/50 dark:bg-amber-500/20 dark:text-amber-300",
+  LOCKED: "border-slate-400 bg-slate-100 text-slate-900 dark:border-slate-500/50 dark:bg-slate-500/20 dark:text-slate-300",
+  REJECTED: "border-red-400 bg-red-100 text-red-800 dark:border-red-500/50 dark:bg-red-500/20 dark:text-red-300",
+  CANCELLED: "border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-500/50 dark:bg-slate-500/20 dark:text-slate-400",
 };
 
 function getStatusStyle(status: string) {
   return (
     STATUS_COLORS[status] ??
-    "border-slate-400 bg-slate-100 text-slate-700 dark:border-slate-500 dark:bg-slate-700/50 dark:text-slate-300"
+    "border-slate-400 bg-slate-100 text-slate-900 dark:border-slate-500/50 dark:bg-slate-500/20 dark:text-slate-300"
   );
 }
 
@@ -49,10 +49,10 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
     [],
   );
   return (
-    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#2C4264] dark:bg-[#112349]">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[var(--shadow-card)] dark:border-[rgba(38,38,38,1)] dark:bg-[rgba(13,94,85,0.1)] dark:shadow-none">
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-5">
-          <thead className="border-b border-slate-200 text-slate-500 dark:border-[#2B405F] dark:text-[#A7B6D3]">
+          <thead className="border-b border-slate-200 text-slate-500 dark:border-white/10 dark:text-white/70">
             <tr>
               <th className="px-4 py-4 font-medium sm:px-6">№</th>
               <th className="px-4 py-4 font-medium sm:px-6">Time</th>
@@ -77,26 +77,26 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
               return (
                 <tr
                   key={entry.id}
-                  className="border-b border-slate-200 last:border-b-0 dark:border-[#22395A]"
+                  className="border-b border-slate-200 last:border-b-0 dark:border-white/10"
                 >
-                  <td className="px-4 py-5 font-semibold text-slate-900 dark:text-white sm:px-6">
+                  <td className="px-4 py-5 font-semibold text-slate-900 sm:px-6 dark:text-white">
                     {idx + 1}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">
+                  <td className="whitespace-nowrap px-4 py-5 text-slate-900 sm:px-6 dark:text-white">
                     {formatDateTime(entry.timestamp)}
                   </td>
                   <td className="px-4 py-5 sm:px-6">
                     <p className="font-semibold text-slate-900 dark:text-white">
                       {entry.employee}
                     </p>
-                    <p className="text-sm text-slate-500 dark:text-[#8FA3C5]">
+                    <p className="text-sm text-slate-500 dark:text-white/70">
                       {entry.employeeId}
                     </p>
                   </td>
-                  <td className="px-4 py-5 font-medium text-slate-800 dark:text-[#D4DEEF] sm:px-6">
+                  <td className="px-4 py-5 font-medium text-slate-900 sm:px-6 dark:text-white">
                     {entry.action}
                   </td>
-                  <td className="px-4 py-5 text-slate-700 dark:text-[#C7D6EF] sm:px-6">
+                  <td className="px-4 py-5 text-slate-900 sm:px-6 dark:text-white">
                     {entry.benefit}
                   </td>
                   <td className="px-4 py-5 sm:px-6">
@@ -106,7 +106,7 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
                       >
                         {oldStatus}
                       </span>
-                      <span className="text-slate-400 dark:text-[#6B7B9E]">
+                      <span className="text-slate-400 dark:text-white/50">
                         →
                       </span>
                       <span
@@ -123,15 +123,15 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
                         onClick={() =>
                           handleViewContract(entry.uploadedContractRequestId!)
                         }
-                        className="rounded-lg border border-sky-400 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 hover:bg-sky-100 dark:border-sky-600 dark:bg-sky-900/40 dark:text-sky-300 dark:hover:bg-sky-900/60"
+                        className="rounded-lg border border-sky-400 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 hover:bg-sky-100 dark:border-sky-500/50 dark:bg-sky-500/20 dark:text-sky-300 dark:hover:bg-sky-500/30"
                       >
                         View contract
                       </button>
                     ) : (
-                      <span className="text-slate-400 dark:text-slate-500">—</span>
+                      <span className="text-slate-400 dark:text-white/50">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-5 font-mono text-xs text-slate-500 dark:text-[#8FA3C5] sm:px-6">
+                  <td className="px-4 py-5 font-mono text-xs text-slate-500 sm:px-6 dark:text-white/70">
                     {entry.id.slice(0, 8)}…
                   </td>
                 </tr>
@@ -141,7 +141,7 @@ export function AuditLogTable({ entries }: AuditLogTableProps) {
         </table>
       </div>
       {entries.length === 0 && (
-        <p className="border-t border-slate-200 px-4 py-3 text-5 text-slate-500 dark:border-[#22395A] dark:text-[#A7B6D3] sm:px-6">
+        <p className="border-t border-slate-200 px-4 py-3 text-5 text-slate-500 sm:px-6 dark:border-white/10 dark:text-white/70">
           Таны сонгосон хайлт/шүүлтүүрт тохирох audit log олдсонгүй.
         </p>
       )}

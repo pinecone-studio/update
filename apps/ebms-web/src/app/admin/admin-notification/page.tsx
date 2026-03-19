@@ -304,7 +304,7 @@ export default function AdminNotificationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen px-3 py-4 text-slate-900 sm:px-4 sm:py-6 dark:text-white">
+      <div className="min-h-screen px-3 py-4 text-slate-900 dark:text-white sm:px-4 sm:py-6">
         <NotificationSkeleton statCardCount={4} />
       </div>
     );
@@ -313,7 +313,7 @@ export default function AdminNotificationPage() {
   const groups = ["Today", "Yesterday", "Earlier"] as const;
 
   return (
-    <div className="min-h-screen px-3 py-4 text-slate-900 sm:px-4 sm:py-6 dark:text-white">
+    <div className="min-h-screen px-3 py-4 text-slate-900 dark:text-white sm:px-4 sm:py-6">
       <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-4 sm:gap-6">
         <NotificationHeader />
         <NotificationStatsCards

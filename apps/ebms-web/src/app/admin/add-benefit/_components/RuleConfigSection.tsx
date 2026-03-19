@@ -9,11 +9,11 @@ import {
 } from "../_lib/constants";
 
 const sectionBaseClass =
-  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-white/10 dark:bg-white/5";
 const inputSm =
-  "rounded border border-slate-300 bg-white px-2 py-1.5 text-slate-900 text-sm dark:border-[#334155] dark:bg-[#0F172A] dark:text-white";
+  "rounded border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 dark:border-white/20 dark:bg-white/5 dark:text-white";
 const selectClass =
-  "w-full max-w-md rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white";
+  "w-full max-w-md rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-white/20 dark:bg-white/5 dark:text-white";
 const EMPLOYMENT_STATUS_VALUES = [
   "active",
   "leave",
@@ -90,31 +90,31 @@ export function RuleConfigSection({
 
   return (
     <section className={`${sectionClass} ${className}`.trim()}>
-      <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
+      <h2 className="text-base font-medium text-slate-900 sm:text-lg dark:text-white">
         2. Дүрэм тохируулах
       </h2>
-      <p className="mt-1 text-xs text-slate-600 dark:text-[#94A3B8] sm:text-sm">
+      <p className="mt-1 text-xs text-slate-600 sm:text-sm dark:text-white/70">
         D1-д байгаа benefit-ээс сонгоод eligibility дүрмээ нэмж, засна.
       </p>
 
       {error && (
-        <div className="mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-500/20 dark:border-red-500/50 dark:text-red-200">
+        <div className="mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
           {error}
         </div>
       )}
       {message && (
-        <div className="mt-3 rounded-lg border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-700 dark:bg-green-500/20 dark:border-green-500/50 dark:text-green-200">
+        <div className="mt-3 rounded-lg border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400">
           {message}
         </div>
       )}
 
       {!hideBenefitSelector && (
         <div className="mt-4">
-          <label className="block text-sm text-slate-600 mb-2 dark:text-[#94A3B8]">
+          <label className="mb-2 block text-sm text-slate-600 dark:text-white/70">
             Benefit сонгох (D1-ээс)
           </label>
           {loadingCatalog ? (
-            <p className="text-slate-600 text-sm dark:text-[#94A3B8]">
+            <p className="text-sm text-slate-600 dark:text-white/70">
               Жагсаалт татаж байна...
             </p>
           ) : (
@@ -136,14 +136,14 @@ export function RuleConfigSection({
 
       {selectedBenefitId && rulesForSelected && (
         <div className="mt-3">
-          <h3 className="text-sm font-medium text-slate-600 mb-2 dark:text-[#94A3B8]">
+          <h3 className="mb-2 text-sm font-medium text-slate-600 dark:text-white/70">
             «{rulesForSelected.name || selectedBenefitId}» — eligibility дүрмүүд
           </h3>
           <div className="pr-1">
             {(rulesForSelected.rules ?? []).map((rule, ri) => (
               <div
                 key={ri}
-                className="mb-2 flex flex-wrap items-center gap-2 rounded bg-slate-100 px-2 py-1.5 dark:bg-[#1E293B]"
+                className="mb-2 flex flex-wrap items-center gap-2 rounded bg-slate-100 px-2 py-1.5 dark:bg-white/10"
               >
                 {/** Backward compatibility: existing `attendance` rules are treated as `late_arrival_count`. */}
                 {(() => {
@@ -321,11 +321,11 @@ export function RuleConfigSection({
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={onAddRule}
-            className="mt-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-          >
+            <button
+              type="button"
+              onClick={onAddRule}
+              className="mt-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            >
             + Дүрэм нэмэх
           </button>
           {!hideSaveButton && (
@@ -334,7 +334,7 @@ export function RuleConfigSection({
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-900 hover:bg-slate-50 dark:border-white/20 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                 >
                   Cancel
                 </button>
@@ -353,7 +353,7 @@ export function RuleConfigSection({
       )}
 
       {selectedBenefitId && !rulesForSelected && loadingConfig && (
-        <p className="mt-4 text-sm text-slate-600 dark:text-[#94A3B8]">
+        <p className="mt-4 text-sm text-slate-600 dark:text-white/70">
           Дүрмийн config уншиж байна...
         </p>
       )}

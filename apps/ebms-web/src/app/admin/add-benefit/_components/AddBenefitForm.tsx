@@ -5,10 +5,10 @@ import type { AddBenefitFormState } from "../_lib/types";
 import { BENEFIT_SUGGESTIONS } from "../_lib/constants";
 
 const sectionClass =
-  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "rounded-xl border border-slate-200 bg-slate-50 p-6";
 const inputClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white";
-const labelClass = "block text-sm text-slate-600 mb-1 dark:text-[#94A3B8]";
+  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-black";
+const labelClass = "block text-sm text-slate-600 mb-1";
 const CATEGORY_OPTIONS = [
   "wellness",
   "health",
@@ -57,22 +57,22 @@ export function AddBenefitForm({
 
   return (
     <section className={`${sectionClass} ${className}`.trim()}>
-      <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
+      <h2 className="text-base font-medium text-black sm:text-lg">
         {isEditMode ? "1. Benefit засварлах" : "1. Benefit нэмэх"}
       </h2>
-      <p className="mt-1 text-xs text-slate-600 dark:text-[#94A3B8] sm:text-sm">
+      <p className="mt-1 text-xs text-slate-600 sm:text-sm">
         {isEditMode
           ? "Нэр, ангилал, хөнгөлөлтийн хувийг засварлаад хадгална."
           : "Нэр, ангилал, хөнгөлөлтөө оруулаад доорх хэсэгт дүрмээ нэмнэ. Доорх Save товчоор benefit болон дүрмийг хамт хадгална."}
       </p>
 
       {error && (
-        <div className="mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-500/20 dark:border-red-500/50 dark:text-red-200">
+        <div className="mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-600">
           {error}
         </div>
       )}
       {message && (
-        <div className="mt-3 rounded-lg border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-700 dark:bg-green-500/20 dark:border-green-500/50 dark:text-green-200">
+        <div className="mt-3 rounded-lg border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-700">
           {message}
         </div>
       )}
@@ -161,7 +161,7 @@ export function AddBenefitForm({
             />
             <label
               htmlFor="s1-finance-check"
-              className="text-sm text-slate-600 dark:text-[#94A3B8]"
+              className="text-sm text-slate-600"
             >
               Finance Approval
             </label>
@@ -190,7 +190,7 @@ export function AddBenefitForm({
             />
             <label
               htmlFor="s1-requires-contract"
-              className="text-sm text-slate-600 dark:text-[#94A3B8]"
+              className="text-sm text-slate-600"
             >
               Requires Vendor Contract
             </label>
@@ -207,7 +207,7 @@ export function AddBenefitForm({
             />
             <label
               htmlFor="s1-manager-approval"
-              className="text-sm text-slate-600 dark:text-[#94A3B8]"
+              className="text-sm text-slate-600"
             >
               Manager Pre-Approval
             </label>
@@ -240,7 +240,7 @@ export function AddBenefitForm({
                 ];
               onChange({ ...form, ...suggestion });
             }}
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-slate-300 dark:hover:bg-[#24364F]"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
           >
             Suggest (field-үүдийг бөглөх)
           </button>

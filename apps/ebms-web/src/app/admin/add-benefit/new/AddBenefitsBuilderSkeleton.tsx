@@ -6,7 +6,7 @@ import { Skeleton } from "@/app/_components/Skeleton";
 
 export function AddBenefitsBuilderSkeleton() {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-[#2C4264] dark:bg-[#1E293B]">
+    <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-white/10 dark:bg-white/5">
       <div className="flex items-center justify-between gap-4">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-10 w-24 rounded-xl" />
@@ -24,7 +24,7 @@ export function AddBenefitsBuilderSkeleton() {
           <Skeleton className="h-32 w-full rounded-xl" />
         </div>
       </div>
-      <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]">
+      <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-white/10 dark:bg-white/5">
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-9 w-24 rounded-lg" />

@@ -64,19 +64,11 @@ export function VendorUploadContractModal({
         type="button"
         aria-label="Close add contract modal"
         onClick={handleClose}
-        className="absolute inset-0 bg-white/25 backdrop-blur-md dark:bg-black/30 dark:backdrop-blur-lg"
+        className="absolute inset-0 bg-black/20 backdrop-blur-md dark:bg-white/25"
       />
-      <section
-        className="relative z-10 flex w-[900px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[28.63px] border bg-[rgba(53,41,99,0.44)] backdrop-blur-[16px]"
-        style={{
-          borderWidth: "0.72px",
-          borderColor: "rgba(185, 189, 255, 0.24)",
-          padding: "40px 32px",
-          gap: "24px",
-        }}
-      >
+      <section className="relative z-10 flex w-[900px] max-w-[calc(100vw-2rem)] flex-col gap-6 overflow-hidden rounded-[28.63px] border border-slate-200 bg-white p-10 shadow-2xl dark:border-[rgba(185,189,255,0.24)] dark:bg-[rgba(53,41,99,0.44)] dark:backdrop-blur-[16px]">
         <div className="flex shrink-0 items-center">
-          <h2 className="text-[22px] font-normal text-white">
+          <h2 className="text-[22px] font-normal text-slate-900 dark:text-white">
             Upload Vendor Contract
           </h2>
         </div>
@@ -89,17 +81,17 @@ export function VendorUploadContractModal({
         >
           <input type="hidden" name="tab" value="vendor" />
           <div className="flex flex-col gap-4">
-            <h3 className="text-5 font-medium text-[#A7B6D3]">Basic Info</h3>
+            <h3 className="text-5 font-medium text-slate-600 dark:text-[#A7B6D3]">Basic Info</h3>
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">Benefit</label>
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Benefit</label>
                 <select
                   name="benefitId"
                   required
                   value={selectedBenefitId}
                   onChange={(e) => onBenefitChange(e.target.value)}
                   disabled={benefitsLoading || benefitOptions.length === 0}
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] disabled:opacity-60"
+                  className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-5 text-slate-900 outline-none focus:border-blue-500 disabled:opacity-60 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:focus:border-[#B18CFF]"
                 >
                   <option value="">
                     {benefitsLoading ? "Loading..." : "— Select benefit —"}
@@ -112,52 +104,52 @@ export function VendorUploadContractModal({
                 </select>
               </div>
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">Version</label>
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">Version</label>
                 <input
                   name="version"
                   required
                   placeholder="vendor-2026.1"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
+                  className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:placeholder:text-[#B7A9D9] dark:focus:border-[#B18CFF]"
                 />
               </div>
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
                   Vendor Name (optional)
                 </label>
                 <input
                   name="vendorName"
                   placeholder="PineFit"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white placeholder:text-[#B7A9D9] outline-none focus:border-[#B18CFF]"
+                  className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:placeholder:text-[#B7A9D9] dark:focus:border-[#B18CFF]"
                 />
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-4">
-            <h3 className="text-5 font-medium text-[#A7B6D3]">
+            <h3 className="text-5 font-medium text-slate-600 dark:text-[#A7B6D3]">
               Contract Details
             </h3>
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
                   Effective Date (optional)
                 </label>
                 <input
                   name="effectiveDate"
                   type="date"
                   placeholder="yyyy-mm-dd"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] [color-scheme:dark]"
+                  className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-5 text-slate-900 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:focus:border-[#B18CFF] [color-scheme:dark]"
                 />
               </div>
               <div className="flex flex-col gap-2.5">
-                <label className="text-5 text-[#A7B6D3]">
+                <label className="text-5 text-slate-600 dark:text-[#A7B6D3]">
                   Expiry Date (optional)
                 </label>
                 <input
                   name="expiryDate"
                   type="date"
                   placeholder="yyyy-mm-dd"
-                  className="h-11 rounded-xl border border-[#6F5AA8] bg-[rgba(31,22,57,0.88)] px-3 text-5 text-white outline-none focus:border-[#B18CFF] [color-scheme:dark]"
+                  className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-5 text-slate-900 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:focus:border-[#B18CFF] [color-scheme:dark]"
                 />
               </div>
             </div>
@@ -184,10 +176,10 @@ export function VendorUploadContractModal({
               }
               className={`flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-4 transition-colors ${
                 isDragging
-                  ? "border-[#B18CFF] bg-[rgba(93,63,155,0.26)]"
+                  ? "border-blue-400 bg-blue-50 dark:border-[#B18CFF] dark:bg-[rgba(93,63,155,0.26)]"
                   : pdfError
                     ? "border-red-500"
-                    : "border-[#6F5AA8] bg-[rgba(31,22,57,0.32)]"
+                    : "border-slate-300 bg-slate-50 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.32)]"
               }`}
             >
               <input
@@ -207,7 +199,7 @@ export function VendorUploadContractModal({
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#2F66E8] px-5 text-5 font-medium text-white transition hover:bg-[#3E82F7]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-5 font-medium text-white transition hover:bg-blue-700 dark:bg-[#2F66E8] dark:hover:bg-[#3E82F7]"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -222,13 +214,13 @@ export function VendorUploadContractModal({
                 </svg>
                 Upload PDF
               </button>
-              <p className="text-5 text-[#8595B6]">
+              <p className="text-5 text-slate-500 dark:text-[#8595B6]">
                 Drag & drop or click to upload PDF only Max {MAX_PDF_SIZE_MB}MB
               </p>
               {pdfFile && (
-                <p className="text-5 text-green-400">{pdfFile.name}</p>
+                <p className="text-5 text-green-600 dark:text-green-400">{pdfFile.name}</p>
               )}
-              {pdfError && <p className="text-5 text-red-400">{pdfError}</p>}
+              {pdfError && <p className="text-5 text-red-600 dark:text-red-400">{pdfError}</p>}
             </div>
           </div>
 
@@ -236,14 +228,14 @@ export function VendorUploadContractModal({
             <button
               type="button"
               onClick={handleClose}
-              className="h-13 w-[70px] rounded-lg bg-[#B0B0B0] px-2 text-[20px] font-normal text-[#122459]"
+              className="h-13 w-[70px] rounded-lg border border-slate-300 bg-slate-200 px-2 text-[20px] font-normal text-slate-700 transition hover:bg-slate-300 dark:bg-[#B0B0B0] dark:border-transparent dark:text-[#122459] dark:hover:bg-slate-400"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={uploading || !pdfFile}
-              className="inline-flex h-13 w-[70px] items-center justify-center rounded-lg bg-[#0057AD] px-2 text-[20px] font-normal text-white transition hover:bg-[#3E82F7] disabled:cursor-not-allowed disabled:bg-[#0057AD] disabled:text-white"
+              className="inline-flex h-13 w-[70px] items-center justify-center rounded-lg bg-blue-600 px-2 text-[20px] font-normal text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#0057AD] dark:hover:bg-[#3E82F7]"
             >
               {uploading ? "Saving..." : "Save"}
             </button>

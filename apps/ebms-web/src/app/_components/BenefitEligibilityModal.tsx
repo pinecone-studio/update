@@ -8,12 +8,12 @@ import type { BenefitCardProps, EligibilityRule } from "./BenefitCard";
 
 const STATUS_STYLES: Record<BenefitCardProps["status"], string> = {
   ACTIVE:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-400",
-  ELIGIBLE: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-400",
-  LOCKED: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
+    "bg-emerald-100 text-emerald-800",
+  ELIGIBLE: "bg-blue-100 text-blue-800",
+  LOCKED: "bg-slate-100 text-slate-600",
   PENDING:
-    "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400",
-  REJECTED: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400",
+    "bg-amber-100 text-amber-800",
+  REJECTED: "bg-red-100 text-red-800",
 };
 
 interface BenefitEligibilityModalProps {
@@ -86,15 +86,15 @@ export function BenefitEligibilityModal({
       aria-labelledby="eligibility-modal-title"
     >
       <div
-        className="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-xl max-h-[90vh] overflow-hidden flex flex-col dark:bg-[#1A2536] dark:border-[#2d3a4d]"
+        className="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-5 pb-4 border-b border-slate-200 dark:border-[#2d3a4d]">
+        <div className="flex items-center justify-between p-5 pb-4 border-b border-slate-200">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h2
                 id="eligibility-modal-title"
-                className="text-xl font-bold text-slate-900 dark:text-white"
+                className="text-xl font-bold text-black"
               >
                 {benefit.name}
               </h2>
@@ -103,7 +103,7 @@ export function BenefitEligibilityModal({
                   <span className="relative group">
                     <FiInfo
                       size={14}
-                      className="text-slate-500 hover:text-slate-700 cursor-help dark:text-slate-400 dark:hover:text-slate-200"
+                      className="text-slate-500 hover:text-black cursor-help"
                       aria-label="Requirements to maintain benefit"
                     />
                     <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 px-2.5 py-2 w-48 rounded-lg bg-slate-800 text-white text-xs font-normal shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
@@ -125,14 +125,14 @@ export function BenefitEligibilityModal({
                 </span>
               </div>
             </div>
-            <p className="text-xs text-slate-500 mt-1 dark:text-slate-400">
+            <p className="text-xs text-slate-500 mt-1">
               {benefit.category}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors dark:text-[#94A3B8] dark:hover:bg-[#2d3a4d] dark:hover:text-white shrink-0"
+            className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-black transition-colors shrink-0"
             aria-label="Close"
           >
             <FiX size={20} />
@@ -141,11 +141,11 @@ export function BenefitEligibilityModal({
 
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {showContractStep && needsContractAcceptance ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-950/30">
-              <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-200 mb-2">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <h3 className="text-sm font-semibold text-amber-900 mb-2">
                 Accept vendor contract before requesting
               </h3>
-              <p className="text-sm text-amber-800 dark:text-amber-300 mb-3">
+              <p className="text-sm text-amber-800 mb-3">
                 You must read and accept the vendor contract before your request
                 can be submitted.
               </p>
@@ -154,7 +154,7 @@ export function BenefitEligibilityModal({
                   href={benefit.contractLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium mb-4 dark:text-blue-400"
+                  className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium mb-4"
                 >
                   View vendor contract
                   <FiExternalLink size={14} />
@@ -165,7 +165,7 @@ export function BenefitEligibilityModal({
                 <button
                   type="button"
                   onClick={() => onViewContract(benefit)}
-                  className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium mb-4 dark:text-blue-400"
+                  className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium mb-4"
                 >
                   View vendor contract
                   <FiExternalLink size={14} />
@@ -178,7 +178,7 @@ export function BenefitEligibilityModal({
                   onChange={(e) => setContractAccepted(e.target.checked)}
                   className="mt-1 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-sm text-slate-700 dark:text-slate-300">
+                <span className="text-sm text-black">
                   I have read and accept the terms of the vendor contract.
                 </span>
               </label>
@@ -187,7 +187,7 @@ export function BenefitEligibilityModal({
                   type="button"
                   onClick={handleSubmitWithContract}
                   disabled={!contractAccepted}
-                  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
+                  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700"
                 >
                   Submit request
                 </button>
@@ -197,7 +197,7 @@ export function BenefitEligibilityModal({
                     setShowContractStep(false);
                     setContractAccepted(false);
                   }}
-                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-black hover:bg-slate-100"
                 >
                   Cancel
                 </button>
@@ -207,10 +207,10 @@ export function BenefitEligibilityModal({
 
           {!showContractStep && benefit.description && (
             <div>
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <h3 className="text-sm font-semibold text-black mb-1">
                 Description
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-600">
                 {benefit.description}
               </p>
             </div>
@@ -220,42 +220,42 @@ export function BenefitEligibilityModal({
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
                     Subsidy
                   </h3>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  <p className="text-sm font-medium text-black">
                     {benefit.subsidyPercentage ?? "—"}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
                     Vendor
                   </h3>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  <p className="text-sm font-medium text-black">
                     {benefit.vendorDetails ?? "—"}
                   </p>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
                   Eligibility criteria
                 </h3>
-                <p className="text-sm text-slate-700 dark:text-slate-300">
+                <p className="text-sm text-black">
                   {benefit.eligibilityCriteria}
                 </p>
               </div>
 
               {benefit.contractLink != null ? (
                 <div>
-                  <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
                     Vendor contract
                   </h3>
                   <a
                     href={benefit.contractLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400 dark:hover:text-blue-300"
+                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
                   >
                     View vendor contract
                     <FiExternalLink size={14} />
@@ -265,13 +265,13 @@ export function BenefitEligibilityModal({
                 benefit.benefitId &&
                 onViewContract ? (
                 <div>
-                  <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
                     Vendor contract
                   </h3>
                   <button
                     type="button"
                     onClick={() => onViewContract(benefit)}
-                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400 dark:hover:text-blue-300"
+                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
                   >
                     View vendor contract
                     <FiExternalLink size={14} />
@@ -289,10 +289,10 @@ export function BenefitEligibilityModal({
                   benefit.benefitStartDate != null &&
                   benefit.benefitStartDate !== "" ? (
                     <div>
-                      <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                      <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
                         Benefit started
                       </h3>
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">
+                      <p className="text-sm font-medium text-black">
                         {benefit.benefitStartDate}
                       </p>
                     </div>
@@ -300,10 +300,10 @@ export function BenefitEligibilityModal({
                   {benefit.benefitEndDate != null &&
                   benefit.benefitEndDate !== "" ? (
                     <div>
-                      <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                      <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
                         Benefit ends
                       </h3>
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">
+                      <p className="text-sm font-medium text-black">
                         {benefit.benefitEndDate}
                       </p>
                     </div>
@@ -312,22 +312,22 @@ export function BenefitEligibilityModal({
               ) : null}
 
               {benefit.status === "LOCKED" && benefit.lockReason && (
-                <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 dark:bg-amber-950/30 dark:border-amber-800/50">
-                  <h3 className="text-xs font-semibold text-amber-800 uppercase tracking-wide mb-1 dark:text-amber-400">
+                <div className="rounded-lg bg-amber-50 border border-amber-200 p-4">
+                  <h3 className="text-xs font-semibold text-amber-800 uppercase tracking-wide mb-1">
                     Why it&apos;s locked
                   </h3>
-                  <p className="text-sm text-amber-900 dark:text-amber-200">
+                  <p className="text-sm text-amber-900">
                     {benefit.lockReason}
                   </p>
                 </div>
               )}
 
               {benefit.status === "REJECTED" && benefit.rejectReason && (
-                <div className="rounded-lg bg-red-50 border border-red-200 p-4 dark:bg-red-950/30 dark:border-red-800/50">
-                  <h3 className="text-xs font-semibold text-red-800 uppercase tracking-wide mb-1 dark:text-red-400">
+                <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+                  <h3 className="text-xs font-semibold text-red-800 uppercase tracking-wide mb-1">
                     Rejection reason
                   </h3>
-                  <p className="text-sm text-red-900 dark:text-red-200">
+                  <p className="text-sm text-red-900">
                     {benefit.rejectReason}
                   </p>
                 </div>
@@ -335,7 +335,7 @@ export function BenefitEligibilityModal({
 
               {rules.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+                  <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">
                     Eligibility rules
                   </h3>
                   <div className="space-y-2">
@@ -350,11 +350,11 @@ export function BenefitEligibilityModal({
         </div>
 
         {canRequest && !showContractStep ? (
-          <div className="p-5 pt-4 border-t border-slate-200 dark:border-[#2d3a4d]">
+          <div className="p-5 pt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={handleRequestClick}
-              className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition-colors dark:bg-blue-600 dark:hover:bg-blue-500"
+              className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition-colors"
             >
               Request benefit
             </button>
@@ -367,30 +367,30 @@ export function BenefitEligibilityModal({
 
 function RuleRow({ rule }: { rule: EligibilityRule }) {
   return (
-    <div className="flex gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 dark:bg-[#0f172a]/50 dark:border-[#2d3a4d]">
+    <div className="flex gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
       <div
         className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
           rule.passed
-            ? "bg-green-100 text-green-600 dark:bg-[#4CAF50]/20 dark:text-[#4CAF50]"
-            : "bg-red-100 text-red-600 dark:bg-[#F44336]/20 dark:text-[#F44336]"
+            ? "bg-green-100 text-green-600"
+            : "bg-red-100 text-red-600"
         }`}
       >
         {rule.passed ? <FiCheck size={16} /> : <FiX size={16} />}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-slate-900 dark:text-white">
+        <p className="text-sm font-medium text-black">
           {rule.rule}
         </p>
         {rule.detail != null && (
-          <p className="text-xs text-slate-600 mt-0.5 dark:text-[#94A3B8]">
+          <p className="text-xs text-slate-600 mt-0.5">
             {rule.detail}
           </p>
         )}
         <span
           className={`inline-block mt-1 text-xs font-semibold ${
             rule.passed
-              ? "text-green-600 dark:text-[#4CAF50]"
-              : "text-red-600 dark:text-[#F44336]"
+              ? "text-green-600"
+              : "text-red-600"
           }`}
         >
           {rule.passed ? "PASS" : "FAIL"}

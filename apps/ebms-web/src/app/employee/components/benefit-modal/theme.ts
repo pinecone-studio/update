@@ -15,20 +15,32 @@ export const STATUS_BADGE: Record<Status, string> = {
   REJECTED: "border-[#ff7d87]/45 bg-[#7f2b40]/35 text-[#ff8d96]",
 };
 
-export const MODAL_THEME: Record<
-  Status,
-  {
-    frame: string;
-    header: string;
-    body: string;
-    section: string;
-    summary: string;
-    rulePass: string;
-    ruleFail: string;
-    closeBtn: string;
-    footer: string;
-  }
-> = {
+export type ModalTheme = {
+  frame: string;
+  header: string;
+  body: string;
+  section: string;
+  summary: string;
+  rulePass: string;
+  ruleFail: string;
+  closeBtn: string;
+  footer: string;
+};
+
+/** Light mode theme – neutral, works for all statuses */
+export const MODAL_THEME_LIGHT: ModalTheme = {
+  frame: "border border-slate-200 bg-white shadow-xl",
+  header: "bg-slate-50",
+  body: "bg-white",
+  section: "border-slate-200 bg-slate-50",
+  summary: "border-slate-200 bg-slate-100",
+  rulePass: "border-emerald-200 bg-emerald-50",
+  ruleFail: "border-rose-200 bg-rose-50",
+  closeBtn: "border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200",
+  footer: "border-slate-200 bg-slate-50",
+};
+
+export const MODAL_THEME: Record<Status, ModalTheme> = {
   ACTIVE: {
     frame:
       "border-[0.72px] border-[rgba(185,189,255,0.24)] shadow-[0_30px_80px_rgba(7,10,28,0.45)]",
@@ -43,7 +55,7 @@ export const MODAL_THEME: Record<
       "border-[#1a735f]/45 bg-[linear-gradient(120deg,rgba(22,84,78,0.84)_0%,rgba(20,74,83,0.84)_100%)]",
     ruleFail:
       "border-[#87506b]/42 bg-[linear-gradient(120deg,rgba(72,37,67,0.86)_0%,rgba(66,34,68,0.86)_100%)]",
-    closeBtn: "border-white/10 bg-white/6 hover:bg-white/12",
+    closeBtn: "border-white/10 bg-white/6 text-white/70 hover:bg-white/12",
     footer: "border-white/8 bg-[rgba(18,22,52,0.9)]",
   },
   ELIGIBLE: {
@@ -60,7 +72,7 @@ export const MODAL_THEME: Record<
       "border-[#1a735f]/45 bg-[linear-gradient(120deg,rgba(22,84,78,0.84)_0%,rgba(20,74,83,0.84)_100%)]",
     ruleFail:
       "border-[#87506b]/42 bg-[linear-gradient(120deg,rgba(72,37,67,0.86)_0%,rgba(66,34,68,0.86)_100%)]",
-    closeBtn: "border-white/10 bg-white/6 hover:bg-white/12",
+    closeBtn: "border-white/10 bg-white/6 text-white/70 hover:bg-white/12",
     footer: "border-white/8 bg-[rgba(18,22,52,0.9)]",
   },
   PENDING: {
@@ -77,7 +89,7 @@ export const MODAL_THEME: Record<
       "border-[#1a735f]/45 bg-[linear-gradient(120deg,rgba(22,84,78,0.84)_0%,rgba(20,74,83,0.84)_100%)]",
     ruleFail:
       "border-[#87506b]/42 bg-[linear-gradient(120deg,rgba(72,37,67,0.86)_0%,rgba(66,34,68,0.86)_100%)]",
-    closeBtn: "border-white/10 bg-white/6 hover:bg-white/12",
+    closeBtn: "border-white/10 bg-white/6 text-white/70 hover:bg-white/12",
     footer: "border-white/8 bg-[rgba(18,22,52,0.9)]",
   },
   LOCKED: {
@@ -94,7 +106,7 @@ export const MODAL_THEME: Record<
       "border-[#1a735f]/45 bg-[linear-gradient(120deg,rgba(22,84,78,0.84)_0%,rgba(20,74,83,0.84)_100%)]",
     ruleFail:
       "border-[#87506b]/42 bg-[linear-gradient(120deg,rgba(72,37,67,0.86)_0%,rgba(66,34,68,0.86)_100%)]",
-    closeBtn: "border-white/10 bg-white/6 hover:bg-white/12",
+    closeBtn: "border-white/10 bg-white/6 text-white/70 hover:bg-white/12",
     footer: "border-white/8 bg-[rgba(18,22,52,0.9)]",
   },
   REJECTED: {
@@ -110,7 +122,7 @@ export const MODAL_THEME: Record<
       "border-[#1a735f]/45 bg-[linear-gradient(120deg,rgba(22,84,78,0.84)_0%,rgba(20,74,83,0.84)_100%)]",
     ruleFail:
       "border-[#87506b]/42 bg-[linear-gradient(120deg,rgba(72,37,67,0.86)_0%,rgba(66,34,68,0.86)_100%)]",
-    closeBtn: "border-white/10 bg-white/6 hover:bg-white/12",
+    closeBtn: "border-white/10 bg-white/6 text-white/70 hover:bg-white/12",
     footer: "border-white/8 bg-[rgba(18,22,52,0.9)]",
   },
 };

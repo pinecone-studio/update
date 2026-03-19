@@ -1,69 +1,81 @@
+/** @format */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @keyframes card-slide-in {
-  0% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	0% {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .animate-card-slide-in {
-  animation: card-slide-in 0.3s ease-out forwards;
+	animation: card-slide-in 0.3s ease-out forwards;
 }
 
 @keyframes benefit-card-sweep {
-  0% {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-  15% {
-    opacity: 0.9;
-    transform: scale(1);
-  }
-  40% {
-    opacity: 0.55;
-    transform: scale(1.03);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.08);
-  }
+	0% {
+		opacity: 0;
+		transform: scale(0.92);
+	}
+	15% {
+		opacity: 0.9;
+		transform: scale(1);
+	}
+	40% {
+		opacity: 0.55;
+		transform: scale(1.03);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(1.08);
+	}
 }
 
 @layer base {
-  :root {
-    --bg-page: #f8fafc;
-    --bg-card: #ffffff;
-    --bg-card-alt: #f1f5f9;
-    --border: #e2e8f0;
-    --border-alt: #cbd5e1;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --text-muted: #94a3b8;
-    --accent: #2563eb;
-    --accent-hover: #1d4ed8;
-  }
-  .dark {
-    --bg-page: #0f172a;
-    --bg-card: #1e293b;
-    --bg-card-alt: #334155;
-    --border: #2c4264;
-    --border-alt: #2b405f;
-    --text-primary: #ffffff;
-    --text-secondary: #a7b6d3;
-    --text-muted: #8fa3c5;
-    --accent: #2a8bff;
-    --accent-hover: #1d7ae8;
-  }
+	:root {
+		/* Light mode */
+		--bg-page: #f8fafc;
+		--bg-page-warm: #faf9f7;
+		--bg-card: #ffffff;
+		--bg-card-alt: #f1f5f9;
+		--bg-card-soft: #f8fafc;
+		--border: #e2e8f0;
+		--border-soft: #f1f5f9;
+		--border-alt: #cbd5e1;
+		--text-primary: #1e293b;
+		--text-secondary: #475569;
+		--text-muted: #64748b;
+		--accent: #2563eb;
+		--accent-hover: #1d4ed8;
+		--shadow-soft: 0 1px 3px rgba(15, 23, 42, 0.06);
+		--shadow-card: 0 4px 12px rgba(15, 23, 42, 0.06);
+	}
+	.dark {
+		--bg-page: #0f172a;
+		--bg-page-warm: #0f0a1e;
+		--bg-card: #1e293b;
+		--bg-card-alt: #334155;
+		--bg-card-soft: #1e293b;
+		--border: #2c4264;
+		--border-soft: #334155;
+		--border-alt: #2b405f;
+		--text-primary: #f8fafc;
+		--text-secondary: #a7b6d3;
+		--text-muted: #94a3b8;
+		--accent: #2a8bff;
+		--accent-hover: #1d7ae8;
+		--shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.2);
+		--shadow-card: 0 4px 12px rgba(0, 0, 0, 0.25);
+	}
 
-  html {
-    letter-spacing: 0.5px;
-  }
-
+	html {
+		letter-spacing: 0.5px;
+	}
 }

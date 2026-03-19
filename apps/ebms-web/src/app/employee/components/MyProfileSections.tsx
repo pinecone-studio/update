@@ -34,26 +34,26 @@ export function MyProfileHeader({
     <div>
       <Link
         href="/employee"
-        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white mb-4"
+        className="mb-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white"
       >
         <HiOutlineArrowLeft className="h-4 w-4" />
        Back
       </Link>
       <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My History</h1>
-      <p className="text-slate-600 text-sm mt-1 dark:text-slate-400">
+      <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
         History
       </p>
-      {error ? <p className="mt-2 text-sm text-red-400">Error: {error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-red-500 dark:text-red-400">Error: {error}</p> : null}
 
       <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-        <div className="h-16 w-16 rounded-full bg-blue-600 text-white text-xl font-semibold flex items-center justify-center flex-shrink-0">
+        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-xl font-semibold text-white">
           {initials}
         </div>
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
             {me?.name ?? "—"}
           </h2>
-          <p className="text-slate-600 text-sm dark:text-slate-400">{me?.role ?? "—"}</p>
+          <p className="text-sm text-slate-600 dark:text-white/70">{me?.role ?? "—"}</p>
         </div>
       </div>
       </div>
@@ -110,29 +110,29 @@ function getEligibilityStatusLabel(status: string): string {
 function getRequestStatusStyles(status: MyBenefitRequest["status"]) {
   switch (status) {
     case "APPROVED":
-      return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400";
+      return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300";
     case "ADMIN_APPROVED":
-      return "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400";
+      return "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300";
     case "PENDING":
-      return "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-400";
+      return "bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300";
     case "REJECTED":
-      return "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400";
+      return "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300";
     case "CANCELLED":
-      return "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400";
+      return "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300";
     default:
-      return "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400";
+      return "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300";
   }
 }
 
 function getEligibilityStatusStyles(status: string) {
   const s = status?.toUpperCase();
   if (s === "ACTIVE" || s === "ELIGIBLE")
-    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400";
+    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300";
   if (s === "LOCKED" || s === "REJECTED")
-    return "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400";
+    return "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300";
   if (s === "PENDING")
-    return "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-400";
-  return "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400";
+    return "bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300";
+  return "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300";
 }
 
 type BenefitHistoryEvent =
@@ -243,12 +243,12 @@ export function BenefitHistorySection() {
   if (loading) {
     return (
       <div className="mt-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-8 w-48 animate-pulse rounded bg-slate-200 dark:bg-white/10" />
         <div className="mt-6 space-y-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800"
+              className="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-white/5"
             />
           ))}
         </div>
@@ -259,7 +259,7 @@ export function BenefitHistorySection() {
   if (error) {
     return (
       <div className="mt-6">
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
       </div>
     );
   }
@@ -267,9 +267,9 @@ export function BenefitHistorySection() {
   if (benefitIds.length === 0) {
     return (
       <div className="mt-6">
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 py-16 dark:border-slate-600">
-          <HiOutlineCheckCircle className="h-14 w-14 text-slate-300 dark:text-slate-500" />
-          <p className="text-slate-500 dark:text-slate-400">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 py-16 dark:border-white/20">
+          <HiOutlineCheckCircle className="h-14 w-14 text-slate-300 dark:text-white/30" />
+          <p className="text-slate-500 dark:text-white/60">
             No benefit history at the moment
           </p>
         </div>
@@ -292,7 +292,7 @@ export function BenefitHistorySection() {
       >
       {categoryOrder.map((category) => (
         <section key={category}>
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-white/60">
             {category}
           </h3>
           <div className="flex flex-col gap-4">
@@ -302,7 +302,7 @@ export function BenefitHistorySection() {
               return (
                 <div
                   key={benefitId}
-                  className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden"
+                  className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/10 dark:bg-white/5"
                 >
             <div className="border-b border-slate-200 px-4 py-3 dark:border-white/10">
               <p className="font-semibold text-slate-900 dark:text-white">
@@ -321,7 +321,7 @@ export function BenefitHistorySection() {
                       className="flex items-center gap-4 px-4 py-3"
                     >
                       <div
-                        className={`h-9 w-9 flex-shrink-0 rounded-lg flex items-center justify-center ${getRequestStatusStyles(ev.request.status)}`}
+                        className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${getRequestStatusStyles(ev.request.status)}`}
                       >
                         {isNegative ? (
                           <HiOutlineXCircle className="h-5 w-5" />
@@ -333,7 +333,7 @@ export function BenefitHistorySection() {
                         <p className="text-sm font-medium text-slate-900 dark:text-white">
                           {getRequestStatusLabel(ev.request.status)}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-white/60">
                           Хүсэгдсэн: {formatBenefitDateTime(ev.request.createdAt)}
                           {ev.request.contractAcceptedAt && (
                             <> · Хаагдсан: {formatBenefitDateTime(ev.request.contractAcceptedAt)}</>
@@ -359,12 +359,12 @@ export function BenefitHistorySection() {
                   ev.audit.newStatus?.toUpperCase() === "LOCKED" ||
                   ev.audit.newStatus?.toUpperCase() === "REJECTED";
                 return (
-                  <li
+                    <li
                     key={ev.id}
                     className="flex items-center gap-4 px-4 py-3"
                   >
                     <div
-                      className={`h-9 w-9 flex-shrink-0 rounded-lg flex items-center justify-center ${getEligibilityStatusStyles(ev.audit.newStatus)}`}
+                      className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${getEligibilityStatusStyles(ev.audit.newStatus)}`}
                     >
                       {isNegative ? (
                         <HiOutlineXCircle className="h-5 w-5" />
@@ -376,7 +376,7 @@ export function BenefitHistorySection() {
                       <p className="text-sm text-slate-900 dark:text-white">
                         {transitionText}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-slate-500 dark:text-white/60">
                         {formatBenefitDateTime(ev.date)}
                       </p>
                     </div>

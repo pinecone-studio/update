@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_KEY_PREFIX = "ebms-cached-count";
 
@@ -28,22 +28,28 @@ function setCachedCount(key: string, count: number): void {
 /**
  * Returns a cached count for skeleton loaders. Call updateCount when data loads
  * to persist for the next visit. Use for benefitCount, requestRowCount, etc.
+ * Uses defaultCount on initial render (server + first client render) to avoid
+ * hydration mismatch, then syncs from sessionStorage after mount.
  */
 export function useCachedCount(
   key: string,
   options?: { defaultCount?: number }
 ): [number, (count: number) => void] {
   const defaultCount = options?.defaultCount ?? 3;
-  const [cached, setCached] = useState<number | null>(() => getCachedCount(key));
+  const [displayCount, setDisplayCount] = useState<number>(defaultCount);
+
+  useEffect(() => {
+    const stored = getCachedCount(key);
+    if (stored != null) setDisplayCount(stored);
+  }, [key]);
 
   const updateCount = useCallback(
     (count: number) => {
       setCachedCount(key, count);
-      setCached(count);
+      setDisplayCount(count);
     },
     [key]
   );
 
-  const displayCount = cached ?? defaultCount;
   return [displayCount, updateCount];
 }

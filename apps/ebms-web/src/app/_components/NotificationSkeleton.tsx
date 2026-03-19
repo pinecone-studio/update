@@ -31,7 +31,7 @@ export function NotificationSkeleton({
         {Array.from({ length: statCardCount }, (_, i) => i + 1).map((i) => (
           <div
             key={i}
-            className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 shadow-sm dark:border-white/20"
+            className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-none"
           >
             <div>
               <Skeleton className="h-3 w-16 rounded-md" />
@@ -48,7 +48,7 @@ export function NotificationSkeleton({
         ))}
       </div>
 
-      <div className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-[#2d3a4d] dark:bg-[#1E293B]">
+      <div className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-white/10 dark:bg-white/5">
         <Skeleton className="h-5 w-5 shrink-0 rounded" />
         <Skeleton className="h-4 flex-1 rounded-md" />
         <Skeleton className="h-8 w-28 shrink-0 rounded-full" />
@@ -58,7 +58,7 @@ export function NotificationSkeleton({
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 p-4 dark:border-[#2d3a4d] dark:bg-[#1E293B]"
+            className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 p-4 dark:border-white/10 dark:bg-white/5"
           >
             <div className="flex min-w-0 flex-1 items-start gap-3">
               <Skeleton className="h-8 w-8 shrink-0 rounded-full" />

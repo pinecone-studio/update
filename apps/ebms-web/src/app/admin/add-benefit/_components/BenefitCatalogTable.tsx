@@ -4,9 +4,9 @@ import { Skeleton } from "@/app/_components/Skeleton";
 import type { BenefitFromCatalog } from "../_lib/types";
 
 const sectionClass =
-  "mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6";
 const btnClass =
-  "rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 dark:border-[#334155] dark:text-[#94A3B8] dark:hover:bg-[#24364F] dark:hover:text-white";
+  "rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 hover:text-black disabled:opacity-50";
 
 type Props = {
   benefits: BenefitFromCatalog[];
@@ -18,7 +18,7 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
   return (
     <section className={sectionClass}>
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h2 className="text-xl font-medium text-slate-900 dark:text-white">
+        <h2 className="text-xl font-medium text-black">
           D1-д байгаа benefit-үүд
         </h2>
         <button
@@ -30,19 +30,19 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
           {loading ? "Татаж байна..." : "Дахин татах"}
         </button>
       </div>
-      <p className="mt-1 text-sm text-slate-600 dark:text-[#94A3B8]">
+      <p className="mt-1 text-sm text-slate-600">
         benefits query-аар D1-ээс татсан жагсаалт.
       </p>
 
       {loading && benefits.length === 0 ? (
         <>
-          <p className="mt-4 text-slate-600 text-sm dark:text-[#94A3B8]">
+          <p className="mt-4 text-slate-600 text-sm">
             Уншиж байна...
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-600 dark:border-[#334155] dark:text-[#94A3B8]">
+                <tr className="border-b border-slate-200 text-slate-600">
                   {[
                     "ID",
                     "Нэр",
@@ -61,7 +61,7 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
                 {[1, 2, 3, 4, 5].map((i) => (
                   <tr
                     key={i}
-                    className="border-b border-slate-200 last:border-b-0 dark:border-[#334155]/70"
+                    className="border-b border-slate-200 last:border-b-0"
                   >
                     <td className="py-2 pr-4">
                       <Skeleton className="h-4 w-16" />
@@ -88,14 +88,14 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
           </div>
         </>
       ) : benefits.length === 0 ? (
-        <p className="mt-4 text-slate-600 text-sm dark:text-[#94A3B8]">
+        <p className="mt-4 text-slate-600 text-sm">
           D1-д benefit байхгүй. Дээрх хэсгээс нэмнэ үү.
         </p>
       ) : (
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-slate-300 text-slate-500 dark:border-[#334155] dark:text-[#94A3B8]">
+              <tr className="border-b border-slate-300 text-slate-500">
                 <th className="py-2 pr-4 font-medium">ID</th>
                 <th className="py-2 pr-4 font-medium">Нэр</th>
                 <th className="py-2 pr-4 font-medium">Тайлбар</th>
@@ -108,24 +108,24 @@ export function BenefitCatalogTable({ benefits, loading, onRefresh }: Props) {
               {benefits.map((b) => (
                 <tr
                   key={b.id}
-                  className="border-b border-slate-200 last:border-b-0 dark:border-[#334155]/70"
+                  className="border-b border-slate-200 last:border-b-0"
                 >
-                  <td className="py-2 pr-4 text-slate-700 font-mono dark:text-[#E2E8F0]">
+                  <td className="py-2 pr-4 text-black font-mono">
                     {b.id}
                   </td>
-                  <td className="py-2 pr-4 text-slate-900 dark:text-white">
+                  <td className="py-2 pr-4 text-black">
                     {b.name}
                   </td>
-                  <td className="py-2 pr-4 text-slate-600 dark:text-[#A7B6D3]">
+                  <td className="py-2 pr-4 text-slate-600">
                     {b.description?.trim() || "—"}
                   </td>
-                  <td className="py-2 pr-4 text-slate-600 dark:text-[#A7B6D3]">
+                  <td className="py-2 pr-4 text-slate-600">
                     {b.category}
                   </td>
-                  <td className="py-2 pr-4 text-slate-600 dark:text-[#A7B6D3]">
+                  <td className="py-2 pr-4 text-slate-600">
                     {b.subsidyPercent}
                   </td>
-                  <td className="py-2 text-slate-600 dark:text-[#A7B6D3]">
+                  <td className="py-2 text-slate-600">
                     {b.requiresContract ? "Тийм" : "Үгүй"}
                   </td>
                 </tr>

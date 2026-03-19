@@ -24,13 +24,13 @@ export const statusCopy: Record<BenefitStatus, string> = {
 
 export const statusButtonClass: Record<BenefitStatus, string> = {
   ACTIVE:
-    "border-[#365C70] bg-[linear-gradient(180deg,rgba(30,60,79,0.95),rgba(24,47,63,0.95))] text-white",
+    "border-emerald-600 bg-emerald-600 text-white dark:border-[#365C70] dark:bg-[linear-gradient(180deg,rgba(30,60,79,0.95),rgba(24,47,63,0.95))]",
   PENDING:
-    "border-[#D6A743] bg-[linear-gradient(180deg,rgba(120,88,29,0.92),rgba(97,69,24,0.92))] text-white",
+    "border-amber-600 bg-amber-600 text-white dark:border-[#D6A743] dark:bg-[linear-gradient(180deg,rgba(120,88,29,0.92),rgba(97,69,24,0.92))]",
   ELIGIBLE:
-    "border-[#36527C] bg-[linear-gradient(180deg,rgba(41,63,101,0.95),rgba(33,51,82,0.95))] text-white",
+    "border-blue-600 bg-blue-600 text-white dark:border-[#36527C] dark:bg-[linear-gradient(180deg,rgba(41,63,101,0.95),rgba(33,51,82,0.95))]",
   LOCKED:
-    "border-[#5E3849] bg-[linear-gradient(180deg,rgba(81,42,57,0.95),rgba(63,34,45,0.95))] text-white",
+    "border-rose-600 bg-rose-600 text-white dark:border-[#5E3849] dark:bg-[linear-gradient(180deg,rgba(81,42,57,0.95),rgba(63,34,45,0.95))]",
   REJECTED:
-    "border-[#5E3849] bg-[linear-gradient(180deg,rgba(81,42,57,0.95),rgba(63,34,45,0.95))] text-white",
+    "border-rose-600 bg-rose-600 text-white dark:border-[#5E3849] dark:bg-[linear-gradient(180deg,rgba(81,42,57,0.95),rgba(63,34,45,0.95))]",
 };

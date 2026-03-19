@@ -472,25 +472,25 @@ export default function AddBenefitsBuilderClient({
   ]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-[#2C4264] dark:bg-[#1E293B] pt-4">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 pt-4 sm:p-6 dark:border-white/10 dark:bg-white/5">
       <div className="mb-3 flex shrink-0 items-start gap-4">
         {inModal ? (
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-white/20 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
           >
             Close
           </button>
         ) : (
           <Link
             href="/admin/add-benefit"
-            className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-[#324A70] dark:text-[#C9D5EA] dark:hover:bg-[#24364F] dark:hover:text-white"
+            className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-white/20 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
           >
             &larr; Back
           </Link>
         )}
-        <h1 className="text-xl font-semibold text-slate-900 dark:text-white sm:text-2xl">
+        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl dark:text-white">
           Add Benefit
         </h1>
       </div>
@@ -522,7 +522,7 @@ export default function AddBenefitsBuilderClient({
         <button
           type="button"
           onClick={() => (inModal ? onClose?.() : router.push("/admin/add-benefit"))}
-          className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-[#334155] dark:bg-[#1E293B] dark:text-[#D1DBEF] dark:hover:bg-[#24364F]"
+          className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-900 hover:bg-slate-50 dark:border-white/20 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
         >
           Cancel
         </button>

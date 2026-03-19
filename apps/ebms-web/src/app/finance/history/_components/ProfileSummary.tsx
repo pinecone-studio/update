@@ -20,22 +20,22 @@ export function ProfileSummary({ me, initials, loading }: ProfileSummaryProps) {
         {loading ? "…" : initials}
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+        <h2 className="text-xl font-semibold text-black">
           Finance Manager
         </h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-slate-600">
           Finance Manager
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
-          <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-700 dark:bg-slate-700/80 dark:text-slate-200">
+          <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-black">
             finance
           </span>
-          <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-700 dark:bg-slate-700/80 dark:text-slate-200">
+          <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-black">
             {me?.employmentStatus
               ? me.employmentStatus.replace(/_/g, " ")
               : "—"}
           </span>
-          <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-700 dark:bg-slate-700/80 dark:text-slate-200">
+          <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-black">
             finance
           </span>
         </div>

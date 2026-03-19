@@ -32,16 +32,16 @@ export function EmployeeNotificationItem({
 }: EmployeeNotificationItemProps) {
   const toneClasses =
     item.tone === "SUCCESS"
-      ? "text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10"
+      ? "text-emerald-600 bg-emerald-50"
       : item.tone === "WARNING"
-        ? "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10"
+        ? "text-amber-600 bg-amber-50"
         : item.tone === "INFO"
-          ? "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-500/10"
-          : "text-slate-500 bg-slate-100 dark:text-slate-300 dark:bg-slate-500/10";
+          ? "text-blue-600 bg-blue-50"
+          : "text-slate-500 bg-slate-100";
 
   const unreadClasses = !item.isRead
-    ? "bg-white/90 border-slate-200 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.45)] dark:bg-[#1F2A3D] dark:border-[#2A3A52]"
-    : "bg-white border-slate-100 shadow-sm dark:bg-[#161F2F] dark:border-[#223044]";
+    ? "bg-white/90 border-slate-200 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.45)]"
+    : "bg-white border-slate-100 shadow-sm";
 
   let actionHref: string | null = null;
   try {
@@ -66,24 +66,24 @@ export function EmployeeNotificationItem({
           </div>
 
           <div>
-            <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:border-[#2A3A52] dark:bg-[#121A28] dark:text-slate-300">
+            <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500">
               {item.type === "ELIGIBILITY_CHANGE"
                 ? "Eligibility"
                 : item.type === "REQUEST_STATUS"
                   ? "Request"
                   : "Warning"}
             </span>
-            <p className="text-slate-900 text-sm font-semibold dark:text-white">
+            <p className="text-black text-sm font-semibold">
               {item.title}
             </p>
-            <p className="text-slate-600 text-xs mt-1 dark:text-slate-300">
+            <p className="text-slate-600 text-xs mt-1">
               {item.body}
             </p>
           </div>
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] text-slate-500">
             {relativeTime}
           </p>
           <div className="flex items-center gap-3">
@@ -91,7 +91,7 @@ export function EmployeeNotificationItem({
               <Link
                 href={actionHref}
                 onClick={onMarkRead}
-                className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
+                className="text-xs text-blue-600 hover:text-blue-500 inline-flex items-center gap-1 whitespace-nowrap"
               >
                 Open
                 <HiOutlineArrowUpRight className="text-sm" />
@@ -101,7 +101,7 @@ export function EmployeeNotificationItem({
               <button
                 type="button"
                 onClick={onMarkRead}
-                className="text-xs text-slate-500 hover:text-slate-700 inline-flex items-center dark:text-slate-400 dark:hover:text-slate-200"
+                className="text-xs text-slate-500 hover:text-black inline-flex items-center"
               >
                 Mark as read
               </button>

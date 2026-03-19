@@ -13,7 +13,7 @@ export function FinanceHistoryHeader({ error }: FinanceHistoryHeaderProps) {
       <div>
         <Link
           href="/finance"
-          className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white mb-3"
+          className="mb-3 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white"
         >
           <HiOutlineArrowLeft className="h-4 w-4" />
           Back
@@ -21,17 +21,17 @@ export function FinanceHistoryHeader({ error }: FinanceHistoryHeaderProps) {
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           System Activity Logs
         </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-[#A7B6D3]">
+        <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
           Track and investigate all system actions in one place
         </p>
         {error && (
-          <p className="mt-2 text-sm text-red-400">Error: {error}</p>
+          <p className="mt-2 text-sm text-red-500 dark:text-red-400">Error: {error}</p>
         )}
       </div>
 
       <button
         type="button"
-        className="flex items-center gap-3 rounded-2xl bg-[#2F66E8] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#3E82F7]"
+        className="flex items-center gap-3 rounded-2xl bg-blue-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-700 dark:bg-[#2F66E8] dark:hover:bg-[#3E82F7]"
       >
         <svg
           viewBox="0 0 24 24"

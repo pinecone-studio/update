@@ -131,10 +131,10 @@ export default function NotificationPage() {
           onMarkAllAsRead={handleMarkAllAsRead}
         />
         {error && (
-          <p className="text-sm text-red-400">{error}</p>
+          <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
         )}
         {filteredNotifications.length === 0 ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-white/60">
             No notifications found.
           </p>
         ) : (

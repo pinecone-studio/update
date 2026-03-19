@@ -9,7 +9,7 @@ export function NotificationHeader() {
       <div>
         <Link
           href="/employee"
-          className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white"
         >
           <HiOutlineArrowLeft className="h-4 w-4" />
           Back
@@ -17,7 +17,7 @@ export function NotificationHeader() {
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
           Notifications
         </h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        <p className="mt-2 text-sm text-slate-600 dark:text-white/70">
           Stay updated on your benefits and eligibility
         </p>
       </div>

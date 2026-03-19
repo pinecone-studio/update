@@ -20,7 +20,7 @@ type FinanceHistoryFiltersProps = {
 };
 
 const SelectChevron = () => (
-  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8595B6]">
+  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -50,7 +50,7 @@ export function FinanceHistoryFilters({
   onClearAll,
 }: FinanceHistoryFiltersProps) {
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-[#2C4264] dark:bg-[#1E293B]">
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/5">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="flex items-center gap-3 text-sm font-semibold text-slate-900 dark:text-white">
           <svg
@@ -67,7 +67,7 @@ export function FinanceHistoryFilters({
         <button
           type="button"
           onClick={onClearAll}
-          className="rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-200 dark:border-[#4B5D83] dark:bg-[#334160] dark:text-[#D4DEEF] dark:hover:bg-[#3A4A6C]"
+          className="rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-200 dark:border-white/20 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
         >
           Clear All
         </button>
@@ -79,7 +79,7 @@ export function FinanceHistoryFilters({
             Search
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#8FA3C5]">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-white/50">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -96,7 +96,7 @@ export function FinanceHistoryFilters({
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
               placeholder="User, ID, benefit, action, status..."
-              className="h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
+              className="h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 pl-12 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-400"
             />
           </div>
         </div>
@@ -109,7 +109,7 @@ export function FinanceHistoryFilters({
             <select
               value={benefitFilter}
               onChange={(e) => onBenefitFilterChange(e.target.value)}
-              className="h-12 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-12 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:focus:border-blue-400"
             >
               <option value="ALL">All Benefits</option>
               {benefitOptions.map((benefit) => (
@@ -134,7 +134,7 @@ export function FinanceHistoryFilters({
                   e.target.value as "ALL" | BenefitRequestStatus,
                 )
               }
-              className="h-12 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-12 w-full appearance-none rounded-2xl border border-slate-300 bg-slate-50 px-4 pr-12 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:focus:border-blue-400"
             >
               <option value="ALL">All Status</option>
               <option value="APPROVED">APPROVED</option>
@@ -153,7 +153,7 @@ export function FinanceHistoryFilters({
             value={requestIdFilter}
             onChange={(e) => onRequestIdFilterChange(e.target.value)}
             placeholder="LOG-1001"
-            className="h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:placeholder:text-[#8595B6] dark:focus:border-[#4B6FA8]"
+            className="h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-400"
           />
         </div>
 
@@ -166,13 +166,13 @@ export function FinanceHistoryFilters({
               type="date"
               value={dateFrom}
               onChange={(e) => onDateFromChange(e.target.value)}
-              className="h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:focus:border-blue-400"
             />
             <input
               type="date"
               value={dateTo}
               onChange={(e) => onDateToChange(e.target.value)}
-              className="h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-[#324A70] dark:bg-[#0F172A] dark:text-white dark:focus:border-[#4B6FA8]"
+              className="h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-white/20 dark:bg-white/5 dark:text-white dark:focus:border-blue-400"
             />
           </div>
         </div>

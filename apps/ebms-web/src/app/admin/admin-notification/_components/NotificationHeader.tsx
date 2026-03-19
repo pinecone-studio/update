@@ -9,15 +9,15 @@ export function NotificationHeader() {
       <div>
         <Link
           href="/admin"
-          className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white"
         >
           <HiOutlineArrowLeft className="h-4 w-4" />
           Back
         </Link>
-        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl dark:text-white">
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-white sm:text-2xl">
           Admin Notifications
         </h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        <p className="mt-2 text-sm text-slate-600 dark:text-white/70">
           Monitor employee benefit activity and system events
         </p>
       </div>

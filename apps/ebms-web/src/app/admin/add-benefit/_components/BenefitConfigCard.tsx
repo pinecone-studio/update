@@ -3,10 +3,10 @@
 import type { AddBenefitFormState } from "../_lib/types";
 
 const cardClass =
-  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-[#334155] dark:bg-[#0F172A]";
+  "rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-white/10 dark:bg-white/5";
 const inputBase =
-  "rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white";
-const labelClass = "block text-sm text-slate-600 mb-1 dark:text-[#94A3B8]";
+  "rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 dark:border-white/20 dark:bg-white/5 dark:text-white";
+const labelClass = "mb-1 block text-sm text-slate-600 dark:text-white/70";
 
 const CATEGORY_OPTIONS = [
   { value: "wellness", label: "Wellness" },
@@ -40,7 +40,7 @@ export function BenefitConfigCard({ form, onChange }: Props) {
 
   return (
     <section className={cardClass}>
-      <h2 className="text-base font-medium text-slate-900 dark:text-white sm:text-lg">
+      <h2 className="text-base font-medium text-slate-900 sm:text-lg dark:text-white">
         Benefit Configuration
       </h2>
       <div className="mt-3 flex flex-row gap-6">
@@ -60,7 +60,7 @@ export function BenefitConfigCard({ form, onChange }: Props) {
             </select>
           </div>
           <div className="max-w-[220px]">
-            <h3 className="text-sm font-medium text-slate-600 dark:text-[#94A3B8] mb-1.5">
+            <h3 className="mb-1.5 text-sm font-medium text-slate-600 dark:text-white/70">
               Financial Settings
             </h3>
             <div className="flex items-center gap-2">
@@ -75,9 +75,9 @@ export function BenefitConfigCard({ form, onChange }: Props) {
                     subsidyPercent: Number(e.target.value),
                   })
                 }
-                className="flex-1 h-2 min-w-0 cursor-pointer rounded-lg bg-slate-200 dark:bg-[#1E293B] accent-blue-600"
+                className="h-2 min-w-0 flex-1 cursor-pointer rounded-lg bg-slate-200 accent-blue-600 dark:bg-white/20"
               />
-              <div className="w-11 shrink-0 rounded border border-slate-300 bg-slate-100 px-2 py-1 text-center text-xs font-medium text-slate-700 dark:border-[#334155] dark:bg-[#1E293B] dark:text-white">
+              <div className="w-11 shrink-0 rounded border border-slate-300 bg-slate-100 px-2 py-1 text-center text-xs font-medium text-slate-900 dark:border-white/20 dark:bg-white/10 dark:text-white">
                 {subsidy}%
               </div>
             </div>
@@ -149,7 +149,7 @@ export function BenefitConfigCard({ form, onChange }: Props) {
                   disabled={!form.usageLimitPeriod}
                   className={`${inputBase} w-16 disabled:opacity-50 disabled:cursor-not-allowed`}
                 />
-                <span className="text-sm text-slate-500 dark:text-slate-400">per</span>
+                <span className="text-sm text-slate-500 dark:text-white/60">per</span>
                 <select
                   value={form.usageLimitPeriod ?? ""}
                   onChange={(e) =>
