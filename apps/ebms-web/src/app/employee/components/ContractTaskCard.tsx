@@ -22,6 +22,8 @@ interface ContractTaskCardProps {
   errorText?: string;
   onSelectFile: (requestId: string, file: File | null) => void;
   onUpload: (requestId: string) => void;
+  /** When provided, "View uploaded file" uses this (auth headers) instead of direct href */
+  onViewUploadedContract?: (requestId: string) => void;
 }
 
 export function ContractTaskCard({
@@ -31,6 +33,7 @@ export function ContractTaskCard({
   errorText,
   onSelectFile,
   onUpload,
+  onViewUploadedContract,
 }: ContractTaskCardProps) {
   const needsUpload = task.requestStatus === "APPROVED" && !task.uploadedUrl;
 
@@ -65,14 +68,24 @@ export function ContractTaskCard({
               <span className="text-xs text-emerald-700 dark:text-emerald-300">
                 Signed contract uploaded
               </span>
-              <a
-                href={task.uploadedUrl ?? "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
-              >
-                View uploaded file
-              </a>
+              {onViewUploadedContract ? (
+                <button
+                  type="button"
+                  onClick={() => onViewUploadedContract(task.requestId)}
+                  className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200 underline underline-offset-1"
+                >
+                  View uploaded file
+                </button>
+              ) : (
+                <a
+                  href={task.uploadedUrl ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                >
+                  View uploaded file
+                </a>
+              )}
             </>
           ) : null}
         </div>
