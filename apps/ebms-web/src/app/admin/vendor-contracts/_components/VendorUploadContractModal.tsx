@@ -1,6 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  VENDOR_CONTRACT_DEMO,
+  getDemoEffectiveDate,
+  getDemoExpiryDate,
+} from "../_lib/demo-constants";
 
 const MAX_PDF_SIZE_MB = 10;
 
@@ -37,7 +42,21 @@ export function VendorUploadContractModal({
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [version, setVersion] = useState("");
+  const [vendorName, setVendorName] = useState("");
+  const [effectiveDate, setEffectiveDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFillDemo = () => {
+    if (benefitOptions.length > 0) {
+      onBenefitChange(benefitOptions[0].id);
+    }
+    setVersion(VENDOR_CONTRACT_DEMO.version);
+    setVendorName(VENDOR_CONTRACT_DEMO.vendorName);
+    setEffectiveDate(getDemoEffectiveDate());
+    setExpiryDate(getDemoExpiryDate());
+  };
 
   const handlePdfSelect = (file: File) => {
     const err = validatePdf(file);
@@ -53,8 +72,23 @@ export function VendorUploadContractModal({
   const handleClose = () => {
     setPdfFile(null);
     setPdfError(null);
+    setVersion("");
+    setVendorName("");
+    setEffectiveDate("");
+    setExpiryDate("");
     onClose();
   };
+
+  useEffect(() => {
+    if (!open) {
+      setVersion("");
+      setVendorName("");
+      setEffectiveDate("");
+      setExpiryDate("");
+      setPdfFile(null);
+      setPdfError(null);
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -69,10 +103,18 @@ export function VendorUploadContractModal({
       <section
         className="relative z-10 my-auto flex w-full max-w-[900px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-[#16142a] dark:shadow-[0_32px_120px_rgba(0,0,0,0.5)] sm:p-6 md:p-8"
       >
-        <div className="flex shrink-0 items-center">
+        <div className="flex shrink-0 items-center justify-between gap-3">
           <h2 className="text-lg font-normal text-slate-900 sm:text-[22px] dark:text-white">
             Upload Vendor Contract
           </h2>
+          <button
+            type="button"
+            onClick={handleFillDemo}
+            disabled={benefitsLoading || benefitOptions.length === 0}
+            className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50 dark:border-amber-600 dark:bg-amber-900/30 dark:text-amber-300 dark:hover:bg-amber-900/50"
+          >
+            Fill Demo
+          </button>
         </div>
         <form
           onSubmit={(e) => {
@@ -110,6 +152,8 @@ export function VendorUploadContractModal({
                 <input
                   name="version"
                   required
+                  value={version}
+                  onChange={(e) => setVersion(e.target.value)}
                   placeholder="vendor-2026.1"
                   className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:placeholder:text-[#B7A9D9] dark:focus:border-[#B18CFF] sm:text-base"
                 />
@@ -120,6 +164,8 @@ export function VendorUploadContractModal({
                 </label>
                 <input
                   name="vendorName"
+                  value={vendorName}
+                  onChange={(e) => setVendorName(e.target.value)}
                   placeholder="PineFit"
                   className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:placeholder:text-[#B7A9D9] dark:focus:border-[#B18CFF] sm:text-base"
                 />
@@ -139,6 +185,8 @@ export function VendorUploadContractModal({
                 <input
                   name="effectiveDate"
                   type="date"
+                  value={effectiveDate}
+                  onChange={(e) => setEffectiveDate(e.target.value)}
                   placeholder="yyyy-mm-dd"
                   className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:focus:border-[#B18CFF] [color-scheme:dark] sm:text-base"
                 />
@@ -150,6 +198,8 @@ export function VendorUploadContractModal({
                 <input
                   name="expiryDate"
                   type="date"
+                  value={expiryDate}
+                  onChange={(e) => setExpiryDate(e.target.value)}
                   placeholder="yyyy-mm-dd"
                   className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-[#6F5AA8] dark:bg-[rgba(31,22,57,0.88)] dark:text-white dark:focus:border-[#B18CFF] [color-scheme:dark] sm:text-base"
                 />
