@@ -3,7 +3,6 @@
 "use client";
 
 import {
-	FiAlertTriangle,
 	FiCheck,
 	FiClock,
 	FiExternalLink,
@@ -187,7 +186,14 @@ export function BenefitModalDetails({
 						shouldScrollRules ? "max-h-[236px] overflow-y-auto pr-1" : ""
 					}`}
 				>
-					{rules.map((rule, index) => (
+					{rules.map((rule, index) => {
+						const ruleLabel =
+							rule.rule === "override" && rule.detail
+								? rule.detail
+								: rule.rule;
+						const showDetail =
+							rule.detail && rule.rule !== "override";
+						return (
 						<div
 							key={`${rule.rule}-${index}`}
 							className="flex items-start gap-3 py-1.5"
@@ -198,13 +204,6 @@ export function BenefitModalDetails({
 										size={16}
 										className="text-emerald-600 dark:text-emerald-400"
 									/>
-								) : /override|manual/i.test(
-										`${rule.rule} ${rule.detail ?? ""}`,
-								  ) ? (
-									<FiAlertTriangle
-										size={17}
-										className="text-amber-600 dark:text-amber-400"
-									/>
 								) : (
 									<FiX
 										size={16}
@@ -213,16 +212,10 @@ export function BenefitModalDetails({
 								)}
 							</div>
 							<div className="min-w-0 flex-1 pt-0.5">
-								<p
-									className={`text-[16px] font-semibold leading-6 tracking-[0.1px] sm:text-[17px] ${
-										/override|manual/i.test(`${rule.rule} ${rule.detail ?? ""}`)
-											? "text-amber-700 dark:text-amber-300"
-											: "text-slate-900 dark:text-white"
-									}`}
-								>
-									{rule.rule}
+								<p className="text-[16px] font-semibold leading-6 tracking-[0.1px] text-slate-900 sm:text-[17px] dark:text-white">
+									{ruleLabel}
 								</p>
-								{rule.detail ? (
+								{showDetail ? (
 									<p className="mt-1 text-[14px] font-normal leading-5 tracking-[-0.15px] text-slate-600 dark:text-white/50">
 										{rule.detail}
 									</p>
@@ -238,7 +231,8 @@ export function BenefitModalDetails({
 								{rule.passed ? "PASS" : "FAIL"}
 							</span>
 						</div>
-					))}
+					);
+					})}
 				</div>
 			</div>
 
