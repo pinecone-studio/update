@@ -71,7 +71,61 @@ export const ERROR_MESSAGES = {
   CONTRACT_FILE_REQUIRED: "Гэрээний файл upload хийнэ үү.",
 } as const;
 
-import type { AddBenefitFormState } from "./types";
+import type { AddBenefitFormState, Rule } from "./types";
+
+// =============================================================================
+// DEMO VALUES — Fill Demo товч дархад ашиглана. Засварлахад хялбар болгох зорилгоор энд нэгтгэсэн.
+// =============================================================================
+
+/** Request deadline: өнөөдрөөс хэдэн хоногийн дараа */
+export const DEMO_REQUEST_DEADLINE_DAYS = 90;
+
+export function getDemoRequestDeadline(): string {
+	const d = new Date();
+	d.setDate(d.getDate() + DEMO_REQUEST_DEADLINE_DAYS);
+	return d.toISOString().split("T")[0];
+}
+
+/** Demo өгөгдөл — бүх шаардлагатай талбаруудыг зориулалтын утгаар бөглөнө */
+export const DEMO_FORM: AddBenefitFormState = {
+	name: "Gym Membership",
+	description: "Company-subsidized gym membership for employee wellness. Available to all active employees.",
+	category: "wellness",
+	benefitType: "core",
+	subsidyPercent: 80,
+	financeCheck: false,
+	requiresContract: true,
+	managerApproval: false,
+	contractNumber: "DEMO-2024-001",
+	contractName: "Gym Partnership Agreement",
+	contractFileName: "",
+	contractUrl: "",
+	expiryDuration: 1,
+	expiryUnit: "year",
+	usagePeriod: 7,
+	usagePeriodUnit: "day",
+	usageLimit: 2,
+	requestDeadline: getDemoRequestDeadline(),
+	usageLimitCount: 1,
+	usageLimitPeriod: "month",
+	activeFromDate: new Date().toISOString().split("T")[0],
+};
+
+/** Demo eligibility дүрмүүд */
+export const DEMO_RULES: Rule[] = [
+	{
+		type: "employment_status",
+		operator: "eq",
+		value: "active",
+		errorMessage: "Employee must be active.",
+	},
+	{
+		type: "tenure",
+		operator: "gte",
+		value: 90,
+		errorMessage: "Minimum 90 days tenure required.",
+	},
+];
 
 export const DEFAULT_FORM: AddBenefitFormState = {
   name: "",
