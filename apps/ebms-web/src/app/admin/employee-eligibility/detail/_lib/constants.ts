@@ -7,11 +7,9 @@ export const statusOptions: BenefitStatus[] = [
   "LOCKED",
 ];
 
-export const modalStatusOptions: Array<Exclude<BenefitStatus, "LOCKED" | "REJECTED">> = [
-  "ACTIVE",
-  "PENDING",
-  "ELIGIBLE",
-];
+export const modalStatusOptions: Array<
+  Exclude<BenefitStatus, "LOCKED" | "REJECTED">
+> = ["ACTIVE", "PENDING", "ELIGIBLE"];
 
 export const statusCopy: Record<BenefitStatus, string> = {
   ACTIVE: "Active",

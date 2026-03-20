@@ -36,5 +36,12 @@ export type BenefitRow = {
   status: BenefitStatus;
   reason: string;
   lastDate: string;
+  subsidyPercent?: number | null;
+  vendorName?: string | null;
+  effectiveDate?: string | null;
+  expiryDate?: string | null;
+  ruleEvaluations: Array<{ ruleType: string; passed: boolean; reason: string }>;
+  overrideApplied?: boolean;
+  overrideReason?: string | null;
   history: BenefitHistoryEntry[];
 };

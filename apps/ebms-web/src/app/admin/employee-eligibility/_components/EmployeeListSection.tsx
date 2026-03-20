@@ -50,7 +50,7 @@ export function EmployeeListSection({ employees }: EmployeeListSectionProps) {
 					employees.map((emp, index) => (
 						<Link
 							key={emp.id}
-							href={`/admin/employee-eligibility/${emp.id}`}
+							href={`/admin/employee-eligibility/detail?id=${emp.id}`}
 							className="-mx-3 grid grid-cols-[32px_1fr_auto] items-center gap-2 border-b border-slate-200 px-3 py-3 text-left transition-all duration-300 ease-out last:border-b-0 hover:bg-slate-50 animate-card-slide-in dark:border-[#2C4264]/50 dark:hover:bg-white/5 sm:-mx-6 sm:grid-cols-[40px_1fr_1fr_auto] sm:gap-4 sm:px-6"
 							style={{
 								animationDelay: `${index * 50}ms`,
