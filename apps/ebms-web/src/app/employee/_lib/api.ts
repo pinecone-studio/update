@@ -331,7 +331,7 @@ export async function openBenefitContractPreview(
   target.document.close();
 }
 
-/** Open uploaded signed contract PDF (requires x-employee-id header). Opens in current tab to avoid popup blockers. */
+/** Download uploaded signed contract PDF (requires x-employee-id header). Triggers download to avoid popup/tab issues. */
 export async function openUploadedContract(requestId: string): Promise<void> {
   const base = getBaseUrl().replace(/\/$/, "");
   const url = `${base}/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
@@ -343,8 +343,14 @@ export async function openUploadedContract(requestId: string): Promise<void> {
   }
   const blob = await res.blob();
   const objectUrl = URL.createObjectURL(blob);
-  window.location.assign(objectUrl);
-  setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = `contract-${requestId}.pdf`;
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
 }
 
 export async function uploadSignedContractPdf(

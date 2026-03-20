@@ -2,6 +2,8 @@
 
 "use client";
 
+import { useCallback, useState } from "react";
+import { downloadFinanceContractByUrl } from "@/app/finance/_lib/api";
 import type { Contract } from "../types";
 
 type EmployeeOption = { id: string; name: string | null };
@@ -25,6 +27,24 @@ export function ContractTableSection({
 	employeeOptions,
 	onAddContract,
 }: ContractTableSectionProps) {
+	const [downloadingId, setDownloadingId] = useState<string | null>(null);
+	const handleDownload = useCallback(
+		async (contract: Contract) => {
+			if (downloadingId === contract.id) return;
+			setDownloadingId(contract.id);
+			try {
+				await downloadFinanceContractByUrl(
+					contract.contractUrl,
+					`contract-${contract.contractNumber}.pdf`,
+				);
+			} catch (e) {
+				alert(e instanceof Error ? e.message : "Failed to download");
+			} finally {
+				setDownloadingId(null);
+			}
+		},
+		[downloadingId],
+	);
 	return (
 		<section className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 dark:border-[#2C4264] dark:bg-[#16142a] sm:p-6">
 			<div className="flex flex-col gap-4 sm:gap-6">
@@ -109,15 +129,15 @@ export function ContractTableSection({
 									<p className="mt-1 text-slate-900 dark:text-white">{contract.endDate}</p>
 								</div>
 								<div className="min-w-0">
-									<p className="text-slate-500 dark:text-[#A7B6D3]">Contract URL</p>
-									<a
-										href={contract.contractUrl}
-										target="_blank"
-										rel="noreferrer"
-										className="mt-1 block truncate text-blue-600 underline decoration-blue-600/40 underline-offset-4 hover:text-blue-700 dark:text-[#6FA3FF] dark:decoration-[#6FA3FF]/40 dark:hover:text-[#8AB6FF]"
+									<p className="text-slate-500 dark:text-[#A7B6D3]">Contract</p>
+									<button
+										type="button"
+										onClick={() => handleDownload(contract)}
+										disabled={downloadingId === contract.id}
+										className="mt-1 block truncate text-left text-blue-600 underline decoration-blue-600/40 underline-offset-4 hover:text-blue-700 disabled:opacity-50 dark:text-[#6FA3FF] dark:decoration-[#6FA3FF]/40 dark:hover:text-[#8AB6FF]"
 									>
-										{contract.contractUrl}
-									</a>
+										{downloadingId === contract.id ? "Downloading..." : "Download PDF"}
+									</button>
 								</div>
 							</div>
 						</div>
@@ -149,7 +169,7 @@ export function ContractTableSection({
 									End date
 								</th>
 								<th className="px-5 py-4 text-left text-[18px] font-normal dark:text-[#A7B6D3]">
-									Contract URL
+									Contract
 								</th>
 							</tr>
 						</thead>
@@ -172,14 +192,14 @@ export function ContractTableSection({
 										{contract.endDate}
 									</td>
 									<td className="max-w-[120px] px-5 py-5 text-sm sm:max-w-[200px]">
-										<a
-											href={contract.contractUrl}
-											target="_blank"
-											rel="noreferrer"
-											className="block truncate text-blue-600 underline decoration-blue-600/40 underline-offset-4 hover:text-blue-700 dark:text-[#6FA3FF] dark:decoration-[#6FA3FF]/40 dark:hover:text-[#8AB6FF]"
+										<button
+											type="button"
+											onClick={() => handleDownload(contract)}
+											disabled={downloadingId === contract.id}
+											className="block truncate text-left text-blue-600 underline decoration-blue-600/40 underline-offset-4 hover:text-blue-700 disabled:opacity-50 dark:text-[#6FA3FF] dark:decoration-[#6FA3FF]/40 dark:hover:text-[#8AB6FF]"
 										>
-											{contract.contractUrl}
-										</a>
+											{downloadingId === contract.id ? "Downloading..." : "Download PDF"}
+										</button>
 									</td>
 								</tr>
 							))}

@@ -252,13 +252,13 @@ export function AuditLogHeader({ entries }: AuditLogHeaderProps) {
 						>
 							Export Excel (.csv)
 						</button>
-						<button
+						{/* <button
 							type="button"
 							onClick={handleExportPdf}
 							className="flex w-full items-center rounded-xl px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/10"
 						>
 							Export PDF
-						</button>
+						</button> */}
 					</div>
 				) : null}
 				{exportNotice ? (

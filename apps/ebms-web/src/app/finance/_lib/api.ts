@@ -229,12 +229,11 @@ export async function fetchBenefitRequestContractHtml(
   return res.benefitRequestContractTemplate.html;
 }
 
-/** Open uploaded employee contract PDF in new tab (finance view) */
-export async function openFinanceContractByRequestId(
-  requestId: string,
+/** Download contract PDF by URL (finance view). Fetches with auth headers and triggers download. */
+export async function downloadFinanceContractByUrl(
+  url: string,
+  filename = "contract.pdf",
 ): Promise<void> {
-  const base = getBaseUrl().replace(/\/$/, "");
-  const url = `${base}/admin/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
   const headers = getActiveUserHeaders("finance");
   const res = await fetch(url, { headers });
   if (!res.ok) {
@@ -243,10 +242,23 @@ export async function openFinanceContractByRequestId(
   }
   const blob = await res.blob();
   const objectUrl = URL.createObjectURL(blob);
-  const target = window.open(objectUrl, "_blank", "noopener,noreferrer");
-  if (!target)
-    throw new Error("Popup blocked. Please allow popups and try again.");
-  URL.revokeObjectURL(objectUrl);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = filename.endsWith(".pdf") ? filename : `${filename}.pdf`;
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
+}
+
+/** Open/download uploaded employee contract PDF (finance view, by request ID). Triggers download. */
+export async function openFinanceContractByRequestId(
+  requestId: string,
+): Promise<void> {
+  const base = getBaseUrl().replace(/\/$/, "");
+  const url = `${base}/admin/contracts/employee-requests/${encodeURIComponent(requestId)}/file`;
+  await downloadFinanceContractByUrl(url, `contract-${requestId}.pdf`);
 }
 
 // --- Finance notifications ---
