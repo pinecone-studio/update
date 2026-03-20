@@ -20,6 +20,8 @@ export type BenefitFromCatalog = {
   usageLimitCount?: number;
   /** Хугацаа: 7days | month | year */
   usageLimitPeriod?: string | null;
+  /** Идэвхжүүлж ашиглаж буй ажилчдын тоо */
+  activeUsersCount?: number;
 };
 
 /** Benefit-ийн хүчинтэй хугацааны нэгж */

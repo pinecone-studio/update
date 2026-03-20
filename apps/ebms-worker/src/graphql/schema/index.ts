@@ -96,6 +96,8 @@ export const typeDefs = /* GraphQL */ `
     usageLimitCount: Int!
     """Period for usage limit: month | year"""
     usageLimitPeriod: String
+    """Number of employees who have activated this benefit (admin only)"""
+    activeUsersCount: Int
   }
 
   type Contract {

@@ -21,6 +21,7 @@ export const GET_BENEFITS = gql`
       requestDeadline
       usageLimitCount
       usageLimitPeriod
+      activeUsersCount
     }
   }
 `;

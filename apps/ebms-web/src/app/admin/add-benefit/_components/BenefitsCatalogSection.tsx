@@ -83,6 +83,7 @@ export function BenefitsCatalogSection({
             validityPeriodDisplay={activePeriodDisplay}
             usagePeriodDisplay={usageLimitDisplay}
             requestDeadlineDisplay={requestDeadlineDisplay}
+            activeUsersCount={benefit.activeUsersCount ?? 0}
             financeApproval={cfg?.financeCheck}
             vendorContract={cfg?.requiresContract}
             managerApproval={cfg?.managerApproval}
