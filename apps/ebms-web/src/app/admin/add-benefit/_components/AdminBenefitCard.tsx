@@ -15,6 +15,8 @@ type AdminBenefitCardProps = {
 	validityPeriodDisplay?: string;
 	usagePeriodDisplay?: string;
 	requestDeadlineDisplay?: string;
+	/** Идэвхжүүлж ашиглаж буй ажилчдын тоо */
+	activeUsersCount?: number;
 	financeApproval?: boolean;
 	vendorContract?: boolean;
 	managerApproval?: boolean;
@@ -37,6 +39,7 @@ export function AdminBenefitCard({
 	validityPeriodDisplay,
 	usagePeriodDisplay,
 	requestDeadlineDisplay,
+	activeUsersCount = 0,
 	financeApproval,
 	vendorContract,
 	managerApproval,
@@ -125,6 +128,14 @@ export function AdminBenefitCard({
 						</span>
 						<span className="font-medium text-slate-700 dark:text-[#FFFFFF]/70">
 							{usagePeriodDisplay ?? "—"}
+						</span>
+					</div>
+					<div className="flex items-center gap-2">
+						<span className="text-[14px] font-normal text-slate-500 dark:text-[#FFFFFF]/40">
+							Active users:
+						</span>
+						<span className="font-medium text-slate-700 dark:text-[#FFFFFF]/70">
+							{activeUsersCount} person
 						</span>
 					</div>
 					<div className="flex items-center gap-2">

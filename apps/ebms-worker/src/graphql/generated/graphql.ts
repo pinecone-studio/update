@@ -65,6 +65,8 @@ export type AuditFilters = {
 export type Benefit = {
   __typename?: 'Benefit';
   activeContract?: Maybe<Contract>;
+  /** Number of employees who have activated this benefit (admin only) */
+  activeUsersCount?: Maybe<Scalars['Int']['output']>;
   category: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -84,6 +86,10 @@ export type BenefitEligibility = {
   __typename?: 'BenefitEligibility';
   benefit: Benefit;
   computedAt: Scalars['String']['output'];
+  /** Computed start date (from contract or config period) — ACTIVE only */
+  effectiveDate?: Maybe<Scalars['String']['output']>;
+  /** Computed end date (from contract or config period) — ACTIVE only */
+  expiryDate?: Maybe<Scalars['String']['output']>;
   overrideApplied: Scalars['Boolean']['output'];
   overrideReason?: Maybe<Scalars['String']['output']>;
   /** When status is PENDING: 'admin' or 'finance' — who must approve next */
@@ -623,6 +629,7 @@ export type AuditEntryResolvers<ContextType = Ctx, ParentType extends ResolversP
 
 export type BenefitResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['Benefit'] = ResolversParentTypes['Benefit']> = {
   activeContract?: Resolver<Maybe<ResolversTypes['Contract']>, ParentType, ContextType>;
+  activeUsersCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -638,6 +645,8 @@ export type BenefitResolvers<ContextType = Ctx, ParentType extends ResolversPare
 export type BenefitEligibilityResolvers<ContextType = Ctx, ParentType extends ResolversParentTypes['BenefitEligibility'] = ResolversParentTypes['BenefitEligibility']> = {
   benefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType>;
   computedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  effectiveDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  expiryDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   overrideApplied?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   overrideReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   pendingApprovalBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
